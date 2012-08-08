@@ -30,8 +30,12 @@ function dirtree(dir)
       end
     end
   end
-
-  return coroutine.wrap(function() yieldtree(dir) end)
+  dirattr = lfs.attributes(dir)
+  if dirattr and dirattr.mode == "directory" then
+    return coroutine.wrap(function() yieldtree(dir) end)
+  else
+    return function() end
+  end
 end
 
 cli:set_name("busted")
@@ -71,7 +75,10 @@ if args then
   end
 
   if not found then
-    loadfile(rootFile)()
+    local file = loadfile(rootFile)
+    if file then
+      file()
+    end
   end
 
   print(busted().."\n")
