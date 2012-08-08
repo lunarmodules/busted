@@ -37,13 +37,23 @@ end
 cli:set_name("busted")
 cli:add_arg("ROOT", "test script file/folder")
 cli:add_flag("--version", "prints the program's version and exits")
-cli:add_option("-v", "verbose output of errors")
-cli:add_option("-c, --color", "disable colored output")
-cli:add_option("-j, --json", "json output")
+cli:add_option("-v", "verbose output of errors", "v", false)
+cli:add_option("-c, --color", "disable colored output", "c", false)
+cli:add_option("-j, --json", "json output", "j", false)
 cli:add_option("-l, --lua=luajit", "path to the execution environment", nil, "luajit")
+cli:add_flag("--suppress-pending", "suppress 'pending' tests")
+cli:add_flag("--defer-print", "defer print to when test suite is complete (json output does this by default)")
 
 local args = cli:parse_args()
 if args then
+  set_busted_options({
+    verbose = args["v"],
+    color = not args["c"],
+    json = args["j"],
+    suppress_pending = args["suppress-pending"],
+    defer_print = args["defer-print"] or args["j"],
+  })
+
   if args["version"] then
     return print("busted: version 0.0.0")
   end
@@ -64,9 +74,5 @@ if args then
     loadfile(rootFile)()
   end
 
-  print(busted({
-    verbose = args["v"] ~= "",
-    color = args["c"] == "",
-    json = args["j"] ~= "",
-  }))
+  print(busted().."\n")
 end

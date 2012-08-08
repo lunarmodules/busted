@@ -33,6 +33,8 @@ describe("Before each", function()
 
   it("is called", function()
     assert(test_val)
+    time = os.clock()
+    while os.clock()-time < 1 do end
   end)
 end)
 
@@ -47,6 +49,8 @@ describe("After each", function()
   it("runs once to fire an after_each and then", function() end)
   it("checks if after_each was called", function()
     assert(test_val)
+    time = os.clock()
+    while os.clock()-time < 1 do end
   end)
 end)
 
@@ -67,6 +71,8 @@ describe("Both before and after each", function()
   it("runs again just to be sure", function() end)
   it("checks the value", function() 
     assert(test_val == 5)
+    time = os.clock()
+    while os.clock()-time < 1 do end
   end)
 end)
 
@@ -107,5 +113,15 @@ describe("Before_each on describe blocks, part II", function()
 
   it("checks the value", function()
     assert(test_val == 3)
+  end)
+end)
+
+describe("A pending test", function()
+  pending("I'll do it later.", function() end)
+end)
+
+describe("A failing test", function()
+  it("explodes", function()
+    assert(false)
   end)
 end)
