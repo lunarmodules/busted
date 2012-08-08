@@ -1,5 +1,5 @@
 statuses = {}
-local cjson = require("cjson")
+local json = require("dkjson")
 
 local ansicolors = require("lib/ansicolors")
 local current_context = {}
@@ -128,7 +128,7 @@ local busted = function(options)
   global_options = options
 
   if options.json then
-    return cjson.encode(statuses)
+    return json.encode(statuses)
   end
 
   return format_statuses(options, statuses)
