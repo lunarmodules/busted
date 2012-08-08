@@ -27,6 +27,4 @@ else
   exit 1
 fi
 
-echo >&2 "Using $COMMAND for execution environment";
-
-$COMMAND $BUSTED $*;
+$COMMAND $BUSTED $* --$COMMAND;

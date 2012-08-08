@@ -27,6 +27,9 @@ cli:add_flag("-l, --lua", "execution environment")
 cli:add_flag("--suppress-pending", "suppress 'pending' tests")
 cli:add_flag("--defer-print", "defer print to when test suite is complete (json output does this by default)")
 
+cli:add_flag("--luajit", "<DISPLAY ONLY> Say that you're running luajit. For busted sh script.")
+cli:add_flag("--lua", "<DISPLAY ONLY> Say that you're running lua. For busted sh script.")
+
 local args = cli:parse_args()
 
 if args then 
@@ -35,11 +38,19 @@ if args then
     color = not args["c"],
     json = args["j"],
     suppress_pending = args["suppress-pending"],
-    defer_print = args["defer-print"],
+    defer_print = args["defer-print"] or args["j"],
   })
 
   if args["version"] then
     return print("test.lua: version 0.0.0")
+  end
+
+  if not args["j"] and args["luajit"] then
+    print("Running tests with luajit.")
+  end
+
+  if not args["j"] and args["lua"] then
+    print("Running tests with lua.")
   end
 
   local rootFile = args.ROOT or nil
