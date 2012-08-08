@@ -4,7 +4,7 @@ local ansicolors = require("lib/ansicolors")
 local global_context = { type = "describe", description = "global" }
 local current_context = global_context
 local original_assert = assert
-local global_options = {}
+local busted_options = {}
 
 local equalTables = (function(traverse, equalTables)
   -- traverse a table, and test equality to another
@@ -63,6 +63,11 @@ pending = function(description, callback)
   }
 
   table.insert(current_context, { description = description, type = "pending", info = info })
+
+  if not busted_options.defer_print then
+    io.write(pending_string())
+    io.flush()
+  end
 end
 
 
@@ -76,8 +81,18 @@ test = function(description, callback)
   }
 
   if pcall(callback) then
+    if not busted_options.defer_print then
+      io.write(success_string())
+      io.flush()
+    end
+
     return { type = "success", description = "description", info = info }
   else
+    if not busted_options.defer_print then
+      io.write(failure_string())
+      io.flush()
+    end
+
     return { type = "failure", description = "description", info = info, trace = debug.traceback() }
   end
 end
@@ -96,7 +111,7 @@ after_each = function(callback)
   current_context.after_each = callback
 end
 
-format_statuses = function (options, statuses)
+format_statuses = function (statuses)
   local short_status = ""
   local descriptive_status = ""
   local successes = 0
@@ -105,7 +120,7 @@ format_statuses = function (options, statuses)
 
   for i,status in ipairs(statuses) do
     if status.type == "description" then
-      local inner_short_status, inner_descriptive_status, inner_successes, inner_failures, inner_pendings = format_statuses(options, status)
+      local inner_short_status, inner_descriptive_status, inner_successes, inner_failures, inner_pendings = format_statuses(status)
       short_status = short_status..inner_short_status
       descriptive_status = descriptive_status..inner_descriptive_status
       successes = inner_successes + successes
@@ -117,7 +132,7 @@ format_statuses = function (options, statuses)
     elseif status.type == "failure" then
       short_status = short_status..failure_string()
       descriptive_status = descriptive_status..error_description(status)
-      if global_options.verbose then
+      if busted_options.verbose then
         descriptive_status = descriptive_status.."\n"..status.trace
       end
       failures = failures + 1
@@ -125,7 +140,7 @@ format_statuses = function (options, statuses)
       short_status = short_status..pending_string()
       pendings = pendings + 1
 
-      if not options.suppress_pending then
+      if not busted_options.suppress_pending then
         descriptive_status = descriptive_status..pending_description(status)
       end
     end
@@ -135,7 +150,7 @@ format_statuses = function (options, statuses)
 end
 
 pending_description = function(status)
-  if global_options.color then
+  if busted_options.color then
     return "\n\n"..ansicolors("%{yellow}Pending").." → "..
     ansicolors("%{blue}"..status.info.short_src).." @ "..
     ansicolors("%{blue}"..status.info.linedefined)..
@@ -146,7 +161,7 @@ pending_description = function(status)
 end
 
 error_description = function(status)
-  if global_options.color then
+  if busted_options.color then
     return "\n\n"..ansicolors("%{red}Failure").." → "..
            ansicolors("%{blue}"..status.info.short_src).." @ "..
            ansicolors("%{blue}"..status.info.linedefined)..
@@ -157,7 +172,7 @@ error_description = function(status)
 end
 
 success_string = function()
-  if global_options.color then
+  if busted_options.color then
     return ansicolors('%{green}●')
   end
 
@@ -165,7 +180,7 @@ success_string = function()
 end
 
 failure_string = function()
-  if global_options.color then
+  if busted_options.color then
     return ansicolors('%{red}●')
   end
 
@@ -173,7 +188,7 @@ failure_string = function()
 end
 
 pending_string = function()
-  if global_options.color then
+  if busted_options.color then
     return ansicolors('%{yellow}●')
   end
 
@@ -181,11 +196,11 @@ pending_string = function()
 end
 
 status_string = function(short_status, descriptive_status, successes, failures, pendings, ms)
-  local success_str = (success == 1) and " success" or " successes"
+  local success_str = (successes == 1) and " success" or " successes"
   local failures_str = (failures == 1) and " failure" or " failures"
   local pendings_str = " pending"
 
-  if global_options.color then
+  if busted_options.color then
     return short_status.."\n"..
            ansicolors('%{green}'..successes)..success_str..", "..
            ansicolors('%{red}'..failures)..failures_str..", and "..
@@ -220,22 +235,28 @@ run_context = function(context)
   return status
 end
 
-local busted = function(options)
+local busted = function()
   local ms = os.clock()
-
-  global_options = options
 
   local statuses = run_context(global_context)
 
-  if options.json then
+  if busted_options.json then
     return json.encode(statuses)
   end
 
-  local short_status, descriptive_status, successes, failures, pendings = format_statuses(options, statuses)
+  local short_status, descriptive_status, successes, failures, pendings = format_statuses(statuses)
 
   ms = os.clock() - ms
 
+  if not busted_options.defer_print then
+    short_status = ""
+  end
+
   return status_string(short_status, descriptive_status, successes, failures, pendings, ms)
+end
+
+set_busted_options = function(options)
+  busted_options = options
 end
 
 return busted
