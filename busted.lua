@@ -80,20 +80,22 @@ test = function(description, callback)
     linedefined = debug_info.linedefined,
   }
 
-  if pcall(callback) then
+  local status,err = pcall(callback)
+
+  if err then
+    if not busted_options.defer_print then
+      io.write(failure_string())
+      io.flush()
+    end
+
+    return { type = "failure", description = "description", info = info, trace = debug.traceback(), err = err }
+  else
     if not busted_options.defer_print then
       io.write(success_string())
       io.flush()
     end
 
     return { type = "success", description = "description", info = info }
-  else
-    if not busted_options.defer_print then
-      io.write(failure_string())
-      io.flush()
-    end
-
-    return { type = "failure", description = "description", info = info, trace = debug.traceback() }
   end
 end
 
@@ -152,8 +154,8 @@ end
 pending_description = function(status)
   if busted_options.color then
     return "\n\n"..ansicolors("%{yellow}Pending").." → "..
-    ansicolors("%{blue}"..status.info.short_src).." @ "..
-    ansicolors("%{blue}"..status.info.linedefined)..
+    ansicolors("%{cyan}"..status.info.short_src).." @ "..
+    ansicolors("%{cyan}"..status.info.linedefined)..
     "\n"..ansicolors("%{bright}"..status.description)
   end
 
@@ -163,9 +165,10 @@ end
 error_description = function(status)
   if busted_options.color then
     return "\n\n"..ansicolors("%{red}Failure").." → "..
-           ansicolors("%{blue}"..status.info.short_src).." @ "..
-           ansicolors("%{blue}"..status.info.linedefined)..
-           "\n"..ansicolors("%{bright}"..status.description)
+           ansicolors("%{cyan}"..status.info.short_src).." @ "..
+           ansicolors("%{cyan}"..status.info.linedefined)..
+           "\n"..ansicolors("%{bright}"..status.description)..
+           "\n"..status.err
   end
 
   return "\n\nFailure in block \""..status.description.."\"\n→ "..status.info.short_src.." @ "..status.info.linedefined
