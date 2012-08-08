@@ -1,9 +1,9 @@
 local json = require("dkjson")
-
 local ansicolors = require("lib/ansicolors")
 local global_context = { type = "describe", description = "global" }
 local current_context = global_context
-local original_assert = assert
+original_assert = assert
+assert = require("lib/assert")
 local busted_options = {}
 
 local equalTables = (function(traverse, equalTables)
@@ -88,14 +88,14 @@ test = function(description, callback)
       io.flush()
     end
 
-    return { type = "failure", description = "description", info = info, trace = debug.traceback(), err = err }
+    return { type = "failure", description = description, info = info, trace = debug.traceback(), err = err }
   else
     if not busted_options.defer_print then
       io.write(success_string())
       io.flush()
     end
 
-    return { type = "success", description = "description", info = info }
+    return { type = "success", description = description, info = info }
   end
 end
 
