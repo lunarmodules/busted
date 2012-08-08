@@ -2,8 +2,8 @@ statuses = {}
 local json = require("dkjson")
 
 local ansicolors = require("lib/ansicolors")
-local current_context = {}
-local context = { current_context }
+local global_context = { type = "describe", description = "global" }
+local current_context = global_context
 local original_assert = assert
 local global_options = {}
 
@@ -43,19 +43,7 @@ describe = function(description, callback)
 
   callback()
 
-  for i,v in ipairs(local_context) do
-    if local_context.before_each ~= nil then
-      local_context.before_each()
-    end
-
-    if v.type == "test" then
-      test(v.description, v.callback)
-    end
-
-    if local_context.after_each ~= nil then
-      local_context.after_each()
-    end
-  end
+  current_context = global_context
 end
 
 it = function(description, callback)
@@ -124,8 +112,28 @@ error_string = function()
   end
 end
 
+run_context = function(context)
+  for i,v in ipairs(context) do
+    if context.before_each ~= nil then
+      context.before_each()
+    end
+
+    if v.type == "test" then
+      test(v.description, v.callback)
+    elseif v.type == "describe" then
+      run_context(v)
+    end
+
+    if context.after_each ~= nil then
+      context.after_each()
+    end
+  end
+end
+
 local busted = function(options)
   global_options = options
+
+  run_context(global_context)
 
   if options.json then
     return json.encode(statuses)

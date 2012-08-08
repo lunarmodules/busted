@@ -8,14 +8,14 @@ assert(type(mock) == "function")
 local test_val = false
 
 describe("Test Case", function()
-  test_val = true
+  local test_val = true
   assert(test_val)
 end)
 
 
 
 describe("Test case", function()
-  test_val = false
+  local test_val = false
 
   it("changes test_val to true", function()
     test_val = true
@@ -25,7 +25,7 @@ end)
 
 
 describe("Before each", function()
-  test_val = false
+  local test_val = false
 
   before_each(function()
     test_val = true
@@ -37,9 +37,9 @@ describe("Before each", function()
 end)
 
 
-test_val = false
-
 describe("After each", function()
+  local test_val = false
+
   after_each(function()
     test_val = true
   end)
@@ -51,9 +51,10 @@ describe("After each", function()
 end)
 
 
-test_val = 0
 
 describe("Both before and after each", function()
+  local test_val = 0
+
   before_each(function()
     test_val = test_val + 1
   end)
@@ -70,9 +71,9 @@ describe("Both before and after each", function()
 end)
 
 
-test_val = 0
-
 describe("Before_each on describe blocks", function()
+  local test_val = 0
+
   before_each(function()
     test_val = test_val + 1
   end)
@@ -88,9 +89,9 @@ describe("Before_each on describe blocks", function()
   end)
 end)
 
-test_val = 0
-
 describe("Before_each on describe blocks, part II", function()
+  local test_val = 0
+
   before_each(function()
     test_val = test_val + 1
   end)
@@ -105,6 +106,6 @@ describe("Before_each on describe blocks, part II", function()
   end)
 
   it("checks the value", function()
-    assert(test_val == 4)
+    assert(test_val == 3)
   end)
 end)
