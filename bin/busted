@@ -4,7 +4,21 @@ commandExists () {
     command -v "$1" &> /dev/null ;
 }
 
-if commandExists luajit ; then
+while getopts ":l:" opt; do
+  case $opt in
+    a)
+      COMMAND="$OPTARG"
+      ;;
+    :)
+      echo "Option -$OPTARG requires an argument." >&2
+      exit 1
+      ;;
+  esac
+done
+
+if commandExists $COMMAND ; then
+  COMMAND=$COMMAND;
+elif commandExists luajit ; then
   COMMAND=luajit;
 elif commandExists lua ; then
   COMMAND=lua;
@@ -12,4 +26,5 @@ else
   echo >&2 "Busted requires that either lua or luajit be installed and accessible via your path. Aborting.";
   exit 1
 fi
+echo >&2 "Using $COMMAND for execution environment";
 $COMMAND $BUSTED $*;
