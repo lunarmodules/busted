@@ -44,5 +44,5 @@ if args then
     color = args["c"] == "",
     json = args["j"] ~= "",
     suppress_pending = args["suppress-pending"] ~= ""
-  }))
+  }).."\n")
 end

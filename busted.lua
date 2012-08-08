@@ -136,29 +136,29 @@ end
 
 pending_description = function(status)
   if global_options.color then
-    return "\n\n"..ansicolors("%{yellow}Pending Test:").." "..
-    ansicolors("%{blue}"..status.info.short_src).." @ line "..
+    return "\n\n"..ansicolors("%{yellow}Pending").." → "..
+    ansicolors("%{blue}"..status.info.short_src).." @ "..
     ansicolors("%{blue}"..status.info.linedefined)..
-    "\n"..status.description
+    "\n"..ansicolors("%{bright}"..status.description)
   end
 
-  return "\n\n".."Pending Test".."\n"..description
+  return "\n\n".."Pending Test".."\n"..status.description
 end
 
 error_description = function(status)
   if global_options.color then
-    return "\n\n"..ansicolors("%{red}Failure").." in block "..
-           ansicolors("%{bright}"..status.description).."\n"..
-           ansicolors("%{blue}"..status.info.short_src).." @ line "..
-           ansicolors("%{blue}"..status.info.linedefined)
+    return "\n\n"..ansicolors("%{red}Failure").." → "..
+           ansicolors("%{blue}"..status.info.short_src).." @ "..
+           ansicolors("%{blue}"..status.info.linedefined)..
+           "\n"..ansicolors("%{bright}"..status.description)
   end
 
-  return "\n\nFailure in block \""..status.description.."\"\n"..status.info.short_src.." @ line "..status.info.linedefined
+  return "\n\nFailure in block \""..status.description.."\"\n→ "..status.info.short_src.." @ "..status.info.linedefined
 end
 
 success_string = function()
   if global_options.color then
-    return ansicolors('%{green}✓')
+    return ansicolors('%{green}●')
   end
 
   return "✓"
@@ -166,7 +166,7 @@ end
 
 failure_string = function()
   if global_options.color then
-    return ansicolors('%{red}✗')
+    return ansicolors('%{red}●')
   end
 
   return "✗"
@@ -174,10 +174,10 @@ end
 
 pending_string = function()
   if global_options.color then
-    return ansicolors('%{yellow}.')
+    return ansicolors('%{yellow}●')
   end
 
-  return "."
+  return "-"
 end
 
 status_string = function(short_status, descriptive_status, successes, failures, pendings, ms)
