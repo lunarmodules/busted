@@ -3,36 +3,49 @@
 --dirname function to get current directory
 --this allows us to be location agnostic
 local function dirname(f)
-  if not f then f=arg[0] end
+  if not f then f=arg and arg[0] or "./" end
   return string.gsub(f,"(.*/).*","%1")
-end
-
-function fileexists(name)
-   local f=io.open(name,"r")
-   if f~=nil then io.close(f) return true else return false end
 end
 
 package.path = dirname()..'../?.lua;'..package.path
 
 local busted = require 'busted'
-local cli = require("cliargs")
+local cli = require 'cliargs'
+local lfs = require 'lfs'
 
-cli:set_name("test")
-cli:add_argument("ROOT", "test script file")
+function dirtree(dir)
+  if string.sub(dir, -1) == "/" then
+    dir=string.sub(dir, 1, -2)
+  end
+
+  local function yieldtree(dir)
+    for entry in lfs.dir(dir) do
+      if entry ~= "." and entry ~= ".." then
+        entry=dir.."/"..entry
+        local attr=lfs.attributes(entry)
+        coroutine.yield(entry,attr)
+        if attr.mode == "directory" then
+          yieldtree(entry)
+        end
+      end
+    end
+  end
+
+  return coroutine.wrap(function() yieldtree(dir) end)
+end
+
+cli:set_name("busted")
+cli:add_arg("ROOT", "test script file/folder")
 cli:add_flag("--version", "prints the program's version and exits")
-cli:add_flag("-v", "verbose output of errors")
-cli:add_flag("-c, --color", "disable colored output")
-cli:add_flag("-j, --json", "json output")
-cli:add_flag("-l, --lua", "execution environment")
+cli:add_option("-v", "verbose output of errors", "v", false)
+cli:add_option("-c, --color", "disable colored output", "c", false)
+cli:add_option("-j, --json", "json output", "j", false)
+cli:add_option("-l, --lua=luajit", "path to the execution environment", nil, "luajit")
 cli:add_flag("--suppress-pending", "suppress 'pending' tests")
 cli:add_flag("--defer-print", "defer print to when test suite is complete (json output does this by default)")
 
-cli:add_flag("--luajit", "<DISPLAY ONLY> Say that you're running luajit. For busted sh script.")
-cli:add_flag("--lua", "<DISPLAY ONLY> Say that you're running lua. For busted sh script.")
-
 local args = cli:parse_args()
-
-if args then 
+if args then
   set_busted_options({
     verbose = args["v"],
     color = not args["c"],
@@ -42,23 +55,23 @@ if args then
   })
 
   if args["version"] then
-    return print("test.lua: version 0.0.0")
-  end
-
-  if not args["j"] and args["luajit"] then
-    print("Running tests with luajit.")
-  end
-
-  if not args["j"] and args["lua"] then
-    print("Running tests with lua.")
+    return print("busted: version 0.0.0")
   end
 
   local rootFile = args.ROOT or nil
+  local found = false
+  for filename,attr in dirtree(rootFile) do
+    if attr.mode == 'file' then
+      local file = loadfile(filename)
+      if file then
+        file()
+        found = true
+      end
+    end
+  end
 
-  if fileexists(rootFile) then
+  if not found then
     loadfile(rootFile)()
-  else
-    print "No test files found!"
   end
 
   print(busted().."\n")
