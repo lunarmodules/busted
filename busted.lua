@@ -154,8 +154,8 @@ end
 pending_description = function(status)
   if busted_options.color then
     return "\n\n"..ansicolors("%{yellow}Pending").." → "..
-    ansicolors("%{blue}"..status.info.short_src).." @ "..
-    ansicolors("%{blue}"..status.info.linedefined)..
+    ansicolors("%{cyan}"..status.info.short_src).." @ "..
+    ansicolors("%{cyan}"..status.info.linedefined)..
     "\n"..ansicolors("%{bright}"..status.description)
   end
 
@@ -165,8 +165,8 @@ end
 error_description = function(status)
   if busted_options.color then
     return "\n\n"..ansicolors("%{red}Failure").." → "..
-           ansicolors("%{blue}"..status.info.short_src).." @ "..
-           ansicolors("%{blue}"..status.info.linedefined)..
+           ansicolors("%{cyan}"..status.info.short_src).." @ "..
+           ansicolors("%{cyan}"..status.info.linedefined)..
            "\n"..ansicolors("%{bright}"..status.description)..
            "\n"..status.err
   end
