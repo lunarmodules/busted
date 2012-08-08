@@ -109,3 +109,13 @@ describe("Before_each on describe blocks, part II", function()
     assert(test_val == 3)
   end)
 end)
+
+describe("A pending test", function()
+  pending("I'll do it later.", function() end)
+end)
+
+describe("A failing test", function()
+  it("explodes", function()
+    assert(false)
+  end)
+end)

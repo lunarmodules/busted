@@ -53,13 +53,27 @@ it = function(description, callback)
   end
 end
 
-test = function(description, callback)
+pending = function(description, callback)
   local debug_info = debug.getinfo(callback)
-  local info = { 
+
+  local info = {
     source = debug_info.source, 
     short_src = debug_info.short_src,  
     linedefined = debug_info.linedefined,
-  } 
+  }
+
+  table.insert(current_context, { description = description, type = "pending", info = info })
+end
+
+
+test = function(description, callback)
+  local debug_info = debug.getinfo(callback)
+
+  local info = {
+    source = debug_info.source, 
+    short_src = debug_info.short_src,  
+    linedefined = debug_info.linedefined,
+  }
 
   if pcall(callback) then
     return { type = "success", description = "description", info = info }
@@ -87,44 +101,99 @@ format_statuses = function (options, statuses)
   local descriptive_status = ""
   local successes = 0
   local failures = 0
+  local pendings = 0
 
   for i,status in ipairs(statuses) do
     if status.type == "description" then
-      local inner_short_status, inner_descriptive_status, inner_successes, inner_failures = format_statuses(options, status)
+      local inner_short_status, inner_descriptive_status, inner_successes, inner_failures, inner_pendings = format_statuses(options, status)
       short_status = short_status..inner_short_status
       descriptive_status = descriptive_status..inner_descriptive_status
       successes = inner_successes + successes
       failures = inner_failures + failures
+      pendings = inner_pendings + pendings
     elseif status.type == "success" then
       short_status = short_status..success_string()
       successes = successes + 1
     elseif status.type == "failure" then
       short_status = short_status..failure_string()
-      descriptive_status = descriptive_status.."\n\nFailure in block \""..status.description.."\"\n"..status.short_src.." @ line "..status.line
+      descriptive_status = descriptive_status..error_description(status)
       if global_options.verbose then
         descriptive_status = descriptive_status.."\n"..status.trace
       end
       failures = failures + 1
+    elseif status.type == "pending" then
+      short_status = short_status..pending_string()
+      pendings = pendings + 1
+
+      if not options.suppress_pending then
+        descriptive_status = descriptive_status..pending_description(status)
+      end
     end
   end
 
-  return short_status, descriptive_status, successes, failures
+  return short_status, descriptive_status, successes, failures, pendings
+end
+
+pending_description = function(status)
+  if global_options.color then
+    return "\n\n"..ansicolors("%{yellow}Pending Test:").." "..
+    ansicolors("%{blue}"..status.info.short_src).." @ line "..
+    ansicolors("%{blue}"..status.info.linedefined)..
+    "\n"..status.description
+  end
+
+  return "\n\n".."Pending Test".."\n"..description
+end
+
+error_description = function(status)
+  if global_options.color then
+    return "\n\n"..ansicolors("%{red}Failure").." in block "..
+           ansicolors("%{bright}"..status.description).."\n"..
+           ansicolors("%{blue}"..status.info.short_src).." @ line "..
+           ansicolors("%{blue}"..status.info.linedefined)
+  end
+
+  return "\n\nFailure in block \""..status.description.."\"\n"..status.info.short_src.." @ line "..status.info.linedefined
 end
 
 success_string = function()
   if global_options.color then
     return ansicolors('%{green}✓')
-  else
-    return "✓"
   end
+
+  return "✓"
 end
 
 failure_string = function()
   if global_options.color then
     return ansicolors('%{red}✗')
-  else
-    return "✗"
   end
+
+  return "✗"
+end
+
+pending_string = function()
+  if global_options.color then
+    return ansicolors('%{yellow}.')
+  end
+
+  return "."
+end
+
+status_string = function(short_status, descriptive_status, successes, failures, pendings, ms)
+  local success_str = (success == 1) and " success" or " successes"
+  local failures_str = (failures == 1) and " failure" or " failures"
+  local pendings_str = " pending"
+
+  if global_options.color then
+    return short_status.."\n"..
+           ansicolors('%{green}'..successes)..success_str..", "..
+           ansicolors('%{red}'..failures)..failures_str..", and "..
+           ansicolors('%{yellow}'..pendings)..pendings_str.." in "..
+           ansicolors('%{bright}'..ms).." seconds."..descriptive_status
+  end
+
+  return short_status.."\n"..successes.." successes and "..failures.." failures in "..ms.." seconds."..descriptive_status
 end
 
 run_context = function(context)
@@ -139,6 +208,8 @@ run_context = function(context)
       table.insert(status, test(v.description, v.callback))
     elseif v.type == "describe" then
       table.insert(status, run_context(v))
+    elseif v.type == "pending" then
+      table.insert(status, { type = "pending", description = v.description, info = v.info })
     end
 
     if context.after_each ~= nil then
@@ -160,11 +231,11 @@ local busted = function(options)
     return json.encode(statuses)
   end
 
-  local short_status, descriptive_status, successes, failures = format_statuses(options, statuses)
+  local short_status, descriptive_status, successes, failures, pendings = format_statuses(options, statuses)
 
   ms = os.clock() - ms
 
-  return short_status.."\n "..successes.." successes and "..failures.." failures in "..ms.." seconds."
+  return status_string(short_status, descriptive_status, successes, failures, pendings, ms)
 end
 
 return busted

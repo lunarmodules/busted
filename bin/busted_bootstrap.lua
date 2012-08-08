@@ -24,6 +24,7 @@ cli:add_option("-v", "verbose output of errors")
 cli:add_option("-c, --color", "disable colored output")
 cli:add_option("-j, --json", "json output")
 cli:add_option("-l, --lua", "execution environment")
+cli:add_option("--suppress-pending", "suppress 'pending' tests")
 
 local args = cli:parse_args()
 
@@ -42,5 +43,6 @@ if args then
     verbose = args["v"] ~= "",
     color = args["c"] == "",
     json = args["j"] ~= "",
+    suppress_pending = args["suppress-pending"] ~= ""
   }))
 end
