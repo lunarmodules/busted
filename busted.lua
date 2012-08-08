@@ -2,7 +2,6 @@ local json = require("dkjson")
 local ansicolors = require("lib/ansicolors")
 local global_context = { type = "describe", description = "global" }
 local current_context = global_context
-original_assert = assert
 assert = require("lib/assert")
 local busted_options = {}
 

@@ -19,8 +19,10 @@ local function deepcompare(t1,t2,ignore_mt)
 end
 
 local __meta = {
-  __call = function(...)
-    return original_assert(...)
+  __call = function(self, bool, message)
+    if not bool then
+      error(message)
+    end
   end
 }
 
