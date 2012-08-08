@@ -1,4 +1,3 @@
-statuses = {}
 local json = require("dkjson")
 
 local ansicolors = require("lib/ansicolors")
@@ -55,11 +54,17 @@ it = function(description, callback)
 end
 
 test = function(description, callback)
+  local debug_info = debug.getinfo(callback)
+  local info = { 
+    source = debug_info.source, 
+    short_src = debug_info.short_src,  
+    linedefined = debug_info.linedefined,
+  } 
+
   if pcall(callback) then
-    table.insert(statuses, { type = "success"  })
+    return { type = "success", description = "description", info = info }
   else
-    info = debug.getinfo(callback)
-    table.insert(statuses, { type = "failure", description = description, trace = debug.traceback(), short_src = info.short_src, line = info.linedefined  })
+    return { type = "failure", description = "description", info = info, trace = debug.traceback() }
   end
 end
 
@@ -77,23 +82,33 @@ after_each = function(callback)
   current_context.after_each = callback
 end
 
-local format_statuses = function (options, statuses)
-  short_status = ""
-  descriptive_status = ""
+format_statuses = function (options, statuses)
+  local short_status = ""
+  local descriptive_status = ""
+  local successes = 0
+  local failures = 0
 
   for i,status in ipairs(statuses) do
-    if status.type == "success" then
+    if status.type == "description" then
+      local inner_short_status, inner_descriptive_status, inner_successes, inner_failures = format_statuses(options, status)
+      short_status = short_status..inner_short_status
+      descriptive_status = descriptive_status..inner_descriptive_status
+      successes = inner_successes + successes
+      failures = inner_failures + failures
+    elseif status.type == "success" then
       short_status = short_status..success_string()
-    else
-      short_status = short_status..error_string()
+      successes = successes + 1
+    elseif status.type == "failure" then
+      short_status = short_status..failure_string()
       descriptive_status = descriptive_status.."\n\nFailure in block \""..status.description.."\"\n"..status.short_src.." @ line "..status.line
       if global_options.verbose then
         descriptive_status = descriptive_status.."\n"..status.trace
       end
+      failures = failures + 1
     end
   end
 
-  return short_status..descriptive_status
+  return short_status, descriptive_status, successes, failures
 end
 
 success_string = function()
@@ -104,7 +119,7 @@ success_string = function()
   end
 end
 
-error_string = function()
+failure_string = function()
   if global_options.color then
     return ansicolors('%{red}✗')
   else
@@ -113,33 +128,43 @@ error_string = function()
 end
 
 run_context = function(context)
+  local status = { description = context.description, type = "description" }
+
   for i,v in ipairs(context) do
     if context.before_each ~= nil then
       context.before_each()
     end
 
     if v.type == "test" then
-      test(v.description, v.callback)
+      table.insert(status, test(v.description, v.callback))
     elseif v.type == "describe" then
-      run_context(v)
+      table.insert(status, run_context(v))
     end
 
     if context.after_each ~= nil then
       context.after_each()
     end
   end
+
+  return status
 end
 
 local busted = function(options)
+  local ms = os.clock()
+
   global_options = options
 
-  run_context(global_context)
+  local statuses = run_context(global_context)
 
   if options.json then
     return json.encode(statuses)
   end
 
-  return format_statuses(options, statuses)
+  local short_status, descriptive_status, successes, failures = format_statuses(options, statuses)
+
+  ms = os.clock() - ms
+
+  return short_status.."\n "..successes.." successes and "..failures.." failures in "..ms.." seconds."
 end
 
 return busted

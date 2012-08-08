@@ -26,5 +26,7 @@ else
   echo >&2 "Busted requires that either lua or luajit be installed and accessible via your path. Aborting.";
   exit 1
 fi
+
 echo >&2 "Using $COMMAND for execution environment";
+
 $COMMAND $BUSTED $*;
