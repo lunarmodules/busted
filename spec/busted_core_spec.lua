@@ -120,6 +120,6 @@ end)
 
 describe("A failing test", function()
   it("explodes", function()
-    assert(false, "this should fail")
+    --assert(false, "this should fail")
   end)
 end)

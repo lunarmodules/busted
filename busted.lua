@@ -271,17 +271,25 @@ local busted = function()
 
   local statuses = run_context(global_context)
 
+  local short_status, descriptive_status, successes, failures, pendings = format_statuses(statuses)
+
   if busted_options.json then
     return json.encode(statuses)
   end
-
-  local short_status, descriptive_status, successes, failures, pendings = format_statuses(statuses)
 
   ms = os.clock() - ms
 
   if not busted_options.defer_print then
     io.write("\08 ")
     short_status = ""
+  end
+
+  if busted_options.sound then
+    if failures > 0 then
+      os.execute("say \"Your tests are busted.\"")
+    else
+      os.execute("say \"Aww yeah, passing specs.\"")
+    end
   end
 
   return status_string(short_status, descriptive_status, successes, failures, pendings, ms)
