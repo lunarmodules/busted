@@ -41,7 +41,7 @@ end
 cli:set_name("busted")
 cli:add_flag("--version", "prints the program's version and exits")
 
-cli:add_option("ROOT", "test script file/folder")
+cli:add_argument("ROOT", "test script file/folder")
 
 cli:add_option("-v", "verbose output of errors", "v", false)
 cli:add_option("-c, --color", "disable colored output", "c", false)
