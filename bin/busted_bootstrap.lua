@@ -48,6 +48,7 @@ cli:add_option("-c, --color", "disable colored output", "c", false)
 cli:add_option("-u, --disable-utf", "disable utf-16 output", "u", false)
 cli:add_option("-j, --json", "json output", "j", false)
 cli:add_option("-l, --lua=luajit", "path to the execution environment", nil, "luajit")
+cli:add_option("-s, --enable-sound", "a special treat", "s", false)
 
 cli:add_flag("--suppress-pending", "suppress 'pending' tests")
 cli:add_flag("--defer-print", "defer print to when test suite is complete (json output does this by default)")
@@ -61,6 +62,7 @@ if args then
     suppress_pending = args["suppress-pending"],
     defer_print = args["defer-print"] or args["j"],
     utf = not args["u"],
+    sound = args["s"],
   })
 
   if args["version"] then

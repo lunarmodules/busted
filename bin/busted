@@ -1,5 +1,6 @@
 #!/bin/sh
 BUSTED=$BASH_SOURCE"_bootstrap.lua"
+
 commandExists () {
     command -v "$1" &> /dev/null ;
 }
@@ -26,4 +27,5 @@ else
   echo >&2 "Busted requires that a valid execution environment be specified(or that you have lua or luajit accessible in your PATH). Aborting.";
   exit 1
 fi
+
 $COMMAND $BUSTED $*;

@@ -1,7 +1,7 @@
 busted
 ======
 
-Unit testing in Lua.
+Awesome unit testing in Lua.
 
 ## Usage
 
