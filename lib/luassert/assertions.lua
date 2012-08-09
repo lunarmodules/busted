@@ -1,4 +1,4 @@
-local util = require 'lib/util'
+local util = require 'luassert.util'
 
 local function has_error(func)
   return not pcall(func)
