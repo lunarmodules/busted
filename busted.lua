@@ -1,4 +1,7 @@
-require("lib/assert")
+require 'luassert.assert'
+
+local json = require 'dkjson'
+local ansicolors = require 'ansicolors'
 
 -- setup for stuff we use inside
 local global_context = { type = "describe", description = "global" }

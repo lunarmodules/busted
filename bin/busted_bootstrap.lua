@@ -7,7 +7,7 @@ local function dirname(f)
   return string.gsub(f,"(.*/).*","%1")
 end
 
-package.path = dirname()..'../?.lua;'..package.path
+package.path = dirname()..'../?.lua;'..dirname()..'../lib/?.lua;'..package.path
 
 local busted = require 'busted'
 local cli = require 'cliargs'
