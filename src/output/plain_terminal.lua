@@ -102,6 +102,12 @@ local output = function()
   return {
     options = {},
 
+    header = function(context_tree)
+    end,
+
+    footer = function(context_tree)
+    end,
+
     formatted_status = function(statuses, options, ms)
       local short_status, descriptive_status, successes, failures, pendings = format_statuses(statuses, options)
       return status_string(short_status, descriptive_status, successes, failures, pendings, ms, options)

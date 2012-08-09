@@ -1,8 +1,5 @@
 require 'luassert.assert'
 
-local json = require 'dkjson'
-local ansicolors = require 'ansicolors'
-
 -- setup for stuff we use inside
 local global_context = { type = "describe", description = "global" }
 local current_context = global_context
@@ -49,7 +46,9 @@ run_context = function(context)
     elseif v.type == "describe" then
       table.insert(status, run_context(v))
     elseif v.type == "pending" then
-      table.insert(status, { type = "pending", description = v.description, info = v.info })
+      local pending_test_status = { type = "pending", description = v.description, info = v.info }
+      v.callback(pending_test_status)
+      table.insert(status, pending_test_status)
     end
 
     if context.after_each ~= nil then
@@ -84,12 +83,21 @@ end
 
 local busted = function()
   local ms = os.clock()
+
+  if not busted_options.defer_print then
+    print(output.header(global_context))
+  end
+
   local statuses = run_context(global_context)
 
   ms = os.clock() - ms
 
   if busted_options.sound then
     play_sound(failures)
+  end
+
+  if busted_options.defer_print then
+    print(output.header(global_context))
   end
 
   return output.formatted_status(statuses, busted_options, ms)
@@ -126,13 +134,18 @@ pending = function(description, callback)
     linedefined = debug_info.linedefined,
   }
 
-  local test_status = { description = description, type = "pending", info = info }
+  local test_status = {
+    description = description,
+    type = "pending",
+    info = info,
+    callback = function(self)
+      if not busted_options.defer_print then
+        output.currently_executing(self, busted_options)
+      end
+    end
+  }
 
   table.insert(current_context, test_status)
-
-  if not busted_options.defer_print then
-    output.currently_executing(test_status, busted_options)
-  end
 end
 
 spy_on = function(object, method)

@@ -7,8 +7,21 @@ local json = require("dkjson")
 
 local output = function()
   return {
+    header = function(context_tree)
+    end,
+
+    footer = function(context_tree)
+    end,
+
     formatted_status = function(statuses, options, ms)
-      return json.encode(statuses)
+      if options.defer_print then
+        index = 1
+        local str = ""
+
+        return json.encode(statuses)
+      end
+
+      return ""
     end,
 
     currently_executing = function(test_status, options)
