@@ -3,68 +3,133 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>Busted by Olivine-Labs</title>
 
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <title>busted : Lua unit testing, by Olivine-Labs</title>
+
+    <link rel="stylesheet" href="css/solarized-light.css">
+    <link rel="stylesheet" href="css/bootstrap-responsive.min.css">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
     <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
   </head>
   <body>
-    <div class="wrapper">
-      <header>
-        <h1>Busted</h1>
-        <p>Elegant Lua unit testing.</p>
-
-        <p class="view"><a href="https://github.com/Olivine-Labs/busted">View the Project on GitHub <small>Olivine-Labs/busted</small></a></p>
-
-
-        <ul>
-          <li><a href="https://github.com/Olivine-Labs/busted/zipball/master">Download <strong>ZIP File</strong></a></li>
-          <li><a href="https://github.com/Olivine-Labs/busted/tarball/master">Download <strong>TAR Ball</strong></a></li>
-          <li><a href="https://github.com/Olivine-Labs/busted">View On <strong>GitHub</strong></a></li>
-        </ul>
+    <div class="container">
+      <header class="hero-unit">
+        <h1 class="remove-bottom">busted</h1>
+        <h2>Elegant Lua unit testing.</h2>
       </header>
-      <section>
-        <h1>busted</h1>
 
-<p>Awesome unit testing in Lua.</p>
+      <div class="navbar navbar-fixed-top">
+        <div class="navbar-inner">
+          <div class="container">
+            <nav>
+              <ul class="nav">
+                <li><a href="https://github.com/Olivine-Labs/busted/zipball/master"><span class="icon icon-download-alt icon-white"></span> <strong>ZIP File</strong></a></li>
+                <li><a href="https://github.com/Olivine-Labs/busted/tarball/master"><span class="icon icon-download-alt icon-white"></span> <strong>TAR Ball</strong></a></li>
+                <li><a href="https://github.com/Olivine-Labs/busted"><span class="icon icon-folder-open icon-white"></span> View On <strong>GitHub</strong> @ <small>Olivine-Labs/busted</small></a></li>
+              </ul>
+            </nav>
+          </div>
+        </div>
+      </div>
 
-<h2>Usage</h2>
+      <div class="row">
+        <div class="span7">
+          <h2>What's <em>busted</em>, precious?</h2>
+          <p>
+            busted is a unit testing framework with a focus on being
+            <strong>easy to use</strong>.
+          </p>
+          <p>
+            Clean interfaces, compatibility with most CI systems, and BDD-style
+            syntax make using busted easy to write and easy to read. Options
+            let you customize the output, from pretty terminal colors to JSON.
+          <p>
+          <p>
+            An extensible assert library allows you to extend and craft your
+            own assert functions specific to your case with method chaining.
+          </p>
 
-<div class="highlight"><pre><span class="nb">require</span><span class="p">(</span><span class="s2">"</span><span class="s">busted"</span><span class="p">)</span>
+<pre><code data-language="lua">
+require("busted")
 
-<span class="n">describe</span><span class="p">(</span><span class="s2">"</span><span class="s">Busted unit testing framework, function()</span>
-  <span class="n">describe</span><span class="p">(</span><span class="s2">"</span><span class="s">should be awesome"</span><span class="p">,</span> <span class="k">function</span><span class="p">()</span>
-    <span class="n">it</span><span class="p">(</span><span class="s2">"</span><span class="s">should be easy to use"</span><span class="p">,</span> <span class="k">function</span><span class="p">()</span>
-      <span class="n">assert</span><span class="p">.</span><span class="n">truthy</span><span class="p">(</span><span class="s2">"</span><span class="s">Yup."</span><span class="p">)</span>
-    <span class="k">end</span><span class="p">)</span>
+describe("Busted unit testing framework", function()
+  describe("should be awesome", function()
+    it("should be easy to use", function()
+      assert.truthy("Yup.")
+    end)
 
-    <span class="n">it</span><span class="p">(</span><span class="s2">"</span><span class="s">should have lots of features, function()</span>
-      <span class="n">assert_equal</span><span class="p">({</span> <span class="n">table</span> <span class="o">=</span> <span class="s2">"</span><span class="s">great"</span><span class="p">},</span> <span class="p">{</span> <span class="n">table</span> <span class="o">=</span> <span class="s2">"</span><span class="s">great"</span> <span class="p">})</span>
-      <span class="n">assert</span><span class="p">.</span><span class="n">not_same</span><span class="p">({</span> <span class="n">table</span> <span class="o">=</span> <span class="s2">"</span><span class="s">great"</span><span class="p">},</span> <span class="p">{</span> <span class="n">table</span> <span class="o">=</span> <span class="s2">"</span><span class="s">great"</span><span class="p">})</span>
-    <span class="k">end</span><span class="p">)</span>
+    it("should have lots of features", function()
+      assert.same({ table = "great"}, { table = "great" })
+      assert.not.equal({ table = "great"}, { table = "great"})
+    end)
 
-    <span class="n">it</span><span class="p">(</span><span class="s2">"</span><span class="s">should be easy to read"</span><span class="p">,</span> <span class="k">function</span><span class="p">()</span>
-      <span class="n">object_mock</span> <span class="o">=</span> <span class="n">mock</span><span class="p">(</span><span class="n">myObject</span><span class="p">)</span>
-      <span class="n">spy_on</span><span class="p">(</span><span class="n">object_mock</span><span class="p">.</span><span class="n">alert</span><span class="p">)</span>
+    it("should be easy to read", function()
+      local object_mock = mock(myObject)
+      local spy = spy_on(object_mock.alert)
 
-      <span class="n">object_mock</span><span class="p">.</span><span class="n">alert</span><span class="p">(</span><span class="s2">"</span><span class="s">Lua"</span><span class="p">)</span>
+      object_mock.alert("Lua")
 
-      <span class="n">assert</span><span class="p">.</span><span class="n">called_with</span><span class="p">(</span><span class="s2">"</span><span class="s">object_mock"</span><span class="p">,</span> <span class="s2">"</span><span class="s">Lua"</span><span class="p">)</span>
-    <span class="k">end</span><span class="p">)</span>
-  <span class="k">end</span><span class="p">)</span>
-<span class="k">end</span><span class="p">)</span>
-</pre></div>
-      </section>
-      <footer>
-        <p>This project is maintained by <a href="https://github.com/Olivine-Labs">Olivine-Labs</a></p>
-        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
-      </footer>
+      assert.spy(spy).was_called_with("Lua")
+    end)
+  end)
+end)
+</code></pre>
+        </div>
+        <div class="span5">
+          <div class="thumbnail">
+            <img src="http://f.cl.ly/items/0z0K0V3x0q123V2z0e3p/Screen%20Shot%202012-08-08%20at%2011.10.00%20PM.png" />
+
+            <div class="caption">
+              <h5>Get busted.</h5>
+
+              <br />
+              <pre><code>luarocks install busted</code></pre>
+              <br />
+
+              <p>
+                Don't have luarocks? <a href="http://luarocks.org/en/Download">Install luarocks</a>
+                or download busted from <a href="https://github.com/Olivine-Labs/busted">the Github repository</a>
+                and include it in your project.
+              </p>
+            </div>
+          </div>
+
+          <h4>Supported Asserts</h4>
+
+          <p>
+            The following functions are exposed under the <code>asserts</code>
+            namespace and are chainable, for constructs like <code>asserts.not.same({}, {})</code>.
+          </p>
+
+          <ul class="asserts">
+            <li><code>equal(...)</code> checks if the objects are the same instance</li>
+            <li><code>same(...)</code> checks if the objects contain the same data (useful for comparing tables)</li>
+            <li><code>not</code> negates the expression (such as assert.not.equal)</li>
+            <!--
+            <li><code>spy(spy)</code> check if the spy has the following expression</li>
+            <li><code>was_called</code> check if the spy has the following expression</li>
+            <li><code>was_called_with(...)</code> check if the spy was called with the supplied parameters</li>
+            <li><code>was_called_times(int)</code> check if the spy was called a certain number of times</li>
+            -->
+          </ul>
+        </div>
+      </div>
+      <div class="row">
+        <footer class="span12 footer">
+          <p><strong><a href="https://github.com/Olivine-Labs/busted">busted</a></strong> is bravely maintained by <a href="https://github.com/Olivine-Labs">Olivine Labs</a>.</p>
+          <p><small>Hosted on GitHub Pages.</small></p>
+        </footer>
+      </div>
     </div>
-    <script src="javascripts/scale.fix.js"></script>
-    
+
+    <script src="js/rainbow.min.js"></script>
+    <script src="js/generic.js"></script>
+    <script src="js/lua.js"></script>
   </body>
 </html>
