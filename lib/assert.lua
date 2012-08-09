@@ -4,6 +4,7 @@ old_assert = assert
 assert = {}
 assert.mod = true
 assert.assertions = {}
+assert.raw = {}
 
 assert.__assertionMeta = {}
 function assert.__assertionMeta.__index(table, key)
@@ -21,7 +22,10 @@ end
 
 assert.__meta = {}
 function assert.__meta.__call(table, bool, message)
-  return old_assert(bool, message)
+  if not bool then
+    error(message or "assertion failed!")
+  end
+  return true
 end
 
 function assert.__meta.__index(table, key)
@@ -29,7 +33,15 @@ function assert.__meta.__index(table, key)
     rawget(table, "assertions")[key:lower()].mod = rawget(table, "mod")
     return rawget(table, "assertions")[key:lower()]
   else
-    return rawget(table, key:lower())
+    if rawget(table, "raw")[key:lower()] ~= nil then
+      if type(rawget(table, "raw")[key:lower()]) == 'function' then
+        return rawget(table, "raw")[key:lower()]()
+      else
+        return rawget(table, "raw")[key:lower()]
+      end
+    else
+      return rawget(table, key:lower())
+    end
   end
 end
 
@@ -37,23 +49,23 @@ function assert:register(name, assertion, errormessage)
   rawget(self, "assertions")[name:lower()] = setmetatable({mod=false, assertion = assertion, name = name:lower(), errormessage=errormessage}, rawget(assert, "__callerMeta"))
 end
 
-function assert.is()
+function assert.raw.is()
   return setmetatable({
     mod = true
   }, rawget(assert, "__assertionMeta"))
 end
 
-function assert.isnot()
+function assert.raw.isnot()
   return setmetatable({
     mod = false
   }, rawget(assert, "__assertionMeta"))
 end
 
-function assert.all(list)
+function assert.raw.all(list)
   error("NOT IMPLEMENTED")
 end
 
-function assert.none(list)
+function assert.raw.none(list)
   error("NOT IMPLEMENTED")
 end
 
@@ -61,7 +73,7 @@ local function has_error(func)
   return not pcall(func)
 end
 
-function assert.unique(list, deep)
+local function unique(list, deep)
   for k,v in pairs(list) do
     for k2, v2 in pairs(list) do
       if k ~= k2 then

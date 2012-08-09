@@ -19,11 +19,11 @@ describe("Test Assertions", function()
   end)
 
   it("Tests IS operator", function()
-    assert.is().equals(true, true)
+    assert.is.equals(true, true)
   end)
 
   it("Tests NOT operator", function()
-    assert.isnot().equals(true, false)
+    assert.isnot.equals(true, false)
   end)
 
   it("Tests assert error", function()
