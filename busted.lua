@@ -1,9 +1,11 @@
+
 local json = require("dkjson")
 local ansicolors = require("lib/ansicolors")
 local global_context = { type = "describe", description = "global" }
 local current_context = global_context
-assert = require("lib/assert")
 local busted_options = {}
+
+assert = require("lib/assert")
 
 local equalTables = (function(traverse, equalTables)
   -- traverse a table, and test equality to another
@@ -64,7 +66,8 @@ pending = function(description, callback)
   table.insert(current_context, { description = description, type = "pending", info = info })
 
   if not busted_options.defer_print then
-    io.write(pending_string())
+    io.write("\08"..pending_string())
+    io.write(running_string())
     io.flush()
   end
 end
@@ -83,14 +86,16 @@ test = function(description, callback)
 
   if err then
     if not busted_options.defer_print then
-      io.write(failure_string())
+      io.write("\08"..failure_string())
+      io.write(running_string())
       io.flush()
     end
 
     return { type = "failure", description = description, info = info, trace = debug.traceback(), err = err }
   else
     if not busted_options.defer_print then
-      io.write(success_string())
+      io.write("\08"..success_string())
+      io.write(running_string())
       io.flush()
     end
 
@@ -174,28 +179,54 @@ error_description = function(status)
 end
 
 success_string = function()
+
   if busted_options.color then
-    return ansicolors('%{green}●')
+    if busted_options.utf then
+      return ansicolors('%{green}●')
+    end
+
+    return ansicolors('%{green}+')
   end
 
-  return "✓"
+  return "+"
 end
 
 failure_string = function()
   if busted_options.color then
-    return ansicolors('%{red}●')
+    if busted_options.utf then
+      return ansicolors('%{red}●')
+    end
+
+    return ansicolors('%{red}x')
   end
 
-  return "✗"
+  return "x"
 end
 
 pending_string = function()
   if busted_options.color then
-    return ansicolors('%{yellow}●')
+    if busted_options.utf then
+      return ansicolors('%{yellow}●')
+    end
+
+    return ansicolors('%{yellow}-')
   end
 
   return "-"
 end
+
+running_string = function()
+  if busted_options.color then
+    if busted_options.utf then
+      return ansicolors('%{blue}○')
+    end
+
+    return ansicolors('%{blue}~')
+  end
+
+  return "~"
+end
+
 
 status_string = function(short_status, descriptive_status, successes, failures, pendings, ms)
   local success_str = (successes == 1) and " success" or " successes"
@@ -251,6 +282,7 @@ local busted = function()
   ms = os.clock() - ms
 
   if not busted_options.defer_print then
+    io.write("\08 ")
     short_status = ""
   end
 

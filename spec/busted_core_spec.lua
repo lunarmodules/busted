@@ -49,8 +49,6 @@ describe("After each", function()
   it("runs once to fire an after_each and then", function() end)
   it("checks if after_each was called", function()
     assert(test_val)
-    time = os.clock()
-    while os.clock()-time < 1 do end
   end)
 end)
 

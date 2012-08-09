@@ -39,12 +39,16 @@ function dirtree(dir)
 end
 
 cli:set_name("busted")
-cli:add_arg("ROOT", "test script file/folder")
 cli:add_flag("--version", "prints the program's version and exits")
+
+cli:add_option("ROOT", "test script file/folder")
+
 cli:add_option("-v", "verbose output of errors", "v", false)
 cli:add_option("-c, --color", "disable colored output", "c", false)
+cli:add_option("-u, --disable-utf", "disable utf-16 output", "u", false)
 cli:add_option("-j, --json", "json output", "j", false)
 cli:add_option("-l, --lua=luajit", "path to the execution environment", nil, "luajit")
+
 cli:add_flag("--suppress-pending", "suppress 'pending' tests")
 cli:add_flag("--defer-print", "defer print to when test suite is complete (json output does this by default)")
 
@@ -56,14 +60,16 @@ if args then
     json = args["j"],
     suppress_pending = args["suppress-pending"],
     defer_print = args["defer-print"] or args["j"],
+    utf = not args["u"],
   })
 
   if args["version"] then
     return print("busted: version 0.0.0")
   end
 
-  local rootFile = args.ROOT or nil
+  local rootFile = args.ROOT or "./spec"
   local found = false
+
   for filename,attr in dirtree(rootFile) do
     if attr.mode == 'file' then
       local file = loadfile(filename)
