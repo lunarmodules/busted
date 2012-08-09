@@ -8,7 +8,7 @@ local global_context = { type = "describe", description = "global" }
 local current_context = global_context
 local busted_options = {}
 
-output = require("src/output/utf_terminal")()
+output = require('output.utf_terminal')()
 
 -- Internal functions
 
@@ -16,7 +16,7 @@ local test = function(description, callback)
   local debug_info = debug.getinfo(callback)
 
   local info = {
-    source = debug_info.source, 
+    source = debug_info.source,
     short_src = debug_info.short_src,  
     linedefined = debug_info.linedefined,
   }
@@ -75,7 +75,7 @@ local play_sound = function(failures)
 
   math.randomseed(os.time())
 
-  if failures > 0 then
+  if failures then
     os.execute("say \""..string.format(failure_messages[math.random(1, #failure_messages)], failures).."\"")
   else
     os.execute("say \""..success_messages[math.random(1, #failure_messages)].."\"")
@@ -121,7 +121,7 @@ pending = function(description, callback)
   local debug_info = debug.getinfo(callback)
 
   local info = {
-    source = debug_info.source, 
+    source = debug_info.source,
     short_src = debug_info.short_src,  
     linedefined = debug_info.linedefined,
   }
@@ -155,7 +155,7 @@ set_busted_options = function(options)
   busted_options = options
 
   if options.output_lib then
-    output = require("src/output/"..options.output_lib)()
+    output = require('output.'..options.output_lib)()
   end
 end
 
