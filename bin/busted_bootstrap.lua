@@ -43,26 +43,27 @@ cli:add_flag("--version", "prints the program's version and exits")
 
 cli:add_argument("ROOT", "test script file/folder")
 
-cli:add_option("-v", "verbose output of errors", "v", false)
-cli:add_option("-c, --color", "disable colored output", "c", false)
-cli:add_option("-u, --disable-utf", "disable utf-16 output", "u", false)
-cli:add_option("-j, --json", "json output", "j", false)
-cli:add_option("-l, --lua=luajit", "path to the execution environment", nil, "luajit")
-cli:add_option("-s, --enable-sound", "a special treat", "s", false)
+cli:add_option("-o, --output=LIBRARY", "output library to load (from src/output)", "output_lib", "utf_terminal")
+cli:add_option("-l, --lua=luajit", "path to the execution environment")
 
+cli:add_flag("-v", "verbose output of errors")
+cli:add_flag("-s, --enable-sound", "a special treat")
 cli:add_flag("--suppress-pending", "suppress 'pending' tests")
 cli:add_flag("--defer-print", "defer print to when test suite is complete (json output does this by default)")
 
+
 local args = cli:parse_args()
+
 if args then
   set_busted_options({
     verbose = args["v"],
     color = not args["c"],
     json = args["j"],
     suppress_pending = args["suppress-pending"],
-    defer_print = args["defer-print"] or args["j"],
+    defer_print = args["defer-print"],
     utf = not args["u"],
     sound = args["s"],
+    output_lib = args["output_lib"],
   })
 
   if args["version"] then
