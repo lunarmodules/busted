@@ -12,8 +12,6 @@ describe("Test Case", function()
   assert(test_val)
 end)
 
-
-
 describe("Test case", function()
   local test_val = false
 
@@ -22,7 +20,6 @@ describe("Test case", function()
     assert(test_val)
   end)
 end)
-
 
 describe("Before each", function()
   local test_val = false
@@ -38,7 +35,6 @@ describe("Before each", function()
   end)
 end)
 
-
 describe("After each", function()
   local test_val = false
 
@@ -51,8 +47,6 @@ describe("After each", function()
     assert(test_val)
   end)
 end)
-
-
 
 describe("Both before and after each", function()
   local test_val = 0
@@ -73,7 +67,6 @@ describe("Both before and after each", function()
     while os.clock()-time < 1 do end
   end)
 end)
-
 
 describe("Before_each on describe blocks", function()
   local test_val = 0
@@ -120,6 +113,6 @@ end)
 
 describe("A failing test", function()
   it("explodes", function()
-    --assert(false, "this should fail")
+    assert(false, "this should fail")
   end)
 end)

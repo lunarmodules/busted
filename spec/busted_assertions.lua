@@ -1,5 +1,4 @@
 describe("Test Assertions", function()
-
   it("Tests Assert Same", function()
     local table1 = { derp = false}
     local table2 = { derp = false}
@@ -24,11 +23,11 @@ describe("Test Assertions", function()
   end)
 
   it("Tests NOT operator", function()
-    assert.isnot().equals(true, true)
+    assert.isnot().equals(true, false)
   end)
 
   it("Tests assert error", function()
-    assert.error(function()error("test")end)
+    assert.error(function() error("test") end)
   end)
 end)
 

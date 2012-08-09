@@ -1,5 +1,6 @@
 require("lib/assert")
-json = require("dkjson")
+
+local json = require("dkjson")
 local ansicolors = require("lib/ansicolors")
 local global_context = { type = "describe", description = "global" }
 local current_context = global_context
@@ -81,7 +82,7 @@ test = function(description, callback)
   }
 
   local status,err = pcall(callback)
-print(err)
+
   if err then
     if not busted_options.defer_print then
       io.write("\08"..failure_string())

@@ -1,4 +1,5 @@
 local util = require 'lib/util'
+old_assert = assert
 
 assert = {}
 assert.mod = true
@@ -12,9 +13,7 @@ end
 
 assert.__callerMeta = {}
 function assert.__callerMeta.__call(assertion, ...)
-  print(json.encode(arg))
-  print(rawget(assertion, "mod"))
-  if rawget(rawget(assert, "assertions")[rawget(assertion, "name"):lower()], "assertion")(unpack(arg)) == rawget(assertion, "mod") then
+  if rawget(rawget(assert, "assertions")[rawget(assertion, "name"):lower()], "assertion")(...) ~= rawget(assertion, "mod") then
     error(rawget(assertion, "errormessage"))
   end
   return true
@@ -22,10 +21,7 @@ end
 
 assert.__meta = {}
 function assert.__meta.__call(table, bool, message)
-  if not bool then
-    error(message)
-  end
-  return true
+  return old_assert(bool, message)
 end
 
 function assert.__meta.__index(table, key)
@@ -61,7 +57,7 @@ function assert.none(list)
   error("NOT IMPLEMENTED")
 end
 
-function error(func)
+local function has_error(func)
   return not pcall(func)
 end
 
@@ -72,7 +68,7 @@ function assert.unique(list, deep)
         if deep and util.deepcompare(v, v2, true) then
           return false
         else
-          if v==v2 then
+          if v == v2 then
             return false
           end
         end
@@ -84,7 +80,7 @@ end
 
 local function equals(...)
   local prev = nil
-  for k,v in pairs(arg) do
+  for k,v in pairs({...}) do
     if prev ~= nil and prev ~= v then
       return false
     end
@@ -95,10 +91,13 @@ end
 
 local function same(...)
   local prev = nil
-  for k,v in pairs(arg) do
+  for k,v in pairs({...}) do
     if prev ~= nil then
-      if type(prev) == 'table' and type(v) == 'table' and not util.deepcompare(prev, v, true) then
-        return false
+
+      if type(prev) == 'table' and type(v) == 'table' then
+        if not util.deepcompare(prev, v, true) then
+          return false
+        end
       else
         if prev ~= v then
           return false
@@ -113,6 +112,6 @@ end
 assert:register("same", same, "These values are not the same")
 assert:register("equals", equals, "These values are not equal")
 assert:register("unique", unique, "These values are not unique")
-assert:register("error", error, "Expected error from function")
+assert:register("error", has_error, "Expected error from function")
 
 assert=setmetatable(assert, assert.__meta)
