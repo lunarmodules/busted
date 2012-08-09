@@ -1,0 +1,70 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Busted by Olivine-Labs</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Busted</h1>
+        <p>Elegant Lua unit testing.</p>
+
+        <p class="view"><a href="https://github.com/Olivine-Labs/busted">View the Project on GitHub <small>Olivine-Labs/busted</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/Olivine-Labs/busted/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/Olivine-Labs/busted/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/Olivine-Labs/busted">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>busted</h1>
+
+<p>Awesome unit testing in Lua.</p>
+
+<h2>Usage</h2>
+
+<div class="highlight"><pre><span class="nb">require</span><span class="p">(</span><span class="s2">"</span><span class="s">busted"</span><span class="p">)</span>
+
+<span class="n">describe</span><span class="p">(</span><span class="s2">"</span><span class="s">Busted unit testing framework, function()</span>
+  <span class="n">describe</span><span class="p">(</span><span class="s2">"</span><span class="s">should be awesome"</span><span class="p">,</span> <span class="k">function</span><span class="p">()</span>
+    <span class="n">it</span><span class="p">(</span><span class="s2">"</span><span class="s">should be easy to use"</span><span class="p">,</span> <span class="k">function</span><span class="p">()</span>
+      <span class="n">assert</span><span class="p">.</span><span class="n">truthy</span><span class="p">(</span><span class="s2">"</span><span class="s">Yup."</span><span class="p">)</span>
+    <span class="k">end</span><span class="p">)</span>
+
+    <span class="n">it</span><span class="p">(</span><span class="s2">"</span><span class="s">should have lots of features, function()</span>
+      <span class="n">assert_equal</span><span class="p">({</span> <span class="n">table</span> <span class="o">=</span> <span class="s2">"</span><span class="s">great"</span><span class="p">},</span> <span class="p">{</span> <span class="n">table</span> <span class="o">=</span> <span class="s2">"</span><span class="s">great"</span> <span class="p">})</span>
+      <span class="n">assert</span><span class="p">.</span><span class="n">not_same</span><span class="p">({</span> <span class="n">table</span> <span class="o">=</span> <span class="s2">"</span><span class="s">great"</span><span class="p">},</span> <span class="p">{</span> <span class="n">table</span> <span class="o">=</span> <span class="s2">"</span><span class="s">great"</span><span class="p">})</span>
+    <span class="k">end</span><span class="p">)</span>
+
+    <span class="n">it</span><span class="p">(</span><span class="s2">"</span><span class="s">should be easy to read"</span><span class="p">,</span> <span class="k">function</span><span class="p">()</span>
+      <span class="n">object_mock</span> <span class="o">=</span> <span class="n">mock</span><span class="p">(</span><span class="n">myObject</span><span class="p">)</span>
+      <span class="n">spy_on</span><span class="p">(</span><span class="n">object_mock</span><span class="p">.</span><span class="n">alert</span><span class="p">)</span>
+
+      <span class="n">object_mock</span><span class="p">.</span><span class="n">alert</span><span class="p">(</span><span class="s2">"</span><span class="s">Lua"</span><span class="p">)</span>
+
+      <span class="n">assert</span><span class="p">.</span><span class="n">called_with</span><span class="p">(</span><span class="s2">"</span><span class="s">object_mock"</span><span class="p">,</span> <span class="s2">"</span><span class="s">Lua"</span><span class="p">)</span>
+    <span class="k">end</span><span class="p">)</span>
+  <span class="k">end</span><span class="p">)</span>
+<span class="k">end</span><span class="p">)</span>
+</pre></div>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/Olivine-Labs">Olivine-Labs</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
