@@ -1,43 +1,118 @@
-local function deepcompare(t1,t2,ignore_mt)
-  local ty1 = type(t1)
-  local ty2 = type(t2)
-  if ty1 ~= ty2 then return false end
-  -- non-table types can be directly compared
-  if ty1 ~= 'table' and ty2 ~= 'table' then return t1 == t2 end
-  -- as well as tables which have the metamethod __eq
-  local mt = getmetatable(t1)
-  if not ignore_mt and mt and mt.__eq then return t1 == t2 end
-  for k1,v1 in pairs(t1) do
-    local v2 = t2[k1]
-    if v2 == nil or not deepcompare(v1,v2) then return false end
-  end
-  for k2,v2 in pairs(t2) do
-    local v1 = t1[k2]
-    if v1 == nil or not deepcompare(v1,v2) then return false end
+local util = require 'lib/util'
+
+assert = {}
+assert.mod = true
+assert.assertions = {}
+
+assert.__assertionMeta = {}
+function assert.__assertionMeta.__index(table, key)
+  rawget(assert, "assertions")[key:lower()].mod = rawget(table, "mod")
+  return rawget(assert, "assertions")[key:lower()]
+end
+
+assert.__callerMeta = {}
+function assert.__callerMeta.__call(assertion, ...)
+  print(json.encode(arg))
+  print(rawget(assertion, "mod"))
+  if rawget(rawget(assert, "assertions")[rawget(assertion, "name"):lower()], "assertion")(unpack(arg)) == rawget(assertion, "mod") then
+    error(rawget(assertion, "errormessage"))
   end
   return true
 end
 
-local __meta = {
-  __call = function(self, bool, message)
-    if not bool then
-      error(message)
-    end
+assert.__meta = {}
+function assert.__meta.__call(table, bool, message)
+  if not bool then
+    error(message)
   end
-}
+  return true
+end
 
-local object = {
-
-equals = function(arg1, arg2)
-  return arg1 == arg2
-end,
-
-same = function(arg1, arg2, includemeta)
-  if type(arg1) == 'table' and type(arg2) == 'table' then
-    deepcompare(arg1, arg2, not includemeta)
+function assert.__meta.__index(table, key)
+  if rawget(table, "assertions")[key:lower()] then
+    rawget(table, "assertions")[key:lower()].mod = rawget(table, "mod")
+    return rawget(table, "assertions")[key:lower()]
   else
-    return object.equals(arg1, arg2)
+    return rawget(table, key:lower())
   end
 end
-}
-return setmetatable(object, __meta)
+
+function assert:register(name, assertion, errormessage)
+  rawget(self, "assertions")[name:lower()] = setmetatable({mod=false, assertion = assertion, name = name:lower(), errormessage=errormessage}, rawget(assert, "__callerMeta"))
+end
+
+function assert.is()
+  return setmetatable({
+    mod = true
+  }, rawget(assert, "__assertionMeta"))
+end
+
+function assert.isnot()
+  return setmetatable({
+    mod = false
+  }, rawget(assert, "__assertionMeta"))
+end
+
+function assert.all(list)
+  error("NOT IMPLEMENTED")
+end
+
+function assert.none(list)
+  error("NOT IMPLEMENTED")
+end
+
+function error(func)
+  return not pcall(func)
+end
+
+function assert.unique(list, deep)
+  for k,v in pairs(list) do
+    for k2, v2 in pairs(list) do
+      if k ~= k2 then
+        if deep and util.deepcompare(v, v2, true) then
+          return false
+        else
+          if v==v2 then
+            return false
+          end
+        end
+      end
+    end
+  end
+  return true
+end
+
+local function equals(...)
+  local prev = nil
+  for k,v in pairs(arg) do
+    if prev ~= nil and prev ~= v then
+      return false
+    end
+    prev = v
+  end
+  return true
+end
+
+local function same(...)
+  local prev = nil
+  for k,v in pairs(arg) do
+    if prev ~= nil then
+      if type(prev) == 'table' and type(v) == 'table' and not util.deepcompare(prev, v, true) then
+        return false
+      else
+        if prev ~= v then
+          return false
+        end
+      end
+    end
+    prev = v
+  end
+  return true
+end
+
+assert:register("same", same, "These values are not the same")
+assert:register("equals", equals, "These values are not equal")
+assert:register("unique", unique, "These values are not unique")
+assert:register("error", error, "Expected error from function")
+
+assert=setmetatable(assert, assert.__meta)

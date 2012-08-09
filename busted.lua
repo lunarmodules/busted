@@ -1,13 +1,11 @@
-
-local json = require("dkjson")
+require("lib/assert")
+json = require("dkjson")
 local ansicolors = require("lib/ansicolors")
 local global_context = { type = "describe", description = "global" }
 local current_context = global_context
 local busted_options = {}
-
-assert = require("lib/assert")
-
 local equalTables = (function(traverse, equalTables)
+
   -- traverse a table, and test equality to another
   traverse = function(primary, secondary)
     -- use pairs for both the hash, and array part of the table
@@ -83,7 +81,7 @@ test = function(description, callback)
   }
 
   local status,err = pcall(callback)
-
+print(err)
   if err then
     if not busted_options.defer_print then
       io.write("\08"..failure_string())
