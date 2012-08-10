@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
 
-    <title>busted : Lua unit testing, by Olivine-Labs</title>
+    <title>busted : Elegant Lua unit testing, by Olivine-Labs</title>
 
     <link rel="stylesheet" href="css/solarized-light.css">
     <link rel="stylesheet" href="css/bootstrap-responsive.min.css">
@@ -46,13 +46,18 @@
             <strong>easy to use</strong>.
           </p>
           <p>
-            Clean interfaces, compatibility with most CI systems, and BDD-style
-            syntax make using busted easy to write and easy to read. Options
-            let you customize the output, from pretty terminal colors to JSON.
+            busted test specs read naturally without being too verbose. You can
+            even chain asserts and negations, such as <code data-language="lua">assert.not.equal</code>.
+            Nest blocks of tests with contextual descriptions using <code data-language="lua">describe</code>, and
+            add tags to blocks so you can run arbitrary groups of tests.
           <p>
           <p>
             An extensible assert library allows you to extend and craft your
             own assert functions specific to your case with method chaining.
+            A modular output library lets you add on your own output format,
+            along with the default pretty and plain terminal output, JSON
+            with and without streaming, and TAP-compatible output that allows
+            you to run busted specs within most CI servers.
           </p>
 
 <pre><code data-language="lua">
@@ -100,7 +105,7 @@ end)
             </div>
           </div>
 
-          <h4>Supported Asserts</h4>
+          <h4>Default Asserts</h4>
 
           <p>
             The following functions are exposed under the <code>asserts</code>
@@ -108,15 +113,29 @@ end)
           </p>
 
           <ul class="asserts">
-            <li><code>equal(...)</code> checks if the objects are the same instance</li>
-            <li><code>same(...)</code> checks if the objects contain the same data (useful for comparing tables)</li>
-            <li><code>not</code> negates the expression (such as assert.not.equal)</li>
+            <li><code data-language="lua">equal(...)</code> checks if the objects are the same instance</li>
+            <li><code data-language="lua">same(...)</code> checks if the objects contain the same data (useful for comparing tables)</li>
+            <li><code data-language="lua">not</code> negates the expression (such as assert.not.equal)</li>
             <!--
             <li><code>spy(spy)</code> check if the spy has the following expression</li>
             <li><code>was_called</code> check if the spy has the following expression</li>
             <li><code>was_called_with(...)</code> check if the spy was called with the supplied parameters</li>
             <li><code>was_called_times(int)</code> check if the spy was called a certain number of times</li>
             -->
+          </ul>
+
+          <h4>Default Outputs</h4>
+
+          <p>
+            Different outputs can be used by passing in the -o flag into the
+            busted cli. Uses <strong>utf_terminal</strong> by default.
+          </p>
+
+          <ul class="asserts">
+            <li><strong>utf_terminal</strong> uses utf-16 characters and ansicoloring for the experience shown above.</li>
+            <li><strong>plain_terminal</strong> uses only utf-8 characters and no coloring for wide support.</li>
+            <li><strong>json</strong> outputs json, either streaming by default or all at once with the --defered-print flag.</li>
+            <li><strong>TAP</strong> outputs test results in a format readable by most automated testing suites.</li>
           </ul>
         </div>
       </div>
