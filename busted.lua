@@ -5,6 +5,9 @@ local global_context = { type = "describe", description = "global" }
 local current_context = global_context
 local busted_options = {}
 
+local successes = 0
+local failures = 0
+
 output = require('output.utf_terminal')()
 
 -- Internal functions
@@ -20,10 +23,14 @@ local test = function(description, callback)
 
   local status, err = pcall(callback)
 
-  local test_status = { type = "success", description = description, info = info }
+  local test_status = {}
 
   if err then
     test_status = { type = "failure", description = description, info = info, trace = debug.traceback(), err = err }
+    failures = failures + 1
+  else
+    successes = successes + 1
+    test_status = { type = "success", description = description, info = info }
   end
 
   if not busted_options.defer_print then
@@ -64,12 +71,19 @@ local play_sound = function(failures)
     "You have %d busted specs",
     "Your specs are busted",
     "Your code is bad and you should feel bad",
+    "Your code is in the Danger Zone",
+    "Strange game. The only way to win is not to test",
+    "My grandmother wrote better specs on a 3 86",
+    "Every time there's a failure, drink another beer",
+    "Feels bad man"
   }
 
   local success_messages = {
     "Aww yeah, passing specs",
     "Doesn't matter, had specs",
     "Feels good, man",
+    "Great success",
+    "Tests pass, drink another beer",
   }
 
   math.randomseed(os.time())
@@ -100,6 +114,8 @@ local busted = function()
     print(output.header(global_context))
   end
 
+  successes = 0
+  failures = 0
   return output.formatted_status(statuses, busted_options, ms)
 end
 
