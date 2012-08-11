@@ -52,7 +52,17 @@ local function same(...)
   return true
 end
 
+local function truthy(var)
+  return var ~= false and var ~= nil
+end
+
+local function falsy(var)
+  return not truthy(var)
+end
+
 assert:register("same", same, "These values are not the same")
 assert:register("equals", equals, "These values are not equal")
 assert:register("unique", unique, "These values are not unique")
 assert:register("error", has_error, "Expected error from function")
+assert:register("truthy", truthy, "This value is not truthy")
+assert:register("falsy", falsy, "This value is not falsy")
