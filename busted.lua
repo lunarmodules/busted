@@ -88,10 +88,10 @@ local play_sound = function(failures)
 
   math.randomseed(os.time())
 
-  if failures then
+  if failures > 0 then
     os.execute("say \""..string.format(failure_messages[math.random(1, #failure_messages)], failures).."\"")
   else
-    os.execute("say \""..success_messages[math.random(1, #failure_messages)].."\"")
+    os.execute("say \""..success_messages[math.random(1, #success_messages)].."\"")
   end
 end
 
@@ -114,8 +114,6 @@ local busted = function()
     print(output.header(global_context))
   end
 
-  successes = 0
-  failures = 0
   return output.formatted_status(statuses, busted_options, ms)
 end
 
