@@ -76,12 +76,15 @@ if args then
 
   for filename,attr in dirtree(rootFile) do
     if attr.mode == 'file' then
-      local file, err = loadfile(filename)
-      if file then
-        file()
-        found = true
-      else
-        print("Error during test load::"..err)
+      local path,derp,ext = string.match(filename, "(.-)([^\\]-([^%.]+))$")
+      if ext == 'lua' then
+        local file, err = loadfile(filename)
+        if file then
+          file()
+          found = true
+        else
+          print("Error during test load::"..err)
+        end
       end
     end
   end
