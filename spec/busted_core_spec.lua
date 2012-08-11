@@ -17,7 +17,7 @@ describe("Test case", function()
 
   it("changes test_val to true", function()
     test_val = true
-    assert(false)
+    assert(test_val)
   end)
 end)
 
