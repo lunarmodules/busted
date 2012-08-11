@@ -76,10 +76,12 @@ if args then
 
   for filename,attr in dirtree(rootFile) do
     if attr.mode == 'file' then
-      local file = loadfile(filename)
+      local file, err = loadfile(filename)
       if file then
         file()
         found = true
+      else
+        print("Error during test load::"..err)
       end
     end
   end
