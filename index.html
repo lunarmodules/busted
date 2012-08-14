@@ -142,10 +142,10 @@ end)
           </p>
 
           <ul class="asserts">
-            <li><strong>utf_terminal</strong> uses utf-16 characters and ansicoloring for the experience shown above.</li>
-            <li><strong>plain_terminal</strong> uses only utf-8 characters and no coloring for wide support.</li>
-            <li><strong>json</strong> outputs json, either streaming by default or all at once with the --defered-print flag.</li>
-            <li><strong>TAP</strong> outputs test results in a format readable by most automated testing suites.</li>
+            <li><a href="#output-utf_terminal"><strong>utf_terminal</strong></a> uses utf-16 characters and ansicoloring for the experience shown above.</li>
+            <li><a href="#output-plain_terminal"><strong>plain_terminal</strong></a> uses only utf-8 characters and no coloring for wide support.</li>
+            <li><a href="#output-json"><strong>json</strong></a> outputs json, either streaming by default or all at once with the --defered-print flag.</li>
+            <li><a href="#output-TAP"><strong>TAP</strong></a> outputs test results in a format readable by most automated testing suites.</li>
           </ul>
         </div>
       </div>
@@ -250,8 +250,8 @@ end)
 
         </div>
       </section>
-      <section class="division">
 
+      <section class="division">
         <div class="row">
           <div class="span3">
             <h2 id="asserts">Asserts</h2>
@@ -260,7 +260,7 @@ end)
               write your tests. Asserts in busted work by chaining a mod value
               by using <code>is</code> or <code>is_not</code>, followed by the assert you wish to use.
               It's easy to extend busted and add your own asserts by building an
-              assert with a commmon signature and registerting it.
+              assert with a commmon signature and <a href="#assert-extend">registerting it</a>.
             </p>
           </div>
           <div class="span9">
@@ -355,6 +355,103 @@ describe("some asserts", function()
     assert.error(error("Yup,  it errored"))
   end)
 end)
+</code></pre>
+
+            
+            <h4 id="assert-extend">Extending Your Own Assertions</h4>
+            <p>
+              Add in your own assertions to reuse commonly written code.
+            </p>
+<pre><code data-language="lua">require("busted")
+
+local function has_property(table, prop)
+  for _, value in pairs(table) do
+    if value == prop then
+      return true
+    end
+  end
+  return false
+end
+
+assert:register("has_property", has_property, "This table does not contain the property.")
+
+describe("my table", function()
+  it("has a name property", function()
+    assert.has_property({ name = "Jack" }, "name")
+  end)
+end)
+</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <section class="division">
+        <div class="row">
+          <div class="span3">
+            <h2 id="asserts">Output Types</h2>
+            <p>
+              Busted supports several output types by default, and it's easy to
+              extend busted to include your own output types.
+            </p>
+          </div>
+          <div class="span9">
+            <h4 id="output-utf_terminal">UTF and Coloring: Pretty Terminal Output with utf_terminal</h4>
+            <p>Uses ansicolors and utf to display a concise but informative output.</p>
+
+            <img src="http://f.cl.ly/items/0z0K0V3x0q123V2z0e3p/Screen%20Shot%202012-08-08%20at%2011.10.00%20PM.png" />
+
+            <h4 id="output-plain_terminal">Clean output with plain_terminal</h4>
+            <p>Uses safe characters and no coloring.</p>
+
+            <img src="http://f.cl.ly/items/313v152a0E222X0z183p/Image%202012.08.14%201:09:41%20PM.png" />
+
+            <h4 id="output-json">JSON for integration with json output</h4>
+            <p>Useful for streaming or loading all results at once with the --defer-print flag.</p>
+
+            <img src="http://f.cl.ly/items/2L0l1W0n1b2N1w343b3m/Image%202012.08.14%201:10:00%20PM.png" />
+
+            <h4 id="output-json">TAP for use with CI systems</h4>
+            <p><a href="">TAP</a> is an agnostic protocol used by most automated testing suites.</p>
+
+            <img src="http://f.cl.ly/items/443E1g1B2m313i2O0b3T/Image%202012.08.14%201:10:13%20PM.png" />
+
+            <h4>Registering Your Own Output Type</h4>
+
+            <p>
+              If you pass the -o flag a path instead of a name, it will look 
+              in that path to load the output file. Check out the 
+              <a href="https://github.com/Olivine-Labs/busted/tree/master/src/output" targt="_blank">existing output files</a>
+              for examples. It should have a signature like:
+            </p>
+
+<pre><code data-language="lua">
+-- custom_output.lua
+
+local output = function()
+  return {
+    header = function(context_tree)
+      -- return if you want to write something specific at the top of the output
+    end,
+
+    footer = function(context_tree)
+      --  return if you want to write something specific at the top of the output
+    end
+
+    formatted_status = function(statuses, options, ms)
+      -- displays at the end of the test. options contains options passed
+      -- into the busted CLI, and ms is the ms spent running the tests.
+      -- statuses is a list of test statuses after being run. You usually
+      -- only return if options.defer_print.
+    end
+
+    currently_executing = function(test_status, options)
+      -- Fired off if options.defer_print is not true. You usually
+      -- io.write a status and then io.flush() to write it to output.
+    end
+  }
+end
+
+return output
 </code></pre>
           </div>
         </div>
