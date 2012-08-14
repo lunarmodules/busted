@@ -179,7 +179,7 @@ Optional arguments:
       <section class="division">
         <div class="row">
           <div class="span3">
-            <h2 id="defining-tests">Definfing Tests</h2>
+            <h2 id="defining-tests">Defining Tests</h2>
             <p>
               Set up your tests using <code>describe</code> and <code>it</code>
               blocks. These take a description (to be used for output) and
@@ -378,7 +378,7 @@ end)
 
 describe("some asserts", function()
   it("should throw an error", function()
-    assert.error(error("Yup,  it errored"))
+    assert.error(function() error("Yup,  it errored") end)
   end)
 end)
 </code></pre>
