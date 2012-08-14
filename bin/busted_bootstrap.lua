@@ -44,13 +44,13 @@ cli:add_flag("--version", "prints the program's version and exits")
 
 cli:add_argument("ROOT", "test script file/folder")
 
-cli:add_option("-o, --output=LIBRARY", "output library to load (from src/output)", "output_lib", "utf_terminal")
-cli:add_option("-l, --lua=luajit", "path to the execution environment")
+cli:add_option("-o, --output=LIBRARY", "output library to load", "output_lib", "utf_terminal")
+cli:add_option("-l, --lua=luajit", "path to the execution environment (lua or luajit)")
 
 cli:add_flag("-v", "verbose output of errors")
-cli:add_flag("-s, --enable-sound", "a special treat")
-cli:add_flag("--suppress-pending", "suppress 'pending' tests")
-cli:add_flag("--defer-print", "defer print to when test suite is complete (json output does this by default)")
+cli:add_flag("-s, --enable-sound", "executes 'say' command if available")
+cli:add_flag("--suppress-pending", "suppress 'pending' test output")
+cli:add_flag("--defer-print", "defer print to when test suite is complete")
 
 
 local args = cli:parse_args()
