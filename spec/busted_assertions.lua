@@ -29,7 +29,10 @@ describe("Test Assertions", function()
   end)
 
   it("Ensures that error only throws an error when the first argument function does not throw an error", function()
-    assert.error(function() error("test") end)
+    local test_function = function() error("test") end
+    assert.has.error(test_function)
+    assert.has.error(test_function, "test")
+    assert.has_no.errors(test_function, "derp")
   end)
 
   it("Checks to see if var is truthy", function()

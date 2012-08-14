@@ -21,12 +21,18 @@ local test = function(description, callback)
     linedefined = debug_info.linedefined,
   }
 
-  local status, err = pcall(callback)
+  local stack_trace = ""
+  local function err_handler(err)
+    stack_trace = debug.traceback("", 3)
+    return err
+  end
+
+  local status, err = xpcall(callback, err_handler)
 
   local test_status = {}
 
   if err then
-    test_status = { type = "failure", description = description, info = info, trace = debug.traceback(), err = err }
+    test_status = { type = "failure", description = description, info = info, trace = stack_trace, err = err }
     failures = failures + 1
   else
     successes = successes + 1

@@ -70,9 +70,12 @@ assert = {
 -- raw functions, these are the builtins that manipulate the results or uses of the registered assertions
 function assert.raw.is() return setmetatable({mod = true}, assert.__assertionMeta) end
 function assert.raw.are() return assert.raw.is() end
+function assert.raw.has() return assert.raw.is() end
 
 function assert.raw.is_not() return setmetatable({mod = false}, assert.__assertionMeta) end
 function assert.raw.are_not() return assert.raw.is_not() end
+function assert.raw.has_not() return assert.raw.is_not() end
+function assert.raw.has_no() return assert.raw.is_not() end
 
 function assert.raw.all(list) error("NOT IMPLEMENTED")end
 function assert.raw.none(list) error("NOT IMPLEMENTED")end
