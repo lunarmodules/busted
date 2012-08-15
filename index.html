@@ -461,7 +461,7 @@ describe("spies", function()
     spy.on(t, "greet")
 
     t.greet("Hey!") -- prints 'Hey!'
-    assert(t.greet).was_called_with("Hey!")
+    assert.spy(t.greet).was_called_with("Hey!")
   end)
 end)
 </code></pre>
@@ -483,7 +483,7 @@ describe("stubs", function()
     stub(t, "greet")
 
     t.greet("Hey!") -- DOES NOT print 'Hey!'
-    assert(t.greet).was.called_with("Hey!")
+    assert.spy(t.greet).was.called_with("Hey!")
   end)
 end)
 </code></pre>
