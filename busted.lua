@@ -8,100 +8,104 @@ local busted_options = {}
 local successes = 0
 local failures = 0
 
-output = require('output.utf_terminal')()
+local output = require('output.utf_terminal')()
+
+spy = require('luassert.spy')
+mock = require('luassert.mock')
 
 -- Internal functions
 
-local test = function(description, callback)
-  local debug_info = debug.getinfo(callback)
+local function busted()
 
-  local info = {
-    source = debug_info.source,
-    short_src = debug_info.short_src,  
-    linedefined = debug_info.linedefined,
-  }
+  local function test(description, callback)
+    local debug_info = debug.getinfo(callback)
 
-  local stack_trace = ""
-  local function err_handler(err)
-    stack_trace = debug.traceback("", 3)
-    return err
-  end
+    local info = {
+      source = debug_info.source,
+      short_src = debug_info.short_src,
+      linedefined = debug_info.linedefined,
+    }
 
-  local status, err = xpcall(callback, err_handler)
-
-  local test_status = {}
-
-  if err then
-    test_status = { type = "failure", description = description, info = info, trace = stack_trace, err = err }
-    failures = failures + 1
-  else
-    successes = successes + 1
-    test_status = { type = "success", description = description, info = info }
-  end
-
-  if not busted_options.defer_print then
-    output.currently_executing(test_status, busted_options)
-  end
-
-  return test_status
-end
-
-run_context = function(context)
-  local status = { description = context.description, type = "description" }
-
-  for i,v in ipairs(context) do
-    if context.before_each ~= nil then
-      context.before_each()
+    local stack_trace = ""
+    local function err_handler(err)
+      stack_trace = debug.traceback("", 3)
+      return err
     end
 
-    if v.type == "test" then
-      table.insert(status, test(v.description, v.callback))
-    elseif v.type == "describe" then
-      table.insert(status, run_context(v))
-    elseif v.type == "pending" then
-      local pending_test_status = { type = "pending", description = v.description, info = v.info }
-      v.callback(pending_test_status)
-      table.insert(status, pending_test_status)
+    local status, err = xpcall(callback, err_handler)
+
+    local test_status = {}
+
+    if err then
+      test_status = { type = "failure", description = description, info = info, trace = stack_trace, err = err }
+      failures = failures + 1
+    else
+      successes = successes + 1
+      test_status = { type = "success", description = description, info = info }
     end
 
-    if context.after_each ~= nil then
-      context.after_each()
+    if not busted_options.defer_print then
+      output.currently_executing(test_status, busted_options)
+    end
+
+    return test_status
+  end
+
+  local function run_context(context)
+    local status = { description = context.description, type = "description" }
+
+    for i,v in ipairs(context) do
+      if context.before_each ~= nil then
+        context.before_each()
+      end
+
+      if v.type == "test" then
+        table.insert(status, test(v.description, v.callback))
+      elseif v.type == "describe" then
+        table.insert(status, run_context(v))
+      elseif v.type == "pending" then
+        local pending_test_status = { type = "pending", description = v.description, info = v.info }
+        v.callback(pending_test_status)
+        table.insert(status, pending_test_status)
+      end
+
+      if context.after_each ~= nil then
+        context.after_each()
+      end
+    end
+
+    return status
+  end
+
+  local play_sound = function(failures)
+    local failure_messages = {
+      "You have %d busted specs",
+      "Your specs are busted",
+      "Your code is bad and you should feel bad",
+      "Your code is in the Danger Zone",
+      "Strange game. The only way to win is not to test",
+      "My grandmother wrote better specs on a 3 86",
+      "Every time there's a failure, drink another beer",
+      "Feels bad man"
+    }
+
+    local success_messages = {
+      "Aww yeah, passing specs",
+      "Doesn't matter, had specs",
+      "Feels good, man",
+      "Great success",
+      "Tests pass, drink another beer",
+    }
+
+    math.randomseed(os.time())
+
+    if failures > 0 then
+      os.execute("say \""..string.format(failure_messages[math.random(1, #failure_messages)], failures).."\"")
+    else
+      os.execute("say \""..success_messages[math.random(1, #success_messages)].."\"")
     end
   end
 
-  return status
-end
-
-local play_sound = function(failures)
-  local failure_messages = {
-    "You have %d busted specs",
-    "Your specs are busted",
-    "Your code is bad and you should feel bad",
-    "Your code is in the Danger Zone",
-    "Strange game. The only way to win is not to test",
-    "My grandmother wrote better specs on a 3 86",
-    "Every time there's a failure, drink another beer",
-    "Feels bad man"
-  }
-
-  local success_messages = {
-    "Aww yeah, passing specs",
-    "Doesn't matter, had specs",
-    "Feels good, man",
-    "Great success",
-    "Tests pass, drink another beer",
-  }
-
-  math.randomseed(os.time())
-
-  if failures > 0 then
-    os.execute("say \""..string.format(failure_messages[math.random(1, #failure_messages)], failures).."\"")
-  else
-    os.execute("say \""..success_messages[math.random(1, #success_messages)].."\"")
-  end
-end
-
-local busted = function()
   local ms = os.clock()
 
   if not busted_options.defer_print then
@@ -166,32 +170,6 @@ pending = function(description, callback)
   }
 
   table.insert(current_context, test_status)
-end
-
-spy_on = function(object, method)
-  error("Not implemented yet!")
-end
-
-mock = function(object)
-  if type(object) == "table" then
-    local ret = {}
-    for k,v in pairs(object) do
-      ret[k] = mock(v)
-    end
-    return setmetatable(ret, mock(getmetatable(object)))
-  elseif type(object) == "function" then
-    return function() end
-  elseif type(object) == "userdata" then
-    return {object}
-  elseif type(object) == "number" then
-    return 0
-  elseif type(object) == "boolean" then
-    return false
-  elseif type(object) == "thread" then
-    return coroutine.create(function() end)
-  else
-    return object
-  end
 end
 
 before_each = function(callback)

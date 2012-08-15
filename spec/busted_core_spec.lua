@@ -2,7 +2,7 @@ assert(type(describe) == "function")
 assert(type(it) == "function")
 assert(type(before_each) == "function")
 assert(type(after_each) == "function")
-assert(type(spy_on) == "function")
+assert(type(spy) == "table")
 assert(type(mock) == "function")
 
 local test_val = false
@@ -103,26 +103,8 @@ describe("Before_each on describe blocks, part II", function()
   end)
 end)
 
-describe("A pending test", function()
-  pending("I'll do it later.", function() end)
-end)
-
 describe("A failing test", function()
   it("explodes", function()
     assert.has.error(function() assert(false, "this should fail" ) end)
-  end)
-end)
-
-describe("Tests dealing with mocks", function()
-  local test = {
-    {
-      key = function()
-        return "derp"
-      end
-    }
-  }
-
-  it("doesn't error", function()
-      assert(type(mock(test)) == "table")
   end)
 end)
