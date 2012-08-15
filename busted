@@ -1,5 +1,6 @@
 #!/bin/sh
-BUSTED=$BASH_SOURCE"_bootstrap.lua"
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+BUSTED=$DIR"/bootstrap.lua"
 
 commandExists () {
     command -v "$1" &> /dev/null ;
@@ -28,4 +29,4 @@ else
   exit 1
 fi
 
-$COMMAND $BUSTED $*;
+$COMMAND "$BUSTED" $*;

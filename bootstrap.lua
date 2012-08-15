@@ -3,41 +3,17 @@
 --dirname function to get current directory
 --this allows us to be location agnostic
 local function dirname(f)
-  if not f then f=arg and arg[0] or "./" end
-  return string.gsub(f,"(.*/).*","%1")
+  if not f then f=arg and arg[0] or './' end
+  if f == 'bootstrap.lua' then f='./' end
+  return string.gsub(f,'(.*/).*','%1')
 end
 local dirname = dirname()
 
-package.path = dirname..'../?.lua;'..dirname..'../lib/?.lua;'..dirname..'../src/?.lua;'..package.path
+package.path = dirname..'?.lua;'..dirname..'lib/?.lua;'..dirname..'src/?.lua;'..package.path
 
 local busted = require 'busted'
 local cli = require 'cliargs'
 local lfs = require 'lfs'
-
-function dirtree(dir)
-  if string.sub(dir, -1) == "/" then
-    dir=string.sub(dir, 1, -2)
-  end
-
-  local function yieldtree(dir)
-    for entry in lfs.dir(dir) do
-      if entry ~= "." and entry ~= ".." then
-        entry=dir.."/"..entry
-        local attr=lfs.attributes(entry)
-        coroutine.yield(entry,attr)
-        if attr.mode == "directory" then
-          yieldtree(entry)
-        end
-      end
-    end
-  end
-  dirattr = lfs.attributes(dir)
-  if dirattr and dirattr.mode == "directory" then
-    return coroutine.wrap(function() yieldtree(dir) end)
-  else
-    return function() end
-  end
-end
 
 cli:set_name("busted")
 cli:add_flag("--version", "prints the program's version and exits")
@@ -46,6 +22,7 @@ cli:add_argument("ROOT", "test script file/folder")
 
 cli:add_option("-o, --output=LIBRARY", "output library to load", "output_lib", "utf_terminal")
 cli:add_option("-l, --lua=luajit", "path to the execution environment (lua or luajit)")
+cli:add_option("-d, --cwd=cwd", "path to current working directory")
 
 cli:add_flag("-v", "verbose output of errors")
 cli:add_flag("-s, --enable-sound", "executes 'say' command if available")
@@ -64,6 +41,7 @@ if args then
     defer_print = args["defer-print"],
     utf = not args["u"],
     sound = args["s"],
+    cwd = args["d"],
     output_lib = args["output_lib"],
   })
 
@@ -71,7 +49,36 @@ if args then
     return print("busted: version 0.0.0")
   end
 
+  function dirtree(dir)
+    if string.sub(dir, -1) == "/" then
+      dir=string.sub(dir, 1, -2)
+    end
+
+    local function yieldtree(dir)
+      for entry in lfs.dir(dir) do
+        if entry ~= "." and entry ~= ".." then
+          entry=dir.."/"..entry
+          local attr=lfs.attributes(entry)
+          coroutine.yield(entry,attr)
+          if attr.mode == "directory" then
+            yieldtree(entry)
+          end
+        end
+      end
+    end
+    dirattr = lfs.attributes(dir)
+    if dirattr and dirattr.mode == "directory" then
+      return coroutine.wrap(function() yieldtree(dir) end)
+    else
+      return function() end
+    end
+  end
+
   local rootFile = args.ROOT or "./spec"
+  if args["d"] then
+    rootFile = args["d"]..rootFile
+  end
+
   local found = false
 
   for filename,attr in dirtree(rootFile) do
