@@ -1,6 +1,7 @@
 body {
   background: #fbfbfb url('../img/subtle_dots.png');
   padding-top: 20px;
+  font-family: 'Open Sans', sans-serif;
 }
 
 .navbar-inner {
