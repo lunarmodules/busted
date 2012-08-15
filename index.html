@@ -506,8 +506,8 @@ describe("stubs", function()
     local m = mock(t)
 
     m.thing("Coffee")
-    assert(m.greet).was.called_with("Hey!")
-    assert(m.other_thing).was.called_with("Hey!")
+    assert.spy(m.greet).was.called_with("Hey!")
+    assert.spy(m.other_thing).was.called_with("Hey!")
   end)
 
   it("replaces a table with mocks using stubs", function()
@@ -519,8 +519,8 @@ describe("stubs", function()
     local m = mock(t, true)
 
     m.thing("Coffee")
-    assert(m.greet).was.called_with("Hey!")
-    assert(m.other_thing).was_not.called_with("Hey!")
+    assert.spy(m.greet).was.called_with("Hey!")
+    assert.spy(m.other_thing).was_not.called_with("Hey!")
   end)
 end)
 </code></pre>
