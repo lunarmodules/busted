@@ -4,11 +4,11 @@ source = {
   url = ""
 }
 description = {
-  summary = "Testing running command line things through lua",
+  summary = "A command line testing suite for lua",
   detailed = [[
-    wat
+    An elegant, extensible, testing framework.
   ]],
-  homepage = "",
+  homepage = "http://olivinelabs.com/busted/",
   license = "MIT <http://opensource.org/licenses/MIT>"
 }
 dependencies = {
