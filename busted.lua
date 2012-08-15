@@ -111,9 +111,9 @@ local function busted()
     math.randomseed(os.time())
 
     if failures > 0 then
-      os.execute("say \""..string.format(failure_messages[math.random(1, #failure_messages)], failures).."\"")
+      io.popen("say \""..string.format(failure_messages[math.random(1, #failure_messages)], failures).."\"")
     else
-      os.execute("say \""..success_messages[math.random(1, #success_messages)].."\"")
+      io.popen("say \""..success_messages[math.random(1, #success_messages)].."\"")
     end
   end
 
