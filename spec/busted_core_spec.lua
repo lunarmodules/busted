@@ -112,3 +112,17 @@ describe("A failing test", function()
     assert.has.error(function() assert(false, "this should fail" ) end)
   end)
 end)
+
+describe("Tests dealing with mocks", function()
+  local test = {
+    {
+      key = function()
+        return "derp"
+      end
+    }
+  }
+
+  it("doesn't error", function()
+      assert(type(mock(test)) == "table")
+  end)
+end)

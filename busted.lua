@@ -173,7 +173,25 @@ spy_on = function(object, method)
 end
 
 mock = function(object)
-  error("Not implemented yet!")
+  if type(object) == "table" then
+    local ret = {}
+    for k,v in pairs(object) do
+      ret[k] = mock(v)
+    end
+    return setmetatable(ret, mock(getmetatable(object)))
+  elseif type(object) == "function" then
+    return function() end
+  elseif type(object) == "userdata" then
+    return {object}
+  elseif type(object) == "number" then
+    return 0
+  elseif type(object) == "boolean" then
+    return false
+  elseif type(object) == "thread" then
+    return coroutine.create(function() end)
+  else
+    return object
+  end
 end
 
 before_each = function(callback)
