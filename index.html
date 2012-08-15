@@ -14,26 +14,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
     <!--[if lt IE 9]>
-      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
   </head>
   <body>
     <div class="container">
       <header class="hero-unit">
-        <h1 class="remove-bottom">busted</h1>
-        <h2>Elegant Lua unit testing.</h2>
+      <h1 class="remove-bottom">busted</h1>
+      <h2>Elegant Lua unit testing.</h2>
       </header>
 
       <div class="navbar navbar-fixed-top">
         <div class="navbar-inner">
           <div class="container">
             <nav>
-              <ul class="nav">
-                <li><a href="https://github.com/Olivine-Labs/busted"><span class="icon icon-folder-open icon-white"></span> View On <strong>GitHub</strong> @ <small>Olivine-Labs/busted</small></a></li>
-                <li><a href="https://github.com/Olivine-Labs/busted/zipball/master"><span class="icon icon-download-alt icon-white"></span> <strong>ZIP File</strong></a></li>
-                <li><a href="https://github.com/Olivine-Labs/busted/tarball/master"><span class="icon icon-download-alt icon-white"></span> <strong>TAR Ball</strong></a></li>
-                <li><a href="http://luarocks.org/"><strong>Install:</strong> luarocks install busted</a></li>
-              </ul>
+            <ul class="nav">
+              <li><a href="https://github.com/Olivine-Labs/busted"><span class="icon icon-folder-open icon-white"></span> View On <strong>GitHub</strong> @ <small>Olivine-Labs/busted</small></a></li>
+              <li><a href="https://github.com/Olivine-Labs/busted/zipball/master"><span class="icon icon-download-alt icon-white"></span> <strong>ZIP File</strong></a></li>
+              <li><a href="https://github.com/Olivine-Labs/busted/tarball/master"><span class="icon icon-download-alt icon-white"></span> <strong>TAR Ball</strong></a></li>
+              <li><a href="http://luarocks.org/"><strong>Install:</strong> luarocks install busted</a></li>
+            </ul>
             </nav>
           </div>
         </div>
@@ -43,22 +43,22 @@
         <div class="span7">
           <h2>What's <em>busted</em>, precious?</h2>
           <p>
-            busted is a unit testing framework with a focus on being
-            <strong>easy to use</strong>.
+          busted is a unit testing framework with a focus on being
+          <strong>easy to use</strong>.
           </p>
           <p>
-            busted test specs read naturally without being too verbose. You can
-            even chain asserts and negations, such as <code data-language="lua">assert.not.equals</code>.
-            Nest blocks of tests with contextual descriptions using <code data-language="lua">describe</code>, and
-            add tags to blocks so you can run arbitrary groups of tests.
+          busted test specs read naturally without being too verbose. You can
+          even chain asserts and negations, such as <code data-language="lua">assert.not.equals</code>.
+          Nest blocks of tests with contextual descriptions using <code data-language="lua">describe</code>, and
+          add tags to blocks so you can run arbitrary groups of tests.
           <p>
           <p>
-            An extensible assert library allows you to extend and craft your
-            own assert functions specific to your case with method chaining.
-            A modular output library lets you add on your own output format,
-            along with the default pretty and plain terminal output, JSON
-            with and without streaming, and TAP-compatible output that allows
-            you to run busted specs within most CI servers.
+          An extensible assert library allows you to extend and craft your
+          own assert functions specific to your case with method chaining.
+          A modular output library lets you add on your own output format,
+          along with the default pretty and plain terminal output, JSON
+          with and without streaming, and TAP-compatible output that allows
+          you to run busted specs within most CI servers.
           </p>
 
 <pre><code data-language="lua">require("busted")
@@ -82,80 +82,78 @@ describe("Busted unit testing framework", function()
 
     it("should provide some shortcuts to common functions", function()
       assert.unique({ thing = 1 }, { thing = 2 }, { thing = 3 })
-
-      -- short for:
-      assert.all({ thing = 1 }, { thing = 2 }, { thing = 3 }).not.equals
     end)
   end)
 end)
 </code></pre>
-        </div>
-        <div class="span5">
-          <div class="thumbnail">
-            <img src="http://f.cl.ly/items/0z0K0V3x0q123V2z0e3p/Screen%20Shot%202012-08-08%20at%2011.10.00%20PM.png" />
+          </div>
+          <div class="span5">
+            <div class="thumbnail">
+              <img src="http://f.cl.ly/items/0z0K0V3x0q123V2z0e3p/Screen%20Shot%202012-08-08%20at%2011.10.00%20PM.png" />
 
-            <div class="caption">
-              <h5>Get busted.</h5>
+              <div class="caption">
+                <h5>Get busted.</h5>
 
-              <br />
+                <br />
               <pre><code>luarocks install busted</code></pre>
-              <br />
+                <br />
 
-              <p>
+                <p>
                 Don't have luarocks? <a href="http://luarocks.org/en/Download">Install luarocks</a>
                 or download busted from <a href="https://github.com/Olivine-Labs/busted">the Github repository</a>
                 and include it in your project.
-              </p>
+                </p>
+              </div>
             </div>
-          </div>
 
-          <h4>Default Asserts</h4>
+            <h4>Default Asserts</h4>
 
-          <p>
+            <p>
             The following functions are exposed under the <code>asserts</code>
             namespace and are chainable, for constructs like <code>asserts.not.same({}, {})</code>.
-          </p>
+            </p>
 
-          <ul class="asserts">
-            <li><a href="#assert-equals"><code data-language="lua">equals(...)</code></a> checks if the objects are the same instance</li>
-            <li><a href="#assert-same"><code data-language="lua">same(...)</code></a> checks if the objects contain the same data (useful for comparing tables)</li>
-            <li><a href="#assert-true"><code data-language="lua">true(...)</code></a> checks if the object is the boolean true</li>
-            <li><a href="#assert-true"><code data-language="lua">truthy(...)</code></a> checks if the object is not nil or false</li>
-            <li><a href="#assert-true"><code data-language="lua">false(...)</code></a> checks if the object is the boolean false</li>
-            <li><a href="#assert-true"><code data-language="lua">falsy(...)</code></a> checks if the object is nil or false</li>
-            <li><a href="#assert-error"><code data-language="lua">error(...)</code></a> checks if the supplied function fires an error</li>
-            <li><a href="#assert-is"><code data-language="lua">is, are</code></a> syntactic sugar for evaluating a positive expression</li>
-            <li><a href="#assert-is"><code data-language="lua">is_not, are_not</code></a> negates the expression (such as assert.are_not.equals)</li>
-            <!--
-            <li><code>spy(spy)</code> check if the spy has the following expression</li>
-            <li><code>was_called</code> check if the spy has the following expression</li>
-            <li><code>was_called_with(...)</code> check if the spy was called with the supplied parameters</li>
-            <li><code>was_called_times(int)</code> check if the spy was called a certain number of times</li>
-            -->
-          </ul>
+            <ul class="asserts">
+              <li><a href="#assert-equals"><code data-language="lua">equals, equal(...)</code></a> checks if the objects are the same instance</li>
+              <li><a href="#assert-same"><code data-language="lua">same(...)</code></a> checks if the objects contain the same data (useful for comparing tables)</li>
+              <li><a href="#assert-same"><code data-language="lua">unique(list)</code></a> checks if list contains only unique elements</li>
+              <li><a href="#assert-true"><code data-language="lua">true(...)</code></a> checks if the object is the boolean true</li>
+              <li><a href="#assert-true"><code data-language="lua">truthy(...)</code></a> checks if the object is not nil or false</li>
+              <li><a href="#assert-true"><code data-language="lua">false(...)</code></a> checks if the object is the boolean false</li>
+              <li><a href="#assert-true"><code data-language="lua">falsy(...)</code></a> checks if the object is nil or false</li>
+              <li><a href="#assert-error"><code data-language="lua">errors, error(...)</code></a> checks if the supplied function fires an error</li>
+              <li><a href="#assert-is"><code data-language="lua">is, are, has</code></a> syntactic sugar for evaluating a positive expression</li>
+              <li><a href="#assert-is"><code data-language="lua">is_not, are_not, has_no</code></a> negates the expression (such as assert.are_not.equals)</li>
+              <!--
+              <li><code>spy(spy)</code> check if the spy has the following expression</li>
+              <li><code>was_called</code> check if the spy has the following expression</li>
+              <li><code>was_called_with(...)</code> check if the spy was called with the supplied parameters</li>
+              <li><code>was_called_times(int)</code> check if the spy was called a certain number of times</li>
+              -->
+            </ul>
 
-          <h4>Default Outputs</h4>
+            <h4>Default Outputs</h4>
 
-          <p>
+            <p>
             Different outputs can be used by passing in the -o flag into the
             busted cli. Uses <strong>utf_terminal</strong> by default.
-          </p>
+            </p>
 
-          <ul class="asserts">
-            <li><a href="#output-utf_terminal"><strong>utf_terminal</strong></a> uses utf-16 characters and ansicoloring for the experience shown above.</li>
-            <li><a href="#output-plain_terminal"><strong>plain_terminal</strong></a> uses only utf-8 characters and no coloring for wide support.</li>
-            <li><a href="#output-json"><strong>json</strong></a> outputs json, either streaming by default or all at once with the --defered-print flag.</li>
-            <li><a href="#output-TAP"><strong>TAP</strong></a> outputs test results in a format readable by most automated testing suites.</li>
-          </ul>
+            <ul class="asserts">
+              <li><a href="#output-utf_terminal"><strong>utf_terminal</strong></a> uses utf-16 characters and ansicoloring for the experience shown above.</li>
+              <li><a href="#output-plain_terminal"><strong>plain_terminal</strong></a> uses only utf-8 characters and no coloring for wide support.</li>
+              <li><a href="#output-json"><strong>json</strong></a> outputs json, either streaming by default or all at once with the --defered-print flag.</li>
+              <li><a href="#output-TAP"><strong>TAP</strong></a> outputs test results in a format readable by most automated testing suites.</li>
+            </ul>
+          </div>
         </div>
-      </div>
 
-      <section class="division">
+        <section class="division">
         <div class="row">
           <div class="span3">
             <h2 id="usage">Usage</h2>
             <p>
-              busted provides an easy cli with several options.
+            busted provides an easy cli with several options.
             </p>
           </div>
           <div class="span9">
@@ -174,32 +172,32 @@ Optional arguments:
   --suppress-pending   suppress 'pending' test output
   --defer-print        defer print to when test suite is complete
 </code></pre>
-      </section>
+            </section>
 
-      <section class="division">
-        <div class="row">
-          <div class="span3">
-            <h2 id="defining-tests">Defining Tests</h2>
-            <p>
-              Set up your tests using <code>describe</code> and <code>it</code>
-              blocks. These take a description (to be used for output) and
-              a callback (which either defines more blocks or contains the
-              tests themselves. Describe blocks can have more decribe blocks
-              nested. You can also use the functions <code>before_each</code>
-              and <code>after_each</code> to define functions that should be
-              run before any nested describes or tests.
-            </p>
-            <p>
-              You can also use the <code>pending</code>
-              method to leave a placerholder for a test you plan on writing
-              later.
-            </p>
-          </div>
-          <div class="span9">
-            <h4 id="describe">Describe: Context blocks</h4>
-            <p>
-              Describe takes a title and a callback, and can be nested.
-            </p>
+            <section class="division">
+            <div class="row">
+              <div class="span3">
+                <h2 id="defining-tests">Defining Tests</h2>
+                <p>
+                Set up your tests using <code>describe</code> and <code>it</code>
+                blocks. These take a description (to be used for output) and
+                a callback (which either defines more blocks or contains the
+                tests themselves. Describe blocks can have more decribe blocks
+                nested. You can also use the functions <code>before_each</code>
+                and <code>after_each</code> to define functions that should be
+                run before any nested describes or tests.
+                </p>
+                <p>
+                You can also use the <code>pending</code>
+                method to leave a placerholder for a test you plan on writing
+                later.
+                </p>
+              </div>
+              <div class="span9">
+                <h4 id="describe">Describe: Context blocks</h4>
+                <p>
+                Describe takes a title and a callback, and can be nested.
+                </p>
 <pre><code data-language="lua">require("busted")
 
 describe("a test", function()
@@ -216,12 +214,12 @@ end)
 
 </code></pre>
 
-          <h4 id="it">It: Defining tests</h4>
-            <p>
-              it blocks takes a title and a callback. Tests fail if an
-              uncaptured error is thrown (assert functions throw errors for
-              failed tests.)
-            </p>
+                <h4 id="it">It: Defining tests</h4>
+                <p>
+                it blocks takes a title and a callback. Tests fail if an
+                uncaptured error is thrown (assert functions throw errors for
+                failed tests.)
+                </p>
 <pre><code data-language="lua">require("busted")
 
 describe("busted", function()
@@ -233,12 +231,12 @@ describe("busted", function()
 end)
 </code></pre>
 
-          <h4 id="before-each">Before Each &amp; After Each</h4>
-            <p>
-              before_each runs before each child <code>it</code>,
-              <code>describe</code>, or <code>pending</code>, and
-              after_each (you guessed it) runs after.
-            </p>
+                <h4 id="before-each">Before Each &amp; After Each</h4>
+                <p>
+                before_each runs before each child <code>it</code>,
+                <code>describe</code>, or <code>pending</code>, and
+                after_each (you guessed it) runs after.
+                </p>
 <pre><code data-language="lua">require("busted")
 
 describe("busted", function()
@@ -251,7 +249,7 @@ describe("busted", function()
 
   it("sets up vars with the before_each", function()
     obj2 = { test = "no" }
-    assert.is_not.same(obj1, obj2)
+    assert.are_not.same(obj1, obj2)
   end)
 
   it("sets up vars with the before_each", function()
@@ -261,62 +259,65 @@ describe("busted", function()
 end)
 </code></pre>
 
-            <h4 id="pending">Pending</h4>
-            <p>
-              Pending functions are placeholders for tests you plan to write
-              (or fix) later.
-            </p>
+                <h4 id="pending">Pending</h4>
+                <p>
+                Pending functions are placeholders for tests you plan to write
+                (or fix) later.
+                </p>
 <pre><code data-language="lua">require("busted")
 
 describe("busted pending tests", function()
   pending("I should finish this test later", function() end)
 end)
 </code></pre>
-          </div>
+                </div>
 
-        </div>
-      </section>
+              </div>
+              </section>
 
-      <section class="division">
-        <div class="row">
-          <div class="span3">
-            <h2 id="asserts">Asserts</h2>
-            <p>
-              Asserts are the core of busted- they're what you use to actually
-              write your tests. Asserts in busted work by chaining a mod value
-              by using <code>is</code> or <code>is_not</code>, followed by the assert you wish to use.
-              It's easy to extend busted and add your own asserts by building an
-              assert with a commmon signature and <a href="#assert-extend">registerting it</a>.
-            </p>
-          </div>
-          <div class="span9">
-            <h4 id="assert-is">Is &amp; Is Not</h4>
-            <p>
-              <code>is</code> and <code>is_not</code> flips the expected value of the assertion; if <code>is_not</code>
-              is used, the assertion fails if it doesn't throw an error. <code>are</code> and <code>are_not</code>
-              are aliased as well to appease your grammar sensibilities. <code>is</code> and <code>are</code> are
-              optional.
-            </p>
+              <section class="division">
+              <div class="row">
+                <div class="span3">
+                  <h2 id="asserts">Asserts</h2>
+                  <p>
+                  Asserts are the core of busted- they're what you use to actually
+                  write your tests. Asserts in busted work by chaining a mod value
+                  by using <code>is</code> or <code>is_not</code>, followed by the assert you wish to use.
+                  It's easy to extend busted and add your own asserts by building an
+                  assert with a commmon signature and <a href="#assert-extend">registerting it</a>.
+                  </p>
+                </div>
+                <div class="span9">
+                  <h4 id="assert-is">Is &amp; Is Not</h4>
+                  <p>
+                  <code>is</code> and <code>is_not</code> flips the expected value of the assertion; if <code>is_not</code>
+                  is used, the assertion fails if it doesn't throw an error. <code>are</code>, <code>are_not</code>, and <code>has_no</code>
+                  are aliased as well to appease your grammar sensibilities. <code>equal</code> and <code>equals</code>, as well as <code>error</code> and <code>errors</code> are also aliased. <code>is</code>, <code>are</code>, and <code>has</code> are
+                  optional.
+                  </p>
 <pre><code data-language="lua">require("busted")
 
-describe("some asserts", function()
-  it("runs perfectly", function()
+describe("some assertions", function()
+  it("tests positive assertions", function()
     assert.is.true(true)
     assert.true(true)
+    assert.are.equal(1, 1)
+    assert.has.errors(function() error("this should fail") end)
   end)
 
-  it("expects to fail", function()
+  it("tests negative assertions", function()
     assert.is_not.true(false)
     assert.are_not.equals(1, "1")
+    assert.has_no.errors(function() end())
   end)
 end)
 </code></pre>
 
-            <h4 id="assert-equals">Equals</h4>
-            <p>
-              Equals takes 1-n arguments and checks if they are the
-              <em>same instance</em>. This is equivalent to calling object1 == object2.
-            </p>
+                  <h4 id="assert-equals">Equals</h4>
+                  <p>
+                  Equals takes 1-n arguments and checks if they are the
+                  <em>same instance</em>. This is equivalent to calling object1 == object2.
+                  </p>
 <pre><code data-language="lua">require("busted")
 
 describe("some asserts", function()
@@ -329,11 +330,11 @@ describe("some asserts", function()
 end)
 </code></pre>
 
-            <h4 id="assert-same">Same</h4>
-            <p>
-              Same takes 1-n arguments and checks if they are they are similar
-              by doing a deep compare.
-            </p>
+                  <h4 id="assert-same">Same</h4>
+                  <p>
+                  Same takes 1-n arguments and checks if they are they are similar
+                  by doing a deep compare.
+                  </p>
 <pre><code data-language="lua">require("busted")
 
 describe("some asserts", function()
@@ -346,13 +347,13 @@ describe("some asserts", function()
 end)
 </code></pre>
 
-            <h4 id="assert-true">True &amp; Truthy; False &amp; Falsy</h4>
-            <p>
-              <code>true</code> evaluates if the value is the boolean <code>true</code>; <code>truthy</code> checks
-              if it's non-false and non-nil (as if you passed it into a boolean
-              expression in lua. <code>false</code> and <code>falsy</code> are the opposite;
-              <code>false</code> checks for the boolean false, <code>falsy</code> checks for false or nil.
-            </p>
+                  <h4 id="assert-true">True &amp; Truthy; False &amp; Falsy</h4>
+                  <p>
+                  <code>true</code> evaluates if the value is the boolean <code>true</code>; <code>truthy</code> checks
+                  if it's non-false and non-nil (as if you passed it into a boolean
+                  expression in lua. <code>false</code> and <code>falsy</code> are the opposite;
+                  <code>false</code> checks for the boolean false, <code>falsy</code> checks for false or nil.
+                  </p>
 <pre><code data-language="lua">require("busted")
 
 describe("some asserts", function()
@@ -370,10 +371,10 @@ describe("some asserts", function()
 end)
 </code></pre>
 
-            <h4 id="assert-error">Error</h4>
-            <p>
-              Makes sure an error exception is fired that you expect.
-            </p>
+                  <h4 id="assert-error">Error</h4>
+                  <p>
+                  Makes sure an error exception is fired that you expect.
+                  </p>
 <pre><code data-language="lua">require("busted")
 
 describe("some asserts", function()
@@ -383,11 +384,11 @@ describe("some asserts", function()
 end)
 </code></pre>
 
-            
-            <h4 id="assert-extend">Extending Your Own Assertions</h4>
-            <p>
-              Add in your own assertions to reuse commonly written code.
-            </p>
+
+                  <h4 id="assert-extend">Extending Your Own Assertions</h4>
+                  <p>
+                  Add in your own assertions to reuse commonly written code.
+                  </p>
 <pre><code data-language="lua">require("busted")
 
 local function has_property(table, prop)
@@ -407,48 +408,48 @@ describe("my table", function()
   end)
 end)
 </code></pre>
-          </div>
-        </div>
-      </section>
+                  </div>
+                </div>
+                </section>
 
-      <section class="division">
-        <div class="row">
-          <div class="span3">
-            <h2 id="asserts">Output Types</h2>
-            <p>
-              Busted supports several output types by default, and it's easy to
-              extend busted to include your own output types.
-            </p>
-          </div>
-          <div class="span9">
-            <h4 id="output-utf_terminal">UTF and Coloring: Pretty Terminal Output with utf_terminal</h4>
-            <p>Uses ansicolors and utf to display a concise but informative output.</p>
+                <section class="division">
+                <div class="row">
+                  <div class="span3">
+                    <h2 id="asserts">Output Types</h2>
+                    <p>
+                    Busted supports several output types by default, and it's easy to
+                    extend busted to include your own output types.
+                    </p>
+                  </div>
+                  <div class="span9">
+                    <h4 id="output-utf_terminal">UTF and Coloring: Pretty Terminal Output with utf_terminal</h4>
+                    <p>Uses ansicolors and utf to display a concise but informative output.</p>
 
-            <img src="http://f.cl.ly/items/0z0K0V3x0q123V2z0e3p/Screen%20Shot%202012-08-08%20at%2011.10.00%20PM.png" />
+                    <img src="http://f.cl.ly/items/0z0K0V3x0q123V2z0e3p/Screen%20Shot%202012-08-08%20at%2011.10.00%20PM.png" />
 
-            <h4 id="output-plain_terminal">Clean output with plain_terminal</h4>
-            <p>Uses safe characters and no coloring.</p>
+                    <h4 id="output-plain_terminal">Clean output with plain_terminal</h4>
+                    <p>Uses safe characters and no coloring.</p>
 
-            <img src="http://f.cl.ly/items/313v152a0E222X0z183p/Image%202012.08.14%201:09:41%20PM.png" />
+                    <img src="http://f.cl.ly/items/313v152a0E222X0z183p/Image%202012.08.14%201:09:41%20PM.png" />
 
-            <h4 id="output-json">JSON for integration with json output</h4>
-            <p>Useful for streaming or loading all results at once with the --defer-print flag.</p>
+                    <h4 id="output-json">JSON for integration with json output</h4>
+                    <p>Useful for streaming or loading all results at once with the --defer-print flag.</p>
 
-            <img src="http://f.cl.ly/items/2L0l1W0n1b2N1w343b3m/Image%202012.08.14%201:10:00%20PM.png" />
+                    <img src="http://f.cl.ly/items/2L0l1W0n1b2N1w343b3m/Image%202012.08.14%201:10:00%20PM.png" />
 
-            <h4 id="output-json">TAP for use with CI systems</h4>
-            <p><a href="">TAP</a> is an agnostic protocol used by most automated testing suites.</p>
+                    <h4 id="output-json">TAP for use with CI systems</h4>
+                    <p><a href="">TAP</a> is an agnostic protocol used by most automated testing suites.</p>
 
-            <img src="http://f.cl.ly/items/443E1g1B2m313i2O0b3T/Image%202012.08.14%201:10:13%20PM.png" />
+                    <img src="http://f.cl.ly/items/443E1g1B2m313i2O0b3T/Image%202012.08.14%201:10:13%20PM.png" />
 
-            <h4>Registering Your Own Output Type</h4>
+                    <h4>Registering Your Own Output Type</h4>
 
-            <p>
-              If you pass the -o flag a path instead of a name, it will look 
-              in that path to load the output file. Check out the 
-              <a href="https://github.com/Olivine-Labs/busted/tree/master/src/output" targt="_blank">existing output files</a>
-              for examples. It should have a signature like:
-            </p>
+                    <p>
+                    If you pass the -o flag a path instead of a name, it will look 
+                    in that path to load the output file. Check out the 
+                    <a href="https://github.com/Olivine-Labs/busted/tree/master/src/output" targt="_blank">existing output files</a>
+                    for examples. It should have a signature like:
+                    </p>
 
 <pre><code data-language="lua">
 -- custom_output.lua
@@ -479,20 +480,20 @@ end
 
 return output
 </code></pre>
-          </div>
-        </div>
-      </section>
+                    </div>
+                  </div>
+                  </section>
 
-      <div class="row">
-        <footer class="span12 division">
-          <p><strong><a href="https://github.com/Olivine-Labs/busted">busted</a></strong> is bravely maintained by <a href="https://github.com/Olivine-Labs">Olivine Labs</a>.</p>
-          <p><small>Hosted on GitHub Pages.</small></p>
-        </footer>
-      </div>
-    </div>
+                  <div class="row">
+                    <footer class="span12 division">
+                    <p><strong><a href="https://github.com/Olivine-Labs/busted">busted</a></strong> is bravely maintained by <a href="https://github.com/Olivine-Labs">Olivine Labs</a>.</p>
+                    <p><small>Hosted on GitHub Pages.</small></p>
+                    </footer>
+                  </div>
+                </div>
 
-    <script src="js/rainbow.min.js"></script>
-    <script src="js/generic.js"></script>
-    <script src="js/lua.js"></script>
-  </body>
-</html>
+                <script src="js/rainbow.min.js"></script>
+                <script src="js/generic.js"></script>
+                <script src="js/lua.js"></script>
+              </body>
+            </html>
