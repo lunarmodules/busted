@@ -92,8 +92,8 @@ describe("Busted unit testing framework", function()
       local thing_spy = spy.spy_on(thing, "greet")
       thing.greet("Hi!")
 
-      assert.spy(thing_spy).was_called()
-      assert.spy(thing_spy).was_called_with("Hi!")
+      assert.spy(thing_spy).was.called()
+      assert.spy(thing_spy).was.called_with("Hi!")
     end)
   end)
 end)
@@ -222,16 +222,27 @@ describe("busted", function()
 end)
 </code></pre>
 
-            <h4 id="before-each">Before Each &amp; After Each</h4>
+            <h4 id="before-each">Before Each &amp; After Each; Setup &amp; Teardown</h4>
             <p>
               before_each runs before each child <code>it</code>,
               <code>describe</code>, or <code>pending</code>, and
-              after_each (you guessed it) runs after.
+              after_each (you guessed it) runs after. <code>setup</code>
+              runs before the list of blocks, and <code>teardown</code>
+              runs after the list of blocks.
             </p>
 <pre><code data-language="lua">require("busted")
 
 describe("busted", function()
   local obj1, obj2
+  local util
+
+  setup(function()
+    util = require("util")
+  end)
+
+  teardown(function()
+    util = nil
+  end)
 
   before_each(function()
     obj1 = { test = "yes" }
@@ -414,10 +425,9 @@ end)
               Spies are essentially wrappers around functions that keep track
               of data about how the function was called, and by default calls
               the function. Stubs are the same as spies, except they return
-              immediately without calling the function. If <code>stub.out</code>
-              is called on a table, it will replace all functions with stubs.
-              Mocks replace all functions in a table with spies that pass
-              through, so you can test execution chains.
+              immediately without calling the function. <code>mock(table, stub)</code>
+              returns a table whose functions have been wrapped in spies or
+              stubs.
             </p>
           </div>
           <div class="span9">
@@ -444,6 +454,73 @@ describe("spies", function()
   end)
 
   it("replaces an original function", function()
+    local t = {
+      greet = function(msg) print(msg) end
+    }
+
+    spy.on(t, "greet")
+
+    t.greet("Hey!") -- prints 'Hey!'
+    assert(t.greet).was_called_with("Hey!")
+  end)
+end)
+</code></pre>
+
+            <h4 id="spies">Stubs</h4>
+            <p>
+              Stubs act similarly to spies, except they do not call the callback
+              of the function it replaces. This is useful for testing things
+              like data layers.
+            </p>
+
+<pre><code data-language="lua">require("busted")
+describe("stubs", function()
+  it("replaces an original function", function()
+    local t = {
+      greet = function(msg) print(msg) end
+    }
+
+    stub(t, "greet")
+
+    t.greet("Hey!") -- DOES NOT print 'Hey!'
+    assert(t.greet).was.called_with("Hey!")
+  end)
+end)
+</code></pre>
+
+            <h4 id="spies">Mocks</h4>
+            <p>
+              Mocks are tables whose functions have been wrapped in spies,
+              or optionally stubs. This is useful for checking execution
+              chains.
+            </p>
+
+<pre><code data-language="lua">require("busted")
+describe("stubs", function()
+  it("replaces a table with mocks", function()
+    local t = {
+      thing = function(self, msg) self.other_thing(msg) end,
+      other_thing = function() end
+    }
+
+    local m = mock(t)
+
+    m.thing("Coffee")
+    assert(m.greet).was.called_with("Hey!")
+    assert(m.other_thing).was.called_with("Hey!")
+  end)
+
+  it("replaces a table with mocks using stubs", function()
+    local t = {
+      thing = function(self, msg) self.other_thing(msg) end,
+      other_thing = function() end
+    }
+
+    local m = mock(t, true)
+
+    m.thing("Coffee")
+    assert(m.greet).was.called_with("Hey!")
+    assert(m.other_thing).was_not.called_with("Hey!")
   end)
 end)
 </code></pre>
