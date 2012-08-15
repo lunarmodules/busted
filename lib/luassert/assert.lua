@@ -91,3 +91,4 @@ assert=setmetatable(assert, assert.__meta)
 
 -- oh yeah, and we register our default assertions
 require 'luassert.assertions'
+require 'luassert.spy'
