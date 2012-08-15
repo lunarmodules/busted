@@ -1,5 +1,6 @@
-local mock = require 'luassert.mock'
+local spy = require 'luassert.spy'
 
-return function(object)
-  return mock(object, true)
+return function(self, key, func)
+  self[key] = spy:new(func)
+  return self[key]
 end

@@ -1,5 +1,3 @@
-require 'luassert.assert'
-
 -- setup for stuff we use inside
 local global_context = { type = "describe", description = "global" }
 local current_context = global_context
@@ -10,8 +8,13 @@ local failures = 0
 
 local output = require('output.utf_terminal')()
 
-spy = require('luassert.spy')
-mock = require('luassert.mock')
+--setup luassert
+assert = require 'luassert.assert'
+  require 'luassert.modifiers'
+  require 'luassert.assertions'
+
+spy = require 'luassert.spy'
+mock = require 'luassert.mock'
 
 -- Internal functions
 

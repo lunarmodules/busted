@@ -1,94 +1,71 @@
-assert = {
-  -- mod values invert boolean expressions. Used to implement
-  -- the not function
-  mod = true,
-
-  -- list of registered assertions
-  assertions = {},
-
-  -- list of registered builtins
-  raw = {},
-
-  -- Assertion meta table, contains index meta method which
-  -- is used to find an assertion table and return it
-  -- generically
-  __assertionMeta = {
-    __index = function(table, key)
-      local keylower = key:lower()
-      assert.assertions[keylower].mod = table.mod
-      return assert.assertions[keylower]
-    end
-  },
-
-  -- Caller meta table, contains the call meta method used to
-  -- call a registered assertion function by name
-  __callerMeta = {
-    __call = function(assertion, ...)
-      if assert.assertions[assertion.name].assertion(...) ~= assertion.mod then
-        error(assertion.errormessage)
-      end
-
-      return true
-    end
-  },
-
-  -- main assert meta table, like the other meta tables it is used to
-  -- generically call assertion functions. Contains call and index meta
-  -- methods that perform similar but not identical functions to the
-  -- above
-  __meta = {
-    -- this call method mimics the behavior of the lua default assert 
-    -- function
-    __call = function(table, bool, message)
-      if not bool then
-        error(message or "assertion failed!")
-      end
-
-      return true
-    end,
-
-    __index = function(table, key)
-      local keylower = key:lower()
-      if table.assertions[keylower] then
-        table.assertions[keylower].mod = table.mod
-        return table.assertions[keylower]
+local __assertion_meta = {
+  __call = function(self, ...)
+    local state = self.state
+    local val = self.callback(state, ...)
+    local data_type = type(val)
+    if data_type == "boolean" then
+      if val ~= state.mod then
+        error(self.message or "assertion failed!")
       else
-        if table.raw[keylower] ~= nil then
-          if type(table.raw[keylower]) == 'function' then
-            return table.raw[keylower]()
-          else
-            return table.raw[keylower]
-          end
-        else
-          return rawget(table, keylower)
-        end
+        return state
       end
     end
-  }
+    return val
+  end
 }
 
--- raw functions, these are the builtins that manipulate the results or uses of the registered assertions
-function assert.raw.is() return setmetatable({mod = true}, assert.__assertionMeta) end
-function assert.raw.are() return assert.raw.is() end
-function assert.raw.has() return assert.raw.is() end
+local __state_meta = {
 
-function assert.raw.is_not() return setmetatable({mod = false}, assert.__assertionMeta) end
-function assert.raw.are_not() return assert.raw.is_not() end
-function assert.raw.has_not() return assert.raw.is_not() end
-function assert.raw.has_no() return assert.raw.is_not() end
+  __call = function(self, payload, callback)
+    self.payload = payload or rawget(self, "payload")
+    if callback then callback(self) end
+    return self
+  end,
 
-function assert.raw.all(list) error("NOT IMPLEMENTED")end
-function assert.raw.none(list) error("NOT IMPLEMENTED")end
+  __index = function(self, key)
+    if rawget(assert, "modifier")[key] then
+      rawget(assert, "modifier")[key].state = self
+      return self(nil,
+      rawget(assert, "modifier")[key]
+      )
+    else
+      rawget(assert, "assertion")[key].state = self
+      return rawget(assert, "assertion")[key]
+    end
+  end
 
--- registers an assertion function
-function assert:register(name, assertion, errormessage)
-  local lowername = name:lower()
-  self.assertions[lowername] = setmetatable({mod=false, assertion = assertion, name = lowername, errormessage=errormessage}, assert.__callerMeta)
-end
+}
 
--- and finally, we return our assert replacement
-assert=setmetatable(assert, assert.__meta)
+local obj = {
+  -- list of registered assertions
+  assertion = {},
 
--- oh yeah, and we register our default assertions
-require 'luassert.assertions'
-require 'luassert.spy'
+  state = function() return setmetatable({mod=true, payload=nil}, __state_meta) end,
+
+  -- list of registered modifiers
+  modifier = {},
+
+  -- registers a function in namespace
+  register = function(self, namespace, name, callback, message)
+    local lowername = name:lower()
+    if not assert[namespace] then
+      assert[namespace] = {}
+    end
+    assert[namespace][lowername] = setmetatable({callback = callback, name = lowername, message=message}, __assertion_meta)
+  end
+
+}
+
+local __meta = {
+
+  __call = function(self, bool, message)
+    if not bool then
+      error(message or "assertion failed!")
+    end
+    return bool
+  end,
+
+  __index = function(self, key) return self.state()[key] end
+
+}
+return setmetatable(obj, __meta)
