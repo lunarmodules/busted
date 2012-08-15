@@ -57,6 +57,10 @@ local function busted()
   local function run_context(context)
     local status = { description = context.description, type = "description" }
 
+    if context.setup ~= nil then
+      context.setup()
+    end
+
     for i,v in ipairs(context) do
       if context.before_each ~= nil then
         context.before_each()
@@ -75,6 +79,10 @@ local function busted()
       if context.after_each ~= nil then
         context.after_each()
       end
+    end
+
+    if context.teardown ~= nil then
+      context.teardown()
     end
 
     return status
@@ -182,6 +190,15 @@ end
 after_each = function(callback)
   current_context.after_each = callback
 end
+
+setup = function(callback)
+  current_context.setup = callback
+end
+
+teardown = function(callback)
+  current_context.teardown = callback
+end
+
 
 set_busted_options = function(options)
   busted_options = options
