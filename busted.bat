@@ -10,7 +10,7 @@ if defined FOUND (
   )
 )
 if "%cmd%"=="" (
-  echo "Could not find valid lua/luajit environment"
+  echo "Busted requires that a valid execution environment be specified(or that you have lua or luajit accessible in your PATH). Aborting."
 ) else (
   pushd %~dp0 & (call %cmd% bootstrap.lua --cwd="%cwd%\\" %*) && popd
 )
