@@ -31,7 +31,7 @@ local function busted()
 
     local stack_trace = ""
     local function err_handler(err)
-      stack_trace = debug.traceback("", 3)
+      stack_trace = debug.traceback("", 4)
       return err
     end
 
