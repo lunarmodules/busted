@@ -1,19 +1,33 @@
 -- Busted command-line runner
-
---dirname function to get current directory
---this allows us to be location agnostic
-local function dirname(f)
-  if not f then f=arg and arg[0] or './' end
-  if f == 'bootstrap.lua' then f='./' end
-  return string.gsub(f,'(.*/).*','%1')
-end
-local dirname = dirname()
-
-package.path = dirname..'?.lua;'..dirname..'lib/?.lua;'..dirname..'src/?.lua;'..package.path
+package.path = './?.lua;./lib/?.lua;./src/?.lua;'..package.path
 
 local busted = require 'busted'
 local cli = require 'cliargs'
 local lfs = require 'lfs'
+
+local function sub_dir(dir)
+  if string.sub(dir, -1) == "/" then
+    dir=string.sub(dir, 1, -2)
+  end
+  local function yieldtree(dir)
+    for entry in lfs.dir(dir) do
+      if entry ~= "." and entry ~= ".." then
+        entry=dir.."/"..entry
+        local attr=lfs.attributes(entry)
+        coroutine.yield(entry,attr)
+        if attr.mode == "directory" then
+          yieldtree(entry)
+        end
+      end
+    end
+  end
+  local dirattr = lfs.attributes(dir)
+  if dirattr and dirattr.mode == "directory" then
+    return coroutine.wrap(function() yieldtree(dir) end)
+  else
+    return function() end
+  end
+end
 
 cli:set_name("busted")
 cli:add_flag("--version", "prints the program's version and exits")
@@ -28,7 +42,6 @@ cli:add_flag("-v", "verbose output of errors")
 cli:add_flag("-s, --enable-sound", "executes 'say' command if available")
 cli:add_flag("--suppress-pending", "suppress 'pending' test output")
 cli:add_flag("--defer-print", "defer print to when test suite is complete")
-
 
 local args = cli:parse_args()
 
@@ -49,57 +62,27 @@ if args then
     return print("busted: version 0.0.0")
   end
 
-  function dirtree(dir)
-    if string.sub(dir, -1) == "/" then
-      dir=string.sub(dir, 1, -2)
-    end
+  local root_file = args.ROOT or "spec"
+  if args["d"] then
+    root_file = args["d"]..root_file
+  end
 
-    local function yieldtree(dir)
-      for entry in lfs.dir(dir) do
-        if entry ~= "." and entry ~= ".." then
-          entry=dir.."/"..entry
-          local attr=lfs.attributes(entry)
-          coroutine.yield(entry,attr)
-          if attr.mode == "directory" then
-            yieldtree(entry)
+  local file = loadfile(root_file)
+  if file then
+    file()
+  else
+    for filename,attr in sub_dir(root_file) do
+      if attr.mode == 'file' then
+        local path,fullname,ext = string.match(filename, "(.-)([^\\]-([^%.]+))$")
+        if ext == 'lua' then
+          local file, err = loadfile(filename)
+          if file then
+            file()
+          else
+            print("An error occurred while loading a test::"..err)
           end
         end
       end
-    end
-    dirattr = lfs.attributes(dir)
-    if dirattr and dirattr.mode == "directory" then
-      return coroutine.wrap(function() yieldtree(dir) end)
-    else
-      return function() end
-    end
-  end
-
-  local rootFile = args.ROOT or "./spec"
-  if args["d"] then
-    rootFile = args["d"]..rootFile
-  end
-
-  local found = false
-
-  for filename,attr in dirtree(rootFile) do
-    if attr.mode == 'file' then
-      local path,derp,ext = string.match(filename, "(.-)([^\\]-([^%.]+))$")
-      if ext == 'lua' then
-        local file, err = loadfile(filename)
-        if file then
-          file()
-          found = true
-        else
-          print("Error during test load::"..err)
-        end
-      end
-    end
-  end
-
-  if not found then
-    local file = loadfile(rootFile)
-    if file then
-      file()
     end
   end
 

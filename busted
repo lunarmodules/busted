@@ -1,6 +1,5 @@
 #!/bin/sh
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-BUSTED=$DIR"/bootstrap.lua"
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/"
 
 commandExists () {
     command -v "$1" &> /dev/null ;
@@ -28,5 +27,12 @@ else
   echo >&2 "Busted requires that a valid execution environment be specified(or that you have lua or luajit accessible in your PATH). Aborting.";
   exit 1
 fi
+CWD=${PWD}/
 
-$COMMAND "$BUSTED" $*;
+if commandExists cygpath ; then
+  CWD=`cygpath -ms "${CWD}"`
+  DIR=`cygpath -ms "${DIR}"`
+fi
+
+cd "$DIR"
+$COMMAND bootstrap.lua --cwd="$CWD" $*;
