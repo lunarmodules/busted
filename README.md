@@ -44,7 +44,7 @@ describe("Busted unit testing framework", function()
       assert.unique({ thing = 1 }, { thing = 2 }, { thing = 3 })
     end)
 
-    it("should have mocks and spies for funcitonal tests", funciton()
+    it("should have mocks and spies for functional tests", funciton()
       local thing = require("thing_module")
       local thing_spy = spy.spy_on(thing, "greet")
       thing.greet("Hi!")
