@@ -35,4 +35,10 @@ if commandExists cygpath ; then
 fi
 
 cd "$DIR"
-$COMMAND bootstrap.lua --cwd="$CWD" $*;
+
+
+if [ "$*"=="--help" -o "$*"=="--version" ] ; then
+  $COMMAND bootstrap.lua $*;
+else
+  $COMMAND bootstrap.lua --cwd="$CWD" $*;
+fi
