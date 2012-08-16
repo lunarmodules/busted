@@ -37,6 +37,7 @@ cli:add_argument("ROOT", "test script file/folder")
 cli:add_option("-o, --output=LIBRARY", "output library to load", "output_lib", "utf_terminal")
 cli:add_option("-l, --lua=luajit", "path to the execution environment (lua or luajit)")
 cli:add_option("-d, --cwd=cwd", "path to current working directory")
+cli:add_option("-p, --pattern=pattern", "only run test files matching this pattern")
 
 cli:add_flag("-v", "verbose output of errors")
 cli:add_flag("-s, --enable-sound", "executes 'say' command if available")
@@ -57,7 +58,7 @@ if args then
     cwd = args["d"],
     output_lib = args["output_lib"],
   })
-
+  local pattern = args["p"] or '_spec.lua'
   if args["version"] then
     return print("busted: version 0.0.0")
   end
@@ -73,8 +74,8 @@ if args then
   else
     for filename,attr in sub_dir(root_file) do
       if attr.mode == 'file' then
-        local path,fullname,ext = string.match(filename, "(.-)([^\\]-([^%.]+))$")
-        if ext == 'lua' then
+        local path,name,ext = string.match(filename, "(.-)([^\\/]-([^%.]+))$")
+        if ext == 'lua' and name:find(pattern) then
           local file, err = loadfile(filename)
           if file then
             file()
