@@ -65,7 +65,19 @@ local function busted()
   end
 
   local function run_context(context)
-    local status = { description = context.description, type = "description" }
+    match = false
+
+    if busted_options.tags and #busted_options.tags > 0 then
+      for i,t in ipairs(busted_options.tags) do
+        if string.find(context.description, "#"..t) then
+          match = true
+        end
+      end
+    else
+      match = true
+    end
+
+    local status = { description = context.description, type = "description", run = match }
 
     if context.setup ~= nil then
       context.setup()
@@ -151,9 +163,9 @@ end
 -- External functions
 
 describe = function(description, callback)
-  match = false
+  match = current_context.run
 
-  if #busted_options.tags > 0 then
+  if busted_options.tags and #busted_options.tags > 0 then
     for i,t in ipairs(busted_options.tags) do
       if string.find(description, "#"..t) then
         match = true
@@ -163,11 +175,7 @@ describe = function(description, callback)
     match = true
   end
 
-  if not match then
-    return 
-  end
-
-  local local_context = { description = description, callback = callback, type = "describe"  }
+  local local_context = { description = description, callback = callback, type = "describe", run = match  }
 
   table.insert(current_context, local_context)
 
@@ -179,9 +187,21 @@ describe = function(description, callback)
 end
 
 it = function(description, callback)
-  if current_context.description ~= nil then
+  match = current_context.run
+
+  if not match then
+    if busted_options.tags and #busted_options.tags > 0 then
+      for i,t in ipairs(busted_options.tags) do
+        if string.find(description, "#"..t) then
+          match = true
+        end
+      end
+    end
+  end
+
+  if current_context.description ~= nil and match then
     table.insert(current_context, { description = description, callback = callback, type = "test" })
-  else
+  elseif match then
     test(description, callback)
   end
 end
@@ -224,7 +244,6 @@ end
 teardown = function(callback)
   current_context.teardown = callback
 end
-
 
 set_busted_options = function(options)
   busted_options = options
