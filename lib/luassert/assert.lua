@@ -5,7 +5,11 @@ local __assertion_meta = {
     local data_type = type(val)
     if data_type == "boolean" then
       if val ~= state.mod then
-        error(self.message or "assertion failed!")
+        if state.mod then
+          error(self.positive_message or "assertion failed!")
+        else
+          error(self.negative_message or "assertion failed!")
+        end
       else
         return state
       end
@@ -46,12 +50,18 @@ local obj = {
   modifier = {},
 
   -- registers a function in namespace
-  register = function(self, namespace, name, callback, message)
+  register = function(self, namespace, name, callback, positive_message, negative_message)
+    -- register
     local lowername = name:lower()
     if not assert[namespace] then
       assert[namespace] = {}
     end
-    assert[namespace][lowername] = setmetatable({callback = callback, name = lowername, message=message}, __assertion_meta)
+    assert[namespace][lowername] = setmetatable({
+      callback = callback,
+      name = lowername,
+      positive_message=positive_message,
+      negative_message=negative_message
+    }, __assertion_meta)
   end
 
 }

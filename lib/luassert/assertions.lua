@@ -1,4 +1,5 @@
 local util = require 'luassert.util'
+local s = require 'say.s'
 
 local function unique(state, list, deep)
   for k,v in pairs(list) do
@@ -68,7 +69,10 @@ local function has_error(state, func, err_expected)
   return not status and (err_expected == nil or same(state, err_expected, err_actual))
 end
 
-assert:register("assertion", "same", same, "These values are not the same")
+s("en", "assertion.same.positive", "Objects were not the same. Passed in:\n%s\nExpected:\n%s")
+s("en", "assertion.same.negative", "Objects were the same. Passed in:\n%s\nExpected:\n%s")
+assert:register("assertion", "same", same, "assertion.same.positive", "assertion.same.negative")
+
 assert:register("assertion", "equals", equals, "These values are not equal")
 assert:register("assertion", "equal", equals, "These values are not equal")
 assert:register("assertion", "unique", unique, "These values are not unique")

@@ -14,15 +14,27 @@ local s = {
 }
 
 local __meta = {
-  __call = function(self, namespace, key, vars)
+  __call = function(self, namespace, key, string, vars)
     local str = ''
+
     if (not vars and type(key) == 'table') or (not vars and key and not self.registry[namespace]) or (not key and not vars) then
       vars = key
       key = namespace
       namespace = '__g'
     end
+
+    if not self.registry[namespace] then
+      self.registry[namespace] = {}
+    end
+
     str = self.registry[namespace][key]
+
     if type(str) ~= 'string' then str = '' end
+
+    print(self)
+    print(namespace)
+    print(key)
+    print(string)
     return vars and str:format(unpack(vars)) or str
   end,
   __index = function(self, key)
