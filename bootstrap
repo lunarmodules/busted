@@ -6,27 +6,30 @@ local cli = require 'cliargs'
 local lfs = require 'lfs'
 
 local function sub_dir(dir)
-  if string.sub(dir, -1) == "/" then
-    dir=string.sub(dir, 1, -2)
-  end
-  local function yieldtree(dir)
-    for entry in lfs.dir(dir) do
-      if entry ~= "." and entry ~= ".." then
-        entry=dir.."/"..entry
-        local attr=lfs.attributes(entry)
-        coroutine.yield(entry,attr)
-        if attr.mode == "directory" then
-          yieldtree(entry)
+  local dirs = {dir}
+  local function yieldtree()
+    dir = #dirs and table.remove(dirs, #dirs)
+    if dir then
+      for entry in lfs.dir(dir) do
+        if entry ~= "." and entry ~= ".." and entry:sub(1, 1) ~= "." then
+          entry=dir.."/"..entry
+          local attr=lfs.attributes(entry)
+          if attr.mode == "directory" then
+            table.insert(dirs, entry)
+          else
+            coroutine.yield(entry,attr)
+          end
         end
       end
+      --hack to ensure stack size
+      if debug.getinfo(26) then
+        print("Hit max stack size while iterating directories, may not run all tests.")
+        return
+      end
+      return yieldtree()
     end
   end
-  local dirattr = lfs.attributes(dir)
-  if dirattr and dirattr.mode == "directory" then
-    return coroutine.wrap(function() yieldtree(dir) end)
-  else
-    return function() end
-  end
+  return coroutine.wrap(yieldtree)
 end
 
 cli:set_name("busted")
@@ -51,21 +54,20 @@ local args = cli:parse_args()
 
 if args then
   set_busted_options({
-    verbose = args["v"],
-    color = not args["c"],
+    verbose = args.v,
+    color = not args.c,
     suppress_pending = args["suppress-pending"],
     defer_print = args["defer-print"],
-    utf = not args["u"],
-    sound = args["s"],
-    cwd = args["d"],
-    tags = args["t"],
-    output_lib = args["output_lib"],
-    lang = args["lang"],
+    utf = not args.u,
+    sound = args.s,
+    cwd = args.d,
+    tags = args.t,
+    output_lib = args.output_lib,
+    lang = args.lang,
   })
 
-  local pattern = args["p"] or '_spec.lua'
-
-  if args["version"] then
+  local pattern = args.p ~= "" and args.p or '_spec.lua'
+  if args.version then
     return print("busted: version 0.0.0")
   end
 
