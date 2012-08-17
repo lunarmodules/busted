@@ -108,7 +108,7 @@ end)
               <h5>Get busted.</h5>
 
               <br />
-            <pre><code>luarocks install busted</code></pre>
+              <pre><code>luarocks install busted</code></pre>
               <br />
 
               <p>
@@ -182,6 +182,11 @@ Optional arguments:
               method to leave a placerholder for a test you plan on writing
               later.
             </p>
+            <p>
+              Tag your tests with #hashtags to run specific tests. When you
+              run busted from the command line, add the -t flag to run a
+              given tag.
+            </p>
           </div>
 
           <div class="span9">
@@ -204,6 +209,28 @@ describe("a nested block", function()
 end)
 
 </code></pre>
+
+            <h4 id="describe">Describe: Tagging Tests</h4>
+            <p>
+              Tag tests using #tags, and run using the -t flag to only run that
+              test.
+            </p>
+<pre><code data-language="lua">require("busted")
+
+describe("a test #tag", function()
+  -- tests go here
+end)
+
+describe("a nested block #another-tag", function()
+  describe("can have many describes", function()
+    -- tests
+  end)
+
+  -- more tests pertaining to the top level
+end)
+</code></pre>
+<pre><code>busted ./test.lua -t="tag"</code></pre>
+<p>This runs the first group of tests, but not the second.</p>
 
             <h4 id="it">It: Defining tests</h4>
             <p>
