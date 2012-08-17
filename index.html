@@ -148,17 +148,18 @@ end)
             <h4>CLI: Running Busted</h4>
 <pre><code> Usage: busted [OPTIONS]  ROOT 
 
-Required arguments: 
+Required arguments:
   ROOT                 test script file/folder
 
-Optional arguments: 
-  --version            prints the program's version and exits 
-  -o, --output=LIBRARY output library to load (from src/output) (default: utf_terminal) 
-  -l, --lua=luajit     path to the execution environment (lua or luajit) 
-  -v                   verbose output of errors 
+Optional arguments:
+  --version            prints the program's version and exits
+  -o, --output=LIBRARY output library to load (from src/output) (default: utf_terminal)
+  -l, --lua=luajit     path to the execution environment (lua or luajit)
+  -v                   verbose output of errors
   -s, --enable-sound   executes 'say' command if available
   --suppress-pending   suppress 'pending' test output
   --defer-print        defer print to when test suite is complete
+  --lang               set the langauge for error messages (default: en)
 </code></pre>
           </div>
         </div>
@@ -419,7 +420,10 @@ end)
 
             <h4 id="assert-extend">Extending Your Own Assertions</h4>
             <p>
-              Add in your own assertions to reuse commonly written code.
+              Add in your own assertions to reuse commonly written code. You
+              can register error message keys for both positive (<code>is</code>
+              and negative (<code>is_not</code>) cases for multilingual
+              compatibility as well ("en" by default.)
             </p>
 <pre><code data-language="lua">require("busted")
 
@@ -429,10 +433,12 @@ local function has_property(table, prop)
       return true
     end
   end
-  return false
+  return false, {prop, table}
 end
 
-assert:register("has_property", has_property, "This table does not contain the property.")
+s:set("en", "assertion.has_property.positive", "Expected property %s in:\n%s")
+s:set("en", "assertion.has_property.negative", "Expected property %s to not be in:\n%s")
+assert:register("has_property", has_property, "assertion.has_property.positive", "assertion.has_property.negative")
 
 describe("my table", function()
   it("has a name property", function()
