@@ -38,6 +38,7 @@ cli:add_option("-o, --output=LIBRARY", "output library to load", "output_lib", "
 cli:add_option("-l, --lua=luajit", "path to the execution environment (lua or luajit)")
 cli:add_option("-d, --cwd=cwd", "path to current working directory")
 cli:add_option("-p, --pattern=pattern", "only run test files matching this pattern")
+cli:add_option("-t, --tags=tags", "only run tests with these #tags")
 
 cli:add_flag("-v", "verbose output of errors")
 cli:add_flag("-s, --enable-sound", "executes 'say' command if available")
@@ -50,15 +51,17 @@ if args then
   set_busted_options({
     verbose = args["v"],
     color = not args["c"],
-    json = args["j"],
     suppress_pending = args["suppress-pending"],
     defer_print = args["defer-print"],
     utf = not args["u"],
     sound = args["s"],
     cwd = args["d"],
+    tags = args["t"],
     output_lib = args["output_lib"],
   })
+
   local pattern = args["p"] or '_spec.lua'
+
   if args["version"] then
     return print("busted: version 0.0.0")
   end

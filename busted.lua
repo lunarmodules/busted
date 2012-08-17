@@ -1,3 +1,5 @@
+json = require("cjson")
+
 -- setup for stuff we use inside
 local global_context = { type = "describe", description = "global" }
 local current_context = global_context
@@ -17,6 +19,12 @@ spy = require 'luassert.spy'
 mock = require 'luassert.mock'
 
 -- Internal functions
+local split = function(string, sep)
+  local sep, fields = sep or ".", {}
+  local pattern = string.format("([^%s]+)", sep)
+  string:gsub(pattern, function(c) fields[#fields+1] = c end)
+  return fields
+end
 
 local function busted()
 
@@ -30,6 +38,7 @@ local function busted()
     }
 
     local stack_trace = ""
+
     local function err_handler(err)
       stack_trace = debug.traceback("", 4)
       return err
@@ -141,6 +150,22 @@ end
 -- External functions
 
 describe = function(description, callback)
+  match = false
+
+  if #busted_options.tags > 0 then
+    for i,t in ipairs(busted_options.tags) do
+      if string.find(description, "#"..t) then
+        match = true
+      end
+    end
+  else
+    match = true
+  end
+
+  if not match then
+    return 
+  end
+
   local local_context = { description = description, callback = callback, type = "describe"  }
 
   table.insert(current_context, local_context)
@@ -202,6 +227,10 @@ end
 
 set_busted_options = function(options)
   busted_options = options
+
+  if busted_options.tags then
+    busted_options.tags = split(busted_options.tags, "%s")
+  end
 
   if options.output_lib then
     output = require('output.'..options.output_lib)()
