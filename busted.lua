@@ -1,5 +1,3 @@
-json = require("cjson")
-
 -- setup for stuff we use inside
 local global_context = { type = "describe", description = "global" }
 local current_context = global_context

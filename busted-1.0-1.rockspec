@@ -15,7 +15,7 @@ dependencies = {
   "lua >= 5.1",
   "lua_cliargs >= 1.1",
   "luafilesystem >= 1.5.0",
-  "lua-cjson >= 2.1.0"
+  "dkjson >= 2.1.0"
 }
 build = {
   type = "builtin",
