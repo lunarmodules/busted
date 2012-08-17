@@ -42,6 +42,7 @@ build = {
   install = {
     bin = {
       ["busted"] = "busted",
+      ["busted.bat"] = "busted.bat",
       ["bootstrap"] = "bootstrap",
     }
   }
