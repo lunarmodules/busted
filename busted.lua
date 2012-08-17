@@ -4,6 +4,7 @@ local current_context = global_context
 local busted_options = {}
 
 local s = require 'say.s'
+s:set_namespace("en")
 
 local successes = 0
 local failures = 0

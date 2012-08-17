@@ -7,16 +7,12 @@ local s = {
     self.current_namespace = namespace
   end,
 
-  set = function(self, namespace, key, value)
-    if type(value) ~= 'string' then
-      value = key
-      key = namespace
-      namespace = '__g'
+  set = function(self, key, value)
+    if not self.registry[self.current_namespace] then
+      self.registry[self.current_namespace] = {}
     end
-    if not self.registry[namespace] then
-      self.registry[namespace] = {}
-    end
-    self.registry[namespace][key] = value
+
+    self.registry[self.current_namespace][key] = value
   end
 }
 
@@ -24,14 +20,12 @@ local __meta = {
   __call = function(self, key, vars)
     local str = ''
 
-    if (not vars and type(key) == 'table') or (not vars and key and not self.registry[namespace]) or (not key and not vars) then
-      vars = key
-      key = self.current_namespace
-      namespace = '__g'
-    end
-
     if not self.registry[self.current_namespace] then
       self.registry[self.current_namespace] = {}
+    end
+
+    if not vars then
+      vars = {}
     end
 
     str = self.registry[self.current_namespace][key]
@@ -43,7 +37,7 @@ local __meta = {
     for i,v in ipairs(vars) do
       local s = v
 
-      if type(v == "table") then
+      if type(v) == "table" then
         s = json.encode(v)
       else
         s = tostring(v)
@@ -54,6 +48,7 @@ local __meta = {
 
     return #strings > 0 and str:format(unpack(strings)) or str
   end,
+
   __index = function(self, key)
     return self.registry[key]
   end
