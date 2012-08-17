@@ -6,15 +6,12 @@ local busted_options = {}
 local s = require 'say.s'
 s:set_namespace("en")
 
-local successes = 0
-local failures = 0
-
 local output = require('output.utf_terminal')()
 
 --setup luassert
 assert = require 'luassert.assert'
-  require 'luassert.modifiers'
-  require 'luassert.assertions'
+require 'luassert.modifiers'
+require 'luassert.assertions'
 
 spy = require 'luassert.spy'
 mock = require 'luassert.mock'
@@ -51,9 +48,7 @@ local function busted()
 
     if err then
       test_status = { type = "failure", description = description, info = info, trace = stack_trace, err = err }
-      failures = failures + 1
     else
-      successes = successes + 1
       test_status = { type = "success", description = description, info = info }
     end
 
@@ -91,7 +86,7 @@ local function busted()
       if v.type == "test" then
         table.insert(status, test(v.description, v.callback))
       elseif v.type == "describe" then
-        table.insert(status, run_context(v))
+        table.insert(status, coroutine.create(function() run_context(v) end))
       elseif v.type == "pending" then
         local pending_test_status = { type = "pending", description = v.description, info = v.info }
         v.callback(pending_test_status)
@@ -106,8 +101,7 @@ local function busted()
     if context.teardown ~= nil then
       context.teardown()
     end
-
-    return status
+    coroutine.yield(status)
   end
 
   local play_sound = function(failures)
@@ -145,19 +139,35 @@ local function busted()
     print(output.header(global_context))
   end
 
-  local statuses = run_context(global_context)
-
-  ms = os.clock() - ms
-
-  if busted_options.sound then
-    play_sound(failures)
+  local function get_statuses(done, list)
+    local ret = {}
+    for i,v in pairs(list) do
+      if type(v) == "thread" then
+        local res = get_statuses(coroutine.resume(v))
+        for key,value in pairs(res) do
+          table.insert(ret, value)
+        end
+      elseif type(v) == "table" then
+          table.insert(ret, v)
+      end
+    end
+    return ret
   end
+
+  local statuses = get_statuses(coroutine.resume(coroutine.create(function() run_context(global_context) end)))
+  ms = os.clock() - ms
 
   if busted_options.defer_print then
     print(output.header(global_context))
   end
 
-  return output.formatted_status(statuses, busted_options, ms)
+  local status_string = output.formatted_status(statuses, busted_options, ms)
+
+  if busted_options.sound then
+    play_sound(failures)
+  end
+
+  return status_string
 end
 
 -- External functions
