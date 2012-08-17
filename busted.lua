@@ -101,7 +101,11 @@ local function busted()
     if context.teardown ~= nil then
       context.teardown()
     end
-    coroutine.yield(status)
+    if coroutine.running() then
+      coroutine.yield(status)
+    else
+      return true, status
+    end
   end
 
   local play_sound = function(failures)
@@ -154,7 +158,7 @@ local function busted()
     return ret
   end
 
-  local statuses = get_statuses(coroutine.resume(coroutine.create(function() run_context(global_context) end)))
+  local statuses = get_statuses(run_context(global_context))
   ms = os.clock() - ms
 
   if busted_options.defer_print then

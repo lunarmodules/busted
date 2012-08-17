@@ -14,7 +14,6 @@ end)
 
 describe("Test case", function()
   local test_val = false
-
   it("changes test_val to true", function()
     test_val = true
     assert(test_val)
@@ -42,7 +41,7 @@ describe("After each", function()
 
   it("runs once to fire an after_each and then", function() end)
   it("checks if after_each was called", function()
-    assert(test_val)
+   assert(test_val)
   end)
 end)
 
