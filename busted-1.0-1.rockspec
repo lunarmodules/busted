@@ -1,7 +1,7 @@
-package = "test_command_line"
+package = "busted"
 version = "1.0-1"
 source = {
-  url = ""
+  url = "https://github.com/Olivine-Labs/busted"
 }
 description = {
   summary = "A command line testing suite for lua",
@@ -12,11 +12,14 @@ description = {
   license = "MIT <http://opensource.org/licenses/MIT>"
 }
 dependencies = {
-  "lua >= 5.1"
+  "lua >= 5.1",
+  "lua_cliargs >= 1.1",
+  "luafilesystem >= 1.5.0",
+  "lua-cjson >= 2.1.0"
 }
 build = {
   type = "builtin",
    modules = {
-    test_command_line = "test_command_line.lua"
+    busted = "busted.lua"
   }
 }
