@@ -15,8 +15,8 @@ if "%cmd%"=="" (
   if "%*"=="--help" set TRUE=1
   if "%*"=="--version" set TRUE=1
   if defined TRUE  (
-    pushd %~dp0 && (call "%cmd%" bootstrap.lua %*) && popd
+    pushd %~dp0 && (call "%cmd%" bootstrap %*) && popd
   ) else (
-    pushd %~dp0 && (call "%cmd%" bootstrap.lua --cwd="%cwd%\\" %*) && popd
+    pushd %~dp0 && (call "%cmd%" bootstrap --cwd="%cwd%\\" %*) && popd
   )
 )
