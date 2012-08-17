@@ -2,6 +2,7 @@
 local global_context = { type = "describe", description = "global" }
 local current_context = global_context
 local busted_options = {}
+
 local s = require 'say.s'
 
 local successes = 0

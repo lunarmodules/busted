@@ -37,8 +37,8 @@ fi
 cd "$DIR"
 
 
-if [ "$*"=="--help" -o "$*"=="--version" ] ; then
-  $COMMAND bootstrap.lua $*;
+if [ "$1" = "--help" -o "$1" = "--version" ] ; then
+  $COMMAND bootstrap $*;
 else
-  $COMMAND bootstrap.lua --cwd="$CWD" $*;
+  $COMMAND bootstrap --cwd="$CWD" $*;
 fi

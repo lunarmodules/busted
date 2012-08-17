@@ -73,11 +73,11 @@ local function has_error(state, func, err_expected)
 end
 
 s:set("en", "assertion.same.positive", "Expected objects to be the same. Passed in:\n%s\nExpected:\n%s")
-s:set("en", "assertion.same.negative", "Expected objects to not be the same. Passed in:\n%s\nExpected:\n%s")
+s:set("en", "assertion.same.negative", "Expected objects to not be the same. Passed in:\n%s\nDid not expect:\n%s")
 assert:register("assertion", "same", same, "assertion.same.positive", "assertion.same.negative")
 
 s:set("en", "assertion.equals.positive", "Expected objects to be equal. Passed in:\n%s\nExpected:\n%s")
-s:set("en", "assertion.equals.negative", "Expected objects to be equal. Passed in:\n%s\nExpected:\n%s")
+s:set("en", "assertion.equals.negative", "Expected objects to not be equal. Passed in:\n%s\nDid not expect:\n%s")
 assert:register("assertion", "equals", equals, "assertion.equals.positive", "assertion.equals.negative")
 assert:register("assertion", "equal", equals, "assertion.equals.positive", "assertion.equals.negative")
 
