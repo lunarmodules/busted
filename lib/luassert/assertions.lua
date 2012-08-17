@@ -72,21 +72,21 @@ local function has_error(state, func, err_expected)
   return val, func
 end
 
-s:set("en", "assertion.same.positive", "Objects were not the same. Passed in:\n%s\nExpected:\n%s")
-s:set("en", "assertion.same.negative", "Objects were the same. Passed in:\n%s\nExpected:\n%s")
+s:set("en", "assertion.same.positive", "Expected objects to be the same. Passed in:\n%s\nExpected:\n%s")
+s:set("en", "assertion.same.negative", "Expected objects to not be the same. Passed in:\n%s\nExpected:\n%s")
 assert:register("assertion", "same", same, "assertion.same.positive", "assertion.same.negative")
 
-s:set("en", "assertion.equals.positive", "Objects were not the same. Passed in:\n%s\nExpected:\n%s")
-s:set("en", "assertion.equals.negative", "Objects were equal. Passed in:\n%s\nExpected:\n%s")
-assert:register("assertion", "equals", equals, "These values are not equal")
+s:set("en", "assertion.equals.positive", "Expected objects to be equal. Passed in:\n%s\nExpected:\n%s")
+s:set("en", "assertion.equals.negative", "Expected objects to be equal. Passed in:\n%s\nExpected:\n%s")
+assert:register("assertion", "equals", equals, "assertion.equals.positive", "assertion.equals.negative")
 assert:register("assertion", "equal", equals, "assertion.equals.positive", "assertion.equals.negative")
 
-s:set("en", "assertion.unique.positive", "Object was not unique:\n%s")
-s:set("en", "assertion.unique.negative", "Object was unique:\n%s")
-assert:register("assertion", "unique", unique, "These values are not unique")
+s:set("en", "assertion.unique.positive", "Expected object to be unique:\n%s")
+s:set("en", "assertion.unique.negative", "Expected object to not be unique:\n%s")
+assert:register("assertion", "unique", unique, "assertion.unique.positive", "assertion.unique.negative")
 
-s:set("en", "assertion.error.positive", "Error not thrown.")
-s:set("en", "assertion.error.negative", "An error was thrown.\n%s")
+s:set("en", "assertion.error.positive", "Expected error to be thrown.")
+s:set("en", "assertion.error.negative", "Expected error to not be thrown.\n%s")
 assert:register("assertion", "error", has_error, "assertion.error.positive", "assertion.error.negative")
 assert:register("assertion", "errors", has_error, "assertion.error.positive", "assertion.error.negative")
 
@@ -94,6 +94,6 @@ s:set("en", "assertion.truthy.positive", "Expected to be truthy, but value was:\
 s:set("en", "assertion.truthy.negative", "Expected to not be truthy, but value was:\n%s")
 assert:register("assertion", "truthy", truthy, "assertion.truthy.positive", "assertion.truthy.negative")
 
-s:set("en", "assertion.falsy.positive", "Object was not falsy: %s")
-s:set("en", "assertion.falsy.negative", "Object was falsy: %s")
+s:set("en", "assertion.falsy.positive", "Expected to be falsy, but value was:\n%s")
+s:set("en", "assertion.falsy.negative", "Expected to not be falsy, but value was:\n%s")
 assert:register("assertion", "falsy", falsy, "assertion.falsy.positive", "assertion.falsy.negative")
