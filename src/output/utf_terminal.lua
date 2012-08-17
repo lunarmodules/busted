@@ -5,7 +5,6 @@
 
 local ansicolors = require("lib/ansicolors")
 
-
 local output = function()
   local pending_description = function(status, options)
     return "\n\n"..ansicolors("%{yellow}Pending").." → "..

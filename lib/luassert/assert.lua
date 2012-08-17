@@ -1,14 +1,17 @@
+local s = require 'say.s'
+
 local __assertion_meta = {
   __call = function(self, ...)
     local state = self.state
     local val = self.callback(state, ...)
     local data_type = type(val)
+
     if data_type == "boolean" then
       if val ~= state.mod then
         if state.mod then
-          error(self.positive_message or "assertion failed!")
+          error(s(self.positive_message, {...}) or "assertion failed!")
         else
-          error(self.negative_message or "assertion failed!")
+          error(s(self.negative_message, {...}) or "assertion failed!")
         end
       else
         return state
@@ -75,7 +78,8 @@ local __meta = {
     return bool
   end,
 
-  __index = function(self, key) return self.state()[key] end
+  __index = function(self, key) return self.state()[key] end,
 
 }
+
 return setmetatable(obj, __meta)

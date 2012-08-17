@@ -2,6 +2,7 @@
 local global_context = { type = "describe", description = "global" }
 local current_context = global_context
 local busted_options = {}
+local s = require 'say.s'
 
 local successes = 0
 local failures = 0
@@ -225,6 +226,10 @@ end
 
 set_busted_options = function(options)
   busted_options = options
+
+  if busted_options.lang then
+    s:set_namespace(busted_options.lang)
+  end
 
   if busted_options.tags then
     busted_options.tags = split(busted_options.tags, "%s")

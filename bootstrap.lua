@@ -40,6 +40,8 @@ cli:add_option("-d, --cwd=cwd", "path to current working directory")
 cli:add_option("-p, --pattern=pattern", "only run test files matching this pattern")
 cli:add_option("-t, --tags=tags", "only run tests with these #tags")
 
+cli:add_option("--lang", "language for error messages", "lang", "en")
+
 cli:add_flag("-v", "verbose output of errors")
 cli:add_flag("-s, --enable-sound", "executes 'say' command if available")
 cli:add_flag("--suppress-pending", "suppress 'pending' test output")
@@ -58,6 +60,7 @@ if args then
     cwd = args["d"],
     tags = args["t"],
     output_lib = args["output_lib"],
+    lang = args["lang"],
   })
 
   local pattern = args["p"] or '_spec.lua'
