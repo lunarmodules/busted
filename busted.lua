@@ -267,7 +267,7 @@ set_busted_options = function(options)
   end
 
   if busted_options.tags then
-    busted_options.tags = split(busted_options.tags, "%s")
+    busted_options.tags = split(busted_options.tags, ",")
   end
 
   if options.output_lib then
