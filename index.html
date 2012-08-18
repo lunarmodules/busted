@@ -186,7 +186,7 @@ Optional arguments:
             <p>
               Tag your tests with #hashtags to run specific tests. When you
               run busted from the command line, add the -t flag to run a
-              given tag.
+              given tag. Seperate tags by commas to run more than one tag.
             </p>
           </div>
 
@@ -222,7 +222,7 @@ describe("a test #tag", function()
   -- tests go here
 end)
 
-describe("a nested block #another-tag", function()
+describe("a nested block #another", function()
   describe("can have many describes", function()
     -- tests
   end)
@@ -232,6 +232,8 @@ end)
 </code></pre>
 <pre><code>busted ./test.lua -t="tag"</code></pre>
 <p>This runs the first group of tests, but not the second.</p>
+<pre><code>busted ./test.lua -t="tag,another"</code></pre>
+<p>This runs both groups.</p>
 
             <h4 id="it">It: Defining tests</h4>
             <p>
