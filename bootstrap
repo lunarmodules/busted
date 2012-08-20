@@ -21,11 +21,7 @@ local function sub_dir(dir)
           end
         end
       end
-      --hack to ensure stack size
-      if debug.getinfo(26) then
-        print("Hit max stack size while iterating directories, may not run all tests.")
-        return
-      end
+
       return yieldtree()
     end
   end
