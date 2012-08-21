@@ -78,7 +78,7 @@ if args then
   else
     for filename,attr in sub_dir(root_file) do
       if attr.mode == 'file' then
-        local path,name,ext = string.match(filename, "(.-)([^\\/]-([^%.]+))$")
+        local path,name,ext = filename:match("(.-)([^\\/]-([^%.]+))$")
         if ext == 'lua' and name:find(pattern) then
           local file, err = loadfile(filename)
           if file then

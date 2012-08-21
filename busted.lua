@@ -1,25 +1,19 @@
+require 'luassert.all'
+
+local output = require 'output.utf_terminal'()
+
+local s = require 'say.s'
+s:set_namespace "en"
+
 -- setup for stuff we use inside
 local global_context = { type = "describe", description = "global" }
 local current_context = global_context
 local busted_options = {}
 
-local s = require 'say.s'
-s:set_namespace("en")
-
-local output = require('output.utf_terminal')()
-
---setup luassert
-assert = require 'luassert.assert'
-require 'luassert.modifiers'
-require 'luassert.assertions'
-
-spy = require 'luassert.spy'
-mock = require 'luassert.mock'
-
 -- Internal functions
 local split = function(string, sep)
   local sep, fields = sep or ".", {}
-  local pattern = string.format("([^%s]+)", sep)
+  local pattern = ("([^%s]+)"):format(sep)
   string:gsub(pattern, function(c) fields[#fields+1] = c end)
   return fields
 end
@@ -60,11 +54,11 @@ local function busted()
   end
 
   local function run_context(context)
-    match = false
+    local match = false
 
     if busted_options.tags and #busted_options.tags > 0 then
       for i,t in ipairs(busted_options.tags) do
-        if string.find(context.description, "#"..t) then
+        if context.description:find("#"..t) then
           match = true
         end
       end
@@ -131,7 +125,7 @@ local function busted()
     math.randomseed(os.time())
 
     if failures > 0 then
-      io.popen("say \""..string.format(failure_messages[math.random(1, #failure_messages)], failures).."\"")
+      io.popen("say \""..failure_messages[math.random(1, #failure_messages)]:format(failures).."\"")
     else
       io.popen("say \""..success_messages[math.random(1, #success_messages)].."\"")
     end
@@ -146,12 +140,13 @@ local function busted()
   local function get_statuses(done, list)
     local ret = {}
     for i,v in pairs(list) do
-      if type(v) == "thread" then
+      local vtype = type(v)
+      if vtype == "thread" then
         local res = get_statuses(coroutine.resume(v))
         for key,value in pairs(res) do
           table.insert(ret, value)
         end
-      elseif type(v) == "table" then
+      elseif vtype == "table" then
           table.insert(ret, v)
       end
     end
@@ -177,11 +172,11 @@ end
 -- External functions
 
 describe = function(description, callback)
-  match = current_context.run
+  local match = current_context.run
 
   if busted_options.tags and #busted_options.tags > 0 then
     for i,t in ipairs(busted_options.tags) do
-      if string.find(description, "#"..t) then
+      if description:find("#"..t) then
         match = true
       end
     end
@@ -201,12 +196,12 @@ describe = function(description, callback)
 end
 
 it = function(description, callback)
-  match = current_context.run
+  local match = current_context.run
 
   if not match then
     if busted_options.tags and #busted_options.tags > 0 then
       for i,t in ipairs(busted_options.tags) do
-        if string.find(description, "#"..t) then
+        if description:find("#"..t) then
           match = true
         end
       end
@@ -225,7 +220,7 @@ pending = function(description, callback)
 
   local info = {
     source = debug_info.source,
-    short_src = debug_info.short_src,  
+    short_src = debug_info.short_src,
     linedefined = debug_info.linedefined,
   }
 
