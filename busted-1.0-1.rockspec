@@ -32,6 +32,7 @@ build = {
     ["luassert.modifiers"] = "lib/luassert/modifiers.lua",
     ["luassert.assertions"] = "lib/luassert/assertions.lua",
     ["luassert.mock"] = "lib/luassert/mock.lua",
+    ["luassert.all"] = "lib/luassert/all.lua",
     ["say.s"] = "lib/say/s.lua",
     ["lib.ansicolors"] = "lib/ansicolors.lua",
     ["output.utf_terminal"] = "src/output/utf_terminal.lua",
