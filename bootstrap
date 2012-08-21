@@ -1,5 +1,5 @@
 -- Busted command-line runner
-package.path = './?.lua;./lib/?.lua;./src/?.lua;'..package.path
+package.path = './?.lua;./src/?.lua;'..package.path
 
 local busted = require 'busted'
 local cli = require 'cliargs'
