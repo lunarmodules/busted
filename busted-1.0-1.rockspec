@@ -1,5 +1,5 @@
 package = "busted"
-version = "1.0-1"
+version = "1.1-1"
 source = {
   url = "https://github.com/downloads/Olivine-Labs/busted/busted-1.0.tar.gz"
 }
@@ -19,22 +19,15 @@ dependencies = {
   "lua >= 5.1",
   "lua_cliargs >= 1.1",
   "luafilesystem >= 1.5.0",
-  "dkjson >= 2.1.0"
+  "dkjson >= 2.1.0",
+  "say >= 1.0-1",
+  "luassert >= 1.0-1"
 }
 build = {
   type = "builtin",
   modules = {
     busted = "busted.lua",
-    ["luassert.util"] = "lib/luassert/util.lua",
-    ["luassert.spy"] = "lib/luassert/spy.lua",
-    ["luassert.stub"] = "lib/luassert/stub.lua",
-    ["luassert.assert"] = "lib/luassert/assert.lua",
-    ["luassert.modifiers"] = "lib/luassert/modifiers.lua",
-    ["luassert.assertions"] = "lib/luassert/assertions.lua",
-    ["luassert.mock"] = "lib/luassert/mock.lua",
-    ["luassert.all"] = "lib/luassert/all.lua",
-    ["say.s"] = "lib/say/s.lua",
-    ["lib.ansicolors"] = "lib/ansicolors.lua",
+    ["ansicolors"] = "lib/ansicolors.lua",
     ["output.utf_terminal"] = "src/output/utf_terminal.lua",
     ["output.plain_terminal"] = "src/output/plain_terminal.lua",
     ["output.TAP"] = "src/output/TAP.lua",
