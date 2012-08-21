@@ -21,13 +21,13 @@ dependencies = {
   "luafilesystem >= 1.5.0",
   "dkjson >= 2.1.0",
   "say >= 1.0-1",
-  "luassert >= 1.0-1"
+  "luassert >= 1.0-1",
+  "ansicolors >= 1.0-1"
 }
 build = {
   type = "builtin",
   modules = {
     busted = "busted.lua",
-    ["ansicolors"] = "lib/ansicolors.lua",
     ["output.utf_terminal"] = "src/output/utf_terminal.lua",
     ["output.plain_terminal"] = "src/output/plain_terminal.lua",
     ["output.TAP"] = "src/output/TAP.lua",
