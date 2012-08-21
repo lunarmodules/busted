@@ -3,7 +3,7 @@
 --  output.descriptive_status
 --  output.currently_executing
 
-local ansicolors = require("lib/ansicolors")
+local ansicolors = require "ansicolors"
 
 local output = function()
   local pending_description = function(status, options)
