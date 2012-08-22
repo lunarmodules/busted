@@ -5,14 +5,14 @@
 
 local output = function()
   local pending_description = function(status, options)
-    return "\n\n".."Pending: "..
+    return "\n\n"..s('output.pending')..": "..
     status.info.short_src.." @ "..
     status.info.linedefined..
     "\n"..status.description
   end
 
   local error_description = function(status, options)
-    return "\n\n".."Failure: "..
+    return "\n\n"..s('output.failure')..": "..
            status.info.short_src.." @ "..
            status.info.linedefined..
            "\n"..status.description..
@@ -36,21 +36,38 @@ local output = function()
   end
 
   local status_string = function(short_status, descriptive_status, successes, failures, pendings, ms, options)
-    local success_str = (successes == 1) and " success" or " successes"
-    local failures_str = (failures == 1) and " failure" or " failures"
-    local pendings_str = " pending"
+    local success_str = s('output.success_plural')
+    local failure_str = s('output.failure_plural')
+    local pending_str = s('output.pending_plural')
+
+    if successes == 0 then
+      success_str = s('output.success_zero')
+    elseif successes == 1 then
+      success_str = s('output.success_single')
+    end
+
+    if failures == 0 then
+      failure_str = s('output.failure_zero')
+    elseif failures == 1 then
+      failure_str = s('output.failure_single')
+    end
+
+    if pendings == 0 then
+      pending_str = s('output.pending_zero')
+    elseif pendings == 1 then
+      pending_str = s('output.pending_single')
+    end
 
     if not options.defer_print then
       io.write("\08 ")
       short_status = ""
     end
 
-
     return short_status.."\n"..
-           successes..success_str..", "..
-           failures..failures_str..", and "..
-           pendings..pendings_str.." in "..
-           ms.." seconds."..descriptive_status
+           successes.." "..success_str..", "..
+           failures.." "..failure_str..", and "..
+           pendings.." "..pending_str.." in "..
+           ms.." "..s('output.seconds').."."..descriptive_status
   end
 
   format_statuses = function (statuses, options)
