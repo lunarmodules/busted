@@ -3,10 +3,9 @@ local cli = require 'cliargs'
 local lfs = require 'lfs'
 require 'luassert.all'
 s = require 'say.s'
-package.path = './?.lua;./src/?.lua;'..package.path
 
-busted = require 'busted'
-require 'interface'
+busted = require 'busted.busted'
+require 'busted.interface'
 
 local function sub_dir(dir)
   local dirs = {dir}

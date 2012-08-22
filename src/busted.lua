@@ -1,12 +1,12 @@
 local busted = {
   root_context = { type = "describe", description = "global" },
-  output = require 'output.utf_terminal'(),
+  output = require 'busted.output.utf_terminal'(),
   options = {},
 
   __call = function(self)
     --setup options
     s:set_namespace(self.options.lang)
-    self.output = require('output.'..self.options.output_lib)()
+    self.output = require('busted.output.'..self.options.output_lib)()
 
     --run test
     local function test(description, callback)

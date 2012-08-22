@@ -38,7 +38,7 @@ cd "$DIR"
 
 
 if [ "$1" = "--help" -o "$1" = "--version" ] ; then
-  $COMMAND bootstrap $*;
+  $COMMAND busted_bootstrap $*;
 else
-  $COMMAND bootstrap --cwd="$CWD" $*;
+  $COMMAND busted_bootstrap --cwd="$CWD" $*;
 fi

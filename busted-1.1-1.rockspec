@@ -27,17 +27,18 @@ dependencies = {
 build = {
   type = "builtin",
   modules = {
-    busted = "busted.lua",
-    ["output.utf_terminal"] = "src/output/utf_terminal.lua",
-    ["output.plain_terminal"] = "src/output/plain_terminal.lua",
-    ["output.TAP"] = "src/output/TAP.lua",
-    ["output.json"] = "src/output/json.lua",
+    ["busted.busted"] = "src/busted.lua",
+    ["busted.output.utf_terminal"] = "src/output/utf_terminal.lua",
+    ["busted.output.plain_terminal"] = "src/output/plain_terminal.lua",
+    ["busted.output.TAP"] = "src/output/TAP.lua",
+    ["busted.output.json"] = "src/output/json.lua",
+    ["busted.interface"] = "src/interface.lua"
   },
   install = {
     bin = {
-      ["busted"] = "busted",
-      ["busted.bat"] = "busted.bat",
-      ["bootstrap"] = "bootstrap",
+      ["busted"] = "bin/busted",
+      ["busted.bat"] = "bin/busted.bat",
+      ["busted_bootstrap"] = "bin/busted_bootstrap"
     }
   }
 }
