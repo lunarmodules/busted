@@ -1,9 +1,12 @@
 -- Busted command-line runner
-package.path = './?.lua;./src/?.lua;'..package.path
-
-local busted = require 'busted'
 local cli = require 'cliargs'
 local lfs = require 'lfs'
+require 'luassert.all'
+s = require 'say.s'
+package.path = './?.lua;./src/?.lua;'..package.path
+
+busted = require 'busted'
+require 'interface'
 
 local function sub_dir(dir)
   local dirs = {dir}
