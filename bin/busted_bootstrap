@@ -48,7 +48,7 @@ cli:add_option("-d, --cwd=cwd", "path to current working directory")
 cli:add_option("-p, --pattern=pattern", "only run test files matching this pattern")
 cli:add_option("-t, --tags=tags", "only run tests with these #tags")
 
-cli:add_option("--lang", "language for error messages", "lang", "en")
+cli:add_option("--lang=LANG", "language for error messages", "lang", "en")
 
 cli:add_flag("-v", "verbose output of errors")
 cli:add_flag("-s, --enable-sound", "executes 'say' command if available")
@@ -58,6 +58,49 @@ cli:add_flag("--defer-print", "defer print to when test suite is complete")
 local args = cli:parse_args()
 
 if args then
+  if args.version then
+    return print("busted: version 1.1.0")
+  end
+
+  local root_file = args.ROOT or "spec"
+  local path = args["d"]
+
+  root_file = path..root_file
+
+  if args.lang then
+    if args.lang:match(".lua") then
+      lang = loadfile(path..args.lang)
+
+      if lang then
+        lang()
+      else
+        require('languages.en')
+      end
+    else
+      require('languages.'..args.lang)
+    end
+  else
+    require('languages.en')
+  end
+
+  local output
+
+  if args.output_lib then
+    if args.output_lib:match(".lua") then
+      local o, err = loadfile(path..args.output_lib)
+
+      if not err then
+        output = o()()
+      else
+        output = require 'output.utf_terminal'()
+      end
+    else
+      output = require('output.'..args.output_lib)()
+    end
+  else
+    output = require 'output.utf_terminal'()
+  end
+
   busted.options = {
     verbose = args.v,
     color = not args.c,
@@ -67,24 +110,18 @@ if args then
     sound = args.s,
     cwd = args.d,
     tags = split(args.t, ","),
-    output_lib = args.output_lib,
-    lang = args.lang,
+    output = output,
+    success_messages = success_messages or nil,
+    failure_messages = failure_messages or nil,
   }
 
-  local pattern = args.p ~= "" and args.p or '_spec.lua'
-  if args.version then
-    return print("busted: version 0.0.0")
-  end
-
-  local root_file = args.ROOT or "spec"
-  if args["d"] then
-    root_file = args["d"]..root_file
-  end
-
   local file = loadfile(root_file)
+
   if file then
     file()
   else
+    local pattern = args.p ~= "" and args.p or '_spec.lua'
+
     for filename,attr in sub_dir(root_file) do
       if attr.mode == 'file' then
         local path,name,ext = filename:match("(.-)([^\\/]-([^%.]+))$")
