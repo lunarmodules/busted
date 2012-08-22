@@ -28,6 +28,13 @@ local function sub_dir(dir)
   return coroutine.wrap(yieldtree)
 end
 
+local split = function(string, sep)
+  local sep, fields = sep or ".", {}
+  local pattern = ("([^%s]+)"):format(sep)
+  string:gsub(pattern, function(c) fields[#fields+1] = c end)
+  return fields
+end
+
 cli:set_name("busted")
 cli:add_flag("--version", "prints the program's version and exits")
 
@@ -49,7 +56,7 @@ cli:add_flag("--defer-print", "defer print to when test suite is complete")
 local args = cli:parse_args()
 
 if args then
-  set_busted_options({
+  busted.options = {
     verbose = args.v,
     color = not args.c,
     suppress_pending = args["suppress-pending"],
@@ -57,10 +64,10 @@ if args then
     utf = not args.u,
     sound = args.s,
     cwd = args.d,
-    tags = args.t,
+    tags = split(args.t, ","),
     output_lib = args.output_lib,
     lang = args.lang,
-  })
+  }
 
   local pattern = args.p ~= "" and args.p or '_spec.lua'
   if args.version then
