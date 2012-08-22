@@ -33,11 +33,7 @@ build = {
     ["busted.output.TAP"] = "src/output/TAP.lua",
     ["busted.output.json"] = "src/output/json.lua",
     ["busted.interface"] = "src/interface.lua",
-    ["languages.en"] = "src/languages/en.lua",
-    ["output.json"] = "src/output/json.lua",
-    ["output.plain_terminal"] = "src/output/plain_terminal.lua",
-    ["output.TAP"] = "src/output/TAP.lua",
-    ["output.utf_terminal"] = "src/output/utf_terminal.lua",
+    ["busted.languages.en"] = "src/languages/en.lua"
   },
   install = {
     bin = {
