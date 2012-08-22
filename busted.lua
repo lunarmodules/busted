@@ -1,8 +1,5 @@
-local global_context = { type = "describe", description = "global" }
-
 local busted = {
-  root_context = global_context,
-  current_context = global_context,
+  root_context = { type = "describe", description = "global" },
   output = require 'output.utf_terminal'(),
   options = {},
 

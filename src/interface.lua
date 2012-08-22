@@ -1,6 +1,8 @@
+local current_context = busted.root_context
+
 -- Global functions
 describe = function(description, callback)
-  local match = busted.current_context.run
+  local match = current_context.run
 
   if busted.options.tags and #busted.options.tags > 0 then
     for i,t in ipairs(busted.options.tags) do
@@ -14,17 +16,17 @@ describe = function(description, callback)
 
   local local_context = { description = description, callback = callback, type = "describe", run = match  }
 
-  table.insert(busted.current_context, local_context)
+  table.insert(current_context, local_context)
 
-  busted.current_context = local_context
+  current_context = local_context
 
   callback()
 
-  busted.current_context = busted.root_context
+  current_context = busted.root_context
 end
 
 it = function(description, callback)
-  local match = busted.current_context.run
+  local match = current_context.run
 
   if not match then
     if busted.options.tags and #busted.options.tags > 0 then
@@ -36,8 +38,8 @@ it = function(description, callback)
     end
   end
 
-  if busted.current_context.description ~= nil and match then
-    table.insert(busted.current_context, { description = description, callback = callback, type = "test" })
+  if current_context.description ~= nil and match then
+    table.insert(current_context, { description = description, callback = callback, type = "test" })
   elseif match then
     test(description, callback)
   end
@@ -63,21 +65,21 @@ pending = function(description, callback)
     end
   }
 
-  table.insert(busted.current_context, test_status)
+  table.insert(current_context, test_status)
 end
 
 before_each = function(callback)
-  busted.current_context.before_each = callback
+  current_context.before_each = callback
 end
 
 after_each = function(callback)
-  busted.current_context.after_each = callback
+  current_context.after_each = callback
 end
 
 setup = function(callback)
-  busted.current_context.setup = callback
+  current_context.setup = callback
 end
 
 teardown = function(callback)
-  busted.current_context.teardown = callback
+  current_context.teardown = callback
 end
