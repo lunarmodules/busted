@@ -1,12 +1,9 @@
 local busted = {
   root_context = { type = "describe", description = "global" },
-  output = require 'busted.output.utf_terminal'(),
   options = {},
 
   __call = function(self)
-    --setup options
-    s:set_namespace(self.options.lang)
-    self.output = require('busted.output.'..self.options.output_lib)()
+    self.output = self.options.output
 
     --run test
     local function test(description, callback)
@@ -93,31 +90,14 @@ local busted = {
     end
 
     local play_sound = function(failures)
-      local failure_messages = {
-        "You have %d busted specs",
-        "Your specs are busted",
-        "Your code is bad and you should feel bad",
-        "Your code is in the Danger Zone",
-        "Strange game. The only way to win is not to test",
-        "My grandmother wrote better specs on a 3 86",
-        "Every time there's a failure, drink another beer",
-        "Feels bad man"
-      }
-
-      local success_messages = {
-        "Aww yeah, passing specs",
-        "Doesn't matter, had specs",
-        "Feels good, man",
-        "Great success",
-        "Tests pass, drink another beer",
-      }
-
       math.randomseed(os.time())
 
-      if failures > 0 then
-        io.popen("say \""..failure_messages[math.random(1, #failure_messages)]:format(failures).."\"")
-      else
-        io.popen("say \""..success_messages[math.random(1, #success_messages)].."\"")
+      if self.options.failure_messages and #self.options.failure_messages > 0 and self.options.success_messages and #self.options.success_messages > 0 then
+        if failures and failures > 0 then
+          io.popen("say \""..failure_messages[math.random(1, #failure_messages)]:format(failures).."\"")
+        else
+          io.popen("say \""..success_messages[math.random(1, #success_messages)].."\"")
+        end
       end
     end
 

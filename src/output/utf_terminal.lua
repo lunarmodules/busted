@@ -7,14 +7,14 @@ local ansicolors = require "ansicolors"
 
 local output = function()
   local pending_description = function(status, options)
-    return "\n\n"..ansicolors("%{yellow}Pending").." → "..
+    return "\n\n"..ansicolors("%{yellow}"..s('output.pending')).." → "..
     ansicolors("%{cyan}"..status.info.short_src).." @ "..
     ansicolors("%{cyan}"..status.info.linedefined)..
     "\n"..ansicolors("%{bright}"..status.description)
   end
 
   local error_description = function(status, options)
-    return "\n\n"..ansicolors("%{red}Failure").." → "..
+    return "\n\n"..ansicolors("%{red}"..s('output.failure')).." → "..
            ansicolors("%{cyan}"..status.info.short_src).." @ "..
            ansicolors("%{cyan}"..status.info.linedefined)..
            "\n"..ansicolors("%{bright}"..status.description)..
@@ -38,9 +38,27 @@ local output = function()
   end
 
   local status_string = function(short_status, descriptive_status, successes, failures, pendings, ms, options)
-    local success_str = (successes == 1) and " success" or " successes"
-    local failures_str = (failures == 1) and " failure" or " failures"
-    local pendings_str = " pending"
+    local success_str = s('output.success_plural')
+    local failure_str = s('output.failure_plural')
+    local pending_str = s('output.pending_plural')
+
+    if successes == 0 then
+      success_str = s('output.success_zero')
+    elseif successes == 1 then
+      success_str = s('output.success_single')
+    end
+
+    if failures == 0 then
+      failure_str = s('output.failure_zero')
+    elseif failures == 1 then
+      failure_str = s('output.failure_single')
+    end
+
+    if pendings == 0 then
+      pending_str = s('output.pending_zero')
+    elseif pendings == 1 then
+      pending_str = s('output.pending_single')
+    end
 
     if not options.defer_print then
       io.write("\08 ")
@@ -49,10 +67,10 @@ local output = function()
 
 
     return short_status.."\n"..
-           ansicolors('%{green}'..successes)..success_str..", "..
-           ansicolors('%{red}'..failures)..failures_str..", and "..
-           ansicolors('%{yellow}'..pendings)..pendings_str.." in "..
-           ansicolors('%{bright}'..ms).." seconds."..descriptive_status
+           ansicolors('%{green}'..successes).." "..success_str..", "..
+           ansicolors('%{red}'..failures).." "..failure_str..", and "..
+           ansicolors('%{yellow}'..pendings).." "..pending_str.." in "..
+           ansicolors('%{bright}'..ms).." "..s('output.seconds').."."..descriptive_status
   end
 
   format_statuses = function (statuses, options)
