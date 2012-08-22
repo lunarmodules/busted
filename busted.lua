@@ -3,15 +3,6 @@ local busted = {
   output = require 'output.utf_terminal'(),
   options = {},
 
-  __call = function(self)
-    --setup options
-    s:set_namespace(self.options.lang)
-    self.output = require('output.'..self.options.output_lib)()
-
-    --run test
-    local function test(description, callback)
-      local debug_info = debug.getinfo(callback)
-
       local info = {
         source = debug_info.source,
         short_src = debug_info.short_src,
@@ -104,20 +95,33 @@ local busted = {
         "Feels bad man"
       }
 
-      local success_messages = {
-        "Aww yeah, passing specs",
-        "Doesn't matter, had specs",
-        "Feels good, man",
-        "Great success",
-        "Tests pass, drink another beer",
-      }
+  local play_sound = function(failures)
+    math.randomseed(os.time())
 
-      math.randomseed(os.time())
+    if failures and failures > 0 then
+      io.popen("say \""..failure_messages[math.random(1, #failure_messages)]:format(failures).."\"")
+    else
+      io.popen("say \""..success_messages[math.random(1, #success_messages)].."\"")
+    end
+  end
 
-      if failures > 0 then
-        io.popen("say \""..failure_messages[math.random(1, #failure_messages)]:format(failures).."\"")
-      else
-        io.popen("say \""..success_messages[math.random(1, #success_messages)].."\"")
+  local ms = os.clock()
+
+  if not busted_options.defer_print then
+    print(output.header(global_context))
+  end
+
+  local function get_statuses(done, list)
+    local ret = {}
+    for i,v in pairs(list) do
+      local vtype = type(v)
+      if vtype == "thread" then
+        local res = get_statuses(coroutine.resume(v))
+        for key,value in pairs(res) do
+          table.insert(ret, value)
+        end
+      elseif vtype == "table" then
+          table.insert(ret, v)
       end
     end
 
@@ -158,7 +162,31 @@ local busted = {
       play_sound(failures)
     end
 
-    return status_string
+  table.insert(current_context, test_status)
+end
+
+before_each = function(callback)
+  current_context.before_each = callback
+end
+
+after_each = function(callback)
+  current_context.after_each = callback
+end
+
+setup = function(callback)
+  current_context.setup = callback
+end
+
+teardown = function(callback)
+  current_context.teardown = callback
+end
+
+set_busted_options = function(options)
+  busted_options = options
+
+  if busted_options.tags then
+    busted_options.tags = split(busted_options.tags, ",")
   end
-}
-return setmetatable(busted, busted)
+end
+
+return busted

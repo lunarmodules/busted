@@ -1,6 +1,7 @@
 -- Busted command-line runner
 local cli = require 'cliargs'
 local lfs = require 'lfs'
+s = require 'say.s'
 require 'luassert.all'
 s = require 'say.s'
 package.path = './?.lua;./src/?.lua;'..package.path
@@ -49,7 +50,7 @@ cli:add_option("-d, --cwd=cwd", "path to current working directory")
 cli:add_option("-p, --pattern=pattern", "only run test files matching this pattern")
 cli:add_option("-t, --tags=tags", "only run tests with these #tags")
 
-cli:add_option("--lang", "language for error messages", "lang", "en")
+cli:add_option("--lang=LANG", "language for error messages", "lang", "en")
 
 cli:add_flag("-v", "verbose output of errors")
 cli:add_flag("-s, --enable-sound", "executes 'say' command if available")
@@ -67,10 +68,33 @@ if args then
     utf = not args.u,
     sound = args.s,
     cwd = args.d,
-    tags = split(args.t, ","),
+    tags = args.t,
     output_lib = args.output_lib,
     lang = args.lang,
+    tags = split(args.t, ","),
   }
+
+  if args.lang then
+    if args.lang:match(".lua") then
+      lang = args.lang:gsub(".lua", "")
+      require(lang)
+    else
+      require('languages.'..args.lang)
+    end
+  else
+    require('languages.en')
+  end
+
+  if args.output_lib then
+    if args.output_lib:match(".lua") then
+      lib = args.output_lib:gsub(".lua", "")
+      output = require(lib)()
+    else
+      output = require('output.'..args.output_lib)()
+    end
+  else
+    output = require 'output.utf_terminal'()
+  end
 
   local pattern = args.p ~= "" and args.p or '_spec.lua'
   if args.version then
