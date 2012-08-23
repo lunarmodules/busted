@@ -127,8 +127,9 @@ if args then
         if ext == 'lua' and name:find(pattern) then
           local file, err = loadfile(filename)
           if file then
-            file()
-          else
+            file, err = pcall(function() file() end)
+          end
+          if err then
             print("An error occurred while loading a test::"..err)
           end
         end
