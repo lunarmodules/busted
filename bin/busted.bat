@@ -1,12 +1,12 @@
 @ECHO OFF
 for /f "delims=" %%i in ('cd') do set cwd=%%i
-for %%X in (lua.exe) do (set FOUND=%%~$PATH:X)
+for %%X in (luajit.exe) do (set FOUND=%%~$PATH:X)
 if defined FOUND (
-  set cmd="lua"
+  set cmd="luajit"
 ) else (
-  for %%X in (luajit.exe) do (set FOUND=%%~$PATH:X)
+  for %%X in (lua.exe) do (set FOUND=%%~$PATH:X)
   if defined FOUND (
-    set cmd="luajit"
+    set cmd="lua"
   )
 )
 if "%cmd%"=="" (
