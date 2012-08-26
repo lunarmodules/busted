@@ -38,7 +38,7 @@ it = function(description, callback)
     end
   end
 
-  if current_context.description ~= nil and match then
+  if current_context.description and match then
     table.insert(current_context, { description = description, callback = callback, type = "test" })
   elseif match then
     test(description, callback)

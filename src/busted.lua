@@ -55,12 +55,12 @@ local busted = {
 
       local status = { description = context.description, type = "description", run = match }
 
-      if context.setup ~= nil then
+      if context.setup then
         context.setup()
       end
 
       for i,v in ipairs(context) do
-        if context.before_each ~= nil then
+        if context.before_each then
           context.before_each()
         end
 
@@ -74,12 +74,12 @@ local busted = {
           table.insert(status, pending_test_status)
         end
 
-        if context.after_each ~= nil then
+        if context.after_each then
           context.after_each()
         end
       end
 
-      if context.teardown ~= nil then
+      if context.teardown then
         context.teardown()
       end
       if coroutine.running() then
