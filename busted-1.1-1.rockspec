@@ -1,7 +1,8 @@
 package = "busted"
 version = "1.1-1"
 source = {
-  url = "https://github.com/downloads/Olivine-Labs/busted/busted-1.0.tar.gz"
+  url = "https://github.com/downloads/Olivine-Labs/busted/busted-1.1.tar.gz",
+  dir = "busted"
 }
 description = {
   summary = "Elegant Lua unit testing.",
@@ -33,7 +34,8 @@ build = {
     ["busted.output.TAP"] = "src/output/TAP.lua",
     ["busted.output.json"] = "src/output/json.lua",
     ["busted.interface"] = "src/interface.lua",
-    ["busted.languages.en"] = "src/languages/en.lua"
+    ["busted.languages.en"] = "src/languages/en.lua",
+    ["busted.languages.ar"] = "src/languages/ar.lua"
   },
   install = {
     bin = {

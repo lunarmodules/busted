@@ -67,9 +67,9 @@ local output = function()
 
 
     return short_status.."\n"..
-           ansicolors('%{green}'..successes).." "..success_str..", "..
-           ansicolors('%{red}'..failures).." "..failure_str..", and "..
-           ansicolors('%{yellow}'..pendings).." "..pending_str.." in "..
+           ansicolors('%{green}'..successes).." "..success_str.." / "..
+           ansicolors('%{red}'..failures).." "..failure_str.." / "..
+           ansicolors('%{yellow}'..pendings).." "..pending_str.." : "..
            ansicolors('%{bright}'..ms).." "..s('output.seconds').."."..descriptive_status
   end
 
