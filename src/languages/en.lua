@@ -39,6 +39,7 @@ s:set("assertion.truthy.negative", "Expected to not be truthy, but value was:\n%
 s:set("assertion.falsy.positive", "Expected to be falsy, but value was:\n%s")
 s:set("assertion.falsy.negative", "Expected to not be falsy, but value was:\n%s")
 
+-- definitions following are not used within the 'say' namespace but are defined as globals
 failure_messages = {
   "You have %d busted specs",
   "Your specs are busted",

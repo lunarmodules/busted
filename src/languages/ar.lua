@@ -39,6 +39,7 @@ s:set("assertion.truthy.negative", "تُوُقِّعَت قيمةٌ غيرُ ص�
 s:set("assertion.falsy.positive", "تُوُقِّعَت قيمةٌ خاطِئة، بَينَما كانت: \n%s")
 s:set("assertion.falsy.negative", "تُوُقِّعَت قيمةٌ غيرُ خاطِئة، بَينَما كانت: \n%s")
 
+-- definitions following are not used within the 'say' namespace but are defined as globals
 failure_messages = {
     "فَشِلَت %d مِنْ الإِختِبارات",
     "فَشِلَت إخْتِباراتُك",
