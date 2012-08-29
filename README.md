@@ -20,8 +20,6 @@ streaming, and TAP-compatible output that allows you to run busted specs
 within most CI servers.
 
 ```lua
-require("busted")
-
 describe("Busted unit testing framework", function()
   describe("should be awesome", function()
     it("should be easy to use", function()
