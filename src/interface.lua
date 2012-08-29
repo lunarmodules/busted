@@ -5,6 +5,12 @@ assert = require('luassert')
 spy = require('luassert.spy')
 mock = require('luassert.mock')
 
+-- Load default language pack
+require('busted.languages.en')
+
+-- Load and expose busted core as part of global interface
+busted = require('busted.core')
+
 -- Global functions
 describe = function(description, callback)
   local match = current_context.run
