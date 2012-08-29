@@ -1,4 +1,4 @@
-local s = require('say.s')
+local s = require('say')
 
 s:set_namespace("en")
 
