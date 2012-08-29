@@ -1,5 +1,10 @@
 local current_context = busted.root_context
 
+-- Expose luassert elements as part of global interfcae
+assert = require('luassert')
+spy = require('luassert.spy')
+mock = require('luassert.mock')
+
 -- Global functions
 describe = function(description, callback)
   local match = current_context.run
