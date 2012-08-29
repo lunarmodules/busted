@@ -1,3 +1,5 @@
+local s = require('say.s')
+
 s:set_namespace("ar")
 
 -- "Pending: test.lua @ 12 \n description
