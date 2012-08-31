@@ -36,6 +36,7 @@ build = {
     ["busted.interface"] = "src/interface.lua",
     ["busted.languages.en"] = "src/languages/en.lua",
     ["busted.languages.ar"] = "src/languages/ar.lua"
+    ["busted.languages.fr"] = "src/languages/fr.lua"
   },
   install = {
     bin = {
