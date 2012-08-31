@@ -1,8 +1,8 @@
 #!/bin/sh
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/"
+DIR="$( cd "$( dirname "$0" )" && pwd )/"
 
 commandExists () {
-    command -v "$1" &> /dev/null ;
+    command -v "$1" > /dev/null
 }
 
 while getopts ":l:" optchar; do
