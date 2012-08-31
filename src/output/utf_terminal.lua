@@ -5,7 +5,8 @@
 
 local ansicolors = require "ansicolors"
 
-local output = function()
+local output = function(busted)
+  local s = busted.say
   local pending_description = function(status, options)
     return "\n\n"..ansicolors("%{yellow}"..s('output.pending')).." → "..
     ansicolors("%{cyan}"..status.info.short_src).." @ "..

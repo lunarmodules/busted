@@ -1,5 +1,3 @@
-local current_context = busted.root_context
-
 -- Expose luassert elements as part of global interfcae
 assert = require('luassert')
 spy = require('luassert.spy')
@@ -10,6 +8,8 @@ require('busted.languages.en')
 
 -- Load and expose busted core as part of global interface
 busted = require('busted.core')
+
+local current_context = busted.root_context
 
 -- Global functions
 describe = function(description, callback)
