@@ -4,9 +4,9 @@
 --  output.currently_executing
 
 local ansicolors = require "ansicolors"
+local s = require 'say'
 
-local output = function(busted)
-  local s = busted.say
+local output = function()
   local pending_description = function(status, options)
     return "\n\n"..ansicolors("%{yellow}"..s('output.pending')).." → "..
     ansicolors("%{cyan}"..status.info.short_src).." @ "..
@@ -16,10 +16,10 @@ local output = function(busted)
 
   local error_description = function(status, options)
     return "\n\n"..ansicolors("%{red}"..s('output.failure')).." → "..
-           ansicolors("%{cyan}"..status.info.short_src).." @ "..
-           ansicolors("%{cyan}"..status.info.linedefined)..
-           "\n"..ansicolors("%{bright}"..status.description)..
-           "\n"..status.err
+    ansicolors("%{cyan}"..status.info.short_src).." @ "..
+    ansicolors("%{cyan}"..status.info.linedefined)..
+    "\n"..ansicolors("%{bright}"..status.description)..
+    "\n"..status.err
   end
 
   local success_string = function()
@@ -68,10 +68,10 @@ local output = function(busted)
 
 
     return short_status.."\n"..
-           ansicolors('%{green}'..successes).." "..success_str.." / "..
-           ansicolors('%{red}'..failures).." "..failure_str.." / "..
-           ansicolors('%{yellow}'..pendings).." "..pending_str.." : "..
-           ansicolors('%{bright}'..ms).." "..s('output.seconds').."."..descriptive_status
+    ansicolors('%{green}'..successes).." "..success_str.." / "..
+    ansicolors('%{red}'..failures).." "..failure_str.." / "..
+    ansicolors('%{yellow}'..pendings).." "..pending_str.." : "..
+    ansicolors('%{bright}'..ms).." "..s('output.seconds').."."..descriptive_status
   end
 
   format_statuses = function (statuses, options)
