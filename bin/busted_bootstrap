@@ -74,6 +74,7 @@ if args then
       end
     else
       require('busted.languages.'..args.lang)
+      require('luassert.languages.'..args.lang)
     end
   else
     require('busted.languages.en')
