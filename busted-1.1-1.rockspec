@@ -28,14 +28,14 @@ dependencies = {
 build = {
   type = "builtin",
   modules = {
-    ["busted.busted"] = "src/busted.lua",
+    ["busted.core"] = "src/core.lua",
     ["busted.output.utf_terminal"] = "src/output/utf_terminal.lua",
     ["busted.output.plain_terminal"] = "src/output/plain_terminal.lua",
     ["busted.output.TAP"] = "src/output/TAP.lua",
     ["busted.output.json"] = "src/output/json.lua",
-    ["busted.interface"] = "src/interface.lua",
+    ["busted.init"] = "src/init.lua",
     ["busted.languages.en"] = "src/languages/en.lua",
-    ["busted.languages.ar"] = "src/languages/ar.lua"
+    ["busted.languages.ar"] = "src/languages/ar.lua",
     ["busted.languages.fr"] = "src/languages/fr.lua"
   },
   install = {
