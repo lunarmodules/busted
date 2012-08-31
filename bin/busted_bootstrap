@@ -1,10 +1,7 @@
 -- Busted command-line runner
 local cli = require 'cliargs'
 local lfs = require 'lfs'
-require 'luassert.all'
-
-busted = require 'busted.busted'
-require 'busted.interface'
+require 'busted'
 
 local function sub_dir(dir)
   local dirs = {dir}
@@ -68,7 +65,7 @@ if args then
 
   if args.lang then
     if args.lang:match(".lua") then
-      lang = loadfile(path..args.lang)
+      local lang = loadfile(path..args.lang)
 
       if lang then
         lang()
