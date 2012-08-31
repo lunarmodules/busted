@@ -69,15 +69,11 @@ if args then
 
       if lang then
         lang()
-      else
-        require('busted.languages.en')
       end
     else
       require('busted.languages.'..args.lang)
       require('luassert.languages.'..args.lang)
     end
-  else
-    require('busted.languages.en')
   end
 
   local output
