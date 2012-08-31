@@ -65,6 +65,9 @@ if args then
 
   if args.lang then
     if args.lang:match(".lua") then
+      -- not a module name, but a filename has been provided.
+      -- in this case the filename should contain the language settings for
+      -- both 'busted' and 'luassert', differs from module setup.
       local lang = loadfile(path..args.lang)
 
       if lang then
