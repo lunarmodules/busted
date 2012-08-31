@@ -21,24 +21,6 @@ s:set("output.success_single", "نَجاح")
 
 s:set("output.seconds", "ثَوانٍ")
 
-s:set("assertion.same.positive", "تُوُقِّعَ تَماثُلُ الكائِنات. تَمَّ إدخال:\n %s. بَينَما كانَ مِن المُتَوقَّع:\n %s.")
-s:set("assertion.same.negative", "تُوُقِّعَ إختِلافُ الكائِنات. تَمَّ إدخال:\n %s. بَينَما كانَ مِن غَيرِ المُتَوقَّع:\n %s.")
-
-s:set("assertion.equals.positive", "تُوُقِّعَ أن تَتَساوىْ الكائِنات. تمَّ إِدخال:\n %s. بَينَما كانَ من المُتَوقَّع:\n %s.")
-s:set("assertion.equals.negative", "تُوُقِّعَ ألّا تَتَساوىْ الكائِنات. تمَّ إِدخال:\n %s. بَينَما كانَ مِن غير المُتًوقَّع:\n %s.")
-
-s:set("assertion.unique.positive", "تُوُقِّعَ أَنْ يَكونَ الكائِنٌ فَريد: \n%s")
-s:set("assertion.unique.negative", "تُوُقِّعَ أنْ يَكونَ الكائِنٌ غَيرَ فَريد: \n%s")
-
-s:set("assertion.error.positive", "تُوُقِّعَ إصدارُ خطأْ.")
-s:set("assertion.error.negative", "تُوُقِّعَ عدم إصدارِ خطأ.")
-
-s:set("assertion.truthy.positive", "تُوُقِّعَت قيمةٌ صَحيحة، بينما كانت: \n%s")
-s:set("assertion.truthy.negative", "تُوُقِّعَت قيمةٌ غيرُ صَحيحة، بينما كانت: \n%s")
-
-s:set("assertion.falsy.positive", "تُوُقِّعَت قيمةٌ خاطِئة، بَينَما كانت: \n%s")
-s:set("assertion.falsy.negative", "تُوُقِّعَت قيمةٌ غيرُ خاطِئة، بَينَما كانت: \n%s")
-
 -- definitions following are not used within the 'say' namespace but are defined as globals
 failure_messages = {
     "فَشِلَت %d مِنْ الإِختِبارات",
