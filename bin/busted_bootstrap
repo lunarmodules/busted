@@ -61,6 +61,10 @@ if args then
   local root_file = args.ROOT or "spec"
   local path = args["d"]
 
+  local septable = { ["\\"] = "\\", ["/"] = "/" }
+  if septable[root_file:sub(1,1)] and septable[path:sub(-1,-1)] then
+    root_file = root_file:sub(2,-1)
+  end
   root_file = path..root_file
 
   if args.lang then
