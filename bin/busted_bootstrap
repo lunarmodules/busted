@@ -116,6 +116,10 @@ if args then
   }
 
   local function dosinglefile(filename)
+    if _G.package.config:sub(1,1) == "\\" then
+      -- Windows; normalize path to backslash only
+      filename = filename:gsub("/", "\\")
+    end
     local file, err = loadfile(filename)
     if file then
       file, err = pcall(function() file() end)
