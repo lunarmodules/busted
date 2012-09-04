@@ -112,13 +112,13 @@ if args then
   }
 
   local function dosinglefile(filename)
-	local file, err = loadfile(filename)
-	if file then
-	  file, err = pcall(function() file() end)
-	end
-	if err then
-	  print("An error occurred while loading a test::"..err)
-	end
+    local file, err = loadfile(filename)
+    if file then
+      file, err = pcall(function() file() end)
+    end
+    if err then
+      print("An error occurred while loading a test::"..err)
+    end
   end
 
   local mode, err = lfs.attributes(root_file, "mode")
@@ -126,21 +126,21 @@ if args then
     print("An error occurred while accessing file/directory: "..root_file .. "\n" .. err)
 
   else
-	if mode == "file" then
-	  dosinglefile(root_file)
-	else
-	  local pattern = args.p ~= "" and args.p or '_spec.lua'
+    if mode == "file" then
+      dosinglefile(root_file)
+    else
+      local pattern = args.p ~= "" and args.p or '_spec.lua'
 
-	  for filename,attr in sub_dir(root_file) do
-	    if attr.mode == 'file' then
-		  local path,name,ext = filename:match("(.-)([^\\/]-([^%.]+))$")
-		  if ext == 'lua' and name:find(pattern) then
-		    dosinglefile(filename)
-		  end
-	    end
-	  end
-	end
+      for filename,attr in sub_dir(root_file) do
+        if attr.mode == 'file' then
+          local path,name,ext = filename:match("(.-)([^\\/]-([^%.]+))$")
+          if ext == 'lua' and name:find(pattern) then
+            dosinglefile(filename)
+          end
+        end
+      end
+    end
 
-	print(busted().."\n")
+    print(busted().."\n")
   end
 end
