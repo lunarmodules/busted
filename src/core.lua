@@ -26,7 +26,7 @@ local busted = {
 
       local test_status = {}
 
-      if err then
+      if not status then
         test_status = { type = "failure", description = description, info = info, trace = stack_trace, err = err }
       else
         test_status = { type = "success", description = description, info = info }
