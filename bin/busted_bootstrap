@@ -115,7 +115,6 @@ if args then
     color = not args.c,
     suppress_pending = args["suppress-pending"],
     defer_print = args["defer-print"],
-    utf = not args.u,
     sound = args.s,
     cwd = args.d,
     tags = split(args.t, ","),
