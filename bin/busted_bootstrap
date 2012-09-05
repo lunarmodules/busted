@@ -61,7 +61,7 @@ if args then
   end
 
   local root_file = args.ROOT
-  if args.d or args.d == "" then
+  if not args.d or args.d == "" then
     args.d = lfs.currentdir() 
   end
   local path = args.d
