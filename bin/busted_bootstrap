@@ -60,7 +60,7 @@ if args then
     return print("busted: version 1.1.0")
   end
 
-  local root_file = args.ROOT or "spec"
+  local root_file = args.ROOT
   if args.d or args.d == "" then
     args.d = lfs.currentdir() 
   end
