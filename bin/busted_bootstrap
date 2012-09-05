@@ -115,7 +115,6 @@ if args then
 
   busted.options = {
     verbose = args.v,
-    color = not args.c,
     suppress_pending = args["suppress-pending"],
     defer_print = args["defer-print"],
     sound = args.s,
