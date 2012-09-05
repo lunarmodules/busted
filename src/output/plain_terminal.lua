@@ -3,6 +3,8 @@
 --  output.descriptive_status
 --  output.currently_executing
 
+local s = require 'say'
+
 local output = function()
   local pending_description = function(status, options)
     return "\n\n"..s('output.pending')..": "..
