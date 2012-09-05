@@ -1,3 +1,5 @@
+local s = require('say')
+
 s:set_namespace("fr")
 
 -- "Pending: test.lua @ 12 \n description
@@ -19,7 +21,7 @@ s:set("output.success_single", "reussite")
 
 s:set("output.seconds", "secondes")
 
-s:set("assertion.same.positive", "Objets supposes de meme nature attendus. Argument passe:\n%s\Attendu:\n%s")
+s:set("assertion.same.positive", "Objets supposes de meme nature attendus. Argument passe:\n%s\nAttendu:\n%s")
 s:set("assertion.same.negative", "Objets supposes de natures differentes attendus. Argument passe:\n%s\nNon attendu:\n%s")
 
 s:set("assertion.equals.positive", "Objets supposes etre de valeur egale attendus. Argument passe:\n%s\nAttendu:\n%s")

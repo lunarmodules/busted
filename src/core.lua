@@ -1,5 +1,4 @@
 local busted = {
-  say = require 'say',
   root_context = { type = "describe", description = "global" },
   options = {},
 

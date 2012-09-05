@@ -1,7 +1,7 @@
 package = "busted"
-version = "1.1-1"
+version = "1.2-1"
 source = {
-  url = "https://github.com/downloads/Olivine-Labs/busted/busted-1.1.tar.gz",
+  url = "https://github.com/downloads/Olivine-Labs/busted/busted-1.2.tar.gz",
   dir = "busted"
 }
 description = {
@@ -21,8 +21,8 @@ dependencies = {
   "lua_cliargs >= 1.1",
   "luafilesystem >= 1.5.0",
   "dkjson >= 2.1.0",
-  "say >= 1.0-1",
-  "luassert >= 1.0-1",
+  "say >= 1.1-1",
+  "luassert >= 1.1-1",
   "ansicolors >= 1.0-1"
 }
 build = {

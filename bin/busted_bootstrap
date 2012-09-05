@@ -86,15 +86,15 @@ if args then
       local o, err = loadfile(path..args.output_lib)
 
       if not err then
-        output = o()(busted)
+        output = o()()
       else
-        output = require 'busted.output.utf_terminal'(busted)
+        output = require 'busted.output.utf_terminal'()
       end
     else
-      output = require('busted.output.'..args.output_lib)(busted)
+      output = require('busted.output.'..args.output_lib)()
     end
   else
-    output = require 'busted.output.utf_terminal'(busted)
+    output = require 'busted.output.utf_terminal'()
   end
 
   busted.options = {
