@@ -1,0 +1,23 @@
+language: erlang
+
+env:
+  - LUA=""
+  - LUA="luajit"
+
+branches:
+  only:
+    - master
+
+install:
+  - sudo apt-get install luajit
+  - sudo apt-get install luarocks
+  - luarocks install busted
+
+script: "busted spec"
+
+notifications:
+  recipients:
+    - jlawson@olivinelabs.com
+  email:
+    on_success: always
+    on_failure: always
