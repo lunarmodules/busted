@@ -3,6 +3,8 @@ local cli = require 'cliargs'
 local lfs = require 'lfs'
 require 'busted'
 
+local pathseparator = _G.package.config:sub(1,1)
+
 local function sub_dir(dir)
   local dirs = {dir}
   local function yieldtree()
@@ -10,7 +12,7 @@ local function sub_dir(dir)
     if dir then
       for entry in lfs.dir(dir) do
         if entry ~= "." and entry ~= ".." and entry:sub(1, 1) ~= "." then
-          entry=dir.."/"..entry
+          entry=dir..pathseparator..entry
           local attr=lfs.attributes(entry)
           if attr.mode == "directory" then
             table.insert(dirs, entry)
@@ -59,11 +61,18 @@ if args then
   end
 
   local root_file = args.ROOT or "spec"
-  local path = args["d"]
+  if args.d or args.d == "" then
+    args.d = lfs.currentdir() 
+  end
+  local path = args.d
 
   local septable = { ["\\"] = "\\", ["/"] = "/" }
   if septable[root_file:sub(1,1)] and septable[path:sub(-1,-1)] then
     root_file = root_file:sub(2,-1)
+  else 
+    if (path ~= "") and (not septable[root_file:sub(1,1)]) and (not septable[path:sub(-1,-1)]) then
+      path = path .. pathseparator
+    end
   end
   root_file = path..root_file
 
@@ -116,10 +125,6 @@ if args then
   }
 
   local function dosinglefile(filename)
-    if _G.package.config:sub(1,1) == "\\" then
-      -- Windows; normalize path to backslash only
-      filename = filename:gsub("/", "\\")
-    end
     local file, err = loadfile(filename)
     if file then
       file, err = pcall(function() file() end)
