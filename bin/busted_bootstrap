@@ -61,22 +61,26 @@ if args then
   local root_file = args.ROOT or "spec"
   local path = args["d"]
 
+  local septable = { ["\\"] = "\\", ["/"] = "/" }
+  if septable[root_file:sub(1,1)] and septable[path:sub(-1,-1)] then
+    root_file = root_file:sub(2,-1)
+  end
   root_file = path..root_file
 
   if args.lang then
     if args.lang:match(".lua") then
+      -- not a module name, but a filename has been provided.
+      -- in this case the filename should contain the language settings for
+      -- both 'busted' and 'luassert', differs from module setup.
       local lang = loadfile(path..args.lang)
 
       if lang then
         lang()
-      else
-        require('busted.languages.en')
       end
     else
       require('busted.languages.'..args.lang)
+      require('luassert.languages.'..args.lang)
     end
-  else
-    require('busted.languages.en')
   end
 
   local output
@@ -111,28 +115,40 @@ if args then
     failure_messages = failure_messages or nil,
   }
 
-  local file = loadfile(root_file)
+  local function dosinglefile(filename)
+    if _G.package.config:sub(1,1) == "\\" then
+      -- Windows; normalize path to backslash only
+      filename = filename:gsub("/", "\\")
+    end
+    local file, err = loadfile(filename)
+    if file then
+      file, err = pcall(function() file() end)
+    end
+    if err then
+      print("An error occurred while loading a test::"..err)
+    end
+  end
 
-  if file then
-    file()
+  local mode, err = lfs.attributes(root_file, "mode")
+  if mode == nil then
+    print("An error occurred while accessing file/directory: "..root_file .. "\n" .. err)
+
   else
-    local pattern = args.p ~= "" and args.p or '_spec.lua'
+    if mode == "file" then
+      dosinglefile(root_file)
+    else
+      local pattern = args.p ~= "" and args.p or '_spec.lua'
 
-    for filename,attr in sub_dir(root_file) do
-      if attr.mode == 'file' then
-        local path,name,ext = filename:match("(.-)([^\\/]-([^%.]+))$")
-        if ext == 'lua' and name:find(pattern) then
-          local file, err = loadfile(filename)
-          if file then
-            file, err = pcall(function() file() end)
-          end
-          if err then
-            print("An error occurred while loading a test::"..err)
+      for filename,attr in sub_dir(root_file) do
+        if attr.mode == 'file' then
+          local path,name,ext = filename:match("(.-)([^\\/]-([^%.]+))$")
+          if ext == 'lua' and name:find(pattern) then
+            dosinglefile(filename)
           end
         end
       end
     end
-  end
 
-  print(busted().."\n")
+    print(busted().."\n")
+  end
 end
