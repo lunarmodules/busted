@@ -7,6 +7,7 @@ local pathseparator = _G.package.config:sub(1,1)
 local is_windows = (pathseparator == "\\")
 local defaultoutput = "utf_terminal"
 if is_windows then defaultoutput = "plain_terminal" end
+local defaultpattern = '_spec.lua'
 
 local function sub_dir(dir)
   local dirs = {dir}
@@ -39,14 +40,15 @@ local split = function(string, sep)
 end
 
 cli:set_name("busted")
+cli:set_colsz(21,45)
 cli:add_flag("--version", "prints the program's version and exits")
 
-cli:add_argument("ROOT", "test script file/folder")
+cli:add_argument("ROOT", "test script file/folder. Folders will be traversed for any file that matches the --pattern option.")
 
 cli:add_option("-o, --output=LIBRARY", "output library to load", "output_lib", defaultoutput)
 cli:add_option("-l, --lua=luajit", "path to the execution environment (lua or luajit)")
 cli:add_option("-d, --cwd=cwd", "path to current working directory")
-cli:add_option("-p, --pattern=pattern", "only run test files matching this pattern")
+cli:add_option("-p, --pattern=pattern", "only run test files matching this pattern", "pattern", defaultpattern)
 cli:add_option("-t, --tags=tags", "only run tests with these #tags")
 
 cli:add_option("--lang=LANG", "language for error messages", "lang", "en")
@@ -64,16 +66,12 @@ if args then
   end
 
   local root_file = args.ROOT
-  if not args.d or args.d == "" then
-    args.d = lfs.currentdir() 
-  end
   local path = args.d
 
-  local septable = { ["\\"] = "\\", ["/"] = "/" }
-  if septable[root_file:sub(1,1)] and septable[path:sub(-1,-1)] then
+  if (root_file:sub(1,1) == pathseparator) and (path:sub(-1,-1) == pathseparator) then
     root_file = root_file:sub(2,-1)
   else 
-    if (path ~= "") and (not septable[root_file:sub(1,1)]) and (not septable[path:sub(-1,-1)]) then
+    if (path ~= "") and (root_file:sub(1,1) ~= pathseparator) and (path:sub(-1,-1) ~= pathseparator) then
       path = path .. pathseparator
     end
   end
@@ -143,8 +141,7 @@ if args then
     if mode == "file" then
       dosinglefile(root_file)
     else
-      local pattern = args.p ~= "" and args.p or '_spec.lua'
-
+      local pattern = args.pattern ~= "" and args.pattern or defaultpattern
       for filename,attr in sub_dir(root_file) do
         if attr.mode == 'file' then
           local path,name,ext = filename:match("(.-)([^\\/]-([^%.]+))$")
