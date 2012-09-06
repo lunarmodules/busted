@@ -28,6 +28,8 @@ install:
 script: "busted spec"
 
 notifications:
+  webhooks:
+    - http://hollow-mountain-1250.herokuapp.com/hubot/travis
   recipients:
     - jlawson@olivinelabs.com
   email:
