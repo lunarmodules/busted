@@ -138,7 +138,7 @@ local busted = {
       play_sound(failures)
     end
 
-    return status_string
+    return status_string, failures
   end
 }
 return setmetatable(busted, busted)

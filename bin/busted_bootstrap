@@ -148,7 +148,8 @@ if args then
         end
       end
     end
-
-    print(busted().."\n")
+    local status_string, failures = busted()
+    print(status_string.."\n")
+    return failures
   end
 end
