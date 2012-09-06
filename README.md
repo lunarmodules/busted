@@ -1,7 +1,7 @@
 Busted
 ======
 
-![travis-ci status](https://secure.travis-ci.org/Olivine-Labs/busted.png)
+[![travis-ci status](https://secure.travis-ci.org/Olivine-Labs/busted.png)](http://travis-ci.org/#!/Olivine-Labs/busted/builds)
 
 busted is a unit testing framework with a focus on being **easy to
 use**.
