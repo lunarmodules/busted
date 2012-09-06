@@ -31,7 +31,7 @@ notifications:
   webhooks:
     - http://hollow-mountain-1250.herokuapp.com/hubot/travis
   recipients:
-    - jlawson@olivinelabs.com
+    - engineers@olivinelabs.com
   email:
     on_success: always
     on_failure: always
