@@ -1,3 +1,10 @@
+-- return truthy if we're in a coroutine
+local function in_coroutine()
+  local current_routine, main = coroutine.running()
+  -- need check to the main variable for 5.2, it's nil for 5.1
+  return current_routine and (main == nil or main == false)
+end
+
 local busted = {
   root_context = { type = "describe", description = "global" },
   options = {},
@@ -82,7 +89,7 @@ local busted = {
       if context.teardown then
         context.teardown()
       end
-      if coroutine.running() then
+      if in_coroutine() then
         coroutine.yield(status)
       else
         return true, status
