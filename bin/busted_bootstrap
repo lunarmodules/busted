@@ -12,7 +12,7 @@ local defaultpattern = '_spec.lua'
 local function sub_dir(dir)
   local dirs = {dir}
   local function yieldtree()
-    dir = #dirs and table.remove(dirs, #dirs)
+    dir = table.remove(dirs, #dirs)
     if dir then
       for entry in lfs.dir(dir) do
         if entry ~= "." and entry ~= ".." and entry:sub(1, 1) ~= "." then
