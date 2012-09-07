@@ -7,7 +7,7 @@ local pathseparator = _G.package.config:sub(1,1)
 local is_windows = (pathseparator == "\\")
 local defaultoutput = "utf_terminal"
 if is_windows then defaultoutput = "plain_terminal" end
-local defaultpattern = '_spec.lua'
+local defaultpattern = '_spec.lua$'
 
 local function sub_dir(dir)
   local dirs = {dir}
@@ -70,7 +70,7 @@ if args then
 
   if (root_file:sub(1,1) == pathseparator) and (path:sub(-1,-1) == pathseparator) then
     root_file = root_file:sub(2,-1)
-  else 
+  else
     if (path ~= "") and (root_file:sub(1,1) ~= pathseparator) and (path:sub(-1,-1) ~= pathseparator) then
       path = path .. pathseparator
     end
@@ -144,8 +144,8 @@ if args then
       local pattern = args.pattern ~= "" and args.pattern or defaultpattern
       for filename,attr in sub_dir(root_file) do
         if attr.mode == 'file' then
-          local path,name,ext = filename:match("(.-)([^\\/]-([^%.]+))$")
-          if ext == 'lua' and name:find(pattern) then
+          local basename = filename:match("[\\/]([^\\/]-)$")
+          if basename:find(pattern) then
             dosinglefile(filename)
           end
         end
