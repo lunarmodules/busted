@@ -46,6 +46,16 @@ local busted = {
       return test_status
     end
 
+    -- run setup/teardown
+    local function run_setup(context, stype)
+      local errResult = nil
+      if context[stype] then
+        errResult = test("Failed running test initializer '"..stype.."'", context[stype])
+        if errResult.type == "success" then errResult = nil end
+      end
+      return errResult
+    end
+
     --run test case
     local function run_context(context)
       local match = false
@@ -61,33 +71,35 @@ local busted = {
       end
 
       local status = { description = context.description, type = "description", run = match }
+      local setupstatus = nil
 
-      if context.setup then
-        context.setup()
+      setupstatus = run_setup(context, "setup")
+
+      if not setupstatus then
+        for i,v in ipairs(context) do
+          
+          setupstatus = run_setup(context, "before_each")
+          if setupstatus then break end
+          
+          if v.type == "test" then
+            table.insert(status, test(v.description, v.callback))
+          elseif v.type == "describe" then
+            table.insert(status, coroutine.create(function() run_context(v) end))
+          elseif v.type == "pending" then
+            local pending_test_status = { type = "pending", description = v.description, info = v.info }
+            v.callback(pending_test_status)
+            table.insert(status, pending_test_status)
+          end
+
+          setupstatus = run_setup(context, "after_each")
+          if setupstatus then break end
+        end
       end
 
-      for i,v in ipairs(context) do
-        if context.before_each then
-          context.before_each()
-        end
+      if not setupstatus then setupstatus = run_setup(context, "teardown") end
 
-        if v.type == "test" then
-          table.insert(status, test(v.description, v.callback))
-        elseif v.type == "describe" then
-          table.insert(status, coroutine.create(function() run_context(v) end))
-        elseif v.type == "pending" then
-          local pending_test_status = { type = "pending", description = v.description, info = v.info }
-          v.callback(pending_test_status)
-          table.insert(status, pending_test_status)
-        end
-
-        if context.after_each then
-          context.after_each()
-        end
-      end
-
-      if context.teardown then
-        context.teardown()
+      if setupstatus then
+        table.insert(status, setupstatus)
       end
       if in_coroutine() then
         coroutine.yield(status)
