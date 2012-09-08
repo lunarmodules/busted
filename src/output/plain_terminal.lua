@@ -118,12 +118,11 @@ local output = function()
     pending = pending_string,
   }
 
-  local on_first
   return {
     options = {},
 
     header = function(context_tree)
-      on_first = true
+      print("")
     end,
 
     footer = function(context_tree)
@@ -135,11 +134,7 @@ local output = function()
     end,
 
     currently_executing = function(test_status, options)
-      if on_first then
-        on_first = false
-      else
-        io.write("\08")
-      end
+      io.write("\08")
 
       io.write(strings[test_status.type](options)..running_string(options))
       io.flush()
