@@ -13,7 +13,7 @@ local busted = {
     self.output = self.options.output
 
     --run test
-    local function test(description, callback)
+    local function test(description, callback, no_output)
       local debug_info = debug.getinfo(callback)
 
       local info = {
@@ -39,7 +39,7 @@ local busted = {
         test_status = { type = "success", description = description, info = info }
       end
 
-      if not self.options.defer_print then
+      if not no_output and not self.options.defer_print then
         self.output.currently_executing(test_status, self.options)
       end
 
@@ -51,7 +51,7 @@ local busted = {
       if not context[stype] then
         return true
       else 
-        local result = test("Failed running test initializer '"..stype.."'", context[stype])
+        local result = test("Failed running test initializer '"..stype.."'", context[stype], true)
         return (result.type == "success"), result
       end
     end
