@@ -48,12 +48,12 @@ local busted = {
 
     -- run setup/teardown
     local function run_setup(context, stype)
-      local errResult = nil
-      if context[stype] then
-        errResult = test("Failed running test initializer '"..stype.."'", context[stype])
-        if errResult.type == "success" then errResult = nil end
+      if not context[stype] then
+        return true
+      else 
+        local result = test("Failed running test initializer '"..stype.."'", context[stype])
+        return (result.type == "success"), result
       end
-      return errResult
     end
 
     --run test case
@@ -71,15 +71,15 @@ local busted = {
       end
 
       local status = { description = context.description, type = "description", run = match }
-      local setupstatus = nil
+      local setup_ok, setup_error
 
-      setupstatus = run_setup(context, "setup")
+      setup_ok, setup_error = run_setup(context, "setup")
 
-      if not setupstatus then
+      if setup_ok then
         for i,v in ipairs(context) do
           
-          setupstatus = run_setup(context, "before_each")
-          if setupstatus then break end
+          setup_ok, setup_error = run_setup(context, "before_each")
+          if not setup_ok then break end
           
           if v.type == "test" then
             table.insert(status, test(v.description, v.callback))
@@ -91,16 +91,14 @@ local busted = {
             table.insert(status, pending_test_status)
           end
 
-          setupstatus = run_setup(context, "after_each")
-          if setupstatus then break end
+          setup_ok, setup_error = run_setup(context, "after_each")
+          if not setup_ok then break end
         end
       end
 
-      if not setupstatus then setupstatus = run_setup(context, "teardown") end
+      if setup_ok then setup_ok, setup_error = run_setup(context, "teardown") end
 
-      if setupstatus then
-        table.insert(status, setupstatus)
-      end
+      if not setup_ok then table.insert(status, setup_error) end
       if in_coroutine() then
         coroutine.yield(status)
       else
