@@ -111,7 +111,8 @@ local busted = {
     local play_sound = function(failures)
       math.randomseed(os.time())
 
-      if self.options.failure_messages and #self.options.failure_messages > 0 and self.options.success_messages and #self.options.success_messages > 0 then
+      if self.options.failure_messages and #self.options.failure_messages > 0 and 
+         self.options.success_messages and #self.options.success_messages > 0 then
         if failures and failures > 0 then
           io.popen("say \""..failure_messages[math.random(1, #failure_messages)]:format(failures).."\"")
         else
