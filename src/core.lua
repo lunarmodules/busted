@@ -13,7 +13,7 @@ local busted = {
     self.output = self.options.output
 
     --run test
-    local function test(description, callback)
+    local function test(description, callback, no_output)
       local debug_info = debug.getinfo(callback)
 
       local info = {
@@ -39,11 +39,21 @@ local busted = {
         test_status = { type = "success", description = description, info = info }
       end
 
-      if not self.options.defer_print then
+      if not no_output and not self.options.defer_print then
         self.output.currently_executing(test_status, self.options)
       end
 
       return test_status
+    end
+
+    -- run setup/teardown
+    local function run_setup(context, stype)
+      if not context[stype] then
+        return true
+      else 
+        local result = test("Failed running test initializer '"..stype.."'", context[stype], true)
+        return (result.type == "success"), result
+      end
     end
 
     --run test case
@@ -61,34 +71,34 @@ local busted = {
       end
 
       local status = { description = context.description, type = "description", run = match }
+      local setup_ok, setup_error
 
-      if context.setup then
-        context.setup()
+      setup_ok, setup_error = run_setup(context, "setup")
+
+      if setup_ok then
+        for i,v in ipairs(context) do
+          
+          setup_ok, setup_error = run_setup(context, "before_each")
+          if not setup_ok then break end
+          
+          if v.type == "test" then
+            table.insert(status, test(v.description, v.callback))
+          elseif v.type == "describe" then
+            table.insert(status, coroutine.create(function() run_context(v) end))
+          elseif v.type == "pending" then
+            local pending_test_status = { type = "pending", description = v.description, info = v.info }
+            v.callback(pending_test_status)
+            table.insert(status, pending_test_status)
+          end
+
+          setup_ok, setup_error = run_setup(context, "after_each")
+          if not setup_ok then break end
+        end
       end
 
-      for i,v in ipairs(context) do
-        if context.before_each then
-          context.before_each()
-        end
+      if setup_ok then setup_ok, setup_error = run_setup(context, "teardown") end
 
-        if v.type == "test" then
-          table.insert(status, test(v.description, v.callback))
-        elseif v.type == "describe" then
-          table.insert(status, coroutine.create(function() run_context(v) end))
-        elseif v.type == "pending" then
-          local pending_test_status = { type = "pending", description = v.description, info = v.info }
-          v.callback(pending_test_status)
-          table.insert(status, pending_test_status)
-        end
-
-        if context.after_each then
-          context.after_each()
-        end
-      end
-
-      if context.teardown then
-        context.teardown()
-      end
+      if not setup_ok then table.insert(status, setup_error) end
       if in_coroutine() then
         coroutine.yield(status)
       else
@@ -99,7 +109,8 @@ local busted = {
     local play_sound = function(failures)
       math.randomseed(os.time())
 
-      if self.options.failure_messages and #self.options.failure_messages > 0 and self.options.success_messages and #self.options.success_messages > 0 then
+      if self.options.failure_messages and #self.options.failure_messages > 0 and 
+         self.options.success_messages and #self.options.success_messages > 0 then
         if failures and failures > 0 then
           io.popen("say \""..failure_messages[math.random(1, #failure_messages)]:format(failures).."\"")
         else
