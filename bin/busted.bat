@@ -18,5 +18,6 @@ if "%cmd%"=="" (
     pushd %~dp0 && (call "%cmd%" busted_bootstrap %*) && popd
   ) else (
     pushd %~dp0 && (call "%cmd%" busted_bootstrap --cwd="%cwd%\\" %*) && popd
+    exit /B %ERRORLEVEL%
   )
 )

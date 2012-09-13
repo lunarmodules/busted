@@ -153,6 +153,6 @@ if args then
     end
     local status_string, failures = busted()
     print(status_string.."\n")
-    return failures
+    os.exit(failures)
   end
 end

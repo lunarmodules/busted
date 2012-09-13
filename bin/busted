@@ -41,4 +41,5 @@ if [ "$1" = "--help" -o "$1" = "--version" ] ; then
   $COMMAND busted_bootstrap $*;
 else
   $COMMAND busted_bootstrap --cwd="$CWD" $*;
+  exit $PIPESTATUS
 fi

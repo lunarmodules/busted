@@ -10,6 +10,7 @@ local busted = {
   options = {},
 
   __call = function(self)
+    local failures = 0
     self.output = self.options.output
 
     --run test
@@ -35,6 +36,7 @@ local busted = {
 
       if not status then
         test_status = { type = "failure", description = description, info = info, trace = stack_trace, err = err }
+        failures = failures + 1
       else
         test_status = { type = "success", description = description, info = info }
       end
