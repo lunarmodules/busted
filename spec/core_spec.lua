@@ -15,7 +15,7 @@ end)
 describe("Test case", function()
   local test_val = false
   it("changes test_val to true", function()
-    test_val = false --breaking on purpose to test le travis
+    test_val = true
     assert(test_val)
   end)
 end)
