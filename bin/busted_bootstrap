@@ -51,7 +51,7 @@ cli:add_option("-l, --lua=luajit", "path to the execution environment (lua or lu
 cli:add_option("-d, --cwd=cwd", "path to current working directory")
 cli:add_option("-p, --pattern=pattern", "only run test files matching this pattern", "pattern", defaultpattern)
 cli:add_option("-t, --tags=tags", "only run tests with these #tags")
-cli:add_option("-m, --lpath=path", "optional path to be prefixed to the Lua module search path", nil, lpathprefix)
+cli:add_option("-m, --lpath=path", "optional path to be prefixed to the Lua module search path", "lpath", lpathprefix)
 cli:add_option("--lang=LANG", "language for error messages", "lang", "en")
 
 cli:add_flag("-v", "verbose output of errors")
