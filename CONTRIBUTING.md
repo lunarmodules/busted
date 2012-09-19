@@ -8,7 +8,7 @@ how best to do so.
 
 Here's some examples of things you might want to make a pull request for:
 
-* New langauge translations
+* New language translations
 * New features
 * Bugfixes
 * Inefficient blocks of code
@@ -39,6 +39,6 @@ you're doing, such as "klingon-translations"
 5. [Create a pull request](https://help.github.com/articles/using-pull-requests)
 6. Watch for comments or acceptance
 
-Please note - if you want to change multiple things that don't depend on each 
+Please note - if you want to change multiple things that don't depend on each
 other, make sure you check the master branch back out before making more
 changes - that way we can take in each change seperately.
