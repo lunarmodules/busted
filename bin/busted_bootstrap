@@ -48,7 +48,6 @@ cli:add_argument("ROOT", "test script file/folder. Folders will be traversed for
 
 cli:add_option("-o, --output=LIBRARY", "output library to load", "output_lib", defaultoutput)
 cli:add_option("-l, --lua=luajit", "path to the execution environment (lua or luajit)")
-cli:add_option("-d, --cwd=cwd", "path to current working directory")
 cli:add_option("-p, --pattern=pattern", "only run test files matching this pattern", "pattern", defaultpattern)
 cli:add_option("-t, --tags=tags", "only run tests with these #tags")
 cli:add_option("-m, --lpath=path", "optional path to be prefixed to the Lua module search path", "lpath", lpathprefix)
@@ -123,7 +122,6 @@ if args then
     suppress_pending = args["suppress-pending"],
     defer_print = args["defer-print"],
     sound = args.s,
-    cwd = args.d,
     tags = split(args.t, ","),
     output = output,
     success_messages = success_messages or nil,

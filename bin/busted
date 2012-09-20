@@ -1,10 +1,9 @@
 #!/bin/sh
-DIR="$( cd "$( dirname "$0" )" && pwd )/"
-
 commandExists () {
     command -v "$1" > /dev/null
 }
 
+# Obtain $COMMAND
 while getopts ":l:" optchar; do
   case $optchar in
     l)
@@ -27,19 +26,14 @@ else
   echo >&2 "Busted requires that a valid execution environment be specified(or that you have lua or luajit accessible in your PATH). Aborting.";
   exit 1
 fi
-CWD=${PWD}/
+
+# Obtain $BOOSTRAP_PATH
+DIR="$( dirname "$0" )"
+BOOTSTRAP_PATH="$DIR/busted_bootstrap"
 
 if commandExists cygpath ; then
-  CWD=`cygpath -ms "${CWD}"`
-  DIR=`cygpath -ms "${DIR}"`
+  BOOTSTRAP_PATH=`cygpath -ms "${BOOTSTRAP_PATH}"`
 fi
 
-cd "$DIR"
-
-
-if [ "$1" = "--help" -o "$1" = "--version" ] ; then
-  $COMMAND busted_bootstrap $*;
-else
-  $COMMAND busted_bootstrap --cwd="$CWD" $*;
-  exit $PIPESTATUS
-fi
+# Execution
+$COMMAND $BOOTSTRAP_PATH $*
