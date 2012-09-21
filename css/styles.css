@@ -52,7 +52,6 @@ footer.span12 {
 }
 
 .sidenav {
-  width: 228px;
   margin: 30px 0 0;
   padding: 0;
   background-color: #fff;
@@ -115,4 +114,17 @@ footer.span12 {
   position: absolute;
   top: auto;
   bottom: 270px;
+}
+
+@media (max-width: 767px) {
+  .sidenav {
+    width: auto;
+    margin-bottom: 20px;
+  }
+
+  .sidenav.affix {
+    position: static;
+    width: auto;
+    top: 0;
+  }
 }
