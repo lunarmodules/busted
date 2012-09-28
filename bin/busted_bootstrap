@@ -41,7 +41,6 @@ local split = function(string, sep)
 end
 
 cli:set_name("busted")
---cli:set_colsz(21,45)
 cli:add_flag("--version", "prints the program's version and exits")
 
 cli:optarg("ROOT", "test script file/folder. Folders will be traversed for any file that matches the --pattern option.", "spec", 1)
