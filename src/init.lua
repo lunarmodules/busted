@@ -8,6 +8,10 @@ require('busted.languages.en')
 
 -- Load and expose busted core as part of global interface
 busted = require('busted.core')
+busted._COPYRIGHT   = "Copyright (c) 2012 Olivine Labs, LLC."
+busted._DESCRIPTION = "A unit testing framework with a focus on being easy to use."
+busted._VERSION     = "Busted 1.3"
+
 
 local current_context = busted.root_context
 
