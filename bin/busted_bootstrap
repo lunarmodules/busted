@@ -63,7 +63,7 @@ local args = cli:parse_args()
 
 if args then
   if args.version then
-    return print("busted: version 1.1.0")
+    return print(busted._VERSION)
   end
 
   local root_file = args.ROOT
