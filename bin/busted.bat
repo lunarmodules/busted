@@ -2,11 +2,11 @@
 for /f "delims=" %%i in ('cd') do set cwd=%%i
 for %%X in (luajit.exe) do (set FOUND=%%~$PATH:X)
 if defined FOUND (
-  set cmd="luajit"
+  set cmd=luajit
 ) else (
   for %%X in (lua.exe) do (set FOUND=%%~$PATH:X)
   if defined FOUND (
-    set cmd="lua"
+    set cmd=lua
   )
 )
 if "%cmd%"=="" (
@@ -15,10 +15,9 @@ if "%cmd%"=="" (
   if "%*"=="--help" set TRUE=1
   if "%*"=="--version" set TRUE=1
   if defined TRUE  (
-    pushd %~dp0 && (call "%cmd%" busted_bootstrap %*) && popd
+    (call "%cmd%" "%~dp0busted_bootstrap" %*)
   ) else (
-    pushd %~dp0 && (call "%cmd%" busted_bootstrap --cwd="%cwd%\\" %*)
-    popd
+    (call "%cmd%" "%~dp0busted_bootstrap" --cwd="%cwd%\\" %*)
     exit /B %ERRORLEVEL%
   )
 )
