@@ -52,7 +52,7 @@ local busted = {
     local function run_setup(context, stype)
       if not context[stype] then
         return true
-      else 
+      else
         local result = test("Failed running test initializer '"..stype.."'", context[stype], true)
         return (result.type == "success"), result
       end
@@ -79,10 +79,10 @@ local busted = {
 
       if setup_ok then
         for i,v in ipairs(context) do
-          
+
           setup_ok, setup_error = run_setup(context, "before_each")
           if not setup_ok then break end
-          
+
           if v.type == "test" then
             table.insert(status, test(v.description, v.callback))
           elseif v.type == "describe" then
@@ -111,7 +111,7 @@ local busted = {
     local play_sound = function(failures)
       math.randomseed(os.time())
 
-      if self.options.failure_messages and #self.options.failure_messages > 0 and 
+      if self.options.failure_messages and #self.options.failure_messages > 0 and
          self.options.success_messages and #self.options.success_messages > 0 then
         if failures and failures > 0 then
           io.popen("say \""..failure_messages[math.random(1, #failure_messages)]:format(failures).."\"")
@@ -143,6 +143,9 @@ local busted = {
       end
       return ret
     end
+
+    local old_TEST = _TEST
+    _TEST = busted._VERSION
     local statuses = get_statuses(run_context(self.root_context))
 
     --final run time
@@ -158,6 +161,7 @@ local busted = {
       play_sound(failures)
     end
 
+    _TEST = old_TEST
     return status_string, failures
   end
 }
