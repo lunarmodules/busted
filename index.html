@@ -49,6 +49,7 @@
             <li><a href="#defining-tests"><i class="icon-chevron-right"></i>Defining Tests</a></li>
             <li><a href="#asserts"><i class="icon-chevron-right"></i>Asserts</a></li>
             <li><a href="#spies-mocks-stubs"><i class="icon-chevron-right"></i>Spies, Stubs & Mocks</a></li>
+            <li><a href="#private"><i class="icon-chevron-right"></i>Private</a></li>
             <li><a href="#output-types"><i class="icon-chevron-right"></i>Output Types</a></li>
             <li><a href="#language-packs"><i class="icon-chevron-right"></i>i18n</a></li>
           </ul>
@@ -460,7 +461,7 @@ describe("spies", function()
 
     assert.spy(s).was.called()
     assert.spy(s).was.called(2) -- twice!
-    assert.spy(s).was.called_with({1, 2, 3}) -- checks the history
+    assert.spy(s).was.called_with(1, 2, 3F) -- checks the history
   end)
 
   it("replaces an original function", function()
@@ -535,6 +536,43 @@ describe("stubs", function()
 end)
 </code></pre>
 
+        </section>
+
+        <section class="division" id="private">
+          <h2>Private</h2>
+          <p>
+            Before Busted executes any tests it will define a global <code>_TEST</code> that
+            can be used to expose private elements only in case of testing.
+          </p>
+<pre><code data-language="lua">-- a new module with private elements to be tested
+local mymodule = {}
+local private_element = {"this", "is", "private"}
+
+function mymodule:display()
+  print(string.concat(private_element, " "))
+end
+
+-- export locals for test
+if _TEST then
+  -- setup test alias for private elements using a modified name
+  mymodule._private_element = private_element
+end
+
+return mymodule
+</code></pre>
+          <p>
+          In the test specs it can be tested;
+          </p>
+<pre><code data-language="lua">local mymodule = require("mymodule")
+
+describe("Going to test a private element", function()
+
+  it("tests the length of the table", function()
+    assert.is.equal(#mymodule._private_element, 3)
+  end)
+
+end)
+</code></pre>
         </section>
 
         <section class="division" id="output-types">
