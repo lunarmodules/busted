@@ -1,6 +1,7 @@
 -- Busted command-line runner
 local cli = require 'cliargs'
 local lfs = require 'lfs'
+local luacov
 require 'busted'
 
 local pathseparator = _G.package.config:sub(1,1)
@@ -52,6 +53,7 @@ cli:add_option("-p, --pattern=pattern", "only run test files matching this patte
 cli:add_option("-t, --tags=tags", "only run tests with these #tags")
 cli:add_option("-m, --lpath=path", "optional path to be prefixed to the Lua module search path", lpathprefix)
 cli:add_option("--lang=LANG", "language for error messages", "en")
+cli:add_flag("-c, --coverage", "do code coverage analysis (requires 'LuaCov' to be installed)")
 
 cli:add_flag("-v", "verbose output of errors")
 cli:add_flag("-s, --enable-sound", "executes 'say' command if available")
@@ -67,6 +69,20 @@ if args then
 
   local root_file = args.ROOT
   local path = args.d
+
+  if args.coverage then
+    local result, luacov = pcall(require, "luacov.runner")
+    if not result then
+      return print("LuaCov not found on the system, try running without --coverage option, or install LuaCov first")
+    end
+    -- call it to start
+    luacov()
+    -- exclude busted files
+    table.insert(luacov.configuration.exclude, "busted_bootstrap$")
+    table.insert(luacov.configuration.exclude, "busted%.")
+    table.insert(luacov.configuration.exclude, "luassert%.")
+    table.insert(luacov.configuration.exclude, "say%.")
+  end
 
   if (root_file:sub(1,1) == pathseparator) and (path:sub(-1,-1) == pathseparator) then
     root_file = root_file:sub(2,-1)
