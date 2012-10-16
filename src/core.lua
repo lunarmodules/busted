@@ -6,7 +6,7 @@ local function in_coroutine()
 end
 
 local busted = {
-  root_context = { type = "describe", description = "global" },
+  root_context = { type = "describe", description = "global", before_each_stack = {}, after_each_stack = {} },
   options = {},
 
   __call = function(self)
@@ -49,12 +49,30 @@ local busted = {
     end
 
     -- run setup/teardown
-    local function run_setup(context, stype)
+    local function run_setup(context, stype, decsription)
       if not context[stype] then
         return true
       else
-        local result = test("Failed running test initializer '"..stype.."'", context[stype], true)
-        return (result.type == "success"), result
+        if type(context[stype]) == "function" then
+          local result = test("Failed running test initializer '"..stype.."'", context[stype], true)
+          return (result.type == "success"), result
+        elseif type(context[stype]) == "table" then
+          if #context[stype] > 0 then
+            local result
+
+            for i,v in pairs(context[stype]) do
+              result = test("Failed running test initializer '"..decsription.."'", v, true)
+
+              if result.type ~= "success" then
+                return (result.type == "success"), result
+              end
+            end
+
+            return (result.type == "success"), result
+          else
+            return true
+          end
+        end
       end
     end
 
@@ -79,12 +97,14 @@ local busted = {
 
       if setup_ok then
         for i,v in ipairs(context) do
-
-          setup_ok, setup_error = run_setup(context, "before_each")
-          if not setup_ok then break end
-
           if v.type == "test" then
+            setup_ok, setup_error = run_setup(context, "before_each_stack", "before_each")
+            if not setup_ok then break end
+
             table.insert(status, test(v.description, v.callback))
+
+            setup_ok, setup_error = run_setup(context, "after_each_stack", "after_each")
+            if not setup_ok then break end
           elseif v.type == "describe" then
             table.insert(status, coroutine.create(function() run_context(v) end))
           elseif v.type == "pending" then
@@ -92,9 +112,6 @@ local busted = {
             v.callback(pending_test_status)
             table.insert(status, pending_test_status)
           end
-
-          setup_ok, setup_error = run_setup(context, "after_each")
-          if not setup_ok then break end
         end
       end
 

@@ -58,6 +58,7 @@ describe("Both before and after each", function()
 
   it("checks if both were called", function() end)
   it("runs again just to be sure", function() end)
+
   it("checks the value", function() 
     assert(test_val == 5)
   end)
@@ -76,7 +77,7 @@ describe("Before_each on describe blocks", function()
     end)
 
     it("herps", function()
-      assert(test_val == 1)
+      assert(test_val == 2)
     end)
   end)
 end)
@@ -88,17 +89,21 @@ describe("Before_each on describe blocks, part II", function()
     test_val = test_val + 1
   end)
 
+  it("checks the value", function()
+    assert.are.equal(1, test_val)
+  end)
+
   describe("A block", function()
     before_each(function()
       test_val = test_val + 1
     end)
 
-    it("derps", function() end)
+    it("derps", function() end) --add two: two before-eaches
     it("herps", function() end)
-  end)
 
-  it("checks the value", function()
-    assert(test_val == 3)
+    it("checks the value", function()
+      assert(test_val == 7)
+    end)
   end)
 end)
 
