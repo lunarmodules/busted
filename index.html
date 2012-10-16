@@ -141,20 +141,31 @@ end)
             </p>
 
             <h4>CLI: Running Busted</h4>
-<pre><code> Usage: busted [OPTIONS]  ROOT 
+<pre><code>Usage: busted [OPTIONS]  [ROOT]
+  ROOT                  test script file/folder. Folders will be
+                        traversed for any file that matches the
+                        --pattern option. (optional, default: spec)
 
-Required arguments:
-  ROOT                 test script file/folder
-
-Optional arguments:
-  --version            prints the program's version and exits
-  -o, --output=LIBRARY output library to load (from src/output) (default: utf_terminal)
-  -l, --lua=luajit     path to the execution environment (lua or luajit)
-  -v                   verbose output of errors
-  -s, --enable-sound   executes 'say' command if available
-  --suppress-pending   suppress 'pending' test output
-  --defer-print        defer print to when test suite is complete
-  --lang               set the langauge for error messages (default: en)
+OPTIONS: 
+  --version             prints the program's version and exits
+  --help                prints the program's commands
+  -o, --output=LIBRARY  output library to load (default: utf_terminal)
+  -l, --lua=luajit      path to the execution environment (lua or
+                        luajit) (default: )
+  -d, --cwd=cwd         path to current working directory (default: )
+  -p, --pattern=pattern only run test files matching this pattern
+                        (default: _spec.lua$)
+  -t, --tags=tags       only run tests with these #tags (default: )
+  -m, --lpath=path      optional path to be prefixed to the Lua module
+                        search path (default:
+                        ./src/?.lua;./src/?/?.lua;./src/?/init.lua)
+  --lang=LANG           language for error messages (default: en)
+  -c, --coverage        do code coverage analysis (requires 'LuaCov' to
+                        be installed)
+  -v                    verbose output of errors
+  -s, --enable-sound    executes 'say' command if available
+  --suppress-pending    suppress 'pending' test output
+  --defer-print         defer print to when test suite is complete
 </code></pre>
           </section>
 
