@@ -178,7 +178,8 @@ OPTIONS:
               tests themselves. Describe blocks can have more decribe blocks
               nested. You can also use the functions <code>before_each</code>
               and <code>after_each</code> to define functions that should be
-              run before any nested describes or tests.
+              run before any nested tests, and <code>setup</code> and <code>teardown</code>
+              for funcitons that should be run before and after the entire block.
             </p>
             <p>
               You can also use the <code>pending</code>
@@ -254,11 +255,10 @@ end)
 
           <h4 id="before-each">Before Each &amp; After Each; Setup &amp; Teardown</h4>
           <p>
-            before_each runs before each child <code>it</code>,
-            <code>describe</code>, or <code>pending</code>, and
+            before_each runs before each child <code>test</code>, and
             after_each (you guessed it) runs after. <code>setup</code>
-            runs before the list of blocks, and <code>teardown</code>
-            runs after the list of blocks.
+            runs before the entire block, and <code>teardown</code>
+            runs after the block.
           </p>
 <pre><code data-language="lua">require("busted")
 
@@ -287,6 +287,13 @@ describe("busted", function()
   it("sets up vars with the before_each", function()
     -- obj2 is reset thanks to the before_each
     assert.same(obj1, obj2)
+  end)
+
+  describe("nested", function()
+    it("also runs the before_each here", function()
+      -- if this describe also had a before_each, it would run
+      -- both, starting with the parents'. You can go n-deep.
+    end)
   end)
 end)
 </code></pre>
