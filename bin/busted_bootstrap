@@ -94,6 +94,7 @@ if args then
   root_file = path..root_file
 
   if #args.lpath > 0 then
+    lpathprefix = args.lpath
     lpathprefix = lpathprefix:gsub("^%.[/%\\]", path )
     lpathprefix = lpathprefix:gsub(";%.[/%\\]", ";" .. path)
     package.path = (lpathprefix .. ";" .. package.path):gsub(";;",";")
