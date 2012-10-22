@@ -118,7 +118,7 @@ if args then
       local o, err = loadfile(path..args.output)
 
       if not err then
-        output = o()()
+        output = assert ( o() , "Unable to open output module" ) ()
       else
         output = require('busted.output.'..defaultoutput)()
       end
