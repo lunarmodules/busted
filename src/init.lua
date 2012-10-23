@@ -2,6 +2,7 @@
 assert = require('luassert')
 spy = require('luassert.spy')
 mock = require('luassert.mock')
+stub = require('luassert.stub')
 
 -- Load default language pack
 require('busted.languages.en')
