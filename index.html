@@ -91,9 +91,7 @@
               <a href="#language-packs">language packs</a>.
             </p>
 
-<pre><code data-language="lua">require("busted")
-
-describe("Busted unit testing framework", function()
+<pre><code data-language="lua">describe("Busted unit testing framework", function()
   describe("should be awesome", function()
     it("should be easy to use", function()
       assert.truthy("Yup.")
@@ -112,7 +110,7 @@ describe("Busted unit testing framework", function()
       assert.is_true(1 == 1)
 
       assert.falsy(nil)
-      assert.has.error(function() error("Wat") end, "Wat")
+      assert.has_error(function() error("Wat") end, "Wat")
     end)
 
     it("should provide some shortcuts to common functions", function()
@@ -200,9 +198,7 @@ OPTIONS:
             <p>
               Describe takes a title and a callback, and can be nested.
             </p>
-<pre><code data-language="lua">require("busted")
-
-describe("a test", function()
+<pre><code data-language="lua">describe("a test", function()
   -- tests go here
 end)
 
@@ -221,9 +217,7 @@ end)
             Tag tests using #tags, and run using the -t flag to only run that
             test.
           </p>
-<pre><code data-language="lua">require("busted")
-
-describe("a test #tag", function()
+<pre><code data-language="lua">describe("a test #tag", function()
   -- tests go here
 end)
 
@@ -246,9 +240,7 @@ end)
             uncaptured error is thrown (assert functions throw errors for
             failed tests.)
           </p>
-<pre><code data-language="lua">require("busted")
-
-describe("busted", function()
+<pre><code data-language="lua">describe("busted", function()
   it("has tests", function()
     local obj1 = { test = "yes" }
     local obj2 = { test = "yes" }
@@ -264,9 +256,7 @@ end)
             runs before the entire block, and <code>teardown</code>
             runs after the block.
           </p>
-<pre><code data-language="lua">require("busted")
-
-describe("busted", function()
+<pre><code data-language="lua">describe("busted", function()
   local obj1, obj2
   local util
 
@@ -307,9 +297,7 @@ end)
             Pending functions are placeholders for tests you plan to write
             (or fix) later.
           </p>
-<pre><code data-language="lua">require("busted")
-
-describe("busted pending tests", function()
+<pre><code data-language="lua">describe("busted pending tests", function()
   pending("I should finish this test later", function() end)
 end)
 </code></pre>
@@ -344,9 +332,7 @@ end)
             to appease your grammar sensibilities. <code>is</code>
             and its aliases are always optional.
           </p>
-<pre><code data-language="lua">require("busted")
-
-describe("some assertions", function()
+<pre><code data-language="lua">describe("some assertions", function()
   it("tests positive assertions", function()
     assert.is_true(true)  -- Lua keyword chained with _
     assert.True(true)     -- Lua keyword using a capital
@@ -357,7 +343,7 @@ describe("some assertions", function()
   it("tests negative assertions", function()
     assert.is_not_true(false)
     assert.are_not.equals(1, "1")
-    assert.has_no.errors(function() end())
+    assert.has_no.errors(function() end)
   end)
 end)
 </code></pre>
@@ -367,9 +353,7 @@ end)
             Equals takes 1-n arguments and checks if they are the
             <em>same instance</em>. This is equivalent to calling object1 == object2.
           </p>
-<pre><code data-language="lua">require("busted")
-
-describe("some asserts", function()
+<pre><code data-language="lua">describe("some asserts", function()
   it("checks if they're equals", function()
     local obj = 1
     local obj2 = obj
@@ -384,9 +368,7 @@ end)
             Same takes 1-n arguments and checks if they are they are similar
             by doing a deep compare.
           </p>
-<pre><code data-language="lua">require("busted")
-
-describe("some asserts", function()
+<pre><code data-language="lua">describe("some asserts", function()
   it("checks if they're the same", function()
     local obj = { name = "Jack" }
     local obj2 = { name = "Jack" }
@@ -403,9 +385,7 @@ end)
             expression in lua. <code>false</code> and <code>falsy</code> are the opposite;
             <code>false</code> checks for the boolean false, <code>falsy</code> checks for false or nil.
           </p>
-<pre><code data-language="lua">require("busted")
-
-describe("some asserts", function()
+<pre><code data-language="lua">describe("some asserts", function()
   it("checks true", function()
     assert.is_true(true)
     assert.is.not_true("Yes")
@@ -424,11 +404,10 @@ end)
           <p>
             Makes sure an error exception is fired that you expect.
           </p>
-<pre><code data-language="lua">require("busted")
-
-describe("some asserts", function()
+<pre><code data-language="lua">describe("some asserts", function()
   it("should throw an error", function()
-    assert.error(function() error("Yup,  it errored") end)
+    assert.has_error(function() error("Yup,  it errored") end)
+    assert.has_no.errors(function() end)
   end)
 
   it("should throw the error we expect", function()
@@ -436,7 +415,7 @@ describe("some asserts", function()
       throw("DB CONN ERROR")
     end
 
-    assert.error(errfn, "DB CONN ERROR")
+    assert.has_error(errfn, "DB CONN ERROR")
   end)
 end)
 </code></pre>
@@ -449,20 +428,25 @@ end)
             and negative (<code>is_not</code>) cases for multilingual
             compatibility as well ("en" by default.)
           </p>
-<pre><code data-language="lua">require("busted")
+<pre><code data-language="lua">local s = require("say")
 
-local function has_property(table, prop)
-  for _, value in pairs(table) do
-    if value == prop then
+local function has_property(state, arguments)
+  if not type(arguments[1]) == "table" or #arguments ~= 2 then
+    return false
+  end
+
+  for key, value in pairs(arguments[1]) do
+    if key == arguments[2] then
       return true
     end
   end
-  return false, {prop, table}
+
+  return false
 end
 
 s:set("en", "assertion.has_property.positive", "Expected property %s in:\n%s")
 s:set("en", "assertion.has_property.negative", "Expected property %s to not be in:\n%s")
-assert:register("has_property", has_property, "assertion.has_property.positive", "assertion.has_property.negative")
+assert:register("assertion", "has_property", has_property, "assertion.has_property.positive", "assertion.has_property.negative")
 
 describe("my table", function()
   it("has a name property", function()
@@ -491,8 +475,7 @@ end)
             called, it registers what it was called with and then calls the
             original function.
           </p>
-<pre><code data-language="lua">require("busted")
-describe("spies", function()
+<pre><code data-language="lua">describe("spies", function()
   it("registers a new spy as a callback", function()
     local s = spy.new()
 
@@ -501,7 +484,7 @@ describe("spies", function()
 
     assert.spy(s).was.called()
     assert.spy(s).was.called(2) -- twice!
-    assert.spy(s).was.called_with(1, 2, 3F) -- checks the history
+    assert.spy(s).was.called_with(1, 2, 3) -- checks the history
   end)
 
   it("replaces an original function", function()
@@ -524,8 +507,7 @@ end)
             like data layers.
           </p>
 
-<pre><code data-language="lua">require("busted")
-describe("stubs", function()
+<pre><code data-language="lua">describe("stubs", function()
   it("replaces an original function", function()
     local t = {
       greet = function(msg) print(msg) end
@@ -546,34 +528,30 @@ end)
             chains.
           </p>
 
-<pre><code data-language="lua">require("busted")
-describe("stubs", function()
-  it("replaces a table with mocks", function()
+<pre><code data-language="lua">describe("mocks", function()
+  it("replaces a table with spies", function()
     local t = {
-      thing = function(self, msg) self.other_thing(msg) end,
-      other_thing = function() end
+      thing = function(msg) print(msg) end
     }
 
     local m = mock(t)
 
     m.thing("Coffee")
-    assert.spy(m.greet).was.called_with("Hey!")
-    assert.spy(m.other_thing).was.called_with("Hey!")
+    assert.spy(m.thing).was.called_with("Coffee")
   end)
 
-  it("replaces a table with mocks using stubs", function()
+  it("replaces a table with stubs", function()
     local t = {
-      thing = function(self, msg) self.other_thing(msg) end,
-      other_thing = function() end
+      thing = function(msg) print(msg) end
     }
 
-    local m = mock(t, true)
+    local m = mock(t, true) -- will not print
 
     m.thing("Coffee")
-    assert.spy(m.greet).was.called_with("Hey!")
-    assert.spy(m.other_thing).was_not.called_with("Hey!")
+    assert.spy(m.thing).was.called_with("Coffee")
   end)
 end)
+
 </code></pre>
 
         </section>
