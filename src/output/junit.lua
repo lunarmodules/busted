@@ -7,7 +7,8 @@
 local output = function()
 
     local function make_test_xml(index, blob)
-        local xx = string.format([[<testcase name="%s">]], blob["description"])
+        local xx = string.format([[<testcase classname="%s" name="%s">]],
+            blob.info.short_src:gsub(".lua", ""), blob["description"])
         local failtext = ""
         if (blob["type"] == "failure") then
             failtext =  "\n" .. string.format([[
@@ -28,7 +29,7 @@ local output = function()
         end,
 
         formatted_status = function(status, options, ms)
-            io.write([[<testsuite name="busted.luatests">]], "\n")
+            io.write([[<testsuite name="busted_luatests">]], "\n")
             for i,v in ipairs(status) do
                 local test_xml = make_test_xml(i, v)
                 io.write(test_xml, "\n")
