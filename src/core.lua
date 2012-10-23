@@ -178,6 +178,10 @@ local busted = {
       play_sound(failures)
     end
 
+    if not self.options.defer_print then
+      print(self.output.footer(self.root_context))
+    end
+
     _TEST = old_TEST
     return status_string, failures
   end
