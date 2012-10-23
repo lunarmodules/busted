@@ -106,7 +106,11 @@ describe("Busted unit testing framework", function()
       -- or check by reference!
       assert.are_not.equal({ table = "great"}, { table = "great"})
 
-      assert.truthy(1 == 1)
+      assert.truthy("this is a string") -- truthy: not false or nil
+
+      assert.True(1 == 1)
+      assert.is_true(1 == 1)
+
       assert.falsy(nil)
       assert.has.error(function() error("Wat") end, "Wat")
     end)
@@ -318,8 +322,17 @@ end)
             write your tests. Asserts in busted work by chaining a mod value
             by using <code>is</code> or <code>is_not</code>, followed by the assert you wish to use.
             It's easy to extend busted and add your own asserts by building an
-            assert with a commmon signature and <a href="#assert-extend">registerting it</a>.
+            assert with a commmon signature and <a href="#assert-extend">registering it</a>.
           </p>
+          <p>
+            Busted uses the <a href="https://github.com/Olivine-Labs/luassert">luassert library</a> to 
+            provide the assertions. Note that some of the assertion/modifiers are Lua keywords (
+            <code>true</code>, <code>false</code>, <code>nil</code>, <code>function</code>, and <code>
+            not</code>) and they cannot be used using '.' chaining because that results in compilation 
+            errors. Instead chain using '_' (underscore) or use one or more capitals in the reserved 
+            word, whatever your coding style prefers
+          </p>
+
 
           <h4 id="assert-is">Is &amp; Is Not</h4>
           <p>
@@ -335,14 +348,14 @@ end)
 
 describe("some assertions", function()
   it("tests positive assertions", function()
-    assert.is.true(true)
-    assert.true(true)
+    assert.is_true(true)  -- Lua keyword chained with _
+    assert.True(true)     -- Lua keyword using a capital
     assert.are.equal(1, 1)
     assert.has.errors(function() error("this should fail") end)
   end)
 
   it("tests negative assertions", function()
-    assert.is_not.true(false)
+    assert.is_not_true(false)
     assert.are_not.equals(1, "1")
     assert.has_no.errors(function() end())
   end)
@@ -394,14 +407,14 @@ end)
 
 describe("some asserts", function()
   it("checks true", function()
-    assert.is.true(true)
-    assert.is_not.true("Yes")
+    assert.is_true(true)
+    assert.is.not_true("Yes")
     assert.is.truthy("Yes")
   end)
 
   it("checks false", function()
-    assert.is.false(false)
-    assert.is_not.false(nil)
+    assert.is_false(false)
+    assert.is.not_false(nil)
     assert.is.falsy(nil)
   end)
 end)
