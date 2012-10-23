@@ -35,7 +35,6 @@ describe("Busted unit testing framework", function()
       -- or check by reference!
       assert.is_not.equals({ table = "great"}, { table = "great"})
 
-      assert.true(1 == 1)
       assert.falsy(nil)
       assert.error(function() error("Wat") end)
     end)
