@@ -17,7 +17,7 @@ if "%cmd%"=="" (
   if defined TRUE  (
     ("%cmd%" "%~dp0busted_bootstrap" %*)
   ) else (
-    ("%cmd%" "%~dp0busted_bootstrap" --cwd="%cwd%\" %*)
+    ("%cmd%" "%~dp0busted_bootstrap" --cwd="%cwd%\\" %*)
     exit /B %ERRORLEVEL%
   )
 )
