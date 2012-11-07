@@ -23,8 +23,7 @@ dependencies = {
   "dkjson >= 2.1.0",
   "say >= 1.2-1",
   "luassert >= 1.4-1",
-  "ansicolors >= 1.0-1";
-  "penlight >= 0.8-1"; -- For junit xml object
+  "ansicolors >= 1.0-1"
 }
 build = {
   type = "builtin",
