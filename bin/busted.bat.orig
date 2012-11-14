@@ -17,7 +17,11 @@ if "%cmd%"=="" (
   if defined TRUE  (
     ("%cmd%" "%~dp0busted_bootstrap" %*)
   ) else (
+<<<<<<< HEAD
+    ("%cmd%" "%~dp0busted_bootstrap" --cwd="%cwd%\" %*)
+=======
     ("%cmd%" "%~dp0busted_bootstrap" --cwd="%cwd%\\" %*)
+>>>>>>> daurnimator/junit
     exit /B %ERRORLEVEL%
   )
 )
