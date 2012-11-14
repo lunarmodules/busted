@@ -11,7 +11,8 @@ description = {
     Ships with a large amount of useful asserts,
     plus the ability to write your own. Output
     in pretty or plain terminal format, JSON,
-    junit or TAP for CI integration.
+    or TAP for CI integration. Great for TDD
+    and unit, integration, and functional tests.
   ]],
   homepage = "http://olivinelabs.com/busted/",
   license = "MIT <http://opensource.org/licenses/MIT>"

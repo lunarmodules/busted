@@ -15,9 +15,9 @@ if "%cmd%"=="" (
   if "%*"=="--help" set TRUE=1
   if "%*"=="--version" set TRUE=1
   if defined TRUE  (
-    (call "%cmd%" "%~dp0busted_bootstrap" %*)
+    ("%cmd%" "%~dp0busted_bootstrap" %*)
   ) else (
-    (call "%cmd%" "%~dp0busted_bootstrap" --cwd="%cwd%\\" %*)
+    ("%cmd%" "%~dp0busted_bootstrap" --cwd="%cwd%\\" %*)
     exit /B %ERRORLEVEL%
   )
 )
