@@ -11,6 +11,8 @@ if is_windows then defaultoutput = "plain_terminal" end
 local defaultpattern = '_spec.lua$'
 local defaultlua = 'luajit'
 local lpathprefix = "./src/?.lua;./src/?/?.lua;./src/?/init.lua"
+local ansicolors = require "ansicolors"
+local errors = {}
 
 local function sub_dir(dir)
   local dirs = {dir}
@@ -149,14 +151,13 @@ if args then
       file, err = pcall(function() file() end)
     end
     if err then
-      print("An error occurred while loading a test::"..err)
+      table.insert(errors, ansicolors("%{red}An error occurred while loading a test: %{blue}"..err))
     end
   end
 
   local mode, err = lfs.attributes(root_file, "mode")
   if mode == nil then
-    print("An error occurred while accessing file/directory: "..root_file .. "\n" .. err)
-    print("re-run with --help for usage")
+    table.insert(errors, ansicolors("%{red}An error occurred while accessing file/directory: %{blue}"..root_file .. "\n" .. err).."\n"..ansicolors("%{yellow}re-run with --help for usage"))
   else
     if mode == "file" then
       dosinglefile(root_file)
@@ -171,8 +172,14 @@ if args then
         end
       end
     end
+
     local status_string, failures = busted()
     print(status_string.."\n")
-    os.exit(failures)
+
+    for i, msg in pairs(errors) do
+      print(msg)
+    end
+
+    os.exit(failures + #errors)
   end
 end
