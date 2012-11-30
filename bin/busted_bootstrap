@@ -1,13 +1,15 @@
 -- Busted command-line runner
+require 'pl'
+
 local cli = require 'cliargs'
 local lfs = require 'lfs'
 local luacov
+
 require 'busted'
 
 local pathseparator = _G.package.config:sub(1,1)
 local is_windows = (pathseparator == "\\")
-local defaultoutput = "utf_terminal"
-if is_windows then defaultoutput = "plain_terminal" end
+local defaultoutput = is_windows and "plain_terminal" or "utf_terminal"
 local defaultpattern = '_spec.lua$'
 local defaultlua = 'luajit'
 local lpathprefix = "./src/?.lua;./src/?/?.lua;./src/?/init.lua"
@@ -55,10 +57,11 @@ cli:add_option("-d, --cwd=cwd", "path to current working directory")
 cli:add_option("-p, --pattern=pattern", "only run test files matching the Lua pattern", defaultpattern)
 cli:add_option("-t, --tags=tags", "only run tests with these #tags")
 cli:add_option("-m, --lpath=path", "optional path to be prefixed to the Lua module search path", lpathprefix)
+cli:add_option("-r, --run=run", "config to run from .busted file")
 cli:add_option("--lang=LANG", "language for error messages", "en")
 cli:add_flag("-c, --coverage", "do code coverage analysis (requires 'LuaCov' to be installed)")
 
-cli:add_flag("-v", "verbose output of errors")
+cli:add_flag("-v, --verbose", "verbose output of errors")
 cli:add_flag("-s, --enable-sound", "executes 'say' command if available")
 cli:add_flag("--suppress-pending", "suppress 'pending' test output")
 cli:add_flag("--defer-print", "defer print to when test suite is complete")
@@ -70,8 +73,42 @@ if args then
     return print(busted._VERSION)
   end
 
-  local root_file = args.ROOT
   local path = args.d
+  local root_file = args.ROOT
+
+  if (root_file:sub(1,1) == pathseparator) and (path:sub(-1,-1) == pathseparator) then
+    root_file = root_file:sub(2,-1)
+  else
+    if (path ~= "") and (root_file:sub(1,1) ~= pathseparator) and (path:sub(-1,-1) ~= pathseparator) then
+      path = path .. pathseparator
+    end
+  end
+
+  local tasks = nil
+  local status, err = pcall(function() tasks = loadfile(path..".busted")() end)
+
+  if args.run ~= "" then
+    if err then
+      return print(err)
+    elseif tasks == nil then
+      return print("Aborting: "..path..".busted file does not return a table.")
+    end
+
+    runConfig = tasks[args.run]
+
+    if runConfig ~= nil then
+      args = tablex.merge(args, runConfig, true)
+    else
+      return print("Aborting: task '"..args.run.."' not found")
+    end
+  else
+    if not err and tasks.default ~= nil then
+      args = tablex.merge(args, tasks.default, true)
+    end
+  end
+
+  path = args.d
+  root_file = args.ROOT
 
   if args.coverage then
     local result, luacov = pcall(require, "luacov.runner")
@@ -134,7 +171,7 @@ if args then
   end
 
   busted.options = {
-    verbose = args.v,
+    verbose = args.verbose,
     suppress_pending = args["suppress-pending"],
     defer_print = args["defer-print"],
     sound = args.s,
@@ -183,3 +220,4 @@ if args then
     os.exit(failures + #errors)
   end
 end
+
