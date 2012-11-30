@@ -43,6 +43,7 @@ build = {
     ["busted.languages.nl"] = "src/languages/nl.lua",
     ["busted.languages.ru"] = "src/languages/ru.lua",
     ["busted.languages.ua"] = "src/languages/ua.lua",
+    ["busted.languages.zh"] = "src/languages/zh.lua",
   },
   install = {
     bin = {
