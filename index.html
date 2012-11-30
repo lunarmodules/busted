@@ -164,11 +164,43 @@ OPTIONS:
   --lang=LANG           language for error messages (default: en)
   -c, --coverage        do code coverage analysis (requires 'LuaCov' to
                         be installed)
-  -v                    verbose output of errors
+  -v, --verbose         verbose output of errors
   -s, --enable-sound    executes 'say' command if available
   --suppress-pending    suppress 'pending' test output
   --defer-print         defer print to when test suite is complete
 </code></pre>
+
+            <h4>Predefined Busted Tasks</h4>
+
+            <p>
+              Busted 1.6 added a concept of "tasks", or predefined busted
+              configuration options. You can create a .busted file in the root,
+              which is automatically loaded if it exists. Default options are
+              run if no task is specified. you can add any argument available
+              in the CLI (listed above), using the long name. (Use
+              verbose = true, not v = true.) Any arguments you specify will
+              override those set in the task. An example .busted file might 
+              look like:
+            </p>
+
+<pre><code data-language="lua">return {
+  default = {
+    verbose = true
+  },
+  apiUnit = {
+    tags = "api",
+    ROOT = "spec/unit"
+    verbose = true
+  }
+}</code></pre>
+
+            <p>
+              This allows you to run <code>busted --run=apiUnit</code>, which
+              will run the equivalent of
+              <code>busted --tags=api --verbose spec/unit</code>. If you only
+              run <code>busted</code>, it will run the equivilant of
+              <code>busted --verbose</code>.
+            </p>
           </section>
 
           <section class="division" id="defining-tests">
