@@ -463,17 +463,22 @@ end)
 <pre><code data-language="lua">local s = require("say")
 
 local function has_property(state, arguments)
+  local has_key = false
+
   if not type(arguments[1]) == "table" or #arguments ~= 2 then
     return false
   end
 
   for key, value in pairs(arguments[1]) do
     if key == arguments[2] then
-      return true
+      has_key = true
     end
   end
 
-  return false
+  # state.mod holds true or false, which is true normally, or false if we
+  # are negating the assertion by using is_not or one of its aliases.
+
+  return state.mod == has_key
 end
 
 s:set("en", "assertion.has_property.positive", "Expected property %s in:\n%s")
