@@ -1,3 +1,5 @@
+require "pl"
+
 -- return truthy if we're in a coroutine
 local function in_coroutine()
   local current_routine, main = coroutine.running()
@@ -35,6 +37,10 @@ local busted = {
       local test_status = {}
 
       if not status then
+        if type(err) == "table" then
+          err = pretty.write(err)
+        end
+
         test_status = { type = "failure", description = description, info = info, trace = stack_trace, err = err }
         failures = failures + 1
       else
