@@ -491,14 +491,14 @@ end)
 <pre><code data-language="lua">require("busted")
 describe("spies", function()
   it("registers a new spy as a callback", function()
-    local s = spy.new()
+    local s = spy.new(function() end)
 
     s(1, 2, 3)
     s(4, 5, 6)
 
     assert.spy(s).was.called()
     assert.spy(s).was.called(2) -- twice!
-    assert.spy(s).was.called_with(1, 2, 3F) -- checks the history
+    assert.spy(s).was.called_with(1, 2, 3) -- checks the history
   end)
 
   it("replaces an original function", function()
@@ -506,15 +506,19 @@ describe("spies", function()
       greet = function(msg) print(msg) end
     }
 
-    spy.on(t, "greet")
+    local s = spy.on(t, "greet")
 
     t.greet("Hey!") -- prints 'Hey!'
     assert.spy(t.greet).was_called_with("Hey!")
+
+    t.greet:revert()  -- reverts the stub
+    t.greet("Hello!") -- prints 'Hello!', will not pass through the spy
+    assert.spy(s).was_not_called_with("Hello!")
   end)
 end)
 </code></pre>
 
-          <h4 id="spies">Stubs</h4>
+          <h4 id="stubs">Stubs</h4>
           <p>
             Stubs act similarly to spies, except they do not call the callback
             of the function it replaces. This is useful for testing things
@@ -532,15 +536,19 @@ describe("stubs", function()
 
     t.greet("Hey!") -- DOES NOT print 'Hey!'
     assert.spy(t.greet).was.called_with("Hey!")
+
+    t.greet:revert()  -- reverts the stub
+    t.greet("Hey!") -- DOES print 'Hey!'
   end)
 end)
 </code></pre>
 
-          <h4 id="spies">Mocks</h4>
+          <h4 id="mocks">Mocks</h4>
           <p>
             Mocks are tables whose functions have been wrapped in spies,
             or optionally stubs. This is useful for checking execution
-            chains.
+            chains. Wrapping is recursive, so wrapping functions in 
+            sub-tables as well.
           </p>
 
 <pre><code data-language="lua">require("busted")
