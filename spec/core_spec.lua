@@ -9,6 +9,7 @@ assert(type(mock) == "function")
 local test_val = false
 
 assert.is_not_nil(_TEST)  -- test on file-level
+
 describe("testing global _TEST", function()
   
   assert.is_not_nil(_TEST)
