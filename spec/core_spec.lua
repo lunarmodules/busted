@@ -3,9 +3,38 @@ assert(type(it) == "function")
 assert(type(before_each) == "function")
 assert(type(after_each) == "function")
 assert(type(spy) == "table")
+assert(type(stub) == "table")
 assert(type(mock) == "function")
 
 local test_val = false
+
+assert.is_not_nil(_TEST)  -- test on file-level
+
+describe("testing global _TEST", function()
+  
+  assert.is_not_nil(_TEST)
+  
+  setup(function()
+    assert.is_not_nil(_TEST)
+  end)
+  
+  before_each(function()
+    assert.is_not_nil(_TEST)
+  end)
+  
+  after_each(function()
+    assert.is_not_nil(_TEST)
+  end)
+  
+  teardown(function()
+    assert.is_not_nil(_TEST)
+  end)
+
+  it("Tests the _TEST global in an it() block", function()
+    assert.is_not_nil(_TEST)
+  end)
+
+end)
 
 describe("Test Case", function()
   local test_val = true
