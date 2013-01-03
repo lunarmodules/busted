@@ -3,21 +3,21 @@ local s = require('say')
 s:set_namespace("de")
 
 -- "Pending: test.lua @ 12 \n description
-s:set("output.pending", "Wartend")
-s:set("output.failure", "Fehlschlag")
-s:set("output.success", "Erfolg")
+s:set("output.pending", "Noch nicht erledigt")
+s:set("output.failure", "Fehlgeschlagen")
+s:set("output.success", "Erfolgreich")
 
-s:set("output.pending_plural", "Wartend")
-s:set("output.failure_plural", "Fehlschläge")
-s:set("output.success_plural", "Erfolge")
+s:set("output.pending_plural", "übersprungen")
+s:set("output.failure_plural", "fehlgeschlagen")
+s:set("output.success_plural", "erfolgreich")
 
-s:set("output.pending_zero", "Wartend")
-s:set("output.failure_zero", "Fehlschläge")
-s:set("output.success_zero", "Erfolge")
+s:set("output.pending_zero", "übersprungen")
+s:set("output.failure_zero", "fehlgeschlagen")
+s:set("output.success_zero", "erfolgreich")
 
-s:set("output.pending_single", "Wartend")
-s:set("output.failure_single", "Fehlschlag")
-s:set("output.success_single", "Erfolg")
+s:set("output.pending_single", "übersprungen")
+s:set("output.failure_single", "fehlgeschlagen")
+s:set("output.success_single", "erfolgreich")
 
 s:set("output.seconds", "Sekunden")
 
@@ -34,8 +34,7 @@ failure_messages = {
 }
 
 success_messages = {
-  "Oh ja, die Tests laufen durch.",
-  "Egal was kommt, ich hab Tests!",
+  "Yeah, die Tests laufen durch.",
   "Fühlt sich gut an, oder?",
   "Großartig!",
   "Tests sind durchgelaufen, Zeit für ein Bier.",
