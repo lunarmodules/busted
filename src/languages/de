@@ -1,0 +1,42 @@
+local s = require('say')
+
+s:set_namespace("de")
+
+-- "Pending: test.lua @ 12 \n description
+s:set("output.pending", "Wartend")
+s:set("output.failure", "Fehlschlag")
+s:set("output.success", "Erfolg")
+
+s:set("output.pending_plural", "Wartend")
+s:set("output.failure_plural", "Fehlschläge")
+s:set("output.success_plural", "Erfolge")
+
+s:set("output.pending_zero", "Wartend")
+s:set("output.failure_zero", "Fehlschläge")
+s:set("output.success_zero", "Erfolge")
+
+s:set("output.pending_single", "Wartend")
+s:set("output.failure_single", "Fehlschlag")
+s:set("output.success_single", "Erfolg")
+
+s:set("output.seconds", "Sekunden")
+
+-- definitions following are not used within the 'say' namespace but are defined as globals
+failure_messages = {
+  "Du hast %d kaputte Tests.",
+  "Deine Tests sind kaputt.",
+  "Dein Code ist schlecht; du solltest dich schlecht fühlen.",
+  "Dein Code befindet sich in der Gefahrenzone.",
+  "Ein seltsames Spiel. Der einzig gewinnbringende Zug ist nicht zu testen.",
+  "Meine Großmutter hat auf einem 386er bessere Tests geschrieben.",
+  "Immer wenn ein Test fehlschlägt, stirbt ein kleines Kätzchen.",
+  "Das fühlt sich schlecht an, oder?"
+}
+
+success_messages = {
+  "Oh ja, die Tests laufen durch.",
+  "Egal was kommt, ich hab Tests!",
+  "Fühlt sich gut an, oder?",
+  "Großartig!",
+  "Tests sind durchgelaufen, Zeit für ein Bier.",
+}
