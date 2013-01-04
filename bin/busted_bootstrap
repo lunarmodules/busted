@@ -1,8 +1,6 @@
 -- Busted command-line runner
-require 'pl'
 
 local cli = require 'cliargs'
-local lfs = require 'lfs'
 
 require 'busted'
 
@@ -14,36 +12,6 @@ local defaultlua = 'luajit'
 local lpathprefix = "./src/?.lua;./src/?/?.lua;./src/?/init.lua"
 local ansicolors = require "ansicolors"
 local errors = {}
-
-local function sub_dir(dir)
-  local dirs = {dir}
-  local function yieldtree()
-    dir = table.remove(dirs, #dirs)
-    if dir then
-      for entry in lfs.dir(dir) do
-        if entry ~= "." and entry ~= ".." and entry:sub(1, 1) ~= "." then
-          entry=dir..pathseparator..entry
-          local attr=lfs.attributes(entry)
-          if attr.mode == "directory" then
-            table.insert(dirs, entry)
-          else
-            coroutine.yield(entry,attr)
-          end
-        end
-      end
-
-      return yieldtree()
-    end
-  end
-  return coroutine.wrap(yieldtree)
-end
-
-local split = function(string, sep)
-  local sep, fields = sep or ".", {}
-  local pattern = ("([^%s]+)"):format(sep)
-  string:gsub(pattern, function(c) fields[#fields+1] = c end)
-  return fields
-end
 
 cli:set_name("busted")
 cli:add_flag("--version", "prints the program's version and exits")
@@ -73,41 +41,31 @@ if args then
   end
 
   local path = args.d
-  local root_file = args.ROOT
-
-  if (root_file:sub(1,1) == pathseparator) and (path:sub(-1,-1) == pathseparator) then
-    root_file = root_file:sub(2,-1)
-  else
-    if (path ~= "") and (root_file:sub(1,1) ~= pathseparator) and (path:sub(-1,-1) ~= pathseparator) then
-      path = path .. pathseparator
-    end
-  end
+  local root_file = path.normpath(path.join(path, ".", args.root))
 
   local tasks = nil
-  local success, err = pcall(function() tasks = loadfile(path..".busted")() end)
+  local bfile = path.normpath(path.join(path, ".", ".busted"))
+  local success, err = pcall(function() tasks = loadfile(bfile)() end)
 
   if args.run ~= "" then
     if not success then
       return print(err or "")
-    elseif tasks == nil then
-      return print("Aborting: "..path..".busted file does not return a table.")
+    elseif type(tasks) ~= "table" then
+      return print("Aborting: "..bfile.." file does not return a table.")
     end
 
     local runConfig = tasks[args.run]
 
-    if runConfig ~= nil then
+    if type(runConfig) == "table" then
       args = tablex.merge(args, runConfig, true)
     else
-      return print("Aborting: task '"..args.run.."' not found")
+      return print("Aborting: task '"..args.run.."' not found, or not a table")
     end
   else
-    if success and tasks.default ~= nil then
+    if success and type(tasks.default) == "table" then
       args = tablex.merge(args, tasks.default, true)
     end
   end
-
-  path = args.d
-  root_file = args.ROOT
 
   if args.coverage then
     local result, luacov = pcall(require, "luacov.runner")
@@ -123,15 +81,6 @@ if args then
     table.insert(luacov.configuration.exclude, "say%.")
   end
 
-  if (root_file:sub(1,1) == pathseparator) and (path:sub(-1,-1) == pathseparator) then
-    root_file = root_file:sub(2,-1)
-  else
-    if (path ~= "") and (root_file:sub(1,1) ~= pathseparator) and (path:sub(-1,-1) ~= pathseparator) then
-      path = path .. pathseparator
-    end
-  end
-  root_file = path..root_file
-
   if #args.lpath > 0 then
     lpathprefix = args.lpath
     lpathprefix = lpathprefix:gsub("^%.[/%\\]", path )
@@ -144,7 +93,7 @@ if args then
       -- not a module name, but a filename has been provided.
       -- in this case the filename should contain the language settings for
       -- both 'busted' and 'luassert', differs from module setup.
-      assert(loadfile(path..args.lang))()
+      assert(loadfile(path.normpath(path.join(path, args.lang))))()
     else
       require('busted.languages.'..args.lang)
       require('luassert.languages.'..args.lang)
@@ -155,7 +104,7 @@ if args then
 
   if args.output then
     if args.output:match(".lua") then
-      local o, err = loadfile(path..args.output)
+      local o, err = loadfile(path.normpath(path.join(path, args.output)))
 
       if not err then
         output = assert ( o() , "Unable to open output module" ) ()
@@ -169,16 +118,28 @@ if args then
     output = require('busted.output.'..defaultoutput)()
   end
 
+  local filelist
+  if path.isfile(root_file) then
+    filelist = { root_file }
+  elseif path.isidr(root_file) then
+    local pattern = args.pattern ~= "" and args.pattern or defaultpattern
+    filelist = dir.getallfiles(root_file)
+    filelist = tablex.filter(filelist, function(filename)
+        return path.basename(filename):find(pattern)
+      end )      
+  end
+
   busted.options = {
     verbose = args.verbose,
     suppress_pending = args["suppress-pending"],
     defer_print = args["defer-print"],
     sound = args.s,
     cwd = args.d,
-    tags = split(args.t, ","),
+    tags = utils.split(args.t, ","),
     output = output,
     success_messages = busted.success_messages or nil,
     failure_messages = busted.failure_messages or nil,
+    filelist = filelist,
   }
 
   local function dosinglefile(filename)
@@ -190,34 +151,22 @@ if args then
       table.insert(errors, ansicolors("%{red}An error occurred while loading a test: %{blue}"..err))
     end
   end
-
-  local mode
-  mode, err = lfs.attributes(root_file, "mode")
-  if mode == nil then
-    table.insert(errors, ansicolors("%{red}An error occurred while accessing file/directory: %{blue}"..root_file .. "\n" .. err).."\n"..ansicolors("%{yellow}re-run with --help for usage"))
-  else
-    if mode == "file" then
-      dosinglefile(root_file)
-    else
-      local pattern = args.pattern ~= "" and args.pattern or defaultpattern
-      for filename,attr in sub_dir(root_file) do
-        if attr.mode == 'file' then
-          local basename = filename:match("[\\/]([^\\/]-)$")
-          if basename:find(pattern) then
-            dosinglefile(filename)
-          end
-        end
-      end
-    end
-
-    local status_string, failures = busted()
+  
+  local status_string, failures = "", 0
+  if filelist then
+    tablex.foreachi(filelist, dosinglefile)
+    
+    status_string, failures = busted()
     print(status_string.."\n")
 
     for _, msg in ipairs(errors) do
       print(msg)
-    end
-
-    os.exit(failures + #errors)
+    end  
+    
+  else
+    table.insert(errors, ansicolors("%{red}An error occurred while accessing file/directory: %{blue}"..root_file .. "\n" .. err).."\n"..ansicolors("%{yellow}re-run with --help for usage"))
   end
+  
+  os.exit(failures + #errors)
 end
 
