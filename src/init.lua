@@ -22,7 +22,7 @@ describe = function(description, callback)
   local parent = current_context
 
   if busted.options.tags and #busted.options.tags > 0 then
-    for i,t in ipairs(busted.options.tags) do
+    for _,t in ipairs(busted.options.tags) do
       if description:find("#"..t) then
         match = true
       end
@@ -40,11 +40,11 @@ describe = function(description, callback)
     after_each_stack = {}
   }
 
-  for i,v in pairs(current_context.before_each_stack) do
+  for _,v in pairs(current_context.before_each_stack) do
     table.insert(local_context.before_each_stack, v)
   end
 
-  for i,v in pairs(current_context.after_each_stack) do
+  for _,v in pairs(current_context.after_each_stack) do
     table.insert(local_context.after_each_stack, v)
   end
 
@@ -62,7 +62,7 @@ it = function(description, callback)
 
   if not match then
     if busted.options.tags and #busted.options.tags > 0 then
-      for i,t in ipairs(busted.options.tags) do
+      for _,t in ipairs(busted.options.tags) do
         if description:find("#"..t) then
           match = true
         end

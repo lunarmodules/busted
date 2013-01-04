@@ -66,7 +66,7 @@ local busted = {
           if #context[stype] > 0 then
             local result
 
-            for i,v in pairs(context[stype]) do
+            for _,v in ipairs(context[stype]) do
               result = test("Failed running test initializer '"..decsription.."'", v, true)
 
               if result.type ~= "success" then
@@ -87,7 +87,7 @@ local busted = {
       local match = false
 
       if self.options.tags and #self.options.tags > 0 then
-        for i,t in ipairs(self.options.tags) do
+        for _,t in ipairs(self.options.tags) do
           if context.description:find("#"..t) then
             match = true
           end
@@ -102,7 +102,7 @@ local busted = {
       setup_ok, setup_error = run_setup(context, "setup")
 
       if setup_ok then
-        for i,v in ipairs(context) do
+        for _,v in ipairs(context) do
           if v.type == "test" then
             setup_ok, setup_error = run_setup(context, "before_each_stack", "before_each")
             if not setup_ok then break end
@@ -137,9 +137,9 @@ local busted = {
       if self.options.failure_messages and #self.options.failure_messages > 0 and
          self.options.success_messages and #self.options.success_messages > 0 then
         if failures and failures > 0 then
-          io.popen("say \""..failure_messages[math.random(1, #failure_messages)]:format(failures).."\"")
+          io.popen("say \""..self.options.failure_messages[math.random(1, #self.options.failure_messages)]:format(failures).."\"")
         else
-          io.popen("say \""..success_messages[math.random(1, #success_messages)].."\"")
+          io.popen("say \""..self.options.success_messages[math.random(1, #self.options.success_messages)].."\"")
         end
       end
     end
@@ -153,11 +153,11 @@ local busted = {
     --fire off tests, return status list
     local function get_statuses(done, list)
       local ret = {}
-      for i,v in pairs(list) do
+      for _,v in ipairs(list) do
         local vtype = type(v)
         if vtype == "thread" then
           local res = get_statuses(coroutine.resume(v))
-          for key,value in pairs(res) do
+          for _,value in pairs(res) do
             table.insert(ret, value)
           end
         elseif vtype == "table" then

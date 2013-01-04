@@ -21,8 +21,8 @@ s:set("output.success_single", "成功")
 
 s:set("output.seconds", "秒")
 
--- definitions following are not used within the 'say' namespace but are defined as globals
-failure_messages = {
+-- definitions following are not used within the 'say' namespace 
+busted.failure_messages = {
   "你一共提交了[%d]个测试用例",
   "又出错了！",
   "到底哪里不对呢？",
@@ -33,7 +33,7 @@ failure_messages = {
   "Bug好多，心情好坏！"
 }
 
-success_messages = {
+busted.success_messages = {
   "牛X，测试通过了！",
   "测试通过了，感觉不错吧，兄弟！",
   "哥们，干得漂亮！",
