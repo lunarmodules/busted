@@ -88,6 +88,8 @@ if args then
     package.path = (lpathprefix .. ";" .. package.path):gsub(";;",";")
   end
 
+
+-- This code should move into busted to be able to do threads
   if args.lang then
     if args.lang:match(".lua") then
       -- not a module name, but a filename has been provided.
@@ -102,6 +104,7 @@ if args then
 
   local output
 
+-- This code should move into busted to be able to do threads
   if args.output then
     if args.output:match(".lua") then
       local o, err = loadfile(path.normpath(path.join(path, args.output)))
@@ -142,6 +145,7 @@ if args then
     filelist = filelist,
   }
 
+-- This code should move into busted to be able to do threads
   local function dosinglefile(filename)
     local file, err = loadfile(filename)
     if file then
@@ -154,6 +158,8 @@ if args then
   
   local status_string, failures = "", 0
   if filelist then
+
+-- This code should move into busted to be able to do threads (just 1 line, list already in options above)
     tablex.foreachi(filelist, dosinglefile)
     
     status_string, failures = busted()
