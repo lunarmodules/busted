@@ -3,7 +3,6 @@ require 'pl'
 
 local cli = require 'cliargs'
 local lfs = require 'lfs'
-local luacov
 
 require 'busted'
 
@@ -85,16 +84,16 @@ if args then
   end
 
   local tasks = nil
-  local status, err = pcall(function() tasks = loadfile(path..".busted")() end)
+  local success, err = pcall(function() tasks = loadfile(path..".busted")() end)
 
   if args.run ~= "" then
-    if err then
-      return print(err)
+    if not success then
+      return print(err or "")
     elseif tasks == nil then
       return print("Aborting: "..path..".busted file does not return a table.")
     end
 
-    runConfig = tasks[args.run]
+    local runConfig = tasks[args.run]
 
     if runConfig ~= nil then
       args = tablex.merge(args, runConfig, true)
@@ -102,7 +101,7 @@ if args then
       return print("Aborting: task '"..args.run.."' not found")
     end
   else
-    if not err and tasks.default ~= nil then
+    if success and tasks.default ~= nil then
       args = tablex.merge(args, tasks.default, true)
     end
   end
@@ -178,8 +177,8 @@ if args then
     cwd = args.d,
     tags = split(args.t, ","),
     output = output,
-    success_messages = success_messages or nil,
-    failure_messages = failure_messages or nil,
+    success_messages = busted.success_messages or nil,
+    failure_messages = busted.failure_messages or nil,
   }
 
   local function dosinglefile(filename)
@@ -192,7 +191,8 @@ if args then
     end
   end
 
-  local mode, err = lfs.attributes(root_file, "mode")
+  local mode
+  mode, err = lfs.attributes(root_file, "mode")
   if mode == nil then
     table.insert(errors, ansicolors("%{red}An error occurred while accessing file/directory: %{blue}"..root_file .. "\n" .. err).."\n"..ansicolors("%{yellow}re-run with --help for usage"))
   else
@@ -213,7 +213,7 @@ if args then
     local status_string, failures = busted()
     print(status_string.."\n")
 
-    for i, msg in pairs(errors) do
+    for _, msg in ipairs(errors) do
       print(msg)
     end
 
