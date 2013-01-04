@@ -21,8 +21,8 @@ s:set("output.success_single", "succes")
 
 s:set("output.seconds", "seconden")
 
--- definitions following are not used within the 'say' namespace but are defined as globals
-failure_messages = {
+-- definitions following are not used within the 'say' namespace
+busted.failure_messages = {
   "Je hebt %d busted specs",
   "Je specs zijn busted",
   "Je code is slecht en zo zou jij je ook moeten voelen",
@@ -33,7 +33,7 @@ failure_messages = {
   "Voelt klote man"
 }
 
-success_messages = {
+busted.success_messages = {
   "Joeperdepoep, de specs zijn er door",
   "Doet er niet toe, had specs",
   "Voelt goed, man",

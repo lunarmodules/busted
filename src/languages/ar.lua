@@ -21,8 +21,8 @@ s:set("output.success_single", "نَجاح")
 
 s:set("output.seconds", "ثَوانٍ")
 
--- definitions following are not used within the 'say' namespace but are defined as globals
-failure_messages = {
+-- definitions following are not used within the 'say' namespace
+busted.failure_messages = {
     "فَشِلَت %d مِنْ الإِختِبارات",
     "فَشِلَت إخْتِباراتُك",
     "برمجيَّتُكَ ضَعيْفة، أنْصَحُكَ بالتَّقاعُد",
@@ -32,7 +32,7 @@ failure_messages = {
     "يَوَدُّ ليْ مُساعَدَتُكْ، لَكِنّْ..."
 }
 
-success_messages = {
+busted.success_messages = {
     "رائِع! تَمَّ إجْتِيازُ جَميعُ الإختِباراتِ بِنَجاحٍ",
     "قُل ما شِئت، لا أكتَرِث: busted شَهِدَ لي!",
     "حَقَّ عَليْكَ الإفتِخار",
