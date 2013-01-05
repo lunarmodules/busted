@@ -7,14 +7,81 @@ local function in_coroutine()
   return current_routine and (main == nil or main == false)
 end
 
+local function language(lang)
+  if args.lang then
+    require('busted.languages.'..args.lang)
+    require('luassert.languages.'..args.lang)
+  end
+end
+
+local function getoutputter(output, opath)
+  local result
+  if output then
+    if output:match(".lua$") then
+      local o, err = loadfile(path.normpath(path.join(opath, output)))
+
+      if not err then
+        result = assert ( o() , "Unable to open output module" ) ()
+      else
+        result = require('busted.output.'..output)()
+      end
+    else
+      result = require('busted.output.'..output)()
+    end
+  else
+    result = require('busted.output.'..output)()
+  end
+  return result
+end
+
+local function gettestfiles(root_file, pattern)
+  local filelist
+  if path.isfile(root_file) then
+    filelist = { root_file }
+  elseif path.isdir(root_file) then
+    local pattern = args.pattern ~= "" and args.pattern or defaultpattern
+    filelist = dir.getallfiles(root_file)
+    filelist = tablex.filter(filelist, function(filename)
+        return path.basename(filename):find(pattern)
+      end )      
+  end
+  return filelist
+end
+
+local function loadtestfile(filename)
+  
+  -- TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+  -- Wrap loading the testfiles in a describe() function and let the describe, in case of failure
+  -- insert an artificial failing test listing the error.
+  -- that will handle the error reporting
+  
+  local file, err = loadfile(filename)
+  if file then
+    file, err = pcall(function() file() end)
+  end
+  if err then
+    table.insert(errors, ansicolors("%{red}An error occurred while loading a test: %{blue}"..err))
+  end
+end
+
+
 local busted = {
   root_context = { type = "describe", description = "global", before_each_stack = {}, after_each_stack = {} },
   options = {},
 
   __call = function(self)
+    
     local failures = 0
-    self.output = self.options.output
+    
+    language(self.options.language)
+    self.output = getoutputter(self.options.output, self.options.fpath)
+    -- if no filelist given, get them
+    self.options.filelist = self.options.filelist or gettestfiles(solf.options.root_file, self.options.pattern)
+    -- load testfiles
+    tablex.foreachi(filelist, loadtestfile)
 
+
+   
     --run test
     local function test(description, callback, no_output)
       local debug_info = debug.getinfo(callback)
@@ -134,12 +201,12 @@ local busted = {
     local play_sound = function(failures)
       math.randomseed(os.time())
 
-      if self.options.failure_messages and #self.options.failure_messages > 0 and
-         self.options.success_messages and #self.options.success_messages > 0 then
+      if self.failure_messages and #self.failure_messages > 0 and
+         self.success_messages and #self.success_messages > 0 then
         if failures and failures > 0 then
-          io.popen("say \""..self.options.failure_messages[math.random(1, #self.options.failure_messages)]:format(failures).."\"")
+          io.popen("say \""..self.failure_messages[math.random(1, #self.failure_messages)]:format(failures).."\"")
         else
-          io.popen("say \""..self.options.success_messages[math.random(1, #self.options.success_messages)].."\"")
+          io.popen("say \""..self.success_messages[math.random(1, #self.success_messages)].."\"")
         end
       end
     end
