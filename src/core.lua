@@ -48,22 +48,24 @@ local function gettestfiles(root_file, pattern)
   return filelist
 end
 
-local function loadtestfile(filename)
-  
-  -- TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
-  -- Wrap loading the testfiles in a describe() function and let the describe, in case of failure
-  -- insert an artificial failing test listing the error.
-  -- that will handle the error reporting
-  
+local function load_testfile(filename)
+  -- compiles and runs a testfile
+  -- upon failure it inserts a failing it() block to report the error
   local file, err = loadfile(filename)
-  if file then
-    file, err = pcall(function() file() end)
+  if not file then
+    it("Failed loading/compiling testfile; " .. tostring(filename), function()
+          error(err)
+        end)
+  else
+    local success, err = pcall(function() file() end)
+    if not success then
+      it("Failed executing testfile; " .. tostring(filename), function()
+            error(err)
+          end)
+    end
   end
-  if err then
-    table.insert(errors, ansicolors("%{red}An error occurred while loading a test: %{blue}"..err))
-  end
+  
 end
-
 
 local busted = {
   root_context = { type = "describe", description = "global", before_each_stack = {}, after_each_stack = {} },
@@ -76,7 +78,7 @@ local busted = {
     language(self.options.language)
     self.output = getoutputter(self.options.output, self.options.fpath)
     -- if no filelist given, get them
-    self.options.filelist = self.options.filelist or gettestfiles(solf.options.root_file, self.options.pattern)
+    self.options.filelist = self.options.filelist or gettestfiles(self.options.root_file, self.options.pattern)
     -- load testfiles
     tablex.foreachi(filelist, loadtestfile)
 
