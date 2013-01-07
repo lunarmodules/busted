@@ -10,6 +10,12 @@ busted._COPYRIGHT   = "Copyright (c) 2012 Olivine Labs, LLC."
 busted._DESCRIPTION = "A unit testing framework with a focus on being easy to use."
 busted._VERSION     = "Busted 1.4"
 
+-- set defaults
+busted.defaultoutput = path.is_windows and "plain_terminal" or "utf_terminal"
+busted.defaultpattern = '_spec.lua$'
+busted.defaultlua = 'luajit'
+busted.lpathprefix = "./src/?.lua;./src/?/?.lua;./src/?/init.lua"
+
 -- Load default language pack
 require('busted.languages.en')
 
@@ -58,6 +64,7 @@ describe = function(description, callback)
 end
 
 it = function(description, callback)
+  assert(current_context ~= busted.root_context, debug.traceback("An it() block must be wrapped in a describe() block/n", 2)) 
   local match = current_context.run
 
   if not match then
@@ -78,6 +85,7 @@ it = function(description, callback)
 end
 
 pending = function(description, callback)
+  assert(current_context ~= busted.root_context, debug.traceback("A pending() block must be wrapped in a describe() block/n", 2)) 
   local debug_info = debug.getinfo(callback)
 
   local info = {

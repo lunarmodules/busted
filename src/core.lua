@@ -8,28 +8,43 @@ local function in_coroutine()
 end
 
 local function language(lang)
-  if args.lang then
-    require('busted.languages.'..args.lang)
-    require('luassert.languages.'..args.lang)
+  if lang then
+    require('busted.languages.'..lang)
+    require('luassert.languages.'..lang)
   end
 end
 
 local function getoutputter(output, opath)
-  local result
-  if output then
-    if output:match(".lua$") then
-      local o, err = loadfile(path.normpath(path.join(opath, output)))
+  local f = function()
+    local result
+    if output then
+      if output:match(".lua$") then
+        local o, err = loadfile(path.normpath(path.join(opath, output)))
 
-      if not err then
-        result = assert ( o() , "Unable to open output module" ) ()
+        if not err then
+          result = assert ( o() , "Unable to open output module" ) ()
+        else
+          result = require('busted.output.'..output)()
+        end
       else
         result = require('busted.output.'..output)()
       end
     else
-      result = require('busted.output.'..output)()
+      result = require('busted.output.'..busted.defaultoutput)()
     end
-  else
-    result = require('busted.output.'..output)()
+    busted.output = result
+  end
+  local success, err = pcall(f)
+  if not success then
+    -- add it() block to report error
+    local orig_output = output
+    -- try again with default outputter
+    output = busted.defaultoutput
+    success = pcall(f)
+    if not success then
+      error(err) -- hard error this time
+    end
+    busted.internal_error("Loading requested option '--output=" .. tostring(orig_output).."'", err)
   end
   return result
 end
@@ -39,7 +54,7 @@ local function gettestfiles(root_file, pattern)
   if path.isfile(root_file) then
     filelist = { root_file }
   elseif path.isdir(root_file) then
-    local pattern = args.pattern ~= "" and args.pattern or defaultpattern
+    local pattern = pattern ~= "" and pattern or defaultpattern
     filelist = dir.getallfiles(root_file)
     filelist = tablex.filter(filelist, function(filename)
         return path.basename(filename):find(pattern)
@@ -53,15 +68,11 @@ local function load_testfile(filename)
   -- upon failure it inserts a failing it() block to report the error
   local file, err = loadfile(filename)
   if not file then
-    it("Failed loading/compiling testfile; " .. tostring(filename), function()
-          error(err)
-        end)
+    busted.internal_error("Failed compiling testfile; " .. tostring(filename), err)
   else
     local success, err = pcall(function() file() end)
     if not success then
-      it("Failed executing testfile; " .. tostring(filename), function()
-            error(err)
-          end)
+      busted.internal_error("Failed executing testfile; " .. tostring(filename), err)
     end
   end
   
@@ -71,16 +82,29 @@ local busted = {
   root_context = { type = "describe", description = "global", before_each_stack = {}, after_each_stack = {} },
   options = {},
 
+  internal_error = function(description, err)
+    -- report a test-process error as a failed test
+    local tag = ""
+    if busted.options.tags and #busted.options.tags > 0 then
+      tag = " #"..busted.options.tags[1]
+    end
+    describe("Busted process errors occured" .. tag, function()
+      it(description .. tag, function()
+        error(err)
+      end)
+    end)
+  end,
+
   __call = function(self)
     
     local failures = 0
     
-    language(self.options.language)
-    self.output = getoutputter(self.options.output, self.options.fpath)
+    language(self.options.lang)
+    getoutputter(self.options.output, self.options.fpath)
     -- if no filelist given, get them
     self.options.filelist = self.options.filelist or gettestfiles(self.options.root_file, self.options.pattern)
     -- load testfiles
-    tablex.foreachi(filelist, loadtestfile)
+    tablex.foreachi(self.options.filelist, load_testfile)
 
 
    

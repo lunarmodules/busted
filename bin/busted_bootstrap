@@ -4,12 +4,10 @@ local cli = require 'cliargs'
 
 require 'busted'
 
-local pathseparator = _G.package.config:sub(1,1)
-local is_windows = (pathseparator == "\\")
-local defaultoutput = is_windows and "plain_terminal" or "utf_terminal"
-local defaultpattern = '_spec.lua$'
-local defaultlua = 'luajit'
-local lpathprefix = "./src/?.lua;./src/?/?.lua;./src/?/init.lua"
+local defaultoutput = busted.defaultoutput
+local defaultpattern = busted.defaultpattern
+local defaultlua = busted.defaultlua
+local lpathprefix = busted.lpathprefix
 local ansicolors = require "ansicolors"
 local errors = {}
 
