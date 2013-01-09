@@ -14,39 +14,26 @@ local function language(lang)
   end
 end
 
-local function getoutputter(output, opath)
-  local f = function()
-    local result
-    if output then
-      if output:match(".lua$") then
-        local o, err = loadfile(path.normpath(path.join(opath, output)))
-
-        if not err then
-          result = assert ( o() , "Unable to open output module" ) ()
-        else
-          result = require('busted.output.'..output)()
-        end
-      else
-        result = require('busted.output.'..output)()
-      end
-    else
-      result = require('busted.output.'..busted.defaultoutput)()
-    end
-    busted.output = result
+local function getoutputter(output, opath, default)
+  local success, out, f
+  if output:match(".lua$") then
+    f = function() return loadfile(path.normpath(path.join(opath, output)))() end
+  else
+    f = function() return require('busted.output.'..output)() end
   end
-  local success, err = pcall(f)
+  
+  success, out = pcall(f)
   if not success then
-    -- add it() block to report error
-    local orig_output = output
-    -- try again with default outputter
-    output = busted.defaultoutput
-    success = pcall(f)
-    if not success then
-      error(err) -- hard error this time
+    if not default then
+        -- even default failed, so error out the hard way
+      return error("Failed to open the busted default output; " .. tostring(output) .. ".\n"..out)
+    else
+      busted.internal_error("Unable to open output module; requested option '--output=" .. tostring(output).."'.", out)
+      -- retry with default outputter
+      return getoutputter(default, opath)
     end
-    busted.internal_error("Loading requested option '--output=" .. tostring(orig_output).."'", err)
   end
-  return result
+  return out
 end
 
 local function gettestfiles(root_file, pattern)
@@ -64,18 +51,11 @@ local function gettestfiles(root_file, pattern)
 end
 
 local function load_testfile(filename)
-  -- compiles and runs a testfile
-  -- upon failure it inserts a failing it() block to report the error
-  local file, err = loadfile(filename)
-  if not file then
-    busted.internal_error("Failed compiling testfile; " .. tostring(filename), err)
-  else
-    local success, err = pcall(function() file() end)
-    if not success then
-      busted.internal_error("Failed executing testfile; " .. tostring(filename), err)
-    end
+  -- runs a testfile
+  local success, err = pcall(function() loadfile(filename)() end)
+  if not success then
+    busted.internal_error("Failed executing testfile; " .. tostring(filename), err)
   end
-  
 end
 
 local busted = {
@@ -86,7 +66,8 @@ local busted = {
     -- report a test-process error as a failed test
     local tag = ""
     if busted.options.tags and #busted.options.tags > 0 then
-      tag = " #"..busted.options.tags[1]
+      -- tags specified; must insert a tag to make sure the error gets displayed
+      tag = " #"..busted.options.tags[1] 
     end
     describe("Busted process errors occured" .. tag, function()
       it(description .. tag, function()
@@ -100,7 +81,7 @@ local busted = {
     local failures = 0
     
     language(self.options.lang)
-    getoutputter(self.options.output, self.options.fpath)
+    self.output = getoutputter(self.options.output, self.options.fpath, self.defaultoutput)
     -- if no filelist given, get them
     self.options.filelist = self.options.filelist or gettestfiles(self.options.root_file, self.options.pattern)
     -- load testfiles
