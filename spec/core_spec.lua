@@ -120,7 +120,7 @@ describe("tagged tests #test", function()
 end)
 
 
-describe("Testing test order #tieske", function()
+describe("Testing test order", function()
   
   local testorder, level = "", 0
   local function report_level(desc)
