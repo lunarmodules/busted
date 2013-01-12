@@ -105,13 +105,10 @@ local busted = {
             setup_ok, setup_error = run_setup(context, "after_each_stack", "after_each")
             if not setup_ok then break end
           elseif v.type == "describe" then
---            table.insert(status, run_context(v))
--- [[
             local res = run_context(v)
-            for key,value in pairs(res) do
+            for key,value in ipairs(res) do
               table.insert(status, value)
             end
---]]
           elseif v.type == "pending" then
             local pending_test_status = { type = "pending", description = v.description, info = v.info }
             v.callback(pending_test_status)
