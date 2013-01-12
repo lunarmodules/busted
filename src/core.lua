@@ -1,12 +1,5 @@
 require "pl"
 
--- return truthy if we're in a coroutine
-local function in_coroutine()
-  local current_routine, main = coroutine.running()
-  -- need check to the main variable for 5.2, it's nil for 5.1
-  return current_routine and (main == nil or main == false)
-end
-
 local busted = {
   root_context = { type = "describe", description = "global", before_each_stack = {}, after_each_stack = {} },
   options = {},
@@ -112,7 +105,13 @@ local busted = {
             setup_ok, setup_error = run_setup(context, "after_each_stack", "after_each")
             if not setup_ok then break end
           elseif v.type == "describe" then
-            table.insert(status, coroutine.create(function() run_context(v) end))
+--            table.insert(status, run_context(v))
+-- [[
+            local res = run_context(v)
+            for key,value in pairs(res) do
+              table.insert(status, value)
+            end
+--]]
           elseif v.type == "pending" then
             local pending_test_status = { type = "pending", description = v.description, info = v.info }
             v.callback(pending_test_status)
@@ -124,11 +123,8 @@ local busted = {
       if setup_ok then setup_ok, setup_error = run_setup(context, "teardown") end
 
       if not setup_ok then table.insert(status, setup_error) end
-      if in_coroutine() then
-        coroutine.yield(status)
-      else
-        return true, status
-      end
+      
+      return status
     end
 
     local play_sound = function(failures)
@@ -150,26 +146,9 @@ local busted = {
       print(self.output.header(self.root_context))
     end
 
-    --fire off tests, return status list
-    local function get_statuses(done, list)
-      local ret = {}
-      for i,v in pairs(list) do
-        local vtype = type(v)
-        if vtype == "thread" then
-          local res = get_statuses(coroutine.resume(v))
-          for key,value in pairs(res) do
-            table.insert(ret, value)
-          end
-        elseif vtype == "table" then
-          table.insert(ret, v)
-        end
-      end
-      return ret
-    end
-
     local old_TEST = _TEST
     _TEST = busted._VERSION
-    local statuses = get_statuses(run_context(self.root_context))
+    local statuses = run_context(self.root_context)
 
     --final run time
     ms = os.clock() - ms

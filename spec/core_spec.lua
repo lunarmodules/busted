@@ -120,7 +120,7 @@ describe("tagged tests #test", function()
 end)
 
 
-describe("Testing test order", function()
+describe("Testing test order #tieske", function()
   
   local testorder, level = "", 0
   local function report_level(desc)
@@ -204,24 +204,23 @@ local expected = [[setup A
   before_each A
     test A two
   after_each A
+  setup B
+    before_each A
+      before_each B
+        test B one
+      after_each A
+    after_each B
+    before_each A
+      before_each B
+        test B two
+      after_each A
+    after_each B
+  teardown B
   before_each A
     test A three
   after_each A
 teardown A
-setup B
-  before_each A
-    before_each B
-      test B one
-    after_each A
-  after_each B
-  before_each A
-    before_each B
-      test B two
-    after_each A
-  after_each B
-teardown B
 ]]        
-      print(testorder)
       assert.is.equal(expected, testorder)
     end)
 
