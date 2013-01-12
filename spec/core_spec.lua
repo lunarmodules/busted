@@ -189,6 +189,10 @@ describe("Testing test order", function()
           
     end)
   
+    it("tests A three", function()
+      report_level("test A three")        
+    end)
+
   end)
     
   describe("Test testorder", function()
@@ -199,6 +203,9 @@ local expected = [[setup A
   after_each A
   before_each A
     test A two
+  after_each A
+  before_each A
+    test A three
   after_each A
 teardown A
 setup B
@@ -214,6 +221,7 @@ setup B
   after_each B
 teardown B
 ]]        
+      print(testorder)
       assert.is.equal(expected, testorder)
     end)
 
