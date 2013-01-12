@@ -1,3 +1,5 @@
+require('busted')
+
 assert(type(describe) == "function")
 assert(type(it) == "function")
 assert(type(before_each) == "function")

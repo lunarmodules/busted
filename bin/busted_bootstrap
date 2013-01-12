@@ -169,7 +169,8 @@ if args then
     output = require('busted.output.'..defaultoutput)()
   end
 
-  busted.options = {
+  require'busted'
+  local options = {
     verbose = args.verbose,
     suppress_pending = args["suppress-pending"],
     defer_print = args["defer-print"],
@@ -181,10 +182,22 @@ if args then
     failure_messages = busted.failure_messages or nil,
   }
 
+  local allfailures = 0
+  local allstatuses = {}
   local function dosinglefile(filename)
+     busted.reset()
     local file, err = loadfile(filename)
     if file then
-      file, err = pcall(function() file() end)
+      ok, loop, loop_arg = pcall(function() return file() end)
+      if ok then
+         options.loop = loop
+         options.loop_arg = loop_arg
+         local statuses,failures =  busted.run(options)
+         allstatuses[#allstatuses+1] = statuses
+         allfailures = allfailures + failures
+      else
+         err = loop
+      end
     end
     if err then
       table.insert(errors, ansicolors("%{red}An error occurred while loading a test: %{blue}"..err))
@@ -210,14 +223,13 @@ if args then
       end
     end
 
-    local status_string, failures = busted()
-    print(status_string.."\n")
+    print(table.concat(allstatuses,'\n'))
 
     for _, msg in ipairs(errors) do
       print(msg)
     end
 
-    os.exit(failures + #errors)
+    os.exit(allfailures + #errors)
   end
 end
 
