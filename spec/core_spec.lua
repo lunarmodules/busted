@@ -118,3 +118,105 @@ describe("tagged tests #test", function()
     assert(true)
   end)
 end)
+
+
+describe("Testing test order", function()
+  
+  local testorder, level = "", 0
+  local function report_level(desc)
+    testorder = testorder .. string.rep(" ", level * 2) .. desc .. "\n"
+  end
+
+  describe("describe, level A", function()
+  
+    setup(function()
+      report_level("setup A")
+      level = level + 1
+    end)
+
+    teardown(function()
+      level = level - 1
+      report_level("teardown A")
+    end)
+
+    before_each(function()
+      report_level("before_each A")
+      level = level + 1
+    end)
+
+    after_each(function()
+      level = level - 1
+      report_level("after_each A")
+    end)
+
+    it("tests A one", function()
+      report_level("test A one")        
+    end)
+    
+    it("tests A two", function()
+      report_level("test A two")        
+    end)
+
+    describe("describe level B", function()
+
+      setup(function()
+        report_level("setup B")
+        level = level + 1
+      end)
+
+      teardown(function()
+        level = level - 1
+        report_level("teardown B")
+      end)
+
+      before_each(function()
+        report_level("before_each B")
+        level = level + 1
+      end)
+
+      after_each(function()
+        level = level - 1
+        report_level("after_each B")
+      end)
+
+      it("tests B one", function()
+        report_level("test B one")
+      end)
+      
+      it("tests B two", function()
+        report_level("test B two")        
+      end)
+          
+    end)
+  
+  end)
+    
+  describe("Test testorder", function()
+    it("verifies order of execution", function()
+local expected = [[setup A
+  before_each A
+    test A one
+  after_each A
+  before_each A
+    test A two
+  after_each A
+teardown A
+setup B
+  before_each A
+    before_each B
+      test B one
+    after_each A
+  after_each B
+  before_each A
+    before_each B
+      test B two
+    after_each A
+  after_each B
+teardown B
+]]        
+      assert.is.equal(expected, testorder)
+    end)
+
+  end)
+
+end)
