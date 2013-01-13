@@ -25,7 +25,7 @@ install:
   - sudo luarocks make
   - cd ../
 
-script: "sudo luarocks make && busted spec/ev_spec.lua"
+script: "./install_and_test.sh"
 
 notifications:
   email:
