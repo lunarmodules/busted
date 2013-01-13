@@ -209,7 +209,130 @@ describe = busted.describe
 before = busted.before
 before_each = busted.before_each
 
-busted.describe_statuses = function(statuses,file_name,print_statuses)
+busted.setup_async_tests = function(yield,loopname)
+   describe(
+      loopname..' test suite',
+      function()
+         local before_each_count = 0
+         local before_called
+         before(
+            async, 
+            function(done)
+               yield(
+                  function()
+                     assert.is_falsy(before_called)
+                     before_called = true
+                     done()
+                  end)
+            end)
+
+         before_each(
+            async,
+            function(done)
+               yield(
+                  function()
+                     before_each_count = before_each_count + 1
+                     done()
+                  end)
+            end)      
+         
+         it(
+            'order 1 should async succeed',
+            async,
+            function(done)
+               yield(
+                  function()
+                     assert.is_true(before_called)
+                     assert.is.equal(before_each_count,1)
+                     done()
+                  end)
+            end)
+
+         it(
+            'order 2 should async fail',
+            async,
+            function(done)
+               yield(
+                  function()
+                     assert.is_truthy(false)
+                     done()
+                  end)
+            end)
+
+         it(
+            'order 3 should async fails epicly',
+            async,
+            function(done)
+               does_not_exist.foo = 3            
+            end)
+
+         it(
+            'order 4 should async have no assertions and fails thus',
+            async,
+            function(done)
+               done()
+            end)
+
+         it(
+            'order 5 spies should sync succeed',
+            function()
+               assert.is.equal(before_each_count,5)
+               local thing = {
+                  greet = function()
+                  end
+               }            
+               spy.on(thing, "greet")
+               thing.greet("Hi!")            
+               assert.spy(thing.greet).was.called()
+               assert.spy(thing.greet).was.called_with("Hi!")
+            end)
+
+         it(
+            'order 6 spies should async succeed',
+            async,
+            function(done)
+               local thing = {
+                  greet = function()
+                  end
+               }
+               spy.on(thing, "greet")
+               yield(
+                  function()
+                     assert.spy(thing.greet).was.called()
+                     assert.spy(thing.greet).was.called_with("Hi!")
+                     done()
+                  end)                  
+               thing.greet("Hi!")
+            end)
+
+         describe(
+            'with nested contexts',
+            function()
+               local before_called
+               before(
+                  async,
+                  function(done)
+                     yield(
+                        function()
+                           before_called = true
+                           done()
+                        end)
+                  end)
+               it(
+                  'order 7 nested async test before is called succeeds',
+                  async,
+                  function(done)
+                     yield(
+                        function()
+                           assert.is_true(before_called)
+                           done()
+                        end)
+                  end)
+            end)
+      end)
+end
+
+busted.describe_statuses = function(statuses,print_statuses)
    if print_statuses then
       print('---------- STATUSES ----------')
       print(pretty.write(statuses))
@@ -217,7 +340,7 @@ busted.describe_statuses = function(statuses,file_name,print_statuses)
    end
 
    describe(
-      'Test statuses '..file_name,
+      'Test statuses',
       function()
          it(
             'execution order is correct',
@@ -248,9 +371,10 @@ busted.describe_statuses = function(statuses,file_name,print_statuses)
             'info is correct',
             function()
                for i,status in ipairs(statuses) do
+                --  print(pretty.write(status))
                   assert.is_truthy(status.info.linedefined)
-                  assert.is_truthy(status.info.source:match(file_name))
-                  assert.is_truthy(status.info.short_src:match(file_name))
+                  assert.is_truthy(status.info.source:match('busted%.lua'))
+                  assert.is_truthy(status.info.short_src:match('busted%.lua'))
                end
             end)
 
