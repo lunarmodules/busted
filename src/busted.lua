@@ -1,15 +1,15 @@
--- busted maock up with async support
 require'pl' -- for pretty.write table formating
 assert = require'luassert'
 spy = require('luassert.spy')
 mock = require('luassert.mock')
 stub = require('luassert.stub')
--- Load default language pack
 
 busted = {}
 busted._COPYRIGHT   = "Copyright (c) 2012 Olivine Labs, LLC."
 busted._DESCRIPTION = "A unit testing framework with a focus on being easy to use."
 busted._VERSION     = "Busted 1.4"
+
+-- Load default language pack
 require('busted.languages.en')
 
 local assert_call = getmetatable(assert.is_truthy).__call
