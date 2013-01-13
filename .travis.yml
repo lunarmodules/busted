@@ -13,6 +13,8 @@ install:
   - sudo apt-get install luajit
   - sudo apt-get install luarocks
   - sudo luarocks install luafilesystem
+  - sudo luarocks install luasocket
+  - sudo luarocks install copas
   - sudo luarocks install lua-ev
   - git clone git://github.com/Olivine-Labs/say.git
   - cd say
