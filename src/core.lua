@@ -87,10 +87,15 @@ end
 
 -- runs a testfile, loading its tests
 local function load_testfile(filename)
+  local old_TEST = _TEST
+  _TEST = busted._VERSION
+  
   local success, err = pcall(function() loadfile(filename)() end)
   if not success then
     internal_error("Failed executing testfile; " .. tostring(filename), err)
   end
+
+  _TEST = old_TEST
 end
 
 local play_sound = function(failures)
