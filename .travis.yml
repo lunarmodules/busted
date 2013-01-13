@@ -6,7 +6,7 @@ env:
 
 branches:
   only:
-    - master
+    - async-test-support
 
 install:
   - sudo apt-get install luajit
@@ -20,18 +20,10 @@ install:
   - cd luassert
   - sudo luarocks make
   - cd ../
-  - git clone git://github.com/Olivine-Labs/busted.git
-  - cd busted
-  - sudo luarocks make
-  - cd ../
 
-script: "sudo luarocks make && busted spec"
+script: "sudo luarocks make && busted spec/ev_spec.lua"
 
 notifications:
-  webhooks:
-    - http://hollow-mountain-1250.herokuapp.com/hubot/travis
-  recipients:
-    - engineers@olivinelabs.com
   email:
     on_success: always
     on_failure: always
