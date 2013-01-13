@@ -2,7 +2,7 @@
 
 local cli = require 'cliargs'
 
-require 'busted'
+local busted = require 'busted'
 
 local defaultoutput = busted.defaultoutput
 local defaultpattern = busted.defaultpattern
@@ -86,7 +86,7 @@ if args then
     package.path = (lpathprefix .. ";" .. package.path):gsub(";;",";")
   end
 
-  busted.options = {
+  local options = {
     path = fpath,
     lang = args.lang,
     root_file = root_file,
@@ -104,7 +104,7 @@ if args then
   }
   
   -- execute tests
-  local status_string, failures = busted()
+  local status_string, failures = busted(options)
     
   print(status_string.."\n")
 

@@ -13,9 +13,9 @@ busted.lpathprefix = "./src/?.lua;./src/?/?.lua;./src/?/init.lua"
 require('busted.languages.en')    -- Load default language pack
 
 local failures = 0
+local options
 local root_context = { type = "describe", description = "global", before_each_stack = {}, after_each_stack = {} }
 local current_context = root_context
-busted.options = {}   -- TODO: make local and pass options as busted.run() parameter
 
 
 -- return truthy if we're in a coroutine
@@ -28,9 +28,9 @@ end
 -- report a test-process error as a failed test
 local function internal_error(description, err)
   local tag = ""
-  if busted.options.tags and #busted.options.tags > 0 then
+  if options.tags and #options.tags > 0 then
     -- tags specified; must insert a tag to make sure the error gets displayed
-    tag = " #"..busted.options.tags[1]
+    tag = " #"..options.tags[1]
   end
   describe("Busted process errors occured" .. tag, function()
     it(description .. tag, function()
@@ -142,8 +142,8 @@ local function test(description, callback, no_output)
     test_status = { type = "success", description = description, info = info }
   end
 
-  if not no_output and not busted.options.defer_print then
-    busted.output.currently_executing(test_status, busted.options)
+  if not no_output and not options.defer_print then
+    busted.output.currently_executing(test_status, options)
   end
 
   return test_status
@@ -181,8 +181,8 @@ end
 local function run_context(context)
   local match = false
 
-  if busted.options.tags and #busted.options.tags > 0 then
-    for _,t in ipairs(busted.options.tags) do
+  if options.tags and #options.tags > 0 then
+    for _,t in ipairs(options.tags) do
       if context.description:find("#"..t) then
         match = true
       end
@@ -245,20 +245,21 @@ end  ]]
 
 
 -- test runner
-busted.run = function(self)
+busted.run = function(got_options)
 
+  options = got_options
   failures = 0
 
-  language(busted.options.lang)
-  busted.output = getoutputter(busted.options.output, busted.options.fpath, busted.defaultoutput)
+  language(options.lang)
+  busted.output = getoutputter(options.output, options.fpath, busted.defaultoutput)
   -- if no filelist given, get them
-  busted.options.filelist = busted.options.filelist or gettestfiles(busted.options.root_file, busted.options.pattern)
+  options.filelist = options.filelist or gettestfiles(options.root_file, options.pattern)
   -- load testfiles
-  tablex.foreachi(busted.options.filelist, load_testfile)
+  tablex.foreachi(options.filelist, load_testfile)
 
   local ms = os.clock()
 
-  if not busted.options.defer_print then
+  if not options.defer_print then
     print(busted.output.header(root_context))
   end
 
@@ -269,17 +270,17 @@ busted.run = function(self)
   --final run time
   ms = os.clock() - ms
 
-  if busted.options.defer_print then
+  if options.defer_print then
     print(busted.output.header(root_context))
   end
 
-  local status_string = busted.output.formatted_status(statuses, busted.options, ms)
+  local status_string = busted.output.formatted_status(statuses, options, ms)
 
-  if busted.options.sound then
+  if options.sound then
     play_sound(failures)
   end
 
-  if not busted.options.defer_print then
+  if not options.defer_print then
     print(busted.output.footer(root_context))
   end
 
@@ -295,8 +296,8 @@ busted.describe = function(description, callback)
   local match = current_context.run
   local parent = current_context
 
-  if busted.options.tags and #busted.options.tags > 0 then
-    for _,t in ipairs(busted.options.tags) do
+  if options.tags and #options.tags > 0 then
+    for _,t in ipairs(options.tags) do
       if description:find("#"..t) then
         match = true
       end
@@ -336,8 +337,8 @@ busted.it = function(description, callback)
   local match = current_context.run
 
   if not match then
-    if busted.options.tags and #busted.options.tags > 0 then
-      for _,t in ipairs(busted.options.tags) do
+    if options.tags and #options.tags > 0 then
+      for _,t in ipairs(options.tags) do
         if description:find("#"..t) then
           match = true
         end
@@ -367,8 +368,8 @@ busted.pending = function(description, callback)
     type = "pending",
     info = info,
     callback = function(self)
-      if not busted.options.defer_print then
-        busted.output.currently_executing(self, busted.options)
+      if not options.defer_print then
+        busted.output.currently_executing(self, options)
       end
     end
   }
