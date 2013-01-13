@@ -7,5 +7,3 @@ it(
    function(done)
       assert.is_truthy(true)
    end)
-
-busted.run()
