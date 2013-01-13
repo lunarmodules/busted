@@ -8,55 +8,60 @@ require'busted'
 
 local eps = 0.000000000001
 
+local yield = function(done)
+   ev.Timer.new(
+      function()
+         done()
+      end,eps):start(loop)
+end
+
 describe(
-   'All async in this context',
+   'lua-ev test suite',
    function()
       local before_each_count = 0
       local before_called
       before(
          async, 
          function(done)
-            ev.Timer.new(
+            yield(
                function()
                   assert.is_falsy(before_called)
                   before_called = true
                   done()
-               end,eps):start(loop)
+               end)
          end)
 
       before_each(
          async,
          function(done)
-            ev.Timer.new(
+            yield(
                function()
                   before_each_count = before_each_count + 1
                   done()
-               end,eps):start(loop)
+               end)
          end)      
       
       it(
          'order 1 should async succeed',
          async,
          function(done)
-            local timer = ev.Timer.new(
+            yield(
                function()
                   assert.is_true(before_called)
                   assert.is.equal(before_each_count,1)
                   done()
-               end,eps)
-            timer:start(loop)
+               end)
          end)
 
       it(
          'order 2 should async fail',
          async,
          function(done)
-            local timer = ev.Timer.new(
+            yield(
                function()
                   assert.is_truthy(false)
                   done()
-               end,eps)
-            timer:start(loop)
+               end)
          end)
 
       it(
@@ -96,14 +101,13 @@ describe(
                end
             }
             spy.on(thing, "greet")
-            local timer = ev.Timer.new(
+            yield(
                function()
                   assert.spy(thing.greet).was.called()
                   assert.spy(thing.greet).was.called_with("Hi!")
                   done()
-               end,eps)                  
+               end)                  
             thing.greet("Hi!")
-            timer:start(loop)
          end)
 
       describe(
@@ -113,22 +117,21 @@ describe(
             before(
                async,
                function(done)
-                  ev.Timer.new(
+                  yield(
                      function()
                         before_called = true
                         done()
-                     end,eps):start(loop)                  
+                     end)
                end)
             it(
                'order 7 nested async test before is called succeeds',
                async,
                function(done)
-                  local timer = ev.Timer.new(
+                  yield(
                      function()
                         assert.is_true(before_called)
                         done()
-                     end,eps)
-                  timer:start(loop)
+                     end)
                end)
         end)
    end)
