@@ -30,7 +30,7 @@ local function internal_error(description, err)
   local tag = ""
   if busted.options.tags and #busted.options.tags > 0 then
     -- tags specified; must insert a tag to make sure the error gets displayed
-    tag = " #"..busted.options.tags[1] 
+    tag = " #"..busted.options.tags[1]
   end
   describe("Busted process errors occured" .. tag, function()
     it(description .. tag, function()
@@ -54,7 +54,7 @@ local function getoutputter(output, opath, default)
   else
     f = function() return require('busted.output.'..output)() end
   end
-  
+
   success, out = pcall(f)
   if not success then
     if not default then
@@ -79,7 +79,7 @@ local function gettestfiles(root_file, pattern)
     filelist = dir.getallfiles(root_file)
     filelist = tablex.filter(filelist, function(filename)
         return path.basename(filename):find(pattern)
-      end )      
+      end )
   end
   return filelist
 end
@@ -207,7 +207,10 @@ local function run_context(context)
         setup_ok, setup_error = run_setup(context, "after_each_stack", "after_each")
         if not setup_ok then break end
       elseif v.type == "describe" then
-        table.insert(status, coroutine.create(function() run_context(v) end))
+        local res = run_context(v)
+        for key,value in ipairs(res) do
+          table.insert(status, value)
+        end
       elseif v.type == "pending" then
         local pending_test_status = { type = "pending", description = v.description, info = v.info }
         v.callback(pending_test_status)
@@ -219,14 +222,11 @@ local function run_context(context)
   if setup_ok then setup_ok, setup_error = run_setup(context, "teardown") end
 
   if not setup_ok then table.insert(status, setup_error) end
-  if in_coroutine() then
-    coroutine.yield(status)
-  else
-    return true, status
-  end
+  
+  return status
 end
 
--- Run set of test cases
+--[[ Run set of test cases
 local function get_statuses(done, list)
   local ret = {}
   for _,v in ipairs(list) do
@@ -241,14 +241,14 @@ local function get_statuses(done, list)
     end
   end
   return ret
-end
+end  ]]
 
 
 -- test runner
 busted.run = function(self)
-  
+
   failures = 0
-  
+
   language(busted.options.lang)
   busted.output = getoutputter(busted.options.output, busted.options.fpath, busted.defaultoutput)
   -- if no filelist given, get them
@@ -264,7 +264,7 @@ busted.run = function(self)
 
   local old_TEST = _TEST
   _TEST = busted._VERSION
-  local statuses = get_statuses(run_context(root_context))
+  local statuses = run_context(root_context)
 
   --final run time
   ms = os.clock() - ms
@@ -332,7 +332,7 @@ busted.describe = function(description, callback)
 end
 
 busted.it = function(description, callback)
-  assert(current_context ~= root_context, debug.traceback("An it() block must be wrapped in a describe() block/n", 2)) 
+  assert(current_context ~= root_context, debug.traceback("An it() block must be wrapped in a describe() block/n", 2))
   local match = current_context.run
 
   if not match then
@@ -353,7 +353,7 @@ busted.it = function(description, callback)
 end
 
 busted.pending = function(description, callback)
-  assert(current_context ~= root_context, debug.traceback("A pending() block must be wrapped in a describe() block/n", 2)) 
+  assert(current_context ~= root_context, debug.traceback("A pending() block must be wrapped in a describe() block/n", 2))
   local debug_info = debug.getinfo(callback)
 
   local info = {

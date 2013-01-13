@@ -10,6 +10,6 @@ it          = busted.it
 describe    = busted.describe
 pending     = busted.pending
 setup       = busted.setup
-teardown    = busted.tear_down
+teardown    = busted.teardown
 before_each = busted.before_each
 after_each  = busted.after_each
