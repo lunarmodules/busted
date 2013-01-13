@@ -9,6 +9,8 @@ branches:
     - async-test-support
 
 install:
+  - sudo apt-get install libev-dev
+  - sudo apt-get install lua-ev
   - sudo apt-get install luajit
   - sudo apt-get install luarocks
   - sudo luarocks install luafilesystem
