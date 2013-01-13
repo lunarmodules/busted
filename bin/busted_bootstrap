@@ -90,8 +90,8 @@ if args then
   
   if #args.cpath > 0 then
     cpathprefix = args.cpath
-    cpathprefix = cpathprefix:gsub("^%.[/%\\]", path )
-    cpathprefix = cpathprefix:gsub(";%.[/%\\]", ";" .. path)
+    cpathprefix = cpathprefix:gsub("^%.[/%\\]", fpath )
+    cpathprefix = cpathprefix:gsub(";%.[/%\\]", ";" .. fpath)
     package.cpath = (cpathprefix .. ";" .. package.cpath):gsub(";;",";")
   end
   
