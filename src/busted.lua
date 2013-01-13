@@ -204,4 +204,74 @@ describe = busted.describe
 before = busted.before
 before_each = busted.before_each
 
+busted.describe_statuses = function(statuses,file_name,print_statuses)
+   if print_statuses then
+      print('---------- STATUSES ----------')
+      print(pretty.write(statuses))
+      print('------------------------------')
+   end
+
+   describe(
+      'Test statuses '..file_name,
+      function()
+         it(
+            'execution order is correct',
+            function()
+               for i,status in ipairs(statuses) do
+                  local order = status.description:match('order (%d+)')
+                  assert.is.equal(tonumber(order),i)
+               end
+            end)
+
+         it(
+            'type is correct',
+            function()
+               for i,status in ipairs(statuses) do             
+                  assert.is_truthy(status.type == 'failure' or status.type == 'success')  
+                  local succeed = status.description:match('succeed')
+                  local fail = status.description:match('fail')
+                  assert.is_falsy(succeed and fail)
+                  if succeed then
+                     assert.is.equal(status.type,'success')
+                  elseif fail then
+                     assert.is.equal(status.type,'failure')
+                  end
+               end
+            end)
+
+         it(
+            'info is correct',
+            function()
+               for i,status in ipairs(statuses) do
+                  assert.is_truthy(status.info.linedefined)
+                  assert.is_truthy(status.info.source:match(file_name))
+                  assert.is_truthy(status.info.short_src:match(file_name))
+               end
+            end)
+
+         it(
+            'provides "err" for failed tests',
+            function()
+               for i,status in ipairs(statuses) do               
+                  if status.type == 'failure' then
+                     assert.is.equal(type(status.err),'string')
+                     assert.is_not.equal(#status.err,0)
+                  end
+               end
+            end)
+
+         it(
+            'provides "traceback" for failed tests',
+            function()
+               for i,status in ipairs(statuses) do               
+                  if status.type == 'failure' then
+                     assert.is.equal(type(status.trace),'string')
+                     assert.is_not.equal(#status.trace,0)
+                  end
+               end
+            end)
+
+      end)
+end
+
 return busted
