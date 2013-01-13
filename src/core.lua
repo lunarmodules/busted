@@ -1,5 +1,18 @@
 require "pl"
 
+local busted = {}   -- exported module table
+busted._COPYRIGHT   = "Copyright (c) 2012 Olivine Labs, LLC."
+busted._DESCRIPTION = "A unit testing framework with a focus on being easy to use."
+busted._VERSION     = "Busted 1.4"
+
+-- set defaults
+busted.defaultoutput = path.is_windows and "plain_terminal" or "utf_terminal"
+busted.defaultpattern = '_spec.lua$'
+busted.defaultlua = 'luajit'
+busted.lpathprefix = "./src/?.lua;./src/?/?.lua;./src/?/init.lua"
+require('busted.languages.en')    -- Load default language pack
+
+
 -- return truthy if we're in a coroutine
 local function in_coroutine()
   local current_routine, main = coroutine.running()
@@ -58,11 +71,11 @@ local function load_testfile(filename)
   end
 end
 
-local busted = {
-  root_context = { type = "describe", description = "global", before_each_stack = {}, after_each_stack = {} },
-  options = {},
+local root_context = { type = "describe", description = "global", before_each_stack = {}, after_each_stack = {} }
+local current_context = root_context
+busted.options = {}
 
-  internal_error = function(description, err)
+busted.internal_error = function(description, err)
     -- report a test-process error as a failed test
     local tag = ""
     if busted.options.tags and #busted.options.tags > 0 then
@@ -74,9 +87,9 @@ local busted = {
         error(err)
       end)
     end)
-  end,
+  end
 
-  __call = function(self)
+busted.run = function(self)
     
     local failures = 0
     
@@ -221,7 +234,7 @@ local busted = {
     local ms = os.clock()
 
     if not self.options.defer_print then
-      print(self.output.header(self.root_context))
+      print(self.output.header(root_context))
     end
 
     --fire off tests, return status list
@@ -243,13 +256,13 @@ local busted = {
 
     local old_TEST = _TEST
     _TEST = busted._VERSION
-    local statuses = get_statuses(run_context(self.root_context))
+    local statuses = get_statuses(run_context(root_context))
 
     --final run time
     ms = os.clock() - ms
 
     if self.options.defer_print then
-      print(self.output.header(self.root_context))
+      print(self.output.header(root_context))
     end
 
     local status_string = self.output.formatted_status(statuses, self.options, ms)
@@ -259,11 +272,120 @@ local busted = {
     end
 
     if not self.options.defer_print then
-      print(self.output.footer(self.root_context))
+      print(self.output.footer(root_context))
     end
 
     _TEST = old_TEST
     return status_string, failures
   end
-}
-return setmetatable(busted, busted)
+
+
+
+-- Global functions
+busted.describe = function(description, callback)
+  local match = current_context.run
+  local parent = current_context
+
+  if busted.options.tags and #busted.options.tags > 0 then
+    for _,t in ipairs(busted.options.tags) do
+      if description:find("#"..t) then
+        match = true
+      end
+    end
+  else
+    match = true
+  end
+
+  local local_context = {
+    description = description,
+    callback = callback,
+    type = "describe",
+    run = match,
+    before_each_stack = {},
+    after_each_stack = {}
+  }
+
+  for _,v in pairs(current_context.before_each_stack) do
+    table.insert(local_context.before_each_stack, v)
+  end
+
+  for _,v in pairs(current_context.after_each_stack) do
+    table.insert(local_context.after_each_stack, v)
+  end
+
+  table.insert(current_context, local_context)
+
+  current_context = local_context
+
+  callback()
+
+  current_context = parent
+end
+
+busted.it = function(description, callback)
+  assert(current_context ~= root_context, debug.traceback("An it() block must be wrapped in a describe() block/n", 2)) 
+  local match = current_context.run
+
+  if not match then
+    if busted.options.tags and #busted.options.tags > 0 then
+      for _,t in ipairs(busted.options.tags) do
+        if description:find("#"..t) then
+          match = true
+        end
+      end
+    end
+  end
+
+  if current_context.description and match then
+    table.insert(current_context, { description = description, callback = callback, type = "test" })
+  elseif match then
+    test(description, callback)
+  end
+end
+
+busted.pending = function(description, callback)
+  assert(current_context ~= root_context, debug.traceback("A pending() block must be wrapped in a describe() block/n", 2)) 
+  local debug_info = debug.getinfo(callback)
+
+  local info = {
+    source = debug_info.source,
+    short_src = debug_info.short_src,
+    linedefined = debug_info.linedefined,
+  }
+
+  local test_status = {
+    description = description,
+    type = "pending",
+    info = info,
+    callback = function(self)
+      if not busted.options.defer_print then
+        busted.output.currently_executing(self, busted.options)
+      end
+    end
+  }
+
+  table.insert(current_context, test_status)
+end
+
+busted.before_each = function(callback)
+  table.insert(current_context.before_each_stack, callback)
+end
+
+busted.after_each = function(callback)
+  table.insert(current_context.after_each_stack, callback)
+end
+
+busted.setup = function(callback)
+  current_context.setup = callback
+end
+
+busted.teardown = function(callback)
+  current_context.teardown = callback
+end
+
+
+return setmetatable(busted, {
+    __call = function(...)
+      busted.run(...)
+      end } )
+
