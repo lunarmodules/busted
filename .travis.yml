@@ -10,10 +10,10 @@ branches:
 
 install:
   - sudo apt-get install libev-dev
-  - sudo apt-get install lua-ev
   - sudo apt-get install luajit
   - sudo apt-get install luarocks
   - sudo luarocks install luafilesystem
+  - sudo luarocks install lua-ev
   - git clone git://github.com/Olivine-Labs/say.git
   - cd say
   - sudo luarocks make
