@@ -11,7 +11,7 @@ busted._COPYRIGHT   = "Copyright (c) 2012 Olivine Labs, LLC."
 busted._DESCRIPTION = "A unit testing framework with a focus on being easy to use."
 busted._VERSION     = "Busted 1.4"
 require('busted.languages.en')
---module('busted',package.seeall)
+
 local assert_call = getmetatable(assert.is_truthy).__call
 local push = table.insert
 local root_context = {parents = {}}
@@ -24,21 +24,19 @@ next_test = function()
    if #done < #tests then
       if not done[last_test] and not started[last_test] then
          local test = tests[last_test]
-         if test.context then
-            if test.context.before and not test.context.before_done then
-               test.context.before(
-                  function()
-                     test.context.before_done = true
-                     next_test()
-                  end)
-               return
-            end
-            if test.context.before_each and test.context.last_before ~= last_test then
-               test.context.last_before = last_test            
-               test.context.before_each(next_test)
-               return
-            end
+         if test.context.before and not test.context.before_done then
+            test.context.before(
+               function()
+                  test.context.before_done = true
+                  next_test()
+               end)
+            return
          end
+         if test.context.before_each and test.context.last_before ~= last_test then
+            test.context.last_before = last_test            
+            test.context.before_each(next_test)
+            return
+         end       
          test.status = {
             description = test.name,
             info = test.info,
@@ -70,20 +68,10 @@ next_test = function()
                elseif not results[1] and test.status.type ~= 'failure' then
                   test.status.trace = debug.traceback("", 2)
                   test.status.type = 'failure'
-                  print(test.status.type)
                   test.status.err = results[2]
                end
             end
          end
-         -- not sure if this is needed yet...
-         -- new_env.pcall = function(...)
-         --    local ok,err = pcall(...)
-         --    if not ok then
-         --       test.status.type = 'failure'
-         --       test.status.err = err
-         --    end
-         -- end 
-
          setfenv(test.f,new_env)
          local done = function()
             done[last_test] = true
@@ -96,6 +84,8 @@ next_test = function()
             if type(err) == "table" then
                err = pretty.write(err)
             end
+            test.status.type = 'failure'
+            test.status.trace = debug.traceback("", 2)
             test.status.err = err
             done()
          end
@@ -165,14 +155,6 @@ busted.it = function(name,sync_test,async_test)
    tests[#tests+1] = test
 end
 
-
-
-local report = function()
-   for _,test in ipairs(tests) do
-      print(pretty.write(test.status))
-   end
-end
-
 busted.reset = function()
    current_context = root_context
    tests = {}
@@ -205,12 +187,16 @@ busted.run = function(options)
       if test.status.type ~= 'success' and not test.status.err then
          test.status.type = 'failure'
          test.status.err = 'No assertions made'
-         test.status.trace = ''
+         test.status.trace = test.status.info.source..':'..test.status.info.linedefined
       end
       push(statuses,test.status)
    end
    ms = os.clock() - ms
-   return options.output.formatted_status(statuses, options, ms), 0
+   if options.debug then
+      return statuses
+   else
+      return options.output.formatted_status(statuses, options, ms), 0
+   end
 end
 
 it = busted.it

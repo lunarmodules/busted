@@ -1,3 +1,6 @@
+-- Runs internally an ev async test and checks the returned statuses.
+--
+--
 package.path = './?.lua;'..package.path
 local ev = require'ev'
 local loop = ev.Loop.default
@@ -13,9 +16,7 @@ describe(
             ev.Timer.new(
                function(loop,io)
                   count = count + 1
-                  print('before',count)
                   if count == 3 then
-                     print('lets start')
                      io:stop(loop)
                      done()
                   end
@@ -26,14 +27,13 @@ describe(
          async,
          function(done)
             ev.Timer.new(
-               function()                  
-                  print('before_each')
+               function()
                   done()
                end,0.01):start(loop)
          end)      
       
       it(
-         'async test',
+         'order 1 should async succeed',
          async,
          function(done)
             local timer = ev.Timer.new(
@@ -45,68 +45,161 @@ describe(
          end)
 
       it(
-         'async test 2',
+         'order 2 should async fail',
          async,
          function(done)
             local timer = ev.Timer.new(
                function()
                   assert.is_truthy(false)
-                  assert.is_truthy(true)
                   done()
                end,0.2)
             timer:start(loop)
          end)
 
       it(
-         'should epic fail',
+         'order 3 should async fails epicly',
          async,
          function(done)
             does_not_exist.foo = 3            
          end)
 
       it(
-         'spies work',
+         'order 4 should async have no assertions and fails thus',
+         async,
+         function(done)
+            done()
+         end)
+
+      it(
+         'order 5 spies should sync succeed',
          function()
             local thing = {
                greet = function()
                end
             }            
-            print('SPY',spy)
-            for k,v in pairs(spy) do
-               print(k,v)
-            end
             spy.on(thing, "greet")
-            thing.greet("Hi!")
-            
+            thing.greet("Hi!")            
             assert.spy(thing.greet).was.called()
             assert.spy(thing.greet).was.called_with("Hi!")
          end)
 
+      it(
+         'order 6 spies should async succeed',
+         async,
+         function(done)
+            local thing = {
+               greet = function()
+               end
+            }
+            spy.on(thing, "greet")
+            local timer = ev.Timer.new(
+               function()
+                  assert.spy(thing.greet).was.called()
+                  assert.spy(thing.greet).was.called_with("Hi!")
+                  done()
+               end,0.001)                  
+            thing.greet("Hi!")
+            timer:start(loop)
+         end)
+
+
       describe(
          'with nested contexts',
          function()
-            before(
-               async,
-               function(done)
-                  print('before in nested')
-                  done()
-               end)
+            -- before(
+            --    async,
+            --    function(done)
+            --       done()
+            --    end)
             it(
-               'a nested test',
+               'order 7 nested async test succeeds',
                async,
                function(done)
-                  print('NESTED TEST')
                   local timer = ev.Timer.new(
                      function()
-                        print('NESTED TEST BAKS')
-                        assert.is_truthy('horst')
-                        assert.is_truthy(true)
                         assert.is_truthy(true)
                         done()
-                     end,0.2)
+                     end,0.001)
                   timer:start(loop)
                end)
         end)
    end)
 
-return 'ev',loop
+local options = {
+   debug = true,
+   loop = 'ev',
+   loop_arg = loop
+} 
+
+local statuses = busted.run(options)
+
+-- local print_statuses = true
+if print_statuses then
+   print('---------- STATUSES ----------')
+   print(pretty.write(statuses))
+   print('------------------------------')
+end
+
+busted.reset()
+
+describe(
+   'Test statuses of ev loop',
+   function()
+      it(
+         'execution order is correct',
+         function()
+            for i,status in ipairs(statuses) do
+               local order = status.description:match('order (%d+)')
+               assert.is.equal(tonumber(order),i)
+            end
+         end)
+
+      it(
+         'type is correct',
+         function()
+            for i,status in ipairs(statuses) do             
+               assert.is_truthy(status.type == 'failure' or status.type == 'success')  
+               local succeed = status.description:match('succeed')
+               local fail = status.description:match('fail')
+               assert.is_falsy(succeed and fail)
+               if succeed then
+                  assert.is.equal(status.type,'success')
+               elseif fail then
+                  assert.is.equal(status.type,'failure')
+               end
+            end
+         end)
+
+      it(
+         'info is correct',
+         function()
+            for i,status in ipairs(statuses) do
+               assert.is_truthy(status.info.linedefined)
+               assert.is_truthy(status.info.source:match('ev_spec%.lua'))
+               assert.is_truthy(status.info.short_src:match('ev_spec%.lua'))
+            end
+         end)
+
+      it(
+         'provides "err" for failed tests',
+         function()
+            for i,status in ipairs(statuses) do               
+               if status.type == 'failure' then
+                  assert.is.equal(type(status.err),'string')
+                  assert.is_not.equal(#status.err,0)
+               end
+            end
+         end)
+
+      it(
+         'provides "traceback" for failed tests',
+         function()
+            for i,status in ipairs(statuses) do               
+               if status.type == 'failure' then
+                  assert.is.equal(type(status.trace),'string')
+                  assert.is_not.equal(#status.trace,0)
+               end
+            end
+         end)
+
+   end)
