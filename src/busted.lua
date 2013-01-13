@@ -20,6 +20,7 @@ local done = {}
 local started = {}
 local last_test = 1
 local next_test
+local options
 next_test = function()
    if #done < #tests then
       if not done[last_test] and not started[last_test] then
@@ -76,6 +77,14 @@ next_test = function()
          local done = function()
             done[last_test] = true
             last_test = last_test + 1
+            if test.status.type ~= 'success' and not test.status.err then
+               test.status.type = 'failure'
+               test.status.err = 'No assertions made'
+               test.status.trace = test.status.info.source..':'..test.status.info.linedefined
+            end
+            if not options.debug and not options.defer_print then
+               options.output.currently_executing(test.status, options)
+            end
             next_test()
          end
          started[last_test] = true
@@ -163,7 +172,8 @@ busted.reset = function()
    last_test = 1
 end
 
-busted.run = function(options)
+busted.run = function(opts)
+   options = opts
    local ms = os.clock()
    if not options.loop then
       next_test()
@@ -184,11 +194,6 @@ busted.run = function(options)
    end
    local statuses = {}
    for _,test in ipairs(tests) do
-      if test.status.type ~= 'success' and not test.status.err then
-         test.status.type = 'failure'
-         test.status.err = 'No assertions made'
-         test.status.trace = test.status.info.source..':'..test.status.info.linedefined
-      end
       push(statuses,test.status)
    end
    ms = os.clock() - ms
