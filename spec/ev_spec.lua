@@ -6,21 +6,22 @@ local ev = require'ev'
 local loop = ev.Loop.default
 require'busted'
 
+local eps = 0.000000000001
+
 describe(
    'All async in this context',
    function()
+      local before_each_count = 0
+      local before_called
       before(
          async, 
          function(done)
-            local count = 0
             ev.Timer.new(
-               function(loop,io)
-                  count = count + 1
-                  if count == 3 then
-                     io:stop(loop)
-                     done()
-                  end
-               end,0.1,0.1):start(loop)
+               function()
+                  assert.is_falsy(before_called)
+                  before_called = true
+                  done()
+               end,eps):start(loop)
          end)
 
       before_each(
@@ -28,8 +29,9 @@ describe(
          function(done)
             ev.Timer.new(
                function()
+                  before_each_count = before_each_count + 1
                   done()
-               end,0.01):start(loop)
+               end,eps):start(loop)
          end)      
       
       it(
@@ -38,9 +40,10 @@ describe(
          function(done)
             local timer = ev.Timer.new(
                function()
-                  assert.is_truthy(true)
+                  assert.is_true(before_called)
+                  assert.is.equal(before_each_count,1)
                   done()
-               end,0.2)
+               end,eps)
             timer:start(loop)
          end)
 
@@ -52,7 +55,7 @@ describe(
                function()
                   assert.is_truthy(false)
                   done()
-               end,0.2)
+               end,eps)
             timer:start(loop)
          end)
 
@@ -73,6 +76,7 @@ describe(
       it(
          'order 5 spies should sync succeed',
          function()
+            assert.is.equal(before_each_count,5)
             local thing = {
                greet = function()
                end
@@ -97,29 +101,33 @@ describe(
                   assert.spy(thing.greet).was.called()
                   assert.spy(thing.greet).was.called_with("Hi!")
                   done()
-               end,0.001)                  
+               end,eps)                  
             thing.greet("Hi!")
             timer:start(loop)
          end)
 
-
       describe(
          'with nested contexts',
          function()
-            -- before(
-            --    async,
-            --    function(done)
-            --       done()
-            --    end)
+            local before_called
+            before(
+               async,
+               function(done)
+                  ev.Timer.new(
+                     function()
+                        before_called = true
+                        done()
+                     end,eps):start(loop)                  
+               end)
             it(
-               'order 7 nested async test succeeds',
+               'order 7 nested async test before is called succeeds',
                async,
                function(done)
                   local timer = ev.Timer.new(
                      function()
-                        assert.is_truthy(true)
+                        assert.is_true(before_called)
                         done()
-                     end,0.001)
+                     end,eps)
                   timer:start(loop)
                end)
         end)
