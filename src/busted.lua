@@ -13,6 +13,7 @@ busted._VERSION     = "Busted 1.4"
 require('busted.languages.en')
 
 local assert_call = getmetatable(assert.is_truthy).__call
+local globals = _G
 local push = table.insert
 local root_context = {parents = {}}
 local tests = {}
@@ -25,7 +26,8 @@ next_test = function()
    if #done < #tests then
       if not done[last_test] and not started[last_test] then
          local test = tests[last_test]
-         if test.context.before and not test.context.before_done then
+         if test.context.before and not test.context.before_started then
+            test.context.before_started = true
             test.context.before(
                function()
                   test.context.before_done = true
@@ -33,11 +35,27 @@ next_test = function()
                end)
             return
          end
-         if test.context.before_each and test.context.last_before ~= last_test then
-            test.context.last_before = last_test            
-            test.context.before_each(next_test)
+         if test.context.before_each and not test.context.before_each_started then
+            test.context.before_each_started = true            
+            test.context.before_each(
+               function()
+                  test.context.before_each_done = true
+                  next_test()
+               end)
             return
-         end       
+         end
+         
+         if test.context.before and not test.context.before_done then
+            return
+         end
+         test.context.before_started = nil
+         test.context.before_done = nil
+         if test.context.before_each and not test.context.before_each_done then
+            return
+         end
+         test.context.before_each_started = nil
+         test.context.before_each_done = nil
+
          test.status = {
             description = test.name,
             info = test.info,
@@ -45,7 +63,7 @@ next_test = function()
          }
          test.info = nil
          local new_env = {}
-         setmetatable(new_env,{__index = _G})
+         setmetatable(new_env,{__index = globals})
          -- this part is nasty!
          -- intercept all calls to luasser states / proxies.
          -- uses much of internal knowlage of luassert!!!!
@@ -220,7 +238,6 @@ busted.setup_async_tests = function(yield,loopname)
             function(done)
                yield(
                   function()
-                     assert.is_falsy(before_called)
                      before_called = true
                      done()
                   end)
@@ -263,7 +280,7 @@ busted.setup_async_tests = function(yield,loopname)
             'order 3 should async fails epicly',
             async,
             function(done)
-               does_not_exist.foo = 3            
+               does_not_exist.foo = 3
             end)
 
          it(
