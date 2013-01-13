@@ -10,6 +10,7 @@ busted.defaultoutput = path.is_windows and "plain_terminal" or "utf_terminal"
 busted.defaultpattern = '_spec.lua$'
 busted.defaultlua = 'luajit'
 busted.lpathprefix = "./src/?.lua;./src/?/?.lua;./src/?/init.lua"
+busted.cpathprefix = path.is_windows and "./csrc/?.dll;./csrc/?/?.dll;" or "./csrc/?.so;./csrc/?/?.so;"
 require('busted.languages.en')    -- Load default language pack
 
 local failures = 0

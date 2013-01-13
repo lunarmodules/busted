@@ -8,6 +8,7 @@ local defaultoutput = busted.defaultoutput
 local defaultpattern = busted.defaultpattern
 local defaultlua = busted.defaultlua
 local lpathprefix = busted.lpathprefix
+local cpathprefix = busted.cpathprefix
 local ansicolors = require "ansicolors"
 local errors = {}
 
@@ -22,6 +23,7 @@ cli:add_option("-d, --cwd=cwd", "path to current working directory")
 cli:add_option("-p, --pattern=pattern", "only run test files matching the Lua pattern", defaultpattern)
 cli:add_option("-t, --tags=tags", "only run tests with these #tags")
 cli:add_option("-m, --lpath=path", "optional path to be prefixed to the Lua module search path", lpathprefix)
+cli:add_option("--cpath=path", "optional path to be prefixed to the Lua C module search path", cpathprefix)
 cli:add_option("-r, --run=run", "config to run from .busted file")
 cli:add_option("--lang=LANG", "language for error messages", "en")
 cli:add_flag("-c, --coverage", "do code coverage analysis (requires 'LuaCov' to be installed)")
@@ -85,7 +87,14 @@ if args then
     lpathprefix = lpathprefix:gsub(";%.[/%\\]", ";" .. fpath)
     package.path = (lpathprefix .. ";" .. package.path):gsub(";;",";")
   end
-
+  
+  if #args.cpath > 0 then
+    cpathprefix = args.cpath
+    cpathprefix = cpathprefix:gsub("^%.[/%\\]", path )
+    cpathprefix = cpathprefix:gsub(";%.[/%\\]", ";" .. path)
+    package.cpath = (cpathprefix .. ";" .. package.cpath):gsub(";;",";")
+  end
+  
   local options = {
     path = fpath,
     lang = args.lang,
