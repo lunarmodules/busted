@@ -359,6 +359,8 @@ it = busted.it
 describe = busted.describe
 before = busted.before
 after = busted.after
+setup = busted.before
+teardown = busted.after
 before_each = busted.before_each
 after_each = busted.after_each
 
