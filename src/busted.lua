@@ -131,7 +131,8 @@ next_test = function()
       end
 
       local parents = test.context.parents      
-      for p=#parents,1,-1 do         
+
+      for p=1,#parents do
          if parents[p].before_each then
             push(steps,parents[p].before_each)
          end
@@ -143,14 +144,14 @@ next_test = function()
       
       push(steps,execute_test)
 
-      for p=1,#parents do
+      if test.context.after_each then
+         push(steps,test.context.after_each)
+      end
+
+      for p=#parents,1,-1 do         
          if parents[p].after_each then
             push(steps,parents[p].after_each)
          end
-      end
-
-      if test.context.after_each then
-         push(steps,test.context.after_each)
       end
 
       local forward = function(next)
