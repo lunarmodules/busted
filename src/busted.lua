@@ -12,10 +12,11 @@ busted._VERSION     = "Busted 1.4"
 -- Load default language pack
 require('busted.languages.en')
 
-local assert_call = getmetatable(assert.is_truthy).__call
+assert_proxy_call = getmetatable(assert.is_truthy).__call
+assert_call = getmetatable(assert).__call
 local globals = _G
 local push = table.insert
-local root_context = {parents = {}}
+local root_context = {parents = {},desc = 'Root context'}
 local tests = {}
 local done = {}
 local started = {}
@@ -70,7 +71,7 @@ next_test = function()
          -- the metatable of is_truthy is the same as for other
          -- luasserts.
          getmetatable(new_env.assert.is_truthy).__call = function(...)            
-            local results = {pcall(assert_call,...)}
+            local results = {pcall(assert_proxy_call,...)}
             local args = {...}
             local is_proxy = true
             -- ducktype if this is an assertion 'result' and not a proxy
@@ -85,10 +86,24 @@ next_test = function()
                if results[1] and not test.status.type then
                   test.status.type = 'success'
                elseif not results[1] and test.status.type ~= 'failure' then
+                  -- the error message and traceback are always caused
+                  -- by the first failed assertion
                   test.status.trace = debug.traceback("", 2)
                   test.status.type = 'failure'
                   test.status.err = results[2]
+                  -- dont call done() here but continue test execution                  
+                  -- uncaught errors following, will be catched in pcall(test.f,done)
                end
+            end
+         end
+         getmetatable(new_env.assert).__call = function(...)
+            local results = {pcall(assert_call,...)}
+            if results[1] and not test.status.type then
+               test.status.type = 'success'
+            elseif not results[1] and test.status.type ~= 'failure' then
+               test.status.trace = debug.traceback("", 2)
+               test.status.type = 'failure'
+               test.status.err = results[2]
             end
          end
          setfenv(test.f,new_env)
@@ -103,17 +118,23 @@ next_test = function()
             if not options.debug and not options.defer_print then
                options.output.currently_executing(test.status, options)
             end
-            next_test()
+            if test.context.after_each then
+               test.context.after_each(next_test)
+            else
+               next_test()
+            end
          end
          started[last_test] = true
          local ok,err = pcall(test.f,done)
          if not ok then
-            if type(err) == "table" then
-               err = pretty.write(err)
+            if not test.status.err or test.status.type ~= 'failure' then
+               if type(err) == "table" then
+                  err = pretty.write(err)
+               end
+               test.status.type = 'failure'
+               test.status.trace = debug.traceback("", 2)
+               test.status.err = err
             end
-            test.status.type = 'failure'
-            test.status.trace = debug.traceback("", 2)
-            test.status.err = err
             done()
          end
       end
@@ -130,9 +151,11 @@ busted.describe = function(desc,more)
    local context = {
       desc = desc,
       parents = parents
-   }   
+   }
+   local old_context = current_context
    current_context = context
    more()
+   current_context = old_context
 end
 
 busted.before = function(sync_before,async_before)
@@ -152,6 +175,17 @@ busted.before_each = function(sync_before,async_before)
    else
       current_context.before_each = function(done)
          sync_before()
+         done()
+      end
+   end
+end
+
+busted.after_each = function(sync_after,async_after)
+   if async_after then
+      current_context.after_each = async_after
+   else
+      current_context.after_each = function(done)
+         sync_after()
          done()
       end
    end
@@ -226,7 +260,9 @@ it = busted.it
 describe = busted.describe
 before = busted.before
 before_each = busted.before_each
+after_each = busted.after_each
 
+-- only for internal testing
 busted.setup_async_tests = function(yield,loopname)
    describe(
       loopname..' test suite',
@@ -349,6 +385,7 @@ busted.setup_async_tests = function(yield,loopname)
       end)
 end
 
+-- only for internal testing
 busted.describe_statuses = function(statuses,print_statuses)
    if print_statuses then
       print('---------- STATUSES ----------')
