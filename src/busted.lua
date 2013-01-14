@@ -16,7 +16,6 @@ assert_proxy_call = getmetatable(assert.is_truthy).__call
 assert_call = getmetatable(assert).__call
 local globals = _G
 local push = table.insert
-local root_context = {parents = {},desc = 'Root context'}
 local tests = {}
 local done = {}
 local started = {}
@@ -110,6 +109,7 @@ next_test = function()
             if not options.debug and not options.defer_print then
                options.output.currently_executing(test.status, options)
             end
+            test.context:decrement_test_count()
             next()
          end
          local ok,err = pcall(test.f,done)
@@ -126,11 +126,26 @@ next_test = function()
          end
       end
 
-      if test.context.before then
-         push(steps,test.context.before)
+      local check_before = function(context)
+         if context.before then
+            local execute_before = function(next)
+               context.before(
+                  function()
+                     context.before = nil
+                     next()
+                  end)
+            end
+            push(steps,execute_before)
+         end
       end
 
-      local parents = test.context.parents      
+      local parents = test.context.parents
+
+      for p=1,#parents do
+         check_before(parents[p])
+      end
+
+      check_before(test.context)
 
       for p=1,#parents do
          if parents[p].before_each then
@@ -148,33 +163,82 @@ next_test = function()
          push(steps,test.context.after_each)
       end
 
-      for p=#parents,1,-1 do         
-         if parents[p].after_each then
-            push(steps,parents[p].after_each)
+      local post_test = function(next)
+         local post_steps = {}
+         local check_after = function(context)
+            if context.after then
+               if context:all_tests_done() then
+                  local execute_after = function(next)
+                     context.after(
+                        function()
+                           context.after = nil
+                           next()
+                        end)
+                  end
+                  push(post_steps,execute_after)
+               end
+            end
          end
-      end
 
-      local forward = function(next)
-         last_test = last_test + 1
-         next_test()
-         next()
+         check_after(test.context)
+         
+         for p=#parents,1,-1 do         
+            if parents[p].after_each then
+               push(post_steps,parents[p].after_each)
+            end
+         end
+
+         for p=#parents,1,-1 do
+            check_after(parents[p])
+         end
+         
+         local forward = function(next)
+            last_test = last_test + 1
+            next_test()
+            next()
+         end
+         push(post_steps,forward)
+         step(post_steps)
       end
-      push(steps,forward)
+      push(steps,post_test)
       step(steps)
    end
 end
 
+local create_context = function(desc)
+     local context = {
+      desc = desc,
+      parents = {},
+      test_count = 0,
+      increment_test_count = function(self)
+         self.test_count = self.test_count + 1
+         for _,parent in ipairs(self.parents) do
+            parent.test_count = parent.test_count + 1
+         end
+      end,
+      decrement_test_count = function(self)
+         self.test_count = self.test_count - 1
+         for _,parent in ipairs(self.parents) do
+            parent.test_count = parent.test_count - 1
+         end
+      end,
+      all_tests_done = function(self)
+         return self.test_count == 0
+      end,
+      add_parent = function(self,parent)
+         push(self.parents,parent)
+      end
+     }
+     return context
+end
+
 local current_context
 busted.describe = function(desc,more)   
-   local parents = {}
+   local context = create_context(desc)
    for i,parent in ipairs(current_context.parents) do
-      parents[i] = parent
+      context:add_parent(parent)
    end   
-   push(parents,current_context)
-   local context = {
-      desc = desc,
-      parents = parents
-   }
+   context:add_parent(current_context)
    local old_context = current_context
    current_context = context
    more()
@@ -203,6 +267,17 @@ busted.before_each = function(sync_before,async_before)
    end
 end
 
+busted.after = function(sync_after,async_after)
+   if async_after then
+      current_context.after = async_after
+   else
+      current_context.after = function(done)
+         sync_after()
+         done()
+      end
+   end
+end
+
 busted.after_each = function(sync_after,async_after)
    if async_after then
       current_context.after_each = async_after
@@ -217,6 +292,7 @@ end
 busted.it = function(name,sync_test,async_test)
    local test = {}
    test.context = current_context
+   test.context:increment_test_count()
    test.name = name
    local debug_info
    if async_test then
@@ -240,7 +316,7 @@ busted.it = function(name,sync_test,async_test)
 end
 
 busted.reset = function()
-   current_context = root_context
+   current_context = create_context('Root context')
    tests = {}
    done = {}
    started = {}
@@ -282,6 +358,7 @@ end
 it = busted.it
 describe = busted.describe
 before = busted.before
+after = busted.after
 before_each = busted.before_each
 after_each = busted.after_each
 

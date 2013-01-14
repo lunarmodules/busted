@@ -2,6 +2,14 @@ local egg = ''
 describe(
    'before_each after_each egg test',
    function()
+      before(
+         function()
+            egg = egg..'S'
+         end)
+      after(
+         function()
+            egg = egg..'T'
+         end)
       before_each(
          function()
             egg = egg..'b'
@@ -24,17 +32,23 @@ describe(
             it(
                '1',
                function()
-                  assert.equal(egg,'bB')
+                  assert.equal(egg,'SbB')
                end)
             it(
                '2',
                function()
-                  assert.equal(egg,'bBAabB')
+                  assert.equal(egg,'SbBAabB')
                end)
          end)
       it(
          '3',
          function()
-            assert.equal(egg,'bBAabBAab')
+            assert.equal(egg,'SbBAabBAab')
          end)
+   end)
+
+it(
+   '4',
+   function()
+     assert.equal(egg,'SbBAabBAabaT')
    end)
