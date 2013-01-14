@@ -111,7 +111,7 @@ end)
 
 describe("A failing test", function()
   it("explodes", function()
-    assert.has.error(function() assert(false, "this should fail") end)
+    assert.has.error(function() error(false, "this should fail") end)
   end)
 end)
 
