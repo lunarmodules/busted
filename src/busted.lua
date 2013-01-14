@@ -26,6 +26,9 @@ local options
 
 local step = function(...)
    local steps = {...}
+   if #steps == 1 and type(steps[1]) == 'table' then
+      steps = steps[1]
+   end
    local i = 0
    local next 
    next = function()
@@ -45,102 +48,118 @@ next_test = function()
    if not started[last_test] then
       started[last_test] = true
       local test = tests[last_test]
-      step(
-         function(next)
-            if test.context.before then
-               test.context.before(next)
+      local steps = {}
+      local execute_test = function(next)
+         test.status = {
+            description = test.name,
+            info = test.info,
+            trace = ''
+         }
+         --            test.info = nil
+         local new_env = {}
+         setmetatable(new_env,{__index = globals})
+         -- this part is nasty!
+         -- intercept all calls to luasser states / proxies.
+         -- uses much of internal knowlage of luassert!!!!
+         -- the metatable of is_truthy is the same as for other
+         -- luasserts.
+         getmetatable(new_env.assert.is_truthy).__call = function(...)            
+            local results = {pcall(assert_proxy_call,...)}
+            local args = {...}
+            local is_proxy = true
+            -- ducktype if this is an assertion 'result' and not a proxy
+            for k,v in pairs(args[1] or {}) do
+               if k == 'positive_message' or k == 'negative_message' then
+                  is_proxy = false
+               end
+            end
+            if is_proxy then
+               return unpack(results,2)
             else
-               next()
-            end
-         end,
-         function(next)
-            if test.context.before_each then
-               test.context.before_each(next)
-            else 
-               next()
-            end
-         end,
-         function(next)
-            test.status = {
-               description = test.name,
-               info = test.info,
-               trace = ''
-            }
---            test.info = nil
-            local new_env = {}
-            setmetatable(new_env,{__index = globals})
-            -- this part is nasty!
-            -- intercept all calls to luasser states / proxies.
-            -- uses much of internal knowlage of luassert!!!!
-            -- the metatable of is_truthy is the same as for other
-            -- luasserts.
-            getmetatable(new_env.assert.is_truthy).__call = function(...)            
-               local results = {pcall(assert_proxy_call,...)}
-               local args = {...}
-               local is_proxy = true
-               -- ducktype if this is an assertion 'result' and not a proxy
-               for k,v in pairs(args[1] or {}) do
-                  if k == 'positive_message' or k == 'negative_message' then
-                     is_proxy = false
-                  end
-               end
-               if is_proxy then
-                  return unpack(results,2)
-               else
-                  if results[1] and not test.status.type then
-                     test.status.type = 'success'
-                  elseif not results[1] and test.status.type ~= 'failure' then
-                     -- the error message and traceback are always caused
-                     -- by the first failed assertion
-                     test.status.trace = debug.traceback("", 2)
-                     test.status.type = 'failure'
-                     test.status.err = results[2]
-                     -- dont call done() here but continue test execution                  
-                     -- uncaught errors following, will be catched in pcall(test.f,done)
-                  end
-               end
-            end
-            getmetatable(new_env.assert).__call = function(...)
-               local results = {pcall(assert_call,...)}
                if results[1] and not test.status.type then
                   test.status.type = 'success'
                elseif not results[1] and test.status.type ~= 'failure' then
+                  -- the error message and traceback are always caused
+                  -- by the first failed assertion
                   test.status.trace = debug.traceback("", 2)
                   test.status.type = 'failure'
                   test.status.err = results[2]
+                  -- dont call done() here but continue test execution                  
+                  -- uncaught errors following, will be catched in pcall(test.f,done)
                end
             end
-            setfenv(test.f,new_env)
-            local done = function()
-               done[last_test] = true
-               last_test = last_test + 1
-               if test.status.type ~= 'success' and not test.status.err then
-                  test.status.type = 'failure'
-                  test.status.err = 'No assertions made'
-                  test.status.trace = 'asdlkjd' --test.status.info.source..':'..test.status.info.linedefined
-               end
-               if not options.debug and not options.defer_print then
-                  options.output.currently_executing(test.status, options)
-               end
-               next()
+         end
+         getmetatable(new_env.assert).__call = function(...)
+            local results = {pcall(assert_call,...)}
+            if results[1] and not test.status.type then
+               test.status.type = 'success'
+            elseif not results[1] and test.status.type ~= 'failure' then
+               test.status.trace = debug.traceback("", 2)
+               test.status.type = 'failure'
+               test.status.err = results[2]
             end
-            local ok,err = pcall(test.f,done)
-            if not ok then
-               if not test.status.err or test.status.type ~= 'failure' then
-                  if type(err) == "table" then
-                     err = pretty.write(err)
-                  end
-                  test.status.type = 'failure'
-                  test.status.trace = debug.traceback("", 2)
-                  test.status.err = err
-               end
-               done()
+         end
+         setfenv(test.f,new_env)
+         local done = function()
+            done[last_test] = true
+            if test.status.type ~= 'success' and not test.status.err then
+               test.status.type = 'failure'
+               test.status.err = 'No assertions made'
+               test.status.trace = 'asdlkjd' --test.status.info.source..':'..test.status.info.linedefined
             end
-         end,
-         function(next)
-            next_test()
+            if not options.debug and not options.defer_print then
+               options.output.currently_executing(test.status, options)
+            end
             next()
-         end)
+         end
+         local ok,err = pcall(test.f,done)
+         if not ok then
+            if not test.status.err or test.status.type ~= 'failure' then
+               if type(err) == "table" then
+                  err = pretty.write(err)
+               end
+               test.status.type = 'failure'
+               test.status.trace = debug.traceback("", 2)
+               test.status.err = err
+            end
+            done()
+         end
+      end
+
+      if test.context.before then
+         push(steps,test.context.before)
+      end
+
+      local parents = test.context.parents      
+      for p=#parents,1,-1 do         
+         if parents[p].before_each then
+            push(steps,parents[p].before_each)
+         end
+      end
+
+      if test.context.before_each then
+         push(steps,test.context.before_each)
+      end
+      
+      push(steps,execute_test)
+
+      for p=1,#parents do
+         if parents[p].after_each then
+            push(steps,parents[p].after_each)
+         end
+      end
+
+      if test.context.after_each then
+         push(steps,test.context.after_each)
+      end
+
+      local forward = function(next)
+         last_test = last_test + 1
+         next_test()
+         next()
+      end
+      push(steps,forward)
+      step(steps)
    end
 end
 
