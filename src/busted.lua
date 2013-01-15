@@ -98,9 +98,7 @@ next_test = function()
          local done = function()
             done[last_test] = true
             if test.status.type ~= 'success' and not test.status.err then
-               test.status.type = 'failure'
-               test.status.err = 'No assertions made'
-               test.status.trace = test.status.info.source..':'..test.status.info.linedefined
+               test.status.type = 'pending'
             end
             if not options.debug and not options.defer_print then
                options.output.currently_executing(test.status, options)
@@ -289,6 +287,23 @@ busted.after_each = function(sync_after,async_after)
    end
 end
 
+busted.pending = function(name)
+   local test = {}
+   test.context = current_context
+   test.context:increment_test_count()
+   test.name = name
+   local debug_info = debug.getinfo(2)
+   test.f = function(done)
+      done()
+   end
+   test.info = {
+      source = debug_info.source,
+      short_src = debug_info.short_src,
+      linedefined = debug_info.linedefined,
+   }
+   tests[#tests+1] = test
+end
+
 busted.it = function(name,sync_test,async_test)
    local test = {}
    test.context = current_context
@@ -392,6 +407,7 @@ busted.run = function(opts)
 end
 
 it = busted.it
+pending = busted.pending
 describe = busted.describe
 before = busted.before
 after = busted.after
@@ -458,7 +474,7 @@ busted.setup_async_tests = function(yield,loopname)
             end)
 
          it(
-            'order 4 should async have no assertions and fails thus',
+            'order 4 should async have no assertions and pends thus',
             async,
             function(done)
                done()
@@ -520,6 +536,8 @@ busted.setup_async_tests = function(yield,loopname)
                         end)
                   end)
             end)
+         
+         pending('order 8 is pending')
       end)
 end
 
@@ -547,14 +565,28 @@ busted.describe_statuses = function(statuses,print_statuses)
             'type is correct',
             function()
                for i,status in ipairs(statuses) do
-                  assert.is_truthy(status.type == 'failure' or status.type == 'success')
+                  local type = status.type
+                  assert.is_truthy(type == 'failure' or type == 'success' or type == 'pending')
                   local succeed = status.description:match('succeed')
                   local fail = status.description:match('fail')
-                  assert.is_falsy(succeed and fail)
+                  local pend = status.description:match('pend')
+                  local count = 0
+                  if succeed then
+                     count = count + 1
+                  end
+                  if fail then
+                     count = count + 1
+                  end
+                  if pend then
+                     count = count + 1
+                  end
+                  assert.equal(count,1)
                   if succeed then
                      assert.is.equal(status.type,'success')
                   elseif fail then
-                     assert.is.equal(status.type,'failure')
+                     assert.is.equal(status.type,'failure')                  
+                  elseif pend then
+                     assert.is.equal(status.type,'pending')
                   end
                end
             end)
