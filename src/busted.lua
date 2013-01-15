@@ -228,8 +228,12 @@ local create_context = function(desc)
    return context
 end
 
+local suite_name
 local current_context
 busted.describe = function(desc,more)
+   if not suite_name then
+      suite_name = desc
+   end
    local context = create_context(desc)
    for i,parent in ipairs(current_context.parents) do
       context:add_parent(parent)
@@ -316,11 +320,32 @@ busted.reset = function()
    done = {}
    started = {}
    last_test = 1
+   suite_name = nil
+end
+
+local play_sound = function(failures)
+   math.randomseed(os.time())
+   
+   if options.failure_messages and #options.failure_messages > 0 and
+      options.success_messages and #options.success_messages > 0 then
+      if failures and failures > 0 then
+         io.popen("say \""..options.failure_messages[math.random(1, #options.failure_messages)]:format(failures).."\"")
+      else
+         io.popen("say \""..options.success_messages[math.random(1, #options.success_messages)].."\"")
+      end
+   end
 end
 
 busted.run = function(opts)
    options = opts
    local ms = os.clock()
+   
+   suite_name = suite_name or 'Root context'
+
+   if not options.debug and not options.defer_print then      
+      print(options.output.header(suit_name,#tests))
+   end
+
    if not options.loop then
       next_test()
    elseif options.loop == 'ev' then
@@ -338,15 +363,31 @@ busted.run = function(opts)
             until #done == #tests
          end)
    end
+   ms = os.clock() - ms
+
+   if not options.debug and options.defer_print then
+      print(options.output.header(suit_name,#tests))
+   end
+
    local statuses = {}
+   local failures = 0
    for _,test in ipairs(tests) do
       push(statuses,test.status)
+      if test.status.type == 'failure' then
+         failures = failures + 1
+      end
    end
-   ms = os.clock() - ms
+   
+   if options.sound then
+      play_sound(failures)
+   end
    if options.debug then
       return statuses
    else
-      return options.output.formatted_status(statuses, options, ms), 0
+      if options.defer_print then
+         print(options.output.footer(failures))
+      end
+      return options.output.formatted_status(statuses, options, ms), failures
    end
 end
 
