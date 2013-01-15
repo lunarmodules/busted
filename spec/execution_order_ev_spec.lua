@@ -26,11 +26,11 @@ describe(
       after(
          async,
          concat('T'))
-            
+
       before_each(
          async,
          concat('b'))
-                 
+
       after_each(
          async,
          concat('a'))

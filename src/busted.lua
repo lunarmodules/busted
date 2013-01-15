@@ -20,7 +20,6 @@ local tests = {}
 local done = {}
 local started = {}
 local last_test = 1
-local next_test
 local options
 
 local step = function(...)
@@ -29,7 +28,7 @@ local step = function(...)
       steps = steps[1]
    end
    local i = 0
-   local next 
+   local next
    next = function()
       i = i + 1
       local step = steps[i]
@@ -40,6 +39,7 @@ local step = function(...)
    next()
 end
 
+local next_test
 next_test = function()
    if #done == #tests then
       return
@@ -62,7 +62,7 @@ next_test = function()
          -- uses much of internal knowlage of luassert!!!!
          -- the metatable of is_truthy is the same as for other
          -- luasserts.
-         getmetatable(new_env.assert.is_truthy).__call = function(...)            
+         getmetatable(new_env.assert.is_truthy).__call = function(...)
             local results = {pcall(assert_proxy_call,...)}
             local args = {...}
             local is_proxy = true
@@ -83,7 +83,7 @@ next_test = function()
                   test.status.trace = debug.traceback("", 2)
                   test.status.type = 'failure'
                   test.status.err = results[2]
-                  -- dont call done() here but continue test execution                  
+                  -- dont call done() here but continue test execution
                   -- uncaught errors following, will be catched in pcall(test.f,done)
                end
             end
@@ -156,7 +156,7 @@ next_test = function()
       if test.context.before_each then
          push(steps,test.context.before_each)
       end
-      
+
       push(steps,execute_test)
 
       if test.context.after_each then
@@ -181,8 +181,8 @@ next_test = function()
          end
 
          check_after(test.context)
-         
-         for p=#parents,1,-1 do         
+
+         for p=#parents,1,-1 do
             if parents[p].after_each then
                push(post_steps,parents[p].after_each)
             end
@@ -191,7 +191,7 @@ next_test = function()
          for p=#parents,1,-1 do
             check_after(parents[p])
          end
-         
+
          local forward = function(next)
             last_test = last_test + 1
             next_test()
@@ -206,7 +206,7 @@ next_test = function()
 end
 
 local create_context = function(desc)
-     local context = {
+   local context = {
       desc = desc,
       parents = {},
       test_count = 0,
@@ -228,16 +228,16 @@ local create_context = function(desc)
       add_parent = function(self,parent)
          push(self.parents,parent)
       end
-     }
-     return context
+   }
+   return context
 end
 
 local current_context
-busted.describe = function(desc,more)   
+busted.describe = function(desc,more)
    local context = create_context(desc)
    for i,parent in ipairs(current_context.parents) do
       context:add_parent(parent)
-   end   
+   end
    context:add_parent(current_context)
    local old_context = current_context
    current_context = context
@@ -311,7 +311,7 @@ busted.it = function(name,sync_test,async_test)
       source = debug_info.source,
       short_src = debug_info.short_src,
       linedefined = debug_info.linedefined,
-   } 
+   }
    tests[#tests+1] = test
 end
 
@@ -341,7 +341,7 @@ busted.run = function(opts)
                next_test()
                copas.step(0)
             until #done == #tests
-         end)      
+         end)
    end
    local statuses = {}
    for _,test in ipairs(tests) do
@@ -372,7 +372,7 @@ busted.setup_async_tests = function(yield,loopname)
          local before_each_count = 0
          local before_called
          before(
-            async, 
+            async,
             function(done)
                yield(
                   function()
@@ -389,8 +389,8 @@ busted.setup_async_tests = function(yield,loopname)
                      before_each_count = before_each_count + 1
                      done()
                   end)
-            end)      
-         
+            end)
+
          it(
             'order 1 should async succeed',
             async,
@@ -435,9 +435,9 @@ busted.setup_async_tests = function(yield,loopname)
                local thing = {
                   greet = function()
                   end
-               }            
+               }
                spy.on(thing, "greet")
-               thing.greet("Hi!")            
+               thing.greet("Hi!")
                assert.spy(thing.greet).was.called()
                assert.spy(thing.greet).was.called_with("Hi!")
             end)
@@ -456,7 +456,7 @@ busted.setup_async_tests = function(yield,loopname)
                      assert.spy(thing.greet).was.called()
                      assert.spy(thing.greet).was.called_with("Hi!")
                      done()
-                  end)                  
+                  end)
                thing.greet("Hi!")
             end)
 
@@ -510,8 +510,8 @@ busted.describe_statuses = function(statuses,print_statuses)
          it(
             'type is correct',
             function()
-               for i,status in ipairs(statuses) do             
-                  assert.is_truthy(status.type == 'failure' or status.type == 'success')  
+               for i,status in ipairs(statuses) do
+                  assert.is_truthy(status.type == 'failure' or status.type == 'success')
                   local succeed = status.description:match('succeed')
                   local fail = status.description:match('fail')
                   assert.is_falsy(succeed and fail)
@@ -527,7 +527,7 @@ busted.describe_statuses = function(statuses,print_statuses)
             'info is correct',
             function()
                for i,status in ipairs(statuses) do
-                --  print(pretty.write(status))
+                  --  print(pretty.write(status))
                   assert.is_truthy(status.info.linedefined)
                   assert.is_truthy(status.info.source:match('busted%.lua'))
                   assert.is_truthy(status.info.short_src:match('busted%.lua'))
@@ -537,7 +537,7 @@ busted.describe_statuses = function(statuses,print_statuses)
          it(
             'provides "err" for failed tests',
             function()
-               for i,status in ipairs(statuses) do               
+               for i,status in ipairs(statuses) do
                   if status.type == 'failure' then
                      assert.is.equal(type(status.err),'string')
                      assert.is_not.equal(#status.err,0)
@@ -548,7 +548,7 @@ busted.describe_statuses = function(statuses,print_statuses)
          it(
             'provides "traceback" for failed tests',
             function()
-               for i,status in ipairs(statuses) do               
+               for i,status in ipairs(statuses) do
                   if status.type == 'failure' then
                      assert.is.equal(type(status.trace),'string')
                      assert.is_not.equal(#status.trace,0)

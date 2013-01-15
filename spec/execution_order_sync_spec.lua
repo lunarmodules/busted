@@ -53,5 +53,5 @@ describe(
 it(
    '4',
    function()
-     assert.equal(egg,'SbB1AabB2Aab3aT')
+      assert.equal(egg,'SbB1AabB2Aab3aT')
    end)
