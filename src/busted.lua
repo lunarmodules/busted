@@ -12,8 +12,8 @@ busted._VERSION     = "Busted 1.4"
 -- Load default language pack
 require('busted.languages.en')
 
-assert_proxy_call = getmetatable(assert.is_truthy).__call
-assert_call = getmetatable(assert).__call
+local assert_proxy_call = getmetatable(assert.is_truthy).__call
+local assert_call = getmetatable(assert).__call
 local globals = _G
 local push = table.insert
 local tests = {}
@@ -53,16 +53,13 @@ next_test = function()
             description = test.name,
             info = test.info,
             trace = ''
-         }
-         --            test.info = nil
-         local new_env = {}
-         setmetatable(new_env,{__index = globals})
-         -- this part is nasty!
-         -- intercept all calls to luasser states / proxies.
+         }         
+         -- this part is a bit nasty!
+         -- intercept all calls to luassert states / proxies.
          -- uses much of internal knowlage of luassert!!!!
          -- the metatable of is_truthy is the same as for other
          -- luasserts.
-         getmetatable(new_env.assert.is_truthy).__call = function(...)
+         getmetatable(assert.is_truthy).__call = function(...)
             local results = {pcall(assert_proxy_call,...)}
             local args = {...}
             local is_proxy = true
@@ -88,7 +85,7 @@ next_test = function()
                end
             end
          end
-         getmetatable(new_env.assert).__call = function(...)
+         getmetatable(assert).__call = function(...)
             local results = {pcall(assert_call,...)}
             if results[1] and not test.status.type then
                test.status.type = 'success'
@@ -98,13 +95,12 @@ next_test = function()
                test.status.err = results[2]
             end
          end
-         setfenv(test.f,new_env)
          local done = function()
             done[last_test] = true
             if test.status.type ~= 'success' and not test.status.err then
                test.status.type = 'failure'
                test.status.err = 'No assertions made'
-               test.status.trace = 'asdlkjd' --test.status.info.source..':'..test.status.info.linedefined
+               test.status.trace = test.status.info.source..':'..test.status.info.linedefined
             end
             if not options.debug and not options.defer_print then
                options.output.currently_executing(test.status, options)
@@ -302,7 +298,6 @@ busted.it = function(name,sync_test,async_test)
       debug_info = debug.getinfo(sync_test)
       -- make sync test run async
       test.f = function(done)
-         setfenv(sync_test,getfenv(1))
          sync_test()
          done()
       end
