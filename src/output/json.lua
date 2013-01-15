@@ -7,10 +7,10 @@ local json = require("dkjson")
 
 local output = function()
   return {
-    header = function(context_tree)
+    header = function(desc, test_count)
     end,
 
-    footer = function(context_tree)
+    footer = function(failures)
     end,
 
     formatted_status = function(statuses, options, ms)

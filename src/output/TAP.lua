@@ -18,9 +18,6 @@ local output = function()
     end
   end
 
-  local test_length = function(context_tree)
-  end
-
   local strings = {
     failure = failure_string,
     success = success_string,
@@ -28,20 +25,6 @@ local output = function()
   }
 
   local index = 1
-
-  test_length = function(context_tree)
-    local length = 0
-
-    for i,c in ipairs(context_tree) do
-      if(c.type == "describe") then
-        length = length + test_length(c)
-      else
-        length = length + 1
-      end
-    end
-
-    return length
-  end
 
   format_statuses = function (statuses, options)
     local short_status = ""
@@ -76,12 +59,12 @@ local output = function()
   end
 
   return {
-    header = function(context_tree)
-      io.write("1.."..test_length(context_tree))
+    header = function(desc, test_count)
+      io.write("1.."..test_count)
       io.flush()
     end,
 
-    footer = function(context_tree)
+    footer = function(failures)
     end,
 
     formatted_status = function(statuses, options, ms)
