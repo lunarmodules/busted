@@ -2,7 +2,7 @@ language: erlang
 
 env:
   - LUA=""
-  - LUA="luajit"
+#  - LUA="luajit"
 
 branches:
   only:
