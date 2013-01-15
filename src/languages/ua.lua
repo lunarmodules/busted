@@ -23,15 +23,15 @@ s:set("output.seconds", "секунд")
 
 
 ---- definitions following are not used within the 'say' namespace
-busted.failure_messages = {
-  "Ти зрадив %d тестів!",
-  "Ой йо..",
-  "Вороги поламали наші тести!"
+return {
+  failure_messages = {
+    "Ти зрадив %d тестів!",
+    "Ой йо..",
+    "Вороги поламали наші тести!"
+  },
+  success_messages = {
+    "Слава Україні! Героям Слава!",
+    "Тестування успішно пройдено!",
+    "Всі баги знищено!"
+  }
 }
-
-busted.success_messages = {
-  "Слава Україні! Героям Слава!",
-  "Тестування успішно пройдено!",
-  "Всі баги знищено!"
-}
-
