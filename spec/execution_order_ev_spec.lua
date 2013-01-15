@@ -19,6 +19,14 @@ end
 describe(
    'before_each after_each egg test',
    function()
+      before(
+         async,
+         concat('S'))
+
+      after(
+         async,
+         concat('T'))
+            
       before_each(
          async,
          concat('b'))
@@ -41,19 +49,28 @@ describe(
             it(
                '1',
                function()
-                  assert.equal(egg,'bB')
+                  assert.equal(egg,'SbB')
+                  egg = egg..'1'
                end)
             it(
                '2',
                function()
-                  assert.equal(egg,'bBAabB')
+                  assert.equal(egg,'SbB1AabB')
+                  egg = egg..'2'
                end)
          end)
       it(
          '3',
          function()
-            assert.equal(egg,'bBAabBAab')
+            assert.equal(egg,'SbB1AabB2Aab')
+            egg = egg..'3'
          end)
+   end)
+
+it(
+   '4',
+   function()
+      assert.equal(egg,'SbB1AabB2Aab3aT')
    end)
 
 return 'ev',loop

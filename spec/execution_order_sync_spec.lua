@@ -33,22 +33,25 @@ describe(
                '1',
                function()
                   assert.equal(egg,'SbB')
+                  egg = egg..'1'
                end)
             it(
                '2',
                function()
-                  assert.equal(egg,'SbBAabB')
+                  assert.equal(egg,'SbB1AabB')
+                  egg = egg..'2'
                end)
          end)
       it(
          '3',
          function()
-            assert.equal(egg,'SbBAabBAab')
+            assert.equal(egg,'SbB1AabB2Aab')
+            egg = egg..'3'
          end)
    end)
 
 it(
    '4',
    function()
-     assert.equal(egg,'SbBAabBAabaT')
+     assert.equal(egg,'SbB1AabB2Aab3aT')
    end)
