@@ -2,10 +2,11 @@ language: erlang
 
 env:
   - LUA=""
-#  - LUA="luajit"
+  - LUA="luajit"
 
 branches:
   only:
+    - master
     - async-test-support
 
 install:
@@ -28,6 +29,10 @@ install:
 script: "./install_and_test.sh"
 
 notifications:
+  webhooks:
+    - http://hollow-mountain-1250.herokuapp.com/hubot/travis	  	
+  recipients:
+    - engineers@olivinelabs.com
   email:
     on_success: always
     on_failure: always
