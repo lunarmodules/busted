@@ -22,16 +22,16 @@ s:set("output.success_single", "прошел")
 s:set("output.seconds", "секунд")
 
 ---- definitions following are not used within the 'say' namespace
-busted.failure_messages = {
-  "У тебя %d просратых тестов",
-  "Твои тесты поломаны",
-  "Твой код говеный - пойди напейся!"
+return {
+  failure_messages = {
+    "У тебя %d просратых тестов",
+    "Твои тесты поломаны",
+    "Твой код говеный - пойди напейся!"
+  },
+  success_messages = {
+    "Поехали!",
+    "Жизнь - хороша!",
+    "Ффух в этот раз пронесло!",
+    "Ура!"
+  }
 }
-
-busted.success_messages = {
-  "Поехали!",
-  "Жизнь - хороша!",
-  "Ффух в этот раз пронесло!",
-  "Ура!"
-}
-
