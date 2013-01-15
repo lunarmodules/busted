@@ -169,7 +169,6 @@ if args then
     output = require('busted.output.'..defaultoutput)()
   end
 
-  require'busted'
   local options = {
     verbose = args.verbose,
     suppress_pending = args["suppress-pending"],
