@@ -361,23 +361,13 @@ busted.run = function(opts)
       print(options.output.header(suit_name,#tests))
    end
 
-   if not options.loop then
+   local loop = options.loop or function() end
+
+   repeat
       next_test()
-   elseif options.loop == 'ev' then
-      local loop = options.loop_arg
-      local ev = require'ev'
-      ev.Timer.new(next_test,0.0001):start(loop)
-      loop:loop()
-   elseif options.loop == 'copas' then
-      local copas = require'copas'
-      copas.addthread(
-         function()
-            repeat
-               next_test()
-               copas.step(0)
-            until #done == #tests
-         end)
-   end
+      loop()
+   until #done == #tests
+
    ms = os.clock() - ms
 
    if not options.debug and options.defer_print then

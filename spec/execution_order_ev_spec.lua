@@ -73,4 +73,6 @@ it(
       assert.equal(egg,'SbB1AabB2Aab3aT')
    end)
 
-return 'ev',loop
+return function()
+   loop:loop()
+       end

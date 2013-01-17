@@ -187,10 +187,9 @@ if args then
      busted.reset()
     local file, err = loadfile(filename)
     if file then
-      ok, loop, loop_arg = pcall(function() return file() end)
+      ok, loop = pcall(function() return file() end)
       if ok then
          options.loop = loop
-         options.loop_arg = loop_arg
          local statuses,failures =  busted.run(options)
          allstatuses[#allstatuses+1] = statuses
          allfailures = allfailures + failures

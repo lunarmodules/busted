@@ -37,7 +37,9 @@ busted.setup_async_tests(yield,'copas')
 
 local options = {
    debug = true,
-   loop = 'copas'
+   loop = function()
+      copas.step(0)
+   end
 } 
 
 local statuses = busted.run(options)

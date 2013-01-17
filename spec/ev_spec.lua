@@ -19,8 +19,9 @@ busted.setup_async_tests(yield,'ev')
 
 local options = {
    debug = true,
-   loop = 'ev',
-   loop_arg = loop
+   loop = function()
+      loop:loop()
+   end
 } 
 
 local statuses = busted.run(options)
