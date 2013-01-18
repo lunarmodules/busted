@@ -3,6 +3,8 @@
 --  output.descriptive_status
 --  output.currently_executing
 
+local s = require 'say'
+
 local output = function()
   local success_string = function(test_index, test_status)
     return string.format("ok %d - %s", test_index, test_status.description)
@@ -10,6 +12,14 @@ local output = function()
 
   local failure_string = function(test_index, test_status)
     return string.format("not ok %d - %s", test_index, test_status.description)
+  end
+  
+  local error_description = function(status, options)
+    return "\n\n"..s('output.failure')..": "..
+           status.info.short_src.." @ "..
+           status.info.linedefined..
+           "\n"..status.description..
+           "\n"..status.err
   end
 
   local pending_string = function(test_index, test_status, options)
@@ -57,17 +67,17 @@ local output = function()
         failures = inner_failures + failures
         pendings = inner_pendings + pendings
       elseif status.type == "success" then
+        short_status = short_status..success_string(index, status).."\n"
         index = index + 1
-        short_status = short_status..success_string(index, status)
         successes = successes + 1
       elseif status.type == "failure" then
+        short_status = short_status..failure_string(index, status).."\n"
+        descriptive_status = descriptive_status..error_description(status, options).."\n"
         index = index + 1
-        short_status = short_status..failure_string(index, status)
-        descriptive_status = descriptive_status..error_description(status, options)
         failures = failures + 1
       elseif status.type == "pending" then
+        short_status = short_status..pending_string(index, status, options).."\n"
         index = index + 1
-        short_status = short_status..pending_string(index, status, options)
         pendings = pendings + 1
       end
     end

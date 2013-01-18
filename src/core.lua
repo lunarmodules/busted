@@ -19,13 +19,6 @@ local root_context = { type = "describe", description = "global", before_each_st
 local current_context = root_context
 
 
--- return truthy if we're in a coroutine
-local function in_coroutine()
-  local current_routine, main = coroutine.running()
-  -- need check to the main variable for 5.2, it's nil for 5.1
-  return current_routine and (main == nil or main == false)
-end
-
 -- report a test-process error as a failed test
 local function internal_error(description, err)
   local tag = ""
@@ -231,24 +224,6 @@ local function run_context(context)
   
   return status
 end
-
---[[ Run set of test cases
-local function get_statuses(done, list)
-  local ret = {}
-  for _,v in ipairs(list) do
-    local vtype = type(v)
-    if vtype == "thread" then
-      local res = get_statuses(coroutine.resume(v))
-      for _,value in pairs(res) do
-        table.insert(ret, value)
-      end
-    elseif vtype == "table" then
-      table.insert(ret, v)
-    end
-  end
-  return ret
-end  ]]
-
 
 -- test runner
 busted.run = function(got_options)
