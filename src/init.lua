@@ -71,9 +71,7 @@ next_test = function()
                   is_proxy = false
                end
             end
-            if is_proxy then
-               return unpack(results,2)
-            else
+            if not is_proxy then           
                if results[1] and not test.status.type then
                   test.status.type = 'success'
                elseif not results[1] and test.status.type ~= 'failure' then
@@ -86,6 +84,7 @@ next_test = function()
                   -- uncaught errors following, will be catched in pcall(test.f,done)
                end
             end
+            return unpack(results,2)
          end
          getmetatable(assert).__call = function(...)
             local results = {pcall(assert_call,...)}
@@ -96,6 +95,7 @@ next_test = function()
                test.status.type = 'failure'
                test.status.err = results[2]
             end
+            return unpack(results,2)
          end
          local done = function()
             done[test_index] = true
@@ -588,7 +588,6 @@ busted.describe_statuses = function(statuses,print_statuses)
             'info is correct',
             function()
                for i,status in ipairs(statuses) do
-                  print(pretty.write(status))
                   assert.is_truthy(status.info.linedefined)
                   assert.is_truthy(status.info.source:match('busted.+init%.lua'))
                   assert.is_truthy(status.info.short_src:match('busted.+init%.lua'))
