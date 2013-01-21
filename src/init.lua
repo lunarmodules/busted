@@ -588,10 +588,10 @@ busted.describe_statuses = function(statuses,print_statuses)
             'info is correct',
             function()
                for i,status in ipairs(statuses) do
-                  --  print(pretty.write(status))
+                  print(pretty.write(status))
                   assert.is_truthy(status.info.linedefined)
-                  assert.is_truthy(status.info.source:match('busted%.lua'))
-                  assert.is_truthy(status.info.short_src:match('busted%.lua'))
+                  assert.is_truthy(status.info.source:match('busted.+init%.lua'))
+                  assert.is_truthy(status.info.short_src:match('busted.+init%.lua'))
                end
             end)
 
