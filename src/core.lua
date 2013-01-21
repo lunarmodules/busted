@@ -1,4 +1,4 @@
-require "pl"
+local path = require('pl.path')
 
 local busted = {}   -- exported module table
 busted._COPYRIGHT   = "Copyright (c) 2012 Olivine Labs, LLC."
@@ -327,10 +327,8 @@ busted.it = function(description, callback)
     end
   end
 
-  if current_context.description and match then
+  if match then
     table.insert(current_context, { description = description, callback = callback, type = "test" })
-  elseif match then
-    test(description, callback)
   end
 end
 
