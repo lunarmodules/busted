@@ -2,6 +2,7 @@
 
 local cli = require 'cliargs'
 local utils = require 'pl.utils'
+local path = require 'pl.path'
 local busted = require 'busted'
 
 local defaultoutput = busted.defaultoutput

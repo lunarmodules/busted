@@ -1,4 +1,6 @@
 local path = require('pl.path')
+local dir = require('pl.dir')
+local tablex = require('pl.tablex')
 
 local busted = {}   -- exported module table
 busted._COPYRIGHT   = "Copyright (c) 2012 Olivine Labs, LLC."
