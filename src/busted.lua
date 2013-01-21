@@ -19,7 +19,7 @@ local push = table.insert
 local tests = {}
 local done = {}
 local started = {}
-local last_test = 1
+local test_index = 1
 local options
 
 local step = function(...)
@@ -39,14 +39,16 @@ local step = function(...)
    next()
 end
 
+busted.step = step
+
 local next_test
 next_test = function()
    if #done == #tests then
       return
    end
-   if not started[last_test] then
-      started[last_test] = true
-      local test = tests[last_test]
+   if not started[test_index] then
+      started[test_index] = true
+      local test = tests[test_index]
       local steps = {}
       local execute_test = function(next)
          test.status = {
@@ -96,7 +98,7 @@ next_test = function()
             end
          end
          local done = function()
-            done[last_test] = true
+            done[test_index] = true
             if test.status.type ~= 'success' and not test.status.err then
                test.status.type = 'pending'
             end
@@ -187,7 +189,7 @@ next_test = function()
          end
 
          local forward = function(next)
-            last_test = last_test + 1
+            test_index = test_index + 1
             next_test()
             next()
          end
@@ -334,7 +336,7 @@ busted.reset = function()
    tests = {}
    done = {}
    started = {}
-   last_test = 1
+   test_index = 1
    suite_name = nil
 end
 
@@ -405,6 +407,7 @@ setup = busted.before
 teardown = busted.after
 before_each = busted.before_each
 after_each = busted.after_each
+step = step
 
 -- only for internal testing
 busted.setup_async_tests = function(yield,loopname)
