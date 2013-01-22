@@ -12,9 +12,6 @@ busted._VERSION     = "Busted 1.4"
 -- Load default language pack
 require('busted.languages.en')
 
-local assert_proxy_call = getmetatable(assert.is_truthy).__call
-local assert_call = getmetatable(assert).__call
-local globals = _G
 local push = table.insert
 local tests = {}
 local done = {}
@@ -22,7 +19,7 @@ local started = {}
 local test_index = 1
 local options
 
-local step = function(...)
+step = function(...)
    local steps = {...}
    if #steps == 1 and type(steps[1]) == 'table' then
       steps = steps[1]
@@ -41,6 +38,29 @@ end
 
 busted.step = step
 
+continue = function(f,test)
+   local test = tests[test_index]
+   local safef = function(...)
+      local result = {pcall(f,...)}
+      if result[1] then
+         return unpack(result,2)
+      else
+         local err = result[2]
+         if type(err) == "table" then
+            err = pretty.write(err)
+         end
+         test.status.type = 'failure'
+         test.status.trace = debug.traceback("", 2)
+         test.status.err = err
+         test.done()
+      end
+   end
+   return safef
+end
+
+busted.continue = continue
+
+
 local next_test
 next_test = function()
    if #done == #tests then
@@ -49,75 +69,26 @@ next_test = function()
    if not started[test_index] then
       started[test_index] = true
       local test = tests[test_index]
+      assert(test,test_index..debug.traceback('',1))
       local steps = {}
       local execute_test = function(next)
-         test.status = {
-            description = test.name,
-            info = test.info,
-            trace = ''
-         }         
-         -- this part is a bit nasty!
-         -- intercept all calls to luassert states / proxies.
-         -- uses much of internal knowlage of luassert!!!!
-         -- the metatable of is_truthy is the same as for other
-         -- luasserts.
-         getmetatable(assert.is_truthy).__call = function(...)
-            local results = {pcall(assert_proxy_call,...)}
-            local args = {...}
-            local is_proxy = true
-            -- ducktype if this is an assertion 'result' and not a proxy
-            for k,v in pairs(args[1] or {}) do
-               if k == 'positive_message' or k == 'negative_message' then
-                  is_proxy = false
-               end
-            end
-            if not is_proxy then           
-               if results[1] and not test.status.type then
-                  test.status.type = 'success'
-               elseif not results[1] and test.status.type ~= 'failure' then
-                  -- the error message and traceback are always caused
-                  -- by the first failed assertion
-                  test.status.trace = debug.traceback("", 2)
-                  test.status.type = 'failure'
-                  test.status.err = results[2]
-                  -- dont call done() here but continue test execution
-                  -- uncaught errors following, will be catched in pcall(test.f,done)
-               end
-            end
-            return unpack(results,2)
-         end
-         getmetatable(assert).__call = function(...)
-            local results = {pcall(assert_call,...)}
-            if results[1] and not test.status.type then
-               test.status.type = 'success'
-            elseif not results[1] and test.status.type ~= 'failure' then
-               test.status.trace = debug.traceback("", 2)
-               test.status.type = 'failure'
-               test.status.err = results[2]
-            end
-            return unpack(results,2)
-         end
          local done = function()
             done[test_index] = true
-            if test.status.type ~= 'success' and not test.status.err then
-               test.status.type = 'pending'
-            end
             if not options.debug and not options.defer_print then
                options.output.currently_executing(test.status, options)
             end
             test.context:decrement_test_count()
             next()
          end
+         test.done = done
          local ok,err = pcall(test.f,done)
          if not ok then
-            if not test.status.err or test.status.type ~= 'failure' then
-               if type(err) == "table" then
-                  err = pretty.write(err)
-               end
-               test.status.type = 'failure'
-               test.status.trace = debug.traceback("", 2)
-               test.status.err = err
+            if type(err) == "table" then
+               err = pretty.write(err)
             end
+            test.status.type = 'failure'
+            test.status.trace = debug.traceback("", 2)
+            test.status.err = err
             done()
          end
       end
@@ -298,10 +269,14 @@ busted.pending = function(name)
    test.f = function(done)
       done()
    end
-   test.info = {
-      source = debug_info.source,
-      short_src = debug_info.short_src,
-      linedefined = debug_info.linedefined,
+   test.status = {
+      description = name,
+      type = 'pending',
+      info = {
+         source = debug_info.source,
+         short_src = debug_info.short_src,
+         linedefined = debug_info.linedefined,
+      }
    }
    tests[#tests+1] = test
 end
@@ -311,6 +286,7 @@ busted.it = function(name,sync_test,async_test)
    test.context = current_context
    test.context:increment_test_count()
    test.name = name
+
    local debug_info
    if async_test then
       debug_info = debug.getinfo(async_test)
@@ -323,10 +299,14 @@ busted.it = function(name,sync_test,async_test)
          done()
       end
    end
-   test.info = {
-      source = debug_info.source,
-      short_src = debug_info.short_src,
-      linedefined = debug_info.linedefined,
+   test.status = {
+      description = test.name,
+      type = 'success',
+      info = {
+         source = debug_info.source,
+         short_src = debug_info.short_src,
+         linedefined = debug_info.linedefined,
+      }
    }
    tests[#tests+1] = test
 end
@@ -419,62 +399,63 @@ busted.setup_async_tests = function(yield,loopname)
          before(
             async,
             function(done)
-               yield(
-                  function()
-                     before_called = true
-                     done()
-                  end)
+               yield(continue(
+                        function()
+                           before_called = true
+                           done()
+                        end))
+                  
             end)
 
          before_each(
             async,
             function(done)
-               yield(
+               yield(continue(
                   function()
                      before_each_count = before_each_count + 1
                      done()
-                  end)
+                  end))
             end)
 
          it(
-            'order 1 should async succeed',
+            'should async succeed',
             async,
             function(done)
-               yield(
+               yield(continue(
                   function()
                      assert.is_true(before_called)
                      assert.is.equal(before_each_count,1)
                      done()
-                  end)
+                  end))
             end)
 
          it(
-            'order 2 should async fail',
+            'should async fail',
             async,
             function(done)
-               yield(
+               yield(continue(
                   function()
                      assert.is_truthy(false)
                      done()
-                  end)
+                  end))
             end)
 
          it(
-            'order 3 should async fails epicly',
+            'should async fails epicly',
             async,
             function(done)
                does_not_exist.foo = 3
             end)
 
          it(
-            'order 4 should async have no assertions and pends thus',
+            'should succeed',
             async,
             function(done)
                done()
             end)
 
          it(
-            'order 5 spies should sync succeed',
+            'spies should sync succeed',
             function()
                assert.is.equal(before_each_count,5)
                local thing = {
@@ -488,7 +469,7 @@ busted.setup_async_tests = function(yield,loopname)
             end)
 
          it(
-            'order 6 spies should async succeed',
+            'spies should async succeed',
             async,
             function(done)
                local thing = {
@@ -496,12 +477,12 @@ busted.setup_async_tests = function(yield,loopname)
                   end
                }
                spy.on(thing, "greet")
-               yield(
+               yield(continue(
                   function()
                      assert.spy(thing.greet).was.called()
                      assert.spy(thing.greet).was.called_with("Hi!")
                      done()
-                  end)
+                  end))
                thing.greet("Hi!")
             end)
 
@@ -512,25 +493,25 @@ busted.setup_async_tests = function(yield,loopname)
                before(
                   async,
                   function(done)
-                     yield(
+                     yield(continue(
                         function()
                            before_called = true
                            done()
-                        end)
+                        end))
                   end)
                it(
-                  'order 7 nested async test before is called succeeds',
+                  'nested async test before is called succeeds',
                   async,
                   function(done)
-                     yield(
+                     yield(continue(
                         function()
                            assert.is_true(before_called)
                            done()
-                        end)
+                        end))
                   end)
             end)
          
-         pending('order 8 is pending')
+         pending('is pending')
       end)
 end
 
@@ -545,15 +526,6 @@ busted.describe_statuses = function(statuses,print_statuses)
    describe(
       'Test statuses',
       function()
-         it(
-            'execution order is correct',
-            function()
-               for i,status in ipairs(statuses) do
-                  local order = status.description:match('order (%d+)')
-                  assert.is.equal(tonumber(order),i)
-               end
-            end)
-
          it(
             'type is correct',
             function()
@@ -575,11 +547,11 @@ busted.describe_statuses = function(statuses,print_statuses)
                   end
                   assert.equal(count,1)
                   if succeed then
-                     assert.is.equal(status.type,'success')
+                     assert(status.type == 'success', status.description)
                   elseif fail then
-                     assert.is.equal(status.type,'failure')                  
+                     assert(status.type == 'failure', status.description)  
                   elseif pend then
-                     assert.is.equal(status.type,'pending')
+                     assert(status.type == 'pending', status.description)
                   end
                end
             end)
