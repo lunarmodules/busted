@@ -1,4 +1,5 @@
 @ECHO OFF
+setlocal ENABLEDELAYEDEXPANSION 
 for /f "delims=" %%i in ('cd') do set cwd=%%i
 for %%X in (luajit.exe) do (set FOUND=%%~$PATH:X)
 if defined FOUND (
@@ -18,6 +19,6 @@ if "%cmd%"=="" (
     ("%cmd%" "%~dp0busted_bootstrap" %*)
   ) else (
     ("%cmd%" "%~dp0busted_bootstrap" --cwd="%cwd%\\" %*)
-    exit /B %ERRORLEVEL%
+    exit /B !ERRORLEVEL!
   )
 )
