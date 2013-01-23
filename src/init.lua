@@ -73,6 +73,7 @@ next_test = function()
       local steps = {}
       local execute_test = function(next)
          local done = function()
+	    assert(test_index <= #tests,'test already done'..test_index)
             done[test_index] = true
             if not options.debug and not options.defer_print then
                options.output.currently_executing(test.status, options)
@@ -349,7 +350,6 @@ busted.run = function(opts)
       next_test()
       loop()
    until #done == #tests
-
    ms = os.clock() - ms
 
    if not options.debug and options.defer_print then
