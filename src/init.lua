@@ -73,8 +73,17 @@ next_test = function()
       local steps = {}
       local execute_test = function(next)
          local done = function()
-	    assert(test_index <= #tests,'test already done'..test_index)
+	    if test.done_trace then
+	       test.status.err = 'test already "done":"'..test.name..'"'
+	       test.status.err = test.status.err..'. First called from '..test.done_trace
+	       test.status.type = 'failure'
+	       test.status.trace = debug.traceback("", 2)
+	       return
+	    end
+	    assert(test_index <= #tests,'invalid test index: '..test_index)
             done[test_index] = true
+	    -- keep done trace for easier error location when called multiple time
+	    test.done_trace = pretty.write(debug.traceback("", 2))
             if not options.debug and not options.defer_print then
                options.output.currently_executing(test.status, options)
             end
@@ -512,6 +521,18 @@ busted.setup_async_tests = function(yield,loopname)
             end)
          
          pending('is pending')
+
+	 it(
+	    'calling done twice fails',
+	    async,
+	    function(done)
+	       yield(guard(
+			function()
+			   done()
+			   done()
+			end))
+	    end)
+
       end)
 end
 
@@ -588,6 +609,18 @@ busted.describe_statuses = function(statuses,print_statuses)
                end
             end)
 
+	 it(
+	    'calling done twice fails is reported correctly',
+	    function()
+	       for i,status in ipairs(statuses) do
+		  if status.description:match('.*done.*twice') then
+		     assert.is_truthy(status.err:match('.*First called from.*stack traceback'))
+		     return
+		  end
+	       end
+	       assert.is_falsy('twice report failed')
+	    end)
+	 
       end)
 end
 
