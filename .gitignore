@@ -1,5 +1,6 @@
 *.swp
 
-bin/#busted_bootstrap#
-
-bin/.#busted_bootstrap
+#*
+.#*
+*/#*
+*/.#*
