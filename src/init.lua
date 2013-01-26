@@ -38,7 +38,7 @@ end
 
 busted.step = step
 
-continue = function(f,test)
+guard = function(f,test)
    local test = tests[test_index]
    local safef = function(...)
       local result = {pcall(f,...)}
@@ -58,7 +58,7 @@ continue = function(f,test)
    return safef
 end
 
-busted.continue = continue
+busted.guard = guard
 
 
 local next_test
@@ -399,7 +399,7 @@ busted.setup_async_tests = function(yield,loopname)
          before(
             async,
             function(done)
-               yield(continue(
+               yield(guard(
                         function()
                            before_called = true
                            done()
@@ -410,7 +410,7 @@ busted.setup_async_tests = function(yield,loopname)
          before_each(
             async,
             function(done)
-               yield(continue(
+               yield(guard(
                   function()
                      before_each_count = before_each_count + 1
                      done()
@@ -421,7 +421,7 @@ busted.setup_async_tests = function(yield,loopname)
             'should async succeed',
             async,
             function(done)
-               yield(continue(
+               yield(guard(
                   function()
                      assert.is_true(before_called)
                      assert.is.equal(before_each_count,1)
@@ -433,7 +433,7 @@ busted.setup_async_tests = function(yield,loopname)
             'should async fail',
             async,
             function(done)
-               yield(continue(
+               yield(guard(
                   function()
                      assert.is_truthy(false)
                      done()
@@ -477,7 +477,7 @@ busted.setup_async_tests = function(yield,loopname)
                   end
                }
                spy.on(thing, "greet")
-               yield(continue(
+               yield(guard(
                   function()
                      assert.spy(thing.greet).was.called()
                      assert.spy(thing.greet).was.called_with("Hi!")
@@ -493,7 +493,7 @@ busted.setup_async_tests = function(yield,loopname)
                before(
                   async,
                   function(done)
-                     yield(continue(
+                     yield(guard(
                         function()
                            before_called = true
                            done()
@@ -503,7 +503,7 @@ busted.setup_async_tests = function(yield,loopname)
                   'nested async test before is called succeeds',
                   async,
                   function(done)
-                     yield(continue(
+                     yield(guard(
                         function()
                            assert.is_true(before_called)
                            done()
