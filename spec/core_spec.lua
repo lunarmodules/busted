@@ -237,13 +237,13 @@ local expected = [[setup A
     before_each A
       before_each B
         test B one
-      after_each A
-    after_each B
+      after_each B
+    after_each A
     before_each A
       before_each B
         test B two
-      after_each A
-    after_each B
+      after_each B
+    after_each A
   teardown B
   before_each A
     test A three
