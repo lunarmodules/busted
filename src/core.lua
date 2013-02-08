@@ -363,7 +363,7 @@ busted.before_each = function(callback)
 end
 
 busted.after_each = function(callback)
-  table.insert(current_context.after_each_stack, callback)
+  table.insert(current_context.after_each_stack, 1, callback)
 end
 
 busted.setup = function(callback)
