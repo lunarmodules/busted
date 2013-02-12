@@ -36,12 +36,15 @@ step = function(...)
    next()
 end
 
+local loop_pcall
+local loop_step
+
 busted.step = step
 
 guard = function(f,test)
    local test = tests[test_index]
    local safef = function(...)
-      local result = {pcall(f,...)}
+      local result = {loop_pcall(f,...)}
       if result[1] then
          return unpack(result,2)
       else
@@ -51,8 +54,9 @@ guard = function(f,test)
          end
          test.status.type = 'failure'
          test.status.trace = debug.traceback("", 2)
-         test.status.err = err
-         test.done()
+         test.status.err = err         
+         assert(type(test.done) == 'function','non-test step failed (before/after/etc.):\n'..err)
+         test.done()         
       end
    end
    return safef
@@ -91,7 +95,7 @@ next_test = function()
             next()
          end
          test.done = done
-         local ok,err = pcall(test.f,done)
+         local ok,err = loop_pcall(test.f,done)
          if not ok then
             if type(err) == "table" then
                err = pretty.write(err)
@@ -328,6 +332,8 @@ busted.reset = function()
    started = {}
    test_index = 1
    suite_name = nil
+   loop_pcall = pcall
+   loop_step = function() end
 end
 
 local play_sound = function(failures)
@@ -343,6 +349,30 @@ local play_sound = function(failures)
    end
 end
 
+busted.setloop = function(...)
+   local args = {...}
+   if type(args[1]) == 'string' then
+      local loop = args[1]
+      if loop == 'ev' then         
+         local ev = require'ev'
+         loop_pcall = pcall
+         loop_step = function()
+            ev.Loop.default:loop()
+         end
+      elseif loop == 'copas' then
+         local copas = require'copas'
+         require'coxpcall'
+         loop_pcall = copcall
+         loop_step = function()
+            copas.step(0)
+         end
+      end
+   else
+      loop_step = args[1]
+      loop_pcall = args[2] or pcall
+   end
+end
+
 busted.run = function(opts)
    options = opts
    local ms = os.clock()
@@ -353,11 +383,9 @@ busted.run = function(opts)
       print(options.output.header(suit_name,#tests))
    end
 
-   local loop = options.loop or function() end
-
    repeat
       next_test()
-      loop()
+      loop_step()
    until #done == #tests
    ms = os.clock() - ms
 
@@ -397,6 +425,7 @@ teardown = busted.after
 before_each = busted.before_each
 after_each = busted.after_each
 step = step
+setloop = busted.setloop
 
 -- only for internal testing
 busted.setup_async_tests = function(yield,loopname)
