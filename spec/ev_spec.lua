@@ -4,7 +4,6 @@
 package.path = './?.lua;'..package.path
 local ev = require'ev'
 local loop = ev.Loop.default
-require'busted'
 
 local eps = 0.000000000001
 
@@ -15,16 +14,11 @@ local yield = function(done)
       end,eps):start(loop)
 end
 
+setloop('ev')
+
 busted.setup_async_tests(yield,'ev')
 
-local options = {
-   debug = true,
-   loop = function()
-      loop:loop()
-   end
-} 
-
-local statuses = busted.run(options)
+local statuses = busted.run{debug=true}
 
 busted.reset()
 busted.describe_statuses(statuses)

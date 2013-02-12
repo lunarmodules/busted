@@ -1,6 +1,5 @@
 local ev = require'ev'
 local loop = ev.Loop.default
-require'busted'
 
 local eps = 0.000000000001
 
@@ -15,6 +14,8 @@ local concat = function(letter)
    end
    return yield
 end
+
+setloop('ev')
 
 describe(
    'before_each after_each egg test',
@@ -73,6 +74,3 @@ it(
       assert.equal(egg,'SbB1AabB2Aab3aT')
    end)
 
-return function()
-   loop:loop()
-       end
