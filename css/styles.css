@@ -116,15 +116,32 @@ footer.span12 {
   bottom: 270px;
 }
 
-@media (max-width: 767px) {
-  .sidenav {
-    width: auto;
-    margin-bottom: 20px;
-  }
-
+@media screen and (min-width: 768px) {
+  /* From here, start to affix the nav because we keep columns here */
   .sidenav.affix {
-    position: static;
-    width: auto;
-    top: 0;
+    position: fixed;
+    top: 54px;
+  }
+  .sidenav {
+    width: 170px;
+  }
+  .sidenav.affix-bottom {
+    position: absolute;
+    top: auto;
+    bottom: 270px;
+  }
+}
+
+/* Tablets/desktops and up */
+@media screen and (min-width: 992px) {
+  .sidenav {
+    width: 220px;
+  }
+}
+
+/* Large desktops and up */
+@media screen and (min-width: 1200px) {
+  .sidenav {
+    width: 260px;
   }
 }
