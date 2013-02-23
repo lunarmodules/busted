@@ -8,10 +8,10 @@ local loop = ev.Loop.default
 local eps = 0.000000000001
 
 local yield = function(done)
-   ev.Timer.new(
-      function()
-         done()
-      end,eps):start(loop)
+  ev.Timer.new(
+    function()
+      done()
+    end,eps):start(loop)
 end
 
 setloop('ev')
