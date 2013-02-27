@@ -1,7 +1,7 @@
 package = "busted"
-version = "1.5-1"
+version = "1.6-1"
 source = {
-  url = "https://github.com/downloads/Olivine-Labs/busted/busted-1.5.tar.gz",
+  url = "https://github.com/Olivine-Labs/busted/archive/v1.6.tar.gz",
   dir = "busted"
 }
 description = {
