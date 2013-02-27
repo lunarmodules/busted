@@ -79,6 +79,7 @@ if args then
     table.insert(luacov.configuration.exclude, "busted%.")
     table.insert(luacov.configuration.exclude, "luassert%.")
     table.insert(luacov.configuration.exclude, "say%.")
+    table.insert(luacov.configuration.exclude, "pl%.")
   end
 
   if #args.lpath > 0 then

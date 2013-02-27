@@ -23,7 +23,7 @@ dependencies = {
   "luafilesystem >= 1.5.0",
   "dkjson >= 2.1.0",
   "say >= 1.2-1",
-  "luassert >= 1.5-1",
+  "luassert >= 1.6-1",
   "ansicolors >= 1.0-1",
   "penlight >= 1.0.0-1"
 }
