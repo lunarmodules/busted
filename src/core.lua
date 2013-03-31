@@ -78,7 +78,7 @@ local function gettestfiles(root_file, pattern)
       end )
   else
     filelist = {}
-    internal_error("Getting test files","No test files found for path '"..root_file.."' and pattern `"..pattern.."`. Please review your commandline.")
+    internal_error("Getting test files","No test files found for path '"..root_file.."' and pattern `"..pattern.."`. Please review your commandline, re-run with `--help` for usage.")
   end
   return filelist
 end
