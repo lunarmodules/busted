@@ -78,10 +78,12 @@ next_test = function()
     local execute_test = function(next)
       local done = function()
         if test.done_trace then
-          test.status.err = 'test already "done":"'..test.name..'"'
-          test.status.err = test.status.err..'. First called from '..test.done_trace
-          test.status.type = 'failure'
-          test.status.trace = debug.traceback("", 2)
+          if test.status.err == nil then
+            test.status.err = 'test already "done":"'..test.name..'"'
+            test.status.err = test.status.err..'. First called from '..test.done_trace
+            test.status.type = 'failure'
+            test.status.trace = debug.traceback("", 2)
+          end
           return
         end
         assert(test_index <= #tests,'invalid test index: '..test_index)
