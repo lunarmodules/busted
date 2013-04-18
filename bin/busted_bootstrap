@@ -3,6 +3,7 @@
 local cli = require 'cliargs'
 local utils = require 'pl.utils'
 local path = require 'pl.path'
+local tablex = require 'pl.tablex'
 local busted = require 'busted'
 
 local defaultoutput = busted.defaultoutput
@@ -41,10 +42,9 @@ if args then
   end
 
   local fpath = args.d
-  local root_file = path.normpath(path.join(fpath, args.ROOT))
 
   local tasks = nil
-  local bfile = path.normpath(path.join(fpath, ".", ".busted"))
+  local bfile = path.normpath(path.join(fpath, ".busted"))
   local success, err = pcall(function() tasks = loadfile(bfile)() end)
 
   if args.run ~= "" then
@@ -66,6 +66,8 @@ if args then
       args = tablex.merge(args, tasks.default, true)
     end
   end
+
+  local root_file = path.normpath(path.join(fpath, args.ROOT))
 
   if args.coverage then
     local result, luacov = pcall(require, "luacov.runner")
