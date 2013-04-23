@@ -5,19 +5,17 @@ local hostname = assert ( io.popen ( "uname -n" ) ):read ( "*l" )
 return function ()
 	local node
 	return {
-		header = function(context_tree)
+		header = function(desc, test_count)
 			node = xml.new("testsuite",{
 				errors    = 0 ;
 				failures  = 0 ;
 				hostname  = hostname ;
-				name      = context_tree.description ;
+				name      = desc ;
 				tests     = 0 ;
 				--time      = ;
 				timestamp = os.time ( ) ;
 				skip      = 0 ;
 			})
-		end ;
-		footer = function(context_tree)
 		end ;
 		formatted_status = function(statuses, options, ms)
 			node.attr.time = ms
