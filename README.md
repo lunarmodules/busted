@@ -1,8 +1,6 @@
 Busted
 ======
 
-[![travis-ci status](https://secure.travis-ci.org/Olivine-Labs/busted.png)](http://travis-ci.org/#!/Olivine-Labs/busted/builds)
-
 busted is a unit testing framework with a focus on being **easy to
 use**.
 
@@ -54,3 +52,36 @@ describe("Busted unit testing framework", function()
   end)
 end)
 ```
+
+Contributing
+------------
+
+See CONTRIBUTING.md. All issues, suggestions, and most importantly pull requests
+are welcome.
+
+Testing
+-------
+
+You'll need `libev` to run async tests. Then do the following, assuming you
+have luarocks installed:
+
+Install dependencies not in the rockspec (only needed for testing):
+
+```
+luarocks install lua-ev
+luarocks install moonscript
+```
+
+Then to reinstall and run tests:
+
+```
+luarocks remove busted --force
+luarocks make
+busted spec
+```
+
+License
+-------
+
+Copyright 2013 Olivine Labs, LLC.
+MIT licensed. See LICENSE for details.
