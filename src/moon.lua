@@ -50,8 +50,13 @@ local rewrite_traceback = function(err, trace)
   local j = 0
 
   local rewrite_one = function(line)
+    if line == nil then
+      return ""
+    end
+
     local fname, lineno = line:match('[^"]+"([^:]+)".:(%d+):')
-    if fname and lineno then      
+
+    if fname and lineno then
       local new_lineno = rewrite_linenumber(fname, tonumber(lineno))
       if new_lineno then
         line = line:gsub(':' .. lineno .. ':', ':' .. new_lineno .. ':')
@@ -61,7 +66,7 @@ local rewrite_traceback = function(err, trace)
   end
 
   for line in trace:gmatch("[^\r\n]+") do
-    j = j + 1    
+    j = j + 1
     lines[j] = rewrite_one(line)
   end
 
