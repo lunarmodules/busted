@@ -98,6 +98,7 @@ local load_testfile = function(filename)
   _TEST = busted._VERSION
 
   local success, err = pcall(function() moon.loadfile(filename)() end)
+
   if not success then
     internal_error("Failed executing testfile; " .. tostring(filename), err)
   end
@@ -142,15 +143,9 @@ local suite = {
   test_index = 1,
   loop_pcall = pcall,
   loop_step = function() end,
- }
+}
 
-  fname = get_fname(info.short_src)
-  if fname and moon.is_moon(fname) then
-    info.linedefined = moon.rewrite_linenumber(fname, info.linedefined) or info.linedefined
-  end
-
-  local options
-
+local options
 
 step = function(...)
   local steps = { ... }
@@ -188,11 +183,13 @@ guard = function(f, test)
       if type(err) == "table" then
         err = pretty.write(err)
       end
-	
+
+      local stack_trace = debug.traceback("", 2)
+
       err, stack_trace = moon.rewrite_traceback(err, stack_trace)
 
       test.status.type = 'failure'
-      test.status.trace = debug.traceback("", 2)
+      test.status.trace = stack_trace
       test.status.err = err
       assert(type(test.done) == 'function', 'non-test step failed (before/after/etc.):\n'..err)
       test.done()
@@ -443,6 +440,23 @@ busted.after_each = function(sync_after, async_after)
   end
 end
 
+local function buildInfo(debug_info)
+  local info = {
+    source = debug_info.source,
+    short_src = debug_info.short_src,
+    linedefined = debug_info.linedefined,
+  }
+
+  fname = get_fname(info.short_src)
+
+  if fname and moon.is_moon(fname) then
+    info.linedefined = moon.rewrite_linenumber(fname, info.linedefined) or info.linedefined
+  end
+
+  return info
+end
+
+
 busted.pending = function(name)
   local test = {
     context = current_context,
@@ -460,11 +474,7 @@ busted.pending = function(name)
   test.status = {
     description = name,
     type = 'pending',
-    info = {
-      source = debug_info.source,
-      short_src = debug_info.short_src,
-      linedefined = debug_info.linedefined,
-    }
+    info = buildInfo(debug_info)
   }
 
   suite.tests[#suite.tests+1] = test
@@ -495,11 +505,7 @@ busted.it = function(name, sync_test, async_test)
   test.status = {
     description = test.name,
     type = 'success',
-    info = {
-      source = debug_info.source,
-      short_src = debug_info.short_src,
-      linedefined = debug_info.linedefined,
-    }
+    info = buildInfo(debug_info)
   }
 
   suite.tests[#suite.tests+1] = test

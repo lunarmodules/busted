@@ -38,6 +38,7 @@ build = {
     ["busted.output.junit"] = "src/output/junit.lua",
     ["busted.output.stub"] = "src/output/stub.lua",
     ["busted.init"] = "src/init.lua",
+    ["busted.moon"] = "src/moon.lua",
     ["busted.languages.en"] = "src/languages/en.lua",
     ["busted.languages.ar"] = "src/languages/ar.lua",
     ["busted.languages.fr"] = "src/languages/fr.lua",
