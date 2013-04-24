@@ -185,7 +185,6 @@ guard = function(f, test)
       end
 
       local stack_trace = debug.traceback("", 2)
-
       err, stack_trace = moon.rewrite_traceback(err, stack_trace)
 
       test.status.type = 'failure'
@@ -219,10 +218,13 @@ next_test = function()
       local done = function()
         if test.done_trace then
           if test.status.err == nil then
+            local stack_trace = debug.traceback("", 2)
+            err, stack_trace = moon.rewrite_traceback(err, stack_trace)
+
             test.status.err = 'test already "done":"'..test.name..'"'
             test.status.err = test.status.err..'. First called from '..test.done_trace
             test.status.type = 'failure'
-            test.status.trace = debug.traceback("", 2)
+            test.status.trace = stack_trace
           end
           return
         end
@@ -231,7 +233,10 @@ next_test = function()
 
         suite.done[suite.test_index] = true
         -- keep done trace for easier error location when called multiple time
-        test.done_trace = pretty.write(debug.traceback("", 2))
+        local done_trace = debug.traceback("", 2)
+        err, done_trace = moon.rewrite_traceback(err, done_trace)
+
+        test.done_trace = pretty.write(done_trace)
 
         if not options.defer_print then
           busted.output.currently_executing(test.status, options)
