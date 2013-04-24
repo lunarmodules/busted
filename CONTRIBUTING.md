@@ -26,7 +26,9 @@ and closed issues first.
 * Variables have_underscores, classes are Uppercase
 * Wrap everything in `local`, expose blocks of code using the module pattern
 
-Look at existing code to get a good feel for the patterns we use.
+Look at existing code to get a good feel for the patterns we use. Please run
+tests before submitting any pull requests. Instructions for running tests can
+be found in the README.
 
 ## Using Git appropriately
 

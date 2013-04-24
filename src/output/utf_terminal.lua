@@ -121,8 +121,10 @@ local output = function()
   }
 
   local on_first
+
   return {
     options = {},
+    name = "utf_whatever",
 
     header = function(desc, test_count)
       on_first = true

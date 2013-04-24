@@ -90,14 +90,14 @@ if args then
     lpathprefix = lpathprefix:gsub(";%.[/%\\]", ";" .. fpath)
     package.path = (lpathprefix .. ";" .. package.path):gsub(";;",";")
   end
-  
+
   if #args.cpath > 0 then
     cpathprefix = args.cpath
     cpathprefix = cpathprefix:gsub("^%.[/%\\]", fpath )
     cpathprefix = cpathprefix:gsub(";%.[/%\\]", ";" .. fpath)
     package.cpath = (cpathprefix .. ";" .. package.cpath):gsub(";;",";")
   end
-  
+
   local options = {
     path = fpath,
     lang = args.lang,
@@ -114,11 +114,11 @@ if args then
     failure_messages = busted.failure_messages or nil,
     filelist = nil,
   }
-  
+
   -- execute tests
   local status_string, failures = busted(options)
-    
-  print(status_string.."\n")
+
+  print((status_string or "").."\n")
 
   os.exit(failures)
 end

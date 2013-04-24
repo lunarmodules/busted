@@ -6,6 +6,7 @@ assert(type(spy) == "table")
 assert(type(stub) == "table")
 assert(type(mock) == "function")
 
+
 local test_val = false
 
 assert.is_not_nil(_TEST)  -- test on file-level

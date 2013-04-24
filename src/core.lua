@@ -3,7 +3,8 @@ local dir = require('pl.dir')
 local tablex = require('pl.tablex')
 require'pl'
 
-busted = {}-- exported module table
+-- exported module table
+busted = {}
 busted._COPYRIGHT   = "Copyright (c) 2013 Olivine Labs, LLC."
 busted._DESCRIPTION = "A unit testing framework with a focus on being easy to use. http://www.olivinelabs.com/busted"
 busted._VERSION     = "Busted 1.7"
@@ -21,15 +22,17 @@ local options = {}
 -- report a test-process error as a failed test
 local internal_error = function(description, err)
   local tag = ""
+
   if options.tags and #options.tags > 0 then
     -- tags specified; must insert a tag to make sure the error gets displayed
     tag = " #"..options.tags[1]
   end
+
   describe("Busted process errors occured" .. tag, function()
-      it(description .. tag, function()
-          error(err)
-        end)
+    it(description .. tag, function()
+      error(err)
     end)
+  end)
 end
 
 local language = function(lang)
@@ -51,8 +54,9 @@ local getoutputter = function(output, opath, default)
       return require('busted.output.'..output)()
     end
   end
-  
+
   success, out = pcall(f)
+
   if not success then
     if not default then
       -- even default failed, so error out the hard way
@@ -69,18 +73,21 @@ end
 -- acquire set of test files from the options specified
 local gettestfiles = function(root_file, pattern)
   local filelist
+
   if path.isfile(root_file) then
     filelist = { root_file }
   elseif path.isdir(root_file) then
     local pattern = pattern ~= "" and pattern or defaultpattern
     filelist = dir.getallfiles(root_file)
+
     filelist = tablex.filter(filelist, function(filename)
-        return path.basename(filename):find(pattern)
-      end )
+      return path.basename(filename):find(pattern)
+    end)
   else
     filelist = {}
-    internal_error("Getting test files","No test files found for path '"..root_file.."' and pattern `"..pattern.."`. Please review your commandline, re-run with `--help` for usage.")
+    internal_error("Getting test files", "No test files found for path '"..root_file.."' and pattern `"..pattern.."`. Please review your commandline, re-run with `--help` for usage.")
   end
+
   return filelist
 end
 
@@ -88,20 +95,21 @@ end
 local load_testfile = function(filename)
   local old_TEST = _TEST
   _TEST = busted._VERSION
-  
+
   local success, err = pcall(function() loadfile(filename)() end)
   if not success then
     internal_error("Failed executing testfile; " .. tostring(filename), err)
   end
-  
+
   _TEST = old_TEST
 end
 
 local play_sound = function(failures)
-  math.randomseed(os.time())
-  
   if busted.messages.failure_messages and #busted.messages.failure_messages > 0 and
-  busted.messages.success_messages and #busted.messages.success_messages > 0 then
+    busted.messages.success_messages and #busted.messages.success_messages > 0 then
+
+    math.randomseed(os.time())
+
     if failures and failures > 0 then
       io.popen("say \""..busted.messages.failure_messages[math.random(1, #busted.messages.failure_messages)]:format(failures).."\"")
     else
@@ -124,17 +132,20 @@ local suite = {
   test_index = 1,
   loop_pcall = pcall,
   loop_step = function() end,
-}
+ }
 
 local options
 
 step = function(...)
-  local steps = {...}
+  local steps = { ... }
   if #steps == 1 and type(steps[1]) == 'table' then
     steps = steps[1]
   end
+
   local i = 0
+
   local next
+
   next = function()
     i = i + 1
     local step = steps[i]
@@ -142,44 +153,53 @@ step = function(...)
       step(next)
     end
   end
+
   next()
 end
 
 busted.step = step
 
-guard = function(f,test)
+guard = function(f, test)
   local test = suite.tests[suite.test_index]
+
   local safef = function(...)
-    local result = {suite.loop_pcall(f,...)}
+    local result = { suite.loop_pcall(f, ...) }
+
     if result[1] then
-      return unpack(result,2)
+      return unpack(result, 2)
     else
       local err = result[2]
       if type(err) == "table" then
         err = pretty.write(err)
       end
+
       test.status.type = 'failure'
       test.status.trace = debug.traceback("", 2)
       test.status.err = err
-      assert(type(test.done) == 'function','non-test step failed (before/after/etc.):\n'..err)
+      assert(type(test.done) == 'function', 'non-test step failed (before/after/etc.):\n'..err)
       test.done()
     end
   end
+
   return safef
 end
 
 busted.guard = guard
 
 local next_test
+
 next_test = function()
   if #suite.done == #suite.tests then
     return
   end
+
   if not suite.started[suite.test_index] then
     suite.started[suite.test_index] = true
+
     local test = suite.tests[suite.test_index]
-    assert(test,suite.test_index..debug.traceback('',1))
+    assert(test, suite.test_index..debug.traceback('', 1))
     local steps = {}
+
     local execute_test = function(next)
       local done = function()
         if test.done_trace then
@@ -191,29 +211,37 @@ next_test = function()
           end
           return
         end
-        assert(suite.test_index <= #suite.tests,'invalid test index: '..suite.test_index)
+
+        assert(suite.test_index <= #suite.tests, 'invalid test index: '..suite.test_index)
+
         suite.done[suite.test_index] = true
         -- keep done trace for easier error location when called multiple time
         test.done_trace = pretty.write(debug.traceback("", 2))
+
         if not options.defer_print then
           busted.output.currently_executing(test.status, options)
         end
+
         test.context:decrement_test_count()
         next()
       end
+
       test.done = done
-      local ok,err = suite.loop_pcall(test.f,done)
+
+      local ok, err = suite.loop_pcall(test.f, done)
+
       if not ok then
         if type(err) == "table" then
           err = pretty.write(err)
         end
+
         test.status.type = 'failure'
         test.status.trace = debug.traceback("", 2)
         test.status.err = err
         done()
       end
     end
-    
+
     local check_before = function(context)
       if context.before then
         local execute_before = function(next)
@@ -223,36 +251,38 @@ next_test = function()
               next()
             end)
         end
-        push(steps,execute_before)
+
+        push(steps, execute_before)
       end
     end
-    
+
     local parents = test.context.parents
-    
-    for p=1,#parents do
+
+    for p=1, #parents do
       check_before(parents[p])
     end
-    
+
     check_before(test.context)
-    
-    for p=1,#parents do
+
+    for p=1, #parents do
       if parents[p].before_each then
-        push(steps,parents[p].before_each)
+        push(steps, parents[p].before_each)
       end
     end
-    
+
     if test.context.before_each then
-      push(steps,test.context.before_each)
+      push(steps, test.context.before_each)
     end
-    
-    push(steps,execute_test)
-    
+
+    push(steps, execute_test)
+
     if test.context.after_each then
-      push(steps,test.context.after_each)
+      push(steps, test.context.after_each)
     end
-    
+
     local post_test = function(next)
       local post_steps = {}
+
       local check_after = function(context)
         if context.after then
           if context:all_tests_done() then
@@ -263,32 +293,35 @@ next_test = function()
                   next()
                 end)
             end
-            push(post_steps,execute_after)
+
+            push(post_steps, execute_after)
           end
         end
       end
-      
-      for p=#parents,1,-1 do
+
+      for p=#parents, 1, -1 do
         if parents[p].after_each then
-          push(post_steps,parents[p].after_each)
+          push(post_steps, parents[p].after_each)
         end
       end
-      
+
       check_after(test.context)
-      
-      for p=#parents,1,-1 do
+
+      for p=#parents, 1, -1 do
         check_after(parents[p])
       end
-      
+
       local forward = function(next)
         suite.test_index = suite.test_index + 1
         next_test()
         next()
       end
-      push(post_steps,forward)
+
+      push(post_steps, forward)
       step(post_steps)
     end
-    push(steps,post_test)
+
+    push(steps, post_test)
     step(steps)
   end
 end
@@ -300,44 +333,55 @@ local create_context = function(desc)
     test_count = 0,
     increment_test_count = function(self)
       self.test_count = self.test_count + 1
-      for _,parent in ipairs(self.parents) do
+      for _, parent in ipairs(self.parents) do
         parent.test_count = parent.test_count + 1
       end
     end,
+
     decrement_test_count = function(self)
       self.test_count = self.test_count - 1
-      for _,parent in ipairs(self.parents) do
+      for _, parent in ipairs(self.parents) do
         parent.test_count = parent.test_count - 1
       end
     end,
+
     all_tests_done = function(self)
       return self.test_count == 0
     end,
-    add_parent = function(self,parent)
-      push(self.parents,parent)
+
+    add_parent = function(self, parent)
+      push(self.parents, parent)
     end
   }
+
   return context
 end
 
 local suite_name
 local current_context
-busted.describe = function(desc,more)
+
+busted.describe = function(desc, more)
   if not suite_name then
     suite_name = desc
   end
+
   local context = create_context(desc)
-  for i,parent in ipairs(current_context.parents) do
+
+  for i, parent in ipairs(current_context.parents) do
     context:add_parent(parent)
   end
+
   context:add_parent(current_context)
+
   local old_context = current_context
+
   current_context = context
   more()
+
   current_context = old_context
 end
 
-busted.before = function(sync_before,async_before)
+busted.before = function(sync_before, async_before)
   if async_before then
     current_context.before = async_before
   else
@@ -348,7 +392,7 @@ busted.before = function(sync_before,async_before)
   end
 end
 
-busted.before_each = function(sync_before,async_before)
+busted.before_each = function(sync_before, async_before)
   if async_before then
     current_context.before_each = async_before
   else
@@ -359,7 +403,7 @@ busted.before_each = function(sync_before,async_before)
   end
 end
 
-busted.after = function(sync_after,async_after)
+busted.after = function(sync_after, async_after)
   if async_after then
     current_context.after = async_after
   else
@@ -370,7 +414,7 @@ busted.after = function(sync_after,async_after)
   end
 end
 
-busted.after_each = function(sync_after,async_after)
+busted.after_each = function(sync_after, async_after)
   if async_after then
     current_context.after_each = async_after
   else
@@ -382,14 +426,19 @@ busted.after_each = function(sync_after,async_after)
 end
 
 busted.pending = function(name)
-  local test = {}
-  test.context = current_context
+  local test = {
+    context = current_context,
+    name = name
+  }
+
   test.context:increment_test_count()
-  test.name = name
+
   local debug_info = debug.getinfo(2)
+
   test.f = function(done)
     done()
   end
+
   test.status = {
     description = name,
     type = 'pending',
@@ -399,16 +448,20 @@ busted.pending = function(name)
       linedefined = debug_info.linedefined,
     }
   }
+
   suite.tests[#suite.tests+1] = test
 end
 
-busted.it = function(name,sync_test,async_test)
-  local test = {}
-  test.context = current_context
+busted.it = function(name, sync_test, async_test)
+  local test = {
+    context = current_context,
+    name = name
+  }
+
   test.context:increment_test_count()
-  test.name = name
-  
+
   local debug_info
+
   if async_test then
     debug_info = debug.getinfo(async_test)
     test.f = async_test
@@ -420,6 +473,7 @@ busted.it = function(name,sync_test,async_test)
       done()
     end
   end
+
   test.status = {
     description = test.name,
     type = 'success',
@@ -429,11 +483,13 @@ busted.it = function(name,sync_test,async_test)
       linedefined = debug_info.linedefined,
     }
   }
+
   suite.tests[#suite.tests+1] = test
 end
 
 busted.reset = function()
   current_context = create_context('Root context')
+
   suite = {
     tests = {},
     done = {},
@@ -446,18 +502,23 @@ busted.reset = function()
 end
 
 busted.setloop = function(...)
-  local args = {...}
+  local args = { ... }
+
   if type(args[1]) == 'string' then
     local loop = args[1]
+
     if loop == 'ev' then
       local ev = require'ev'
+
       suite.loop_pcall = pcall
       suite.loop_step = function()
         ev.Loop.default:loop()
       end
     elseif loop == 'copas' then
       local copas = require'copas'
+
       require'coxpcall'
+
       suite.loop_pcall = copcall
       suite.loop_step = function()
         copas.step(0)
@@ -472,91 +533,99 @@ end
 busted.run_internal_test = function(describe_tests)
   local suite_bak = suite
   local output_bak = busted.output
-  busted.output = {currently_executing=function() end}
+
+  --busted.output = require 'busted.output.stub'()
+
   suite = {
     tests = {},
     done = {},
     started = {},
-    test_index = 1
+    test_index = 1,
+    loop_pcall = pcall,
+    loop_step = function() end
   }
+
   describe_tests()
+
   repeat
     next_test()
     suite.loop_step()
   until #suite.done == #suite.tests
-  
+
   local statuses = {}
-  for _,test in ipairs(suite.tests) do
-    push(statuses,test.status)
+
+  for _, test in ipairs(suite.tests) do
+    push(statuses, test.status)
   end
+
   suite = suite_bak
   busted.output = output_bak
+
   return statuses
 end
 
 -- test runner
 busted.run = function(got_options)
   options = got_options
-  
+
   language(options.lang)
   busted.output = getoutputter(options.output, options.fpath, busted.defaultoutput)
   -- if no filelist given, get them
   options.filelist = options.filelist or gettestfiles(options.root_file, options.pattern)
   -- load testfiles
-  
+
   local ms = os.clock()
-  
+
   local statuses = {}
   local failures = 0
   local suites = {}
   local tests = 0
-  
-  for i,filename in ipairs(options.filelist) do
+
+  for i, filename in ipairs(options.filelist) do
     local old_TEST = _TEST
     _TEST = busted._VERSION
-    
+
     busted.reset()
-    
+
     suite._TEST = _TEST
-    
+
     load_testfile(filename)
     tests = tests + #suite.tests
-    
+
     suites[i] = suite
     _TEST = old_TEST
   end
-  
+
   if not options.defer_print then
-    print(busted.output.header('global',tests))
+    print(busted.output.header('global', tests))
   end
-  
-  for i,filename in ipairs(options.filelist) do
-    
+
+  for i, filename in ipairs(options.filelist) do
     _TEST = suites[i]._TEST
     suite = suites[i]
-    
+
     repeat
       next_test()
       suite.loop_step()
     until #suite.done == #suite.tests
-    
-    for _,test in ipairs(suite.tests) do
-      push(statuses,test.status)
+
+    for _, test in ipairs(suite.tests) do
+      push(statuses, test.status)
       if test.status.type == 'failure' then
         failures = failures + 1
       end
     end
   end
-  
+
   --final run time
   ms = os.clock() - ms
-  
+
   local status_string = busted.output.formatted_status(statuses, options, ms)
-  
+
   if options.sound then
     play_sound(failures)
   end
-  
+
   return status_string, failures
 end
 
@@ -575,7 +644,8 @@ step = step
 setloop = busted.setloop
 
 return setmetatable(busted, {
-    __call = function(self, ...)
-      return busted.run(...)
-  end } )
+  __call = function(self, ...)
+    return busted.run(...)
+  end
+ })
 

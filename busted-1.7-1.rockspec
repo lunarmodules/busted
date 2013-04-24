@@ -36,6 +36,7 @@ build = {
     ["busted.output.TAP"] = "src/output/TAP.lua",
     ["busted.output.json"] = "src/output/json.lua",
     ["busted.output.junit"] = "src/output/junit.lua",
+    ["busted.output.stub"] = "src/output/stub.lua",
     ["busted.init"] = "src/init.lua",
     ["busted.languages.en"] = "src/languages/en.lua",
     ["busted.languages.ar"] = "src/languages/ar.lua",
