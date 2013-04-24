@@ -1,3 +1,4 @@
+local moon = require('busted.moon')
 local path = require('pl.path')
 local dir = require('pl.dir')
 local tablex = require('pl.tablex')
@@ -87,8 +88,8 @@ end
 local function load_testfile(filename)
   local old_TEST = _TEST
   _TEST = busted._VERSION
-  
-  local success, err = pcall(function() loadfile(filename)() end)
+
+  local success, err = pcall(function() moon.loadfile(filename)() end)
   if not success then
     internal_error("Failed executing testfile; " .. tostring(filename), err)
   end
@@ -109,6 +110,15 @@ local play_sound = function(failures)
   end
 end
 
+local get_fname = function(short_src)
+  local i = short_src:find('"', 1, true)
+  if i then
+    local j = short_src:find('"', i+1, true)
+    if j then
+      return short_src:sub(i+1, j-1)
+    end
+  end
+end
 
 --=============================
 -- Test engine
@@ -123,6 +133,11 @@ local function test(description, callback, no_output)
     short_src = debug_info.short_src,
     linedefined = debug_info.linedefined,
   }
+
+  fname = get_fname(info.short_src)
+  if fname and moon.is_moon(fname) then
+    info.linedefined = moon.rewrite_linenumber(fname, info.linedefined) or info.linedefined
+  end
 
   local stack_trace = ""
 
@@ -139,6 +154,8 @@ local function test(description, callback, no_output)
     if type(err) == "table" then
       err = pretty.write(err)
     end
+
+    err, stack_trace = moon.rewrite_traceback(err, stack_trace)
 
     test_status = { type = "failure", description = description, info = info, trace = stack_trace, err = err }
     failures = failures + 1
