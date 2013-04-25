@@ -255,7 +255,7 @@ next_test = function()
           err = pretty.write(err)
         end
 
-        trace = debug.traceback("", 2)
+        local trace = debug.traceback("", 2)
         err, trace = moon.rewrite_traceback(err, trace)
 
         test.status.type = 'failure'
