@@ -65,11 +65,13 @@ local output = function()
       short_status = ""
     end
 
+    local formatted_time = ("%.6f"):format(ms):gsub("([0-9])0+$", "%1")
+
     return short_status.."\n"..
            successes.." "..success_str..", "..
            failures.." "..failure_str..", and "..
            pendings.." "..pending_str.." in "..
-           ms.." "..s('output.seconds').."."..descriptive_status
+           formatted_time.." "..s('output.seconds').."."..descriptive_status
   end
 
   format_statuses = function (statuses, options)
