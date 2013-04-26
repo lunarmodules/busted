@@ -19,6 +19,7 @@ busted.cpathprefix = path.is_windows and "./csrc/?.dll;./csrc/?/?.dll;" or "./cs
 require('busted.languages.en')-- Load default language pack
 
 local options = {}
+local current_context
 
 -- report a test-process error as a failed test
 local internal_error = function(description, err)
@@ -27,6 +28,10 @@ local internal_error = function(description, err)
   if options.tags and #options.tags > 0 then
     -- tags specified; must insert a tag to make sure the error gets displayed
     tag = " #"..options.tags[1]
+  end
+
+  if not current_context then
+    busted.reset()
   end
 
   describe("Busted process errors occured" .. tag, function()
@@ -381,7 +386,6 @@ local create_context = function(desc)
 end
 
 local suite_name
-local current_context
 
 busted.describe = function(desc, more)
   if not suite_name then
@@ -613,6 +617,25 @@ busted.run = function(got_options)
   local suites = {}
   local tests = 0
 
+  local function run_suite()
+    repeat
+      next_test()
+      suite.loop_step()
+    until #suite.done == #suite.tests
+
+    for _, test in ipairs(suite.tests) do
+      push(statuses, test.status)
+      if test.status.type == 'failure' then
+        failures = failures + 1
+      end
+    end
+  end
+
+  -- there's already a test! probably an error
+  if #suite.tests > 0 then
+    run_suite()
+  end
+
   for i, filename in ipairs(options.filelist) do
     local old_TEST = _TEST
     _TEST = busted._VERSION
@@ -635,18 +658,7 @@ busted.run = function(got_options)
   for i, filename in ipairs(options.filelist) do
     _TEST = suites[i]._TEST
     suite = suites[i]
-
-    repeat
-      next_test()
-      suite.loop_step()
-    until #suite.done == #suite.tests
-
-    for _, test in ipairs(suite.tests) do
-      push(statuses, test.status)
-      if test.status.type == 'failure' then
-        failures = failures + 1
-      end
-    end
+    run_suite()
   end
 
   --final run time
