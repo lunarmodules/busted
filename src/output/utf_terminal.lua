@@ -66,12 +66,13 @@ local output = function()
       short_status = ""
     end
 
+    local formatted_time = ("%.6f"):format(ms):gsub("([0-9])0+$", "%1")
 
     return short_status.."\n"..
     ansicolors('%{green}'..successes).." "..success_str.." / "..
     ansicolors('%{red}'..failures).." "..failure_str.." / "..
     ansicolors('%{yellow}'..pendings).." "..pending_str.." : "..
-    ansicolors('%{bright}'..ms).." "..s('output.seconds').."."..descriptive_status
+    ansicolors('%{bright}'..formatted_time).." "..s('output.seconds').."."..descriptive_status
   end
 
   format_statuses = function (statuses, options)

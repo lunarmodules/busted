@@ -41,6 +41,20 @@ local internal_error = function(description, err)
   end)
 end
 
+-- returns current time in seconds
+local function get_time()
+  local success, socket = pcall(function() return require "socket" end)
+  if success then
+    get_time = function()
+      return socket.gettime()
+    end
+  else
+    get_time = os.clock
+  end
+
+  return get_time()
+end
+
 local language = function(lang)
   if lang then
     busted.messages = require('busted.languages.'..lang)
@@ -610,7 +624,7 @@ busted.run = function(got_options)
   options.filelist = options.filelist or gettestfiles(options.root_file, options.pattern)
   -- load testfiles
 
-  local ms = os.clock()
+  local ms = get_time()
 
   local statuses = {}
   local failures = 0
@@ -662,7 +676,7 @@ busted.run = function(got_options)
   end
 
   --final run time
-  ms = os.clock() - ms
+  ms = get_time() - ms
 
   local status_string = busted.output.formatted_status(statuses, options, ms)
 
