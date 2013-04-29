@@ -563,7 +563,7 @@ busted.run_internal_test = function(describe_tests)
   local suite_bak = suite
   local output_bak = busted.output
 
-  --busted.output = require 'busted.output.stub'()
+  busted.output = require 'busted.output.stub'()
 
   suite = {
     tests = {},
