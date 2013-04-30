@@ -9,7 +9,7 @@
     <link href='http://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,400,700' rel='stylesheet' type='text/css'>
 
     <link rel="stylesheet" href="css/solarized-light.css">
-    <link rel="stylesheet" href="css/bootstrap.css">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/styles.css">
 
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
@@ -24,32 +24,34 @@
         <h1 class="remove-bottom">busted</h1>
         <h2>Elegant Lua unit testing.</h2>
       </header>
+    </div>
 
-      <div class="navbar navbar-inverse navbar-fixed-top">
-        <div class="navbar-inner">
-          <div class="container">
-            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-            </a>
+    <div class="navbar navbar-fixed-top">
+      <div class="container">
+        <a class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </a>
 
-            <div class="nav-collapse">
-              <nav>
-                <ul class="nav">
-                  <li><a href="https://github.com/Olivine-Labs/busted"><span class="icon icon-folder-open icon-white"></span> View On <strong>GitHub</strong> @ <small>Olivine-Labs/busted</small></a></li>
-                  <li><a href="https://github.com/Olivine-Labs/busted/zipball/master"><span class="icon icon-download-alt icon-white"></span> <strong>ZIP File</strong></a></li>
-                  <li><a href="https://github.com/Olivine-Labs/busted/tarball/master"><span class="icon icon-download-alt icon-white"></span> <strong>TAR Ball</strong></a></li>
-                  <li><a href="http://luarocks.org/"><strong>Install:</strong> luarocks install busted</a></li>
-                </ul>
-              </nav>
-            </div>
-          </div>
+        <a class="navbar-brand" href="http://olivinelabs.com/busted">Busted</a>
+
+        <div class="nav-collapse collabse">
+          <nav>
+            <ul class="nav navbar-nav">
+              <li><a href="https://github.com/Olivine-Labs/busted"><span class="icon icon-folder-open icon-white"></span> View On <strong>GitHub</strong> @ <small>Olivine-Labs/busted</small></a></li>
+              <li><a href="https://github.com/Olivine-Labs/busted/zipball/master"><span class="icon icon-download-alt icon-white"></span> <strong>ZIP File</strong></a></li>
+              <li><a href="https://github.com/Olivine-Labs/busted/tarball/master"><span class="icon icon-download-alt icon-white"></span> <strong>TAR Ball</strong></a></li>
+              <li><a href="http://luarocks.org/"><strong>Install:</strong> luarocks install busted</a></li>
+            </ul>
+          </nav>
         </div>
       </div>
+    </div>
 
+    <div class="container">
       <div class="row">
-        <div class="span3 sidebar">
+        <div class="col col-lg-3 sidebar">
           <ul class="nav nav-list sidenav">
             <li><a href="#overview"><i class="icon-chevron-right"></i>Overview</a></li>
             <li><a href="#usage"><i class="icon-chevron-right"></i>Usage</a></li>
@@ -62,10 +64,14 @@
             <li><a href="#moonscript"><i class="icon-chevron-right"></i>Moonscript</a></li>
             <li><a href="#language-packs"><i class="icon-chevron-right"></i>i18n</a></li>
             <li><a href="#contributing"><i class="icon-chevron-right"></i>Contributing</a></li>
+            <li>
+              <h6>Status</h6>
+              <p>Version: <strong>1.8</strong>
+            </li>
           </ul>
         </div>
 
-        <div class="span9">
+        <div class="col col-lg-9">
           <section id="overview">
             <h2>What's <em>busted</em>, precious?</h2>
 
@@ -135,7 +141,7 @@ end)
 <pre><code>busted test.lua</code></pre>
 
             <div class="thumbnail">
-              <img src="http://f.cl.ly/items/0z0K0V3x0q123V2z0e3p/Screen%20Shot%202012-08-08%20at%2011.10.00%20PM.png" />
+              <img src="/img/run.png" />
             </div>
           </section>
 
@@ -696,22 +702,22 @@ end)
           <h4 id="output-utf_terminal">UTF and Coloring: Pretty Terminal Output with utf_terminal</h4>
           <p>Uses ansicolors and utf to display a concise but informative output.</p>
 
-          <img src="http://f.cl.ly/items/0z0K0V3x0q123V2z0e3p/Screen%20Shot%202012-08-08%20at%2011.10.00%20PM.png" />
+          <img src="/img/run.png" />
 
           <h4 id="output-plain_terminal">Clean output with plain_terminal</h4>
           <p>Uses safe characters and no coloring.</p>
 
-          <img src="http://f.cl.ly/items/313v152a0E222X0z183p/Image%202012.08.14%201:09:41%20PM.png" />
+          <img src="/img/plain.png" />
 
           <h4 id="output-json">JSON for integration with json output</h4>
           <p>Useful for streaming or loading all results at once with the --defer-print flag.</p>
 
-          <img src="http://f.cl.ly/items/2L0l1W0n1b2N1w343b3m/Image%202012.08.14%201:10:00%20PM.png" />
+          <img src="/img/json.png" />
 
           <h4 id="output-json">TAP for use with CI systems</h4>
           <p><a href="">TAP</a> is an agnostic protocol used by most automated testing suites.</p>
 
-          <img src="http://f.cl.ly/items/443E1g1B2m313i2O0b3T/Image%202012.08.14%201:10:13%20PM.png" />
+          <img src="/img/tap.png" />
 
           <h4>Registering Your Own Output Type</h4>
 
@@ -839,14 +845,12 @@ describe "async moonscript tests", ->
       <div class="row">
         <footer class="span12 division">
           <p><strong><a href="https://github.com/Olivine-Labs/busted">busted</a></strong> is bravely maintained by <a href="https://github.com/Olivine-Labs">Olivine Labs</a>.</p>
-          <p><small><a href="https://raw.github.com/Olivine-Labs/busted/master/LICENSE">MIT Licensed</a>. &copy; 2012 Olivine Labs, LLC. Documentation hosted on GitHub Pages.</small></p>
+          <p><small><a href="https://raw.github.com/Olivine-Labs/busted/master/LICENSE">MIT Licensed</a>. &copy; 2013 Olivine Labs, LLC. Documentation hosted on GitHub Pages.</small></p>
         </footer>
       </div>
     </div>
 
-    <script src="//code.jquery.com/jquery-1.8.2.min.js"></script>
-    <script>window.jQuery || document.write('<script src="js/jquery-1.8.2.min.js"><\/script>')</script>
-
+    <script src="js/jquery-1.9.1.min.js"></script>
     <script src="js/rainbow.min.js"></script>
     <script src="js/generic.js"></script>
     <script src="js/lua.js"></script>
@@ -857,9 +861,7 @@ describe "async moonscript tests", ->
       $(function(){
         $('.sidenav').affix({ offset: { top: 200, bottom: 100 } })
       });
-    </script>
-    
-    <script>
+
       var _gaq=[['_setAccount','UA-22050912-1'],['_trackPageview']]; 
       (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];g.async=1;
       g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
@@ -867,3 +869,4 @@ describe "async moonscript tests", ->
     </script>
   </body>
 </html>
+
