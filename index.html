@@ -56,8 +56,10 @@
             <li><a href="#defining-tests"><i class="icon-chevron-right"></i>Defining Tests</a></li>
             <li><a href="#asserts"><i class="icon-chevron-right"></i>Asserts</a></li>
             <li><a href="#spies-mocks-stubs"><i class="icon-chevron-right"></i>Spies, Stubs & Mocks</a></li>
+            <li><a href="#async-tests"><i class="icon-chevron-right"></i>Async Tests</a></li>
             <li><a href="#private"><i class="icon-chevron-right"></i>Private</a></li>
             <li><a href="#output-types"><i class="icon-chevron-right"></i>Output Types</a></li>
+            <li><a href="#moonscript"><i class="icon-chevron-right"></i>Moonscript</a></li>
             <li><a href="#language-packs"><i class="icon-chevron-right"></i>i18n</a></li>
             <li><a href="#contributing"><i class="icon-chevron-right"></i>Contributing</a></li>
           </ul>
@@ -69,7 +71,9 @@
 
             <p>
               busted is a unit testing framework with a focus on being
-              <strong>easy to use</strong>.
+              <strong>easy to use</strong>. busted works with 
+              <strong>lua &gt;= 5.1</strong>, <strong>moonscript</strong>,
+              and <strong>luajist &gt;= 2.0.0 </strong>
             </p>
 
             <p>
@@ -600,6 +604,51 @@ end)
 
         </section>
 
+        <section class="division" id="async-tests">
+          <h2>Async Tests</h2>
+          <p>
+            Sometimes you need to write tests that work with asynchronous calls
+            such as when dealing with HTTP requests, threads, or database
+            calls.
+          </p>
+
+<pre><code data-language="lua">-- you will need libev to run the following example,
+-- which uses 'ev'
+
+local ev = require'ev'
+
+-- `asynchronous_call` is function to act as our asynchronous, time-taking test. In
+-- reality, you'll call out to your asynchronous code instead.
+local asynchronous_call = function(on_timeout)
+  ev.Timer.new(function()
+    on_timeout()
+  end,0.01):start(ev.Loop.default)
+end
+
+-- specify the loop framework ('copas' or 'ev')
+setloop('ev')
+
+describe('Some async stuff', function()
+  -- Specify `async` as the first argument to `before`, `after`, `before_each`
+  -- and `after_each`. Add `async` after your decription for `it` functions.
+
+  -- "done" in the test function is the async busted callback.
+  -- The async callback must call "done" to proceed, or else time out.
+
+  it('make some async test',async,function(done)
+    -- The callback must be wrapped in `guard`, or on failure the test will
+    -- hang forever.
+
+    asynchronous_call(guard(function()
+      assert.is_true(true)
+      done()
+    end))
+  end)
+end)
+</code></pre>
+
+        </section>
+
         <section class="division" id="private">
           <h2>Private</h2>
           <p>
@@ -702,6 +751,35 @@ end
 
 return output
 </code></pre>
+        </section>
+
+        <section class="division" id="moonscript">
+          <h2>Moonscript</h2>
+          <p>
+            <a href="http://moonscript.org" target="_blank">Moonscript</a> is
+            a dynamic scripting language that compiles to Lua. Busted supports
+            Moonscript natively without any additional compilation steps, and
+            will redirect line numbers to show the proper line numbers for
+            failing tests.
+          </p>
+
+<pre><code data-language="moonscript">#source: moonscript_spec.moon
+describe "moonscript tests", ->
+  it "runs", ->
+    assert.are.equal true, true
+
+  it "fails", ->
+    assert.error(-> assert.are.equal false, true)
+
+describe "async moonscript tests", ->
+  it "runs async tests", async, (done) ->
+    some_asynchronous_call(guard ->
+      assert.is_true true
+      done()
+    )
+
+</code></pre>
+
         </section>
 
         <section class="division" id="language-packs">
