@@ -2,7 +2,7 @@ Busted
 ======
 
 busted is a unit testing framework with a focus on being **easy to
-use**.
+use**. Supports Lua >= 5.1, luajit >= 2.0.0, and moonscript.
 
 Check out the [official docs](http://www.olivinelabs.com/busted) for
 extended info.
