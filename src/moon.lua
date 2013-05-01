@@ -1,8 +1,10 @@
 local success, ms = pcall(function() return require("moonscript") end)
+
 if not success then
   return {
-    is_moon=function(x) return false end,
-    loadfile=loadfile
+    is_moon = function(x) return false end,
+    loadfile = loadfile,
+    rewrite_traceback = function(err, trace) return err, trace end
   }
 end
 
