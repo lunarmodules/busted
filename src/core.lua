@@ -24,12 +24,10 @@ local current_context
 -- report a test-process error as a failed test
 local internal_error = function(description, err)
   local tag = ""
-
   if options.tags and #options.tags > 0 then
     -- tags specified; must insert a tag to make sure the error gets displayed
     tag = " #"..options.tags[1]
   end
-
   if not current_context then
     busted.reset()
   end
@@ -116,7 +114,13 @@ local load_testfile = function(filename)
   local old_TEST = _TEST
   _TEST = busted._VERSION
 
-  local success, err = pcall(function() moon.loadfile(filename)() end)
+  local success, err = pcall(function() 
+    local chunk,err = moon.loadfile(filename)
+    if not chunk then
+      error(err,2)
+    end
+    chunk()
+  end)
 
   if not success then
     internal_error("Failed executing testfile; " .. tostring(filename), err)
@@ -400,13 +404,8 @@ local create_context = function(desc)
   return context
 end
 
-local suite_name
 
 busted.describe = function(desc, more)
-  if not suite_name then
-    suite_name = desc
-  end
-
   local context = create_context(desc)
 
   for i, parent in ipairs(current_context.parents) do
@@ -549,7 +548,6 @@ busted.reset = function()
     loop_pcall = pcall,
     loop_step = function() end,
   }
-  suite_name = nil
 end
 
 busted.setloop = function(...)
@@ -584,9 +582,10 @@ end
 busted.run_internal_test = function(describe_tests)
   local suite_bak = suite
   local output_bak = busted.output
+  local current_context_bak = current_context
+  busted.reset()
 
   busted.output = require 'busted.output.stub'()
-
   suite = {
     tests = {},
     done = {},
@@ -596,7 +595,11 @@ busted.run_internal_test = function(describe_tests)
     loop_step = function() end
   }
 
-  describe_tests()
+  if type(describe_tests) == 'function' then
+     describe_tests()
+  else
+     load_testfile(describe_tests)
+  end
 
   repeat
     next_test()
@@ -610,6 +613,7 @@ busted.run_internal_test = function(describe_tests)
   end
 
   suite = suite_bak
+  current_context = current_context_bak
   busted.output = output_bak
 
   return statuses
