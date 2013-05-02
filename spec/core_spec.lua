@@ -257,3 +257,16 @@ teardown A
   end)
 
 end)
+
+it("Malformated Lua code gets reported correctly", function()
+  local filename = ".malformed_test.lua"
+  local f = io.open(filename,"w")
+  f:write("end)") -- write some non-sense which will cause a parse error
+  f:close()
+  local statuses = busted.run_internal_test(filename)
+  assert.is_equal(#statuses,1)
+  local status = statuses[1]
+  assert.is_equal(status.type, "failure")
+  assert.is_equal(status.description, "Failed executing testfile; "..filename)
+  assert.is_truthy(status.err:match("expected"))
+end)
