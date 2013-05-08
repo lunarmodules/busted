@@ -18,6 +18,16 @@ busted.lpathprefix = "./src/?.lua;./src/?/?.lua;./src/?/init.lua"
 busted.cpathprefix = path.is_windows and "./csrc/?.dll;./csrc/?/?.dll;" or "./csrc/?.so;./csrc/?/?.so;"
 require('busted.languages.en')-- Load default language pack
 
+-- platform detection
+local system
+if require('ffi') then
+  system = require('ffi').os
+elseif os.getenv('WinDir') or os.getenv('SystemRoot') then
+  system = 'Windows'
+else
+  system = io.popen("uname -s"):read("*l")
+end
+
 local options = {}
 local current_context
 
@@ -135,10 +145,15 @@ local play_sound = function(failures)
 
     math.randomseed(os.time())
 
+    local sayer = "say"
+    if system == "Linux" then
+      sayer = "espeak -s 160"
+    end
+
     if failures and failures > 0 then
-      io.popen("say \""..busted.messages.failure_messages[math.random(1, #busted.messages.failure_messages)]:format(failures).."\"")
+      io.popen(sayer .. " \""..busted.messages.failure_messages[math.random(1, #busted.messages.failure_messages)]:format(failures).."\" > /dev/null 2>&1")
     else
-      io.popen("say \""..busted.messages.success_messages[math.random(1, #busted.messages.success_messages)].."\"")
+      io.popen(sayer .. " \""..busted.messages.success_messages[math.random(1, #busted.messages.success_messages)].."\" > /dev/null 2>&1")
     end
   end
 end
