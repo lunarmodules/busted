@@ -19,14 +19,26 @@ busted.cpathprefix = path.is_windows and "./csrc/?.dll;./csrc/?/?.dll;" or "./cs
 require('busted.languages.en')-- Load default language pack
 
 -- platform detection
-local system
+local system, sayer_pre, sayer_post
 if require('ffi') then
   system = require('ffi').os
 elseif os.getenv('WinDir') or os.getenv('SystemRoot') then
   system = 'Windows'
 else
-  system = io.popen("uname -s"):read("*l")
+  system = io.popen('uname -s'):read('*l')
 end
+
+if system == 'Linux' then
+  sayer_pre = 'espeak -s 160 '
+  sayer_post = ' > /dev/null 2>&1'
+elseif system and system:match('^Windows') then
+  sayer_pre = 'echo '
+  sayer_post = ' | ptts'
+else
+  sayer_pre = 'say '
+  sayer_post = ''
+end
+system = nil
 
 local options = {}
 local current_context
@@ -145,15 +157,10 @@ local play_sound = function(failures)
 
     math.randomseed(os.time())
 
-    local sayer = "say"
-    if system == "Linux" then
-      sayer = "espeak -s 160"
-    end
-
     if failures and failures > 0 then
-      io.popen(sayer .. " \""..busted.messages.failure_messages[math.random(1, #busted.messages.failure_messages)]:format(failures).."\" > /dev/null 2>&1")
+      io.popen(sayer_pre.."\""..busted.messages.failure_messages[math.random(1, #busted.messages.failure_messages)]:format(failures).."\""..sayer_post)
     else
-      io.popen(sayer .. " \""..busted.messages.success_messages[math.random(1, #busted.messages.success_messages)].."\" > /dev/null 2>&1")
+      io.popen(sayer_pre.."\""..busted.messages.success_messages[math.random(1, #busted.messages.success_messages)].."\""..sayer_post)
     end
   end
 end
