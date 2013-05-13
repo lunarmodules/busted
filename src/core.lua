@@ -241,7 +241,7 @@ next_test = function()
       local timer
       local done = function()
          if timer then
-           timer:stop(suite.ev.Loop.default)
+           timer:stop()
          end
         if test.done_trace then
           if test.status.err == nil then
@@ -273,19 +273,17 @@ next_test = function()
         next()
       end
 
-      if suite.ev then
+      if suite.create_timer then
         settimeout = function(timeout)
           if not timer then
-            timer = suite.ev.Timer.new(function()
-              timer = nil
+            timer = suite.create_timer(timeout,function()
               if not test.done_trace then
                 test.status.type = 'failure'
                 test.status.trace = ''
                 test.status.err = 'test timeout elapsed ('..timeout..'s)'
                 done()
               end
-            end,timeout)
-            timer:start(suite.ev.Loop.default)
+            end)
           end
         end
       else
@@ -296,7 +294,7 @@ next_test = function()
 
       local ok, err = suite.loop_pcall(test.f, done)
       if ok then
-        if suite.ev and not timer and not test.done_trace then
+        if settimeout and not timer and not test.done_trace then
           settimeout(1.0)
         end
       else
@@ -584,7 +582,22 @@ busted.setloop = function(...)
 
     if loop == 'ev' then
       local ev = require'ev'
-      suite.ev = ev
+      suite.create_timer = function(secs,on_timeout)
+        local timer 
+        timer = ev.Timer.new(function()
+          timer = nil
+          on_timeout()
+        end,secs)
+        timer:start(ev.Loop.default)
+        return {
+          stop = function()
+            if timer then
+              timer:stop(ev.Loop.default)
+              timer = nil
+            end
+          end
+        }
+      end
       suite.loop_pcall = pcall
       suite.loop_step = function()
         ev.Loop.default:loop()
