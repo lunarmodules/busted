@@ -242,6 +242,7 @@ next_test = function()
       local done = function()
          if timer then
            timer:stop()
+           timer = nil
          end
         if test.done_trace then
           if test.status.err == nil then
