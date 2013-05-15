@@ -18,6 +18,8 @@ done
 
 if commandExists $COMMAND ; then
   COMMAND=$COMMAND;
+elif commandExists $LUA ; then
+  COMMAND=$LUA;
 elif commandExists luajit ; then
   COMMAND=luajit;
 elif commandExists lua ; then

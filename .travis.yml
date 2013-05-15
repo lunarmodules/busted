@@ -1,16 +1,16 @@
 language: erlang
 
 env:
-  - LUA="lua5.1"
-  - LUA="lua5.2"
-  - LUA="luajit"
+  - LUA="luajit-2.0.0-beta9"
 
 install:
-  - sudo apt-get install lua5.1
-  - sudo apt-get install lua5.2
-  - sudo apt-get install luajit
-  - sudo apt-get install luarocks
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq git luajit luarocks libev-dev make
+    sudo ln -s /usr/bin/luajit-2.0.0-beta9 /usr/bin/luajit
   - sudo luarocks install luafilesystem
+  - sudo luarocks install copas
+  - sudo luarocks install moonscript
+  - sudo luarocks install lua-ev
   - git clone git://github.com/Olivine-Labs/say.git
   - cd say
   - sudo luarocks make
@@ -19,16 +19,12 @@ install:
   - cd luassert
   - sudo luarocks make
   - cd ../
-  - git clone git://github.com/Olivine-Labs/busted.git
-  - cd busted
-  - sudo luarocks make
-  - cd ../
 
-script: "sudo luarocks make && busted spec/core_spec.lua"
+script: "sudo luarocks make && sudo busted"
 
 notifications:
   webhooks:
-    - http://hollow-mountain-1250.herokuapp.com/hubot/travis
+    - http://exobot.herokuapp.com/hubot/travis
   recipients:
     - engineers@olivinelabs.com
   email:
