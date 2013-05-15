@@ -67,9 +67,10 @@ Testing
 You'll need `libev` to run async tests. Then do the following, assuming you
 have luarocks installed:
 
-Install dependencies not in the rockspec (only needed for testing):
+Install these dependencies for core testing:
 
 ```
+luarocks install copas
 luarocks install lua-ev
 luarocks install moonscript
 ```
