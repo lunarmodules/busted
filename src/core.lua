@@ -251,7 +251,24 @@ end
 
 busted.guard = guard
 
-local next_test   -- define before the function to allow for recursion
+local match_tags = function(testName)
+  if #options.tags > 0 then
+
+    for t = 1, #options.tags do
+      if testName:find(options.tags[t]) then
+        return true
+      end
+    end
+
+    return false
+  else
+    -- default to true if no tags are set
+    return true
+  end
+end
+
+local next_test
+
 next_test = function()
   if #suite.done == #suite.tests then
     return
@@ -261,7 +278,9 @@ next_test = function()
     suite.started[suite.test_index] = true
 
     local test = suite.tests[suite.test_index]
+
     assert(test, suite.test_index..debug.traceback('', 1))
+
     local steps = {}
 
     local execute_test = function(next)
@@ -530,7 +549,9 @@ busted.pending = function(name)
     info = buildInfo(debug_info)
   }
 
-  suite.tests[#suite.tests+1] = test
+  if match_tags(test.name) then
+    suite.tests[#suite.tests+1] = test
+  end
 end
 
 busted.it = function(name, sync_test, async_test)
@@ -561,7 +582,9 @@ busted.it = function(name, sync_test, async_test)
     info = buildInfo(debug_info)
   }
 
-  suite.tests[#suite.tests+1] = test
+  if match_tags(test.name) then
+    suite.tests[#suite.tests+1] = test
+  end
 end
 
 busted.reset = function()
