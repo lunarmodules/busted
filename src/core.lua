@@ -22,7 +22,7 @@ require('busted.languages.en')-- Load default language pack
 local system, sayer_pre, sayer_post
 if pcall(require, 'ffi') then
   system = require('ffi').os
-elseif os.getenv('WinDir') or os.getenv('SystemRoot') then
+elseif path.is_windows then
   system = 'Windows'
 else
   system = io.popen('uname -s'):read('*l')
