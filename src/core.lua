@@ -129,7 +129,21 @@ local load_testfile = function(filename)
   _TEST = busted._VERSION
 
   local success, err = pcall(function() 
-    local chunk,err = moon.loadfile(filename)
+    local chunk,err
+    if moon.is_moon(filename) then
+      if moon.has_moon then
+        chunk,err = moon.loadfile(filename)
+      else
+        chunk = function()
+          busted.describe("Moon script not installed", function()
+            pending("File not tested because 'moonscript' isn't installed; "..tostring(filename))
+          end)
+        end
+      end      
+    else
+      chunk,err = loadfile(filename)
+    end
+    
     if not chunk then
       error(err,2)
     end
