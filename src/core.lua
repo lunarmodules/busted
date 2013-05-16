@@ -20,7 +20,7 @@ require('busted.languages.en')-- Load default language pack
 
 -- platform detection
 local system, sayer_pre, sayer_post
-if require('ffi') then
+if pcall(require, 'ffi') then
   system = require('ffi').os
 elseif os.getenv('WinDir') or os.getenv('SystemRoot') then
   system = 'Windows'
