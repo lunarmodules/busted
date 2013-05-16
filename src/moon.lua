@@ -1,8 +1,13 @@
 local success, ms = pcall(function() return require("moonscript") end)
 
+local is_moon = function(fname)
+  return fname:find(".moon", #fname-6, true) and true or false
+end
+
 if not success then
   return {
-    is_moon = function(x) return false end,
+    has_moon = false,
+    is_moon = is_moon,
     loadfile = loadfile,
     rewrite_traceback = function(err, trace) return err, trace end
   }
@@ -13,10 +18,6 @@ local line_tables = require("moonscript.line_tables")
 local table = require("table")
 
 local _cache = {}
-
-local is_moon = function(fname)
-  return fname:find(".moon", #fname-6, true) and true or false
-end
 
 local loader = function(fname)  
   if is_moon(fname) then
@@ -77,6 +78,7 @@ end
 
 return {
     loadfile=loader,
+    has_moon=true,
     is_moon=is_moon,
     rewrite_linenumber=rewrite_linenumber,
     rewrite_traceback=rewrite_traceback
