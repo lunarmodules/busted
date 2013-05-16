@@ -251,7 +251,12 @@ next_test = function()
     local steps = {}
 
     local execute_test = function(next)
+      local timer
       local done = function()
+         if timer then
+           timer:stop()
+           timer = nil
+         end
         if test.done_trace then
           if test.status.err == nil then
             local stack_trace = debug.traceback("", 2)
@@ -282,11 +287,31 @@ next_test = function()
         next()
       end
 
+      if suite.create_timer then
+        settimeout = function(timeout)
+          if not timer then
+            timer = suite.create_timer(timeout,function()
+              if not test.done_trace then
+                test.status.type = 'failure'
+                test.status.trace = ''
+                test.status.err = 'test timeout elapsed ('..timeout..'s)'
+                done()
+              end
+            end)
+          end
+        end
+      else
+         settimeout = nil
+      end
+
       test.done = done
 
       local ok, err = suite.loop_pcall(test.f, done)
-
-      if not ok then
+      if ok then
+        if settimeout and not timer and not test.done_trace then
+          settimeout(1.0)
+        end
+      else
         if type(err) == "table" then
           err = pretty.write(err)
         end
@@ -571,7 +596,22 @@ busted.setloop = function(...)
 
     if loop == 'ev' then
       local ev = require'ev'
-
+      suite.create_timer = function(secs,on_timeout)
+        local timer 
+        timer = ev.Timer.new(function()
+          timer = nil
+          on_timeout()
+        end,secs)
+        timer:start(ev.Loop.default)
+        return {
+          stop = function()
+            if timer then
+              timer:stop(ev.Loop.default)
+              timer = nil
+            end
+          end
+        }
+      end
       suite.loop_pcall = pcall
       suite.loop_step = function()
         ev.Loop.default:loop()
