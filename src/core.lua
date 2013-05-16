@@ -129,7 +129,21 @@ local load_testfile = function(filename)
   _TEST = busted._VERSION
 
   local success, err = pcall(function() 
-    local chunk,err = moon.loadfile(filename)
+    local chunk,err
+    if moon.is_moon(filename) then
+      if moon.has_moon then
+        chunk,err = moon.loadfile(filename)
+      else
+        chunk = function()
+          busted.describe("Moon script not installed", function()
+            pending("File not tested because 'moonscript' isn't installed; "..tostring(filename))
+          end)
+        end
+      end      
+    else
+      chunk,err = loadfile(filename)
+    end
+    
     if not chunk then
       error(err,2)
     end
@@ -561,6 +575,7 @@ busted.reset = function()
     loop_pcall = pcall,
     loop_step = function() end,
   }
+  busted.output = busted.output_reset
 end
 
 busted.setloop = function(...)
@@ -638,6 +653,7 @@ busted.run = function(got_options)
 
   language(options.lang)
   busted.output = getoutputter(options.output, options.fpath, busted.defaultoutput)
+  busted.output_reset = busted.output  -- store in case we need a reset
   -- if no filelist given, get them
   options.filelist = options.filelist or gettestfiles(options.root_file, options.pattern)
   -- load testfiles
