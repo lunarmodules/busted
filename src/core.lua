@@ -62,17 +62,9 @@ local internal_error = function(description, err)
 end
 
 -- returns current time in seconds
-local function get_time()
-  local success, socket = pcall(function() return require "socket" end)
-  if success then
-    get_time = function()
-      return socket.gettime()
-    end
-  else
-    get_time = os.clock
-  end
-
-  return get_time()
+local get_time = os.clock
+if pcall(require, "socket") then
+  get_time = package.loaded["socket"].gettime
 end
 
 local language = function(lang)
@@ -245,8 +237,7 @@ end
 
 busted.guard = guard
 
-local next_test
-
+local next_test   -- define before the function to allow for recursion
 next_test = function()
   if #suite.done == #suite.tests then
     return
