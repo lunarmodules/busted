@@ -561,6 +561,7 @@ busted.reset = function()
     loop_pcall = pcall,
     loop_step = function() end,
   }
+  busted.output = busted.output_reset
 end
 
 busted.setloop = function(...)
@@ -638,6 +639,7 @@ busted.run = function(got_options)
 
   language(options.lang)
   busted.output = getoutputter(options.output, options.fpath, busted.defaultoutput)
+  busted.output_reset = busted.output  -- store in case we need a reset
   -- if no filelist given, get them
   options.filelist = options.filelist or gettestfiles(options.root_file, options.pattern)
   -- load testfiles
