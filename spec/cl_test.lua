@@ -18,6 +18,15 @@ local error_end = function()
   error_started = false
 end
 
+-- if exitcode >256, then take MSB as exit code
+local modexit = function(exitcode)
+  if exitcode>255 then
+    return math.floor(exitcode/256), exitcode - math.floor(exitcode/256)*256
+  else
+    return exitcode
+  end
+end
+
 
 describe("Tests the busted command-line options", function()
 
@@ -40,13 +49,13 @@ describe("Tests the busted command-line options", function()
     error_start()
     success, exitcode = utils.execute("busted --pattern=_tags.lua$")
     assert.is_false(success)
-    assert.is_equal(exitcode, 3)
+    assert.is_equal(modexit(exitcode), 3)
     success, exitcode = utils.execute("busted --pattern=_tags.lua$ --tags=tag1")
     assert.is_false(success)
-    assert.is_equal(exitcode, 2)
+    assert.is_equal(modexit(exitcode), 2)
     success, exitcode = utils.execute("busted --pattern=_tags.lua$ --tags=tag1,tag2")
     assert.is_false(success)
-    assert.is_equal(exitcode, 3)
+    assert.is_equal(modexit(exitcode), 3)
     error_end()
   end)
 
@@ -55,10 +64,10 @@ describe("Tests the busted command-line options", function()
     error_start()
     success, exitcode = utils.execute("busted --pattern=cl_success.lua$ --lang=en")
     assert.is_true(success)
-    assert.is_equal(exitcode, 0)  
+    assert.is_equal(modexit(exitcode), 0)  
     success, exitcode = utils.execute("busted --pattern=cl_success --lang=not_found_here")
     assert.is_false(success)
-    assert.is_equal(exitcode, 1)  -- busted errors out on non-available language
+    assert.is_equal(modexit(exitcode), 1)  -- busted errors out on non-available language
     error_end()
   end)
 
@@ -66,14 +75,14 @@ describe("Tests the busted command-line options", function()
     local success, exitcode
     success, exitcode = utils.execute("busted --version")
     assert.is_true(success)
-    assert.is_equal(exitcode, 0)
+    assert.is_equal(modexit(exitcode), 0)
   end)
 
   it("tests running with --help specified", function()
     local success, exitcode
     success, exitcode = utils.execute("busted --help")
     assert.is_true(success)
-    assert.is_equal(exitcode, 0)
+    assert.is_equal(modexit(exitcode), 0)
   end)
 
   it("tests running a non-compiling testfile", function()
@@ -81,7 +90,7 @@ describe("Tests the busted command-line options", function()
     error_start()
     success, exitcode = utils.execute("busted --pattern=cl_compile_fail.lua$")
     assert.is_false(success)
-    assert.is_equal(exitcode, 1)
+    assert.is_equal(modexit(exitcode), 1)
     error_end()
   end)
 
@@ -90,7 +99,7 @@ describe("Tests the busted command-line options", function()
     error_start()
     success, exitcode = utils.execute("busted --pattern=cl_execute_fail.lua$")
     assert.is_false(success)
-    assert.is_equal(exitcode, 1)
+    assert.is_equal(modexit(exitcode), 1)
     error_end()
   end)
 
@@ -99,10 +108,10 @@ describe("Tests the busted command-line options", function()
     error_start()
     success, exitcode = utils.execute("busted --pattern=cl_success.lua$ --output=TAP")
     assert.is_true(success)
-    assert.is_equal(exitcode, 0)  
+    assert.is_equal(modexit(exitcode), 0)  
     success, exitcode = utils.execute("busted --pattern=cl_two_failures.lua$ --output=not_found_here")
     assert.is_false(success)
-    assert.is_equal(exitcode, 1)  -- 1 for outputter missing
+    assert.is_equal(modexit(exitcode), 1)  -- 1 for outputter missing
     error_end()
   end)
 
