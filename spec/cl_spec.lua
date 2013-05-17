@@ -1,19 +1,21 @@
--- Tests the commandline options by executing busted through
--- os.execute(). It can be run through the following command:
---
---    busted --pattern=cl_test.lua --defer-print
 
-local ditch
+local path = require("pl.path")
+local ditch = " > /dev/null 2>&1"
+if path.is_windows then
+  ditch = " 1> NUL 2>NUL"
+end
+--ditch = ""  -- uncomment this line, to show output of failing commands, for debugging
+
 local error_started
 local error_start = function()
-  if ditch == "" then return end
+  if ditch ~= "" then return end
   print("================================================")
   print("==  Error block follows                       ==")
   print("================================================")
   error_started = true
 end
 local error_end = function()
-  if ditch == "" then return end
+  if ditch ~= "" then return end
   print("================================================")
   print("==  Error block ended, all according to plan  ==")
   print("================================================")
@@ -29,13 +31,6 @@ local modexit = function(exitcode)
   end
 end
 
-local path = require("pl.path")
-local = " > /dev/null 2>&1"
-if path.is_windows then
-  ditch = " 1> NUL 2>NUL"
-end
-
---ditch = ""  -- uncomment this line, to show output of failing commands, for debugging
 
 
 
