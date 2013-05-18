@@ -159,7 +159,7 @@ end)
               busted release will always be available on
               <a href="http://rocks.moonscript.org/">Moonrocks</a>,
               but is also uploaded frequently to luarocks. Optionally follow
-              the instructions on Moonrocks, and then run
+              the instructions on <a href="http://rocks.moonscript.org/">Moonrocks</a>, and then run
               <code>luarocks install busted</code> to install the library and
               CLI.
             </p>
@@ -203,12 +203,12 @@ OPTIONS:
 
             <p>
               Busted 1.6 added a concept of "tasks", or predefined busted
-              configuration options. You can create a .busted file in the root,
+              configuration options. You can create a <code>.busted</code> file in the root,
               which is automatically loaded if it exists. Default options are
-              run if no task is specified. you can add any argument available
+              run if no task is specified. You can add any argument available
               in the CLI (listed above), using the long name. (Use
-              verbose = true, not v = true.) Any arguments you specify will
-              override those set in the task. An example .busted file might 
+              <code>verbose = true</code>, not <code>v = true</code>.) Any arguments you specify will
+              override those set in the task. An example <code>.busted</code> file might 
               look like:
             </p>
 
@@ -227,7 +227,7 @@ OPTIONS:
               This allows you to run <code>busted --run=apiUnit</code>, which
               will run the equivalent of
               <code>busted --tags=api --verbose spec/unit</code>. If you only
-              run <code>busted</code>, it will run the equivilant of
+              run <code>busted</code>, it will run the equivalent of
               <code>busted --verbose</code>.
             </p>
           </section>
@@ -242,7 +242,7 @@ OPTIONS:
               nested. You can also use the functions <code>before_each</code>
               and <code>after_each</code> to define functions that should be
               run before any nested tests, and <code>setup</code> and <code>teardown</code>
-              for funcitons that should be run before and after the entire block.
+              for functions that should be run before and after the <code>describe</code> block.
             </p>
             <p>
               You can also use the <code>pending</code>
@@ -251,7 +251,7 @@ OPTIONS:
             </p>
             <p>
               Tag your tests with #hashtags to run specific tests. When you
-              run busted from the command line, add the -t flag to run a
+              run busted from the command line, add the <code>-t</code> flag to run a
               given tag. Seperate tags by commas to run more than one tag.
             </p>
 
@@ -275,7 +275,7 @@ end)
 
           <h4 id="describe">Describe: Tagging Tests</h4>
           <p>
-            Tag tests using #tags, and run using the -t flag to only run that
+            Tag tests using #tags, and run using the <code>-t</code> flag to only run that
             test.
           </p>
 <pre><code data-language="lua">describe("a test #tag", function()
@@ -297,9 +297,9 @@ end)
 
           <h4 id="it">It: Defining tests</h4>
           <p>
-            it blocks takes a title and a callback. Tests fail if an
+            An <code>it</code> block takes a title and a callback. Tests fail if an
             uncaptured error is thrown (assert functions throw errors for
-            failed tests.)
+            failed tests).
           </p>
 <pre><code data-language="lua">describe("busted", function()
   it("has tests", function()
@@ -312,10 +312,10 @@ end)
 
           <h4 id="before-each">Before Each &amp; After Each; Setup &amp; Teardown</h4>
           <p>
-            before_each runs before each child <code>test</code>, and
-            after_each (you guessed it) runs after. <code>setup</code>
-            runs before the entire block, and <code>teardown</code>
-            runs after the block.
+            <code>before_each</code> runs before each child test, and
+            <code>after_each</code> (you guessed it) runs after. <code>setup</code>
+            runs first in a <code>describe</code> block, and <code>teardown</code>
+            runs last in a <code>describe</code> block.
           </p>
 <pre><code data-language="lua">describe("busted", function()
   local obj1, obj2
@@ -359,7 +359,7 @@ end)
             (or fix) later.
           </p>
 <pre><code data-language="lua">describe("busted pending tests", function()
-  pending("I should finish this test later", function() end)
+  pending("I should finish this test later")
 end)
 </code></pre>
         </section>
@@ -379,7 +379,7 @@ end)
             <code>true</code>, <code>false</code>, <code>nil</code>, <code>function</code>, and <code>
             not</code>) and they cannot be used using '.' chaining because that results in compilation 
             errors. Instead chain using '_' (underscore) or use one or more capitals in the reserved 
-            word, whatever your coding style prefers
+            word, whatever your coding style prefers.
           </p>
 
 
@@ -416,10 +416,10 @@ end)
           </p>
 <pre><code data-language="lua">describe("some asserts", function()
   it("checks if they're equals", function()
-    local obj = 1
-    local obj2 = obj
+    local expected = 1
+    local obj = expected
 
-    assert.are.equals(obj, obj2)
+    assert.are.equals(expected, obj)
   end)
 end)
 </code></pre>
@@ -431,10 +431,10 @@ end)
           </p>
 <pre><code data-language="lua">describe("some asserts", function()
   it("checks if they're the same", function()
+    local expected = { name = "Jack" }
     local obj = { name = "Jack" }
-    local obj2 = { name = "Jack" }
 
-    assert.are.same(obj, obj2)
+    assert.are.same(expected, obj)
   end)
 end)
 </code></pre>
@@ -443,8 +443,8 @@ end)
           <p>
             <code>true</code> evaluates if the value is the boolean <code>true</code>; <code>truthy</code> checks
             if it's non-false and non-nil (as if you passed it into a boolean
-            expression in lua. <code>false</code> and <code>falsy</code> are the opposite;
-            <code>false</code> checks for the boolean false, <code>falsy</code> checks for false or nil.
+            expression in Lua. <code>false</code> and <code>falsy</code> are the opposite;
+            <code>false</code> checks for the boolean <code>false</code>, <code>falsy</code> checks for false or nil.
           </p>
 <pre><code data-language="lua">describe("some asserts", function()
   it("checks true", function()
@@ -473,7 +473,7 @@ end)
 
   it("should throw the error we expect", function()
     local errfn = function()
-      throw("DB CONN ERROR")
+      error("DB CONN ERROR")
     end
 
     assert.has_error(errfn, "DB CONN ERROR")
@@ -572,8 +572,8 @@ end)
 
           <h4 id="stubs">Stubs</h4>
           <p>
-            Stubs act similarly to spies, except they do not call the callback
-            of the function it replaces. This is useful for testing things
+            Stubs act similarly to spies, except they do not call 
+            the function they replace. This is useful for testing things
             like data layers.
           </p>
 
@@ -608,7 +608,7 @@ end)
       thing = function(msg) print(msg) end
     }
 
-    local m = mock(t)
+    local m = mock(t) -- mocks the table with spies, so it will print
 
     m.thing("Coffee")
     assert.spy(m.thing).was.called_with("Coffee")
@@ -619,7 +619,7 @@ end)
       thing = function(msg) print(msg) end
     }
 
-    local m = mock(t, true) -- will not print
+    local m = mock(t, true) -- mocks the table with stubs, so it will not print
 
     m.thing("Coffee")
     assert.spy(m.thing).was.called_with("Coffee")
@@ -742,7 +742,7 @@ end)
           <h4>Registering Your Own Output Type</h4>
 
           <p>
-            If you pass the -o flag a path instead of a name (such as in <code>busted spec -o thing.lua</code>, it will look 
+            If you pass the <code>-o</code> flag a path instead of a name (such as in <code>busted spec -o thing.lua</code>, it will look 
             in that path to load the output file. Check out the 
             <a href="https://github.com/Olivine-Labs/busted/tree/master/src/output" targt="_blank">existing output files</a>
             for examples. It should have a signature like:
@@ -812,14 +812,14 @@ describe "async moonscript tests", ->
           <h2>I18n</h2>
           <p>
             Busted supports English (en), Arabic (ar), French (fr), Dutch (nl),
-            Russian (ru), and Ukranian (ua) by default.
+            Russian (ru), German (de), Japanese (ja), Chinese (zh), and Ukranian (ua) by default.
             Check out the <a href="https://github.com/Olivine-Labs/busted/tree/master/src/languages" targt="_blank">existing language packs</a>
             and send in a pull request.
           </p>
 
           <h4 id="adding-language"></h4>
           <p>
-            Busted supports adding in new languages easily. Pass a --lang
+            Busted supports adding in new languages easily. Pass a <code>--lang</code>
             parameter to choose one of the built-in languages, or a path
             to a lua file to run containing your own language. Don't forget
             to submit languages in pull requests as you make them!
@@ -847,14 +847,18 @@ describe "async moonscript tests", ->
 
           <h4>Contributors</h4>
           <ul>
-            <li><a href="https://github.com/DorianGray">DorianGray</a>
-            <li><a href="https://github.com/ajacksified">ajacksified</a>
-            <li><a href="https://github.com/Tieske">Tieske</a>
-            <li><a href="https://github.com/a-b">a-b</a>
-            <li><a href="https://github.com/Yonaba">Yonaba</a>
-            <li><a href="https://github.com/nilnor">nilnor</a>
-            <li><a href="https://github.com/kikito">kikito</a>
-            <li><a href="https://github.com/faulkner">faulkner</a>
+            <li><a href="https://github.com/DorianGray">DorianGray</a></li>
+            <li><a href="https://github.com/ajacksified">ajacksified</a></li>
+            <li><a href="https://github.com/Tieske">Tieske</a></li>
+            <li><a href="https://github.com/a-b">a-b</a></li>
+            <li><a href="https://github.com/Yonaba">Yonaba</a></li>
+            <li><a href="https://github.com/nilnor">nilnor</a></li>
+            <li><a href="https://github.com/kikito">kikito</a></li>
+            <li><a href="https://github.com/faulkner">faulkner</a></li>
+            <li><a href="https://github.com/Eloff">Eloff</a></li>
+            <li><a href="https://github.com/lipp">lipp</a></li>
+            <li><a href="https://github.com/leafo">leafo</a></li>
+            <li>bokko</li>
           </ul>
 
           <p>And many thanks to the libraries that help make busted possible!</p>
