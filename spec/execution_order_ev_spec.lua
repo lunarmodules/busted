@@ -14,10 +14,10 @@ else
   local concat = function(letter)
     local yield = function(done)
       ev.Timer.new(
-        function()
+        guard(function()
           egg = egg..letter
           done()
-        end,eps):start(loop)
+        end),eps):start(loop)
     end
     return yield
   end
