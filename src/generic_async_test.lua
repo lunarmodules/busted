@@ -5,7 +5,6 @@ local setup_async_tests = function(yield,loopname)
       local before_each_count = 0
       local before_called
       before(
-        async,
         function(done)
           yield(guard(
               function()
@@ -16,7 +15,6 @@ local setup_async_tests = function(yield,loopname)
         end)
       
       before_each(
-        async,
         function(done)
           yield(guard(
               function()
@@ -27,7 +25,6 @@ local setup_async_tests = function(yield,loopname)
       
       it(
         'should async succeed',
-        async,
         function(done)
           yield(guard(
               function()
@@ -39,7 +36,6 @@ local setup_async_tests = function(yield,loopname)
       
       it(
         'should async fail',
-        async,
         function(done)
           yield(guard(
               function()
@@ -50,14 +46,12 @@ local setup_async_tests = function(yield,loopname)
       
       it(
         'should async fails epicly',
-        async,
         function(done)
           does_not_exist.foo = 3
         end)
       
       it(
         'should succeed',
-        async,
         function(done)
           done()
         end)
@@ -78,7 +72,6 @@ local setup_async_tests = function(yield,loopname)
       
       it(
         'spies should async succeed',
-        async,
         function(done)
           local thing = {
             greet = function()
@@ -99,7 +92,6 @@ local setup_async_tests = function(yield,loopname)
         function()
           local before_called
           before(
-            async,
             function(done)
               yield(guard(
                   function()
@@ -109,7 +101,6 @@ local setup_async_tests = function(yield,loopname)
             end)
           it(
             'nested async test before is called succeeds',
-            async,
             function(done)
               yield(guard(
                   function()
@@ -123,7 +114,6 @@ local setup_async_tests = function(yield,loopname)
       
       it(
         'calling done twice fails',
-        async,
         function(done)
           yield(guard(
               function()
