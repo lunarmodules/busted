@@ -270,7 +270,6 @@ local match_tags = function(testName)
 end
 
 local syncwrapper = function(f)
-  --if not f then return nil end
   return function(done, ...)
     guard_called = nil
     f(done, ...)
