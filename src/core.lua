@@ -42,7 +42,7 @@ system = nil
 
 local options = {}
 local current_context
-local guard_called
+local test_is_async
 
 -- report a test-process error as a failed test
 local internal_error = function(description, err)
@@ -223,7 +223,7 @@ end
 busted.step = step
 
 guard = function(f, test)
-  guard_called = true
+  test_is_async = true
   local test = suite.tests[suite.test_index]
 
   local safef = function(...)
@@ -271,9 +271,9 @@ end
 
 local syncwrapper = function(f)
   return function(done, ...)
-    guard_called = nil
+    test_is_async = nil
     f(done, ...)
-    if not guard_called then
+    if not test_is_async then
       -- guard function wasn't called, so it is a sync test/function
       -- hence must call it ourselves
       done()
