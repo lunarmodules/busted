@@ -14,7 +14,7 @@ else
       local listener = socket.bind('*',port)
 
       copas.addthread(
-        guard(
+        async(
           function()
             local s = socket.tcp()
 
@@ -36,7 +36,7 @@ else
 
       copas.addserver(
         listener,
-        guard(
+        async(
           function(skt)
             while true do
               local data = copas.receive(skt)

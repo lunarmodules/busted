@@ -14,7 +14,7 @@ else
   local concat = function(letter)
     local yield = function(done)
       ev.Timer.new(
-        guard(function()
+        async(function()
           egg = egg..letter
           done()
         end),eps):start(loop)

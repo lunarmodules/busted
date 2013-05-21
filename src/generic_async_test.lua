@@ -6,7 +6,7 @@ local setup_async_tests = function(yield,loopname)
       local before_called
       before(
         function(done)
-          yield(guard(
+          yield(async(
               function()
                 before_called = true
                 done()
@@ -16,7 +16,7 @@ local setup_async_tests = function(yield,loopname)
       
       before_each(
         function(done)
-          yield(guard(
+          yield(async(
               function()
                 before_each_count = before_each_count + 1
                 done()
@@ -26,7 +26,7 @@ local setup_async_tests = function(yield,loopname)
       it(
         'should async succeed',
         function(done)
-          yield(guard(
+          yield(async(
               function()
                 assert.is_true(before_called)
                 assert.is.equal(before_each_count,1)
@@ -37,7 +37,7 @@ local setup_async_tests = function(yield,loopname)
       it(
         'should async fail',
         function(done)
-          yield(guard(
+          yield(async(
               function()
                 assert.is_truthy(false)
                 done()
@@ -78,7 +78,7 @@ local setup_async_tests = function(yield,loopname)
             end
           }
           spy.on(thing, "greet")
-          yield(guard(
+          yield(async(
               function()
                 assert.spy(thing.greet).was.called()
                 assert.spy(thing.greet).was.called_with("Hi!")
@@ -93,7 +93,7 @@ local setup_async_tests = function(yield,loopname)
           local before_called
           before(
             function(done)
-              yield(guard(
+              yield(async(
                   function()
                     before_called = true
                     done()
@@ -102,7 +102,7 @@ local setup_async_tests = function(yield,loopname)
           it(
             'nested async test before is called succeeds',
             function(done)
-              yield(guard(
+              yield(async(
                   function()
                     assert.is_true(before_called)
                     done()
@@ -115,7 +115,7 @@ local setup_async_tests = function(yield,loopname)
       it(
         'calling done twice fails',
         function(done)
-          yield(guard(
+          yield(async(
               function()
                 done()
                 done()

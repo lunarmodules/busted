@@ -199,7 +199,7 @@ local suite = {
 
 local options
 
-step = function(...)
+busted.step = function(...)
   local steps = { ... }
   if #steps == 1 and type(steps[1]) == 'table' then
     steps = steps[1]
@@ -220,10 +220,12 @@ step = function(...)
   next()
 end
 
-busted.step = step
-
-guard = function(f, test)
+busted.async = function(f, test)
   test_is_async = true
+  if not f then
+    -- this allows async() to be called on its own to mark any test as async.
+    return
+  end
   local test = suite.tests[suite.test_index]
 
   local safef = function(...)
@@ -251,8 +253,6 @@ guard = function(f, test)
   return safef
 end
 
-busted.guard = guard
-
 local match_tags = function(testName)
   if #options.tags > 0 then
 
@@ -274,7 +274,7 @@ local syncwrapper = function(f)
     test_is_async = nil
     f(done, ...)
     if not test_is_async then
-      -- guard function wasn't called, so it is a sync test/function
+      -- async function wasn't called, so it is a sync test/function
       -- hence must call it ourselves
       done()
     end
@@ -724,19 +724,20 @@ busted.run = function(got_options)
   return status_string, failures
 end
 
-it = busted.it
-pending = busted.pending
-describe = busted.describe
-before = busted.before
-after = busted.after
-setup = busted.before
-busted.setup = busted.before
-teardown = busted.after
+busted.setup    = busted.before
 busted.teardown = busted.after
-before_each = busted.before_each
-after_each = busted.after_each
-step = step
-setloop = busted.setloop
+it              = busted.it
+pending         = busted.pending
+describe        = busted.describe
+before          = busted.before
+after           = busted.after
+setup           = busted.setup
+teardown        = busted.teardown
+before_each     = busted.before_each
+after_each      = busted.after_each
+step            = busted.step
+setloop         = busted.setloop
+async           = busted.async
 
 return setmetatable(busted, {
   __call = function(self, ...)
