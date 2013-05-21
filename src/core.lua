@@ -42,6 +42,7 @@ system = nil
 
 local options = {}
 local current_context
+local test_is_async
 
 -- report a test-process error as a failed test
 local internal_error = function(description, err)
@@ -198,7 +199,7 @@ local suite = {
 
 local options
 
-step = function(...)
+busted.step = function(...)
   local steps = { ... }
   if #steps == 1 and type(steps[1]) == 'table' then
     steps = steps[1]
@@ -219,9 +220,12 @@ step = function(...)
   next()
 end
 
-busted.step = step
-
-guard = function(f, test)
+busted.async = function(f, test)
+  test_is_async = true
+  if not f then
+    -- this allows async() to be called on its own to mark any test as async.
+    return
+  end
   local test = suite.tests[suite.test_index]
 
   local safef = function(...)
@@ -249,8 +253,6 @@ guard = function(f, test)
   return safef
 end
 
-busted.guard = guard
-
 local match_tags = function(testName)
   if #options.tags > 0 then
 
@@ -267,6 +269,18 @@ local match_tags = function(testName)
   end
 end
 
+local syncwrapper = function(f)
+  return function(done, ...)
+    test_is_async = nil
+    f(done, ...)
+    if not test_is_async then
+      -- async function wasn't called, so it is a sync test/function
+      -- hence must call it ourselves
+      done()
+    end
+  end
+end
+  
 local next_test
 
 next_test = function()
@@ -468,48 +482,24 @@ busted.describe = function(desc, more)
   current_context = old_context
 end
 
-busted.before = function(sync_before, async_before)
-  if async_before then
-    current_context.before = async_before
-  else
-    current_context.before = function(done)
-      sync_before()
-      done()
-    end
-  end
+busted.before = function(before_func)
+  assert(type(before_func) == "function", "Expected function, got "..type(before_func))
+  current_context.before = syncwrapper(before_func)
 end
 
-busted.before_each = function(sync_before, async_before)
-  if async_before then
-    current_context.before_each = async_before
-  else
-    current_context.before_each = function(done)
-      sync_before()
-      done()
-    end
-  end
+busted.before_each = function(before_func)
+  assert(type(before_func) == "function", "Expected function, got "..type(before_func))
+  current_context.before_each = syncwrapper(before_func)
 end
 
-busted.after = function(sync_after, async_after)
-  if async_after then
-    current_context.after = async_after
-  else
-    current_context.after = function(done)
-      sync_after()
-      done()
-    end
-  end
+busted.after = function(after_func)
+  assert(type(after_func) == "function", "Expected function, got "..type(after_func))
+  current_context.after = syncwrapper(after_func)
 end
 
-busted.after_each = function(sync_after, async_after)
-  if async_after then
-    current_context.after_each = async_after
-  else
-    current_context.after_each = function(done)
-      sync_after()
-      done()
-    end
-  end
+busted.after_each = function(after_func)
+  assert(type(after_func) == "function", "Expected function, got "..type(after_func))
+  current_context.after_each = syncwrapper(after_func)
 end
 
 local function buildInfo(debug_info)
@@ -539,9 +529,7 @@ busted.pending = function(name)
 
   local debug_info = debug.getinfo(2)
 
-  test.f = function(done)
-    done()
-  end
+  test.f = syncwrapper(function() end)
 
   test.status = {
     description = name,
@@ -554,7 +542,8 @@ busted.pending = function(name)
   end
 end
 
-busted.it = function(name, sync_test, async_test)
+busted.it = function(name, test_func)
+  assert(type(test_func) == "function", "Expected function, got "..type(test_func))
   local test = {
     context = current_context,
     name = name
@@ -564,17 +553,8 @@ busted.it = function(name, sync_test, async_test)
 
   local debug_info
 
-  if async_test then
-    debug_info = debug.getinfo(async_test)
-    test.f = async_test
-  else
-    debug_info = debug.getinfo(sync_test)
-    -- make sync test run async
-    test.f = function(done)
-      sync_test()
-      done()
-    end
-  end
+  debug_info = debug.getinfo(test_func)
+  test.f = syncwrapper(test_func)
 
   test.status = {
     description = test.name,
@@ -744,19 +724,20 @@ busted.run = function(got_options)
   return status_string, failures
 end
 
-it = busted.it
-pending = busted.pending
-describe = busted.describe
-before = busted.before
-after = busted.after
-setup = busted.before
-busted.setup = busted.before
-teardown = busted.after
+busted.setup    = busted.before
 busted.teardown = busted.after
-before_each = busted.before_each
-after_each = busted.after_each
-step = step
-setloop = busted.setloop
+it              = busted.it
+pending         = busted.pending
+describe        = busted.describe
+before          = busted.before
+after           = busted.after
+setup           = busted.setup
+teardown        = busted.teardown
+before_each     = busted.before_each
+after_each      = busted.after_each
+step            = busted.step
+setloop         = busted.setloop
+async           = busted.async
 
 return setmetatable(busted, {
   __call = function(self, ...)
