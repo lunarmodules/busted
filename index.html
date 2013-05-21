@@ -638,9 +638,7 @@ end)
             calls.
           </p>
 
-<pre><code data-language="lua">-- you will need libev to run the following example,
--- which uses 'ev'
-
+<pre><code data-language="lua">-- you will need libev to run the following example which uses 'ev'
 local ev = require'ev'
 
 -- `asynchronous_call` is function to act as our asynchronous, time-taking test. In
@@ -655,19 +653,18 @@ end
 setloop('ev')
 
 describe('Some async stuff', function()
-  -- Specify `async` as the first argument to `before`, `after`, `before_each`
-  -- and `after_each`. Add `async` after your decription for `it` functions.
 
-  -- "done" in the test function is the async busted callback.
-  -- The async callback must call "done" to proceed, or else time out.
+  -- The callbacks for `setup`, `teardown`, `before_each`, `after_each` and `it` all
+  -- get a "done" parameter. This parameter is a callback function that must be called
+  -- to report the test as succesful.
+  it('make some async test',function(done)  -- `done` callback provided by busted
 
-  it('make some async test',async,function(done)
-    -- The callback must be wrapped in `guard`, or on failure the test will
-    -- hang forever.
-
-    asynchronous_call(guard(function()
-      assert.is_true(true)
-      done()
+    -- The asynchroneous callback itself must be wrapped in `async`, this will notify busted
+    -- in case of a failure. If it fails outside the callback the test will hang forever
+    -- (timeouts have not been implemented yet).
+    asynchronous_call(async(function()      -- wrap in `async` to catch any errors
+      assert.is_true(true)                  -- an error inside `async` will be reported as a failure
+      done()                                -- calling `done` will be reported as success
     end))
   end)
 end)
