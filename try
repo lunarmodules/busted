@@ -1,3 +1,4 @@
+#!/bin/sh
 sudo luarocks remove busted
 sudo luarocks make
 busted
