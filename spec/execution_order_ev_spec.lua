@@ -14,10 +14,10 @@ else
   local concat = function(letter)
     local yield = function(done)
       ev.Timer.new(
-        function()
+        async(function()
           egg = egg..letter
           done()
-        end,eps):start(loop)
+        end),eps):start(loop)
     end
     return yield
   end
@@ -25,18 +25,18 @@ else
   setloop('ev')
 
   describe('before_each after_each egg test', function()
-    before(async, concat('S'))
+    before(concat('S'))
 
-    after(async, concat('T'))
+    after(concat('T'))
 
-    before_each(async, concat('b'))
+    before_each(concat('b'))
 
-    after_each(async, concat('a'))
+    after_each(concat('a'))
 
     describe('asd', function()
-      before_each(async, concat('B'))
+      before_each(concat('B'))
 
-      after_each(async, concat('A'))
+      after_each(concat('A'))
 
       it('1', function()
         assert.equal(egg,'SbB')
