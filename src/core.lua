@@ -459,7 +459,7 @@ next_test = function()
 
       test.done = done
 
-      local ok, err = suite.loop_pcall(test.f, wrap_done(done))
+      local ok, err = suite.loop.pcall(test.f, wrap_done(done))
       if ok then
         if settimeout and not timer and not test.done_trace then
           settimeout(1.0)
