@@ -116,6 +116,10 @@ local gettestfiles = function(root_file, pattern)
     filelist = tablex.filter(filelist, function(filename)
       return path.basename(filename):find(pattern)
     end)
+
+    filelist = tablex.filter(filelist, function(filename)
+      return not filename:find('/?%.%w+/')				
+    end)
   else
     filelist = {}
     internal_error("Getting test files", "No test files found for path '"..root_file.."' and pattern `"..pattern.."`. Please review your commandline, re-run with `--help` for usage.")
