@@ -297,7 +297,9 @@ local function wrap_done(done_callback)
     wait = function(self, ...)
       local tlist = { ... }
       for _, token in ipairs(tlist) do
-        assert(type(token) == "string", "Wait tokens must be strings. Got "..type(token))
+        if not type(token) == "string" then
+          error("Wait tokens must be strings. Got "..type(token), 2)
+        end
         table.insert(self.tokens, token)
       end
     end,
@@ -345,16 +347,18 @@ local function wrap_done(done_callback)
     -- marks a token as completed, checks for ordered/unordered, checks for completeness
     done = function(self, token)
       if token then
-        assert(type(token) == "string", "Wait tokens must be strings. Got "..type(token))
+        if not type(token) == "string" then
+          error("Wait tokens must be strings. Got "..type(token), 2)
+        end
         if self.ordered then
           if self.tokens[1] == token then
             table.remove(self.tokens, 1)
             table.insert(self.tokens_done, token)
           else
             if self.tokens[1] then
-              error(("Bad token received, expected '%s' got '%s'. %s"):format(self.tokens[1], token, self:tokenlist()))
+              error(("Bad token, expected '%s' got '%s'. %s"):format(self.tokens[1], token, self:tokenlist()), 2)
             else
-              error(("Bad token received (no more tokens expected) got '%s'. %s"):format(token, self:tokenlist()))
+              error(("Bad token (no more tokens expected) got '%s'. %s"):format(token, self:tokenlist()), 2)
             end
           end
         else
@@ -368,7 +372,7 @@ local function wrap_done(done_callback)
             end
           end
           if token then
-            error(("Received an unknown token '%s'. %s"):format(token, self:tokenlist()))
+            error(("Unknown token '%s'. %s"):format(token, self:tokenlist()), 2)
           end
         end
       end
@@ -459,7 +463,7 @@ next_test = function()
 
       test.done = done
 
-      local ok, err = suite.loop.pcall(test.f, wrap_done(done))
+      local ok, err = suite.loop_pcall(test.f, wrap_done(done)) -- reintroduce error to check message
       if ok then
         if settimeout and not timer and not test.done_trace then
           settimeout(1.0)
