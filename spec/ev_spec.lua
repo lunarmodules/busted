@@ -31,12 +31,12 @@ else
     setloop('ev')
     it('this should timeout',function(done)
       settimeout(0.01)
-      ev.Timer.new(async(done),0.1):start(loop)
+      ev.Timer.new(async(function() done() end),0.1):start(loop)
     end)
       
     it('this should not timeout',function(done)
       settimeout(0.1)
-      ev.Timer.new(async(done),0.01):start(loop)
+      ev.Timer.new(async(function() done() end),0.01):start(loop)
     end)
   end)
   
