@@ -586,7 +586,7 @@ end)
     stub(t, "greet")
 
     t.greet("Hey!") -- DOES NOT print 'Hey!'
-    assert.spy(t.greet).was.called_with("Hey!")
+    assert.stub(t.greet).was.called_with("Hey!")
 
     t.greet:revert()  -- reverts the stub
     t.greet("Hey!") -- DOES print 'Hey!'
@@ -622,7 +622,7 @@ end)
     local m = mock(t, true) -- mocks the table with stubs, so it will not print
 
     m.thing("Coffee")
-    assert.spy(m.thing).was.called_with("Coffee")
+    assert.stub(m.thing).was.called_with("Coffee")
   end)
 end)
 
