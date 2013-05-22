@@ -118,7 +118,7 @@ local gettestfiles = function(root_file, pattern)
     end)
 
     filelist = tablex.filter(filelist, function(filename)
-      return not filename:find('/?%.%w+/')				
+      return not filename:find('/%.%w+.%w+')
     end)
   else
     filelist = {}
