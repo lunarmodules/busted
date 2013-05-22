@@ -276,7 +276,7 @@ describe("testing the done callback with tokens", function()
   
   it("Tests done call back ordered", function(done)
     stub(done, "done_cb") -- create a stub to prevent actually calling 'done'
-    done:wait("1", "2", "3")
+    done:wait_ordered("1", "2", "3")
     assert.has_no_error(function() done("1") end)
     assert.has_error(function() done("1") end)      -- was already done
     assert.has_error(function() done("3") end)      -- bad order
@@ -298,6 +298,15 @@ describe("testing the done callback with tokens", function()
     assert.has_error(function() done("this is no valid token") end)
     assert.has_error(function() done("3") end)      -- tokenlist empty by now
     assert.stub(done.done_cb).was.called(1)
+    done.done_cb:revert() -- revert so test can complete
+  end)
+  
+  it("Tests done call back defaulting to ordered", function(done)
+    stub(done, "done_cb") -- create a stub to prevent actually calling 'done'
+    done:wait("1", "2")
+    assert.has_error(function() done("2") end)     -- different order
+    assert.has_no_error(function() done("1") end)
+    assert.has_no_error(function() done("2") end)  
     done.done_cb:revert() -- revert so test can complete
   end)
   
