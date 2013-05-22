@@ -116,6 +116,10 @@ local gettestfiles = function(root_file, pattern)
     filelist = tablex.filter(filelist, function(filename)
       return path.basename(filename):find(pattern)
     end)
+
+    filelist = tablex.filter(filelist, function(filename)
+      return not filename:find('/%.%w+.%w+')
+    end)
   else
     filelist = {}
     internal_error("Getting test files", "No test files found for path '"..root_file.."' and pattern `"..pattern.."`. Please review your commandline, re-run with `--help` for usage.")
@@ -193,8 +197,7 @@ local suite = {
   done = {},
   started = {},
   test_index = 1,
-  loop_pcall = pcall,
-  loop_step = function() end,
+  loop = require('busted.loop.default')
 }
 
 local options
@@ -229,7 +232,7 @@ busted.async = function(f, test)
   local test = suite.tests[suite.test_index]
 
   local safef = function(...)
-    local result = { suite.loop_pcall(f, ...) }
+    local result = { suite.loop.pcall(f, ...) }
 
     if result[1] then
       return unpack(result, 2)
@@ -401,7 +404,12 @@ next_test = function()
     local steps = {}
 
     local execute_test = function(next)
+      local timer
       local done = function()
+        if timer then
+          timer:stop()
+          timer = nil
+        end
         if test.done_trace then
           if test.status.err == nil then
             local stack_trace = debug.traceback("", 2)
@@ -432,11 +440,31 @@ next_test = function()
         next()
       end
 
+      if suite.loop.create_timer then
+        settimeout = function(timeout)
+          if not timer then
+            timer = suite.loop.create_timer(timeout,function()
+              if not test.done_trace then
+                test.status.type = 'failure'
+                test.status.trace = ''
+                test.status.err = 'test timeout elapsed ('..timeout..'s)'
+                done()
+              end
+            end)
+          end
+        end
+      else
+         settimeout = nil
+      end
+
       test.done = done
 
       local ok, err = suite.loop_pcall(test.f, wrap_done(done))
-
-      if not ok then
+      if ok then
+        if settimeout and not timer and not test.done_trace then
+          settimeout(1.0)
+        end
+      else
         if type(err) == "table" then
           err = pretty.write(err)
         end
@@ -678,38 +706,18 @@ busted.reset = function()
     done = {},
     started = {},
     test_index = 1,
-    loop_pcall = pcall,
-    loop_step = function() end,
+    loop = require('busted.loop.default')
   }
   busted.output = busted.output_reset
 end
 
-busted.setloop = function(...)
-  local args = { ... }
-
-  if type(args[1]) == 'string' then
-    local loop = args[1]
-
-    if loop == 'ev' then
-      local ev = require'ev'
-
-      suite.loop_pcall = pcall
-      suite.loop_step = function()
-        ev.Loop.default:loop()
-      end
-    elseif loop == 'copas' then
-      local copas = require'copas'
-
-      require'coxpcall'
-
-      suite.loop_pcall = copcall
-      suite.loop_step = function()
-        copas.step(0)
-      end
-    end
+busted.setloop = function(loop)
+  if type(loop) == 'string' then
+     suite.loop = require('busted.loop.'..loop)
   else
-    suite.loop_step = args[1]
-    suite.loop_pcall = args[2] or pcall
+     assert(loop.pcall)
+     assert(loop.step)
+     suite.loop = loop
   end
 end
 
@@ -725,8 +733,7 @@ busted.run_internal_test = function(describe_tests)
     done = {},
     started = {},
     test_index = 1,
-    loop_pcall = pcall,
-    loop_step = function() end
+    loop = require('busted.loop.default')
   }
 
   if type(describe_tests) == 'function' then
@@ -737,7 +744,7 @@ busted.run_internal_test = function(describe_tests)
 
   repeat
     next_test()
-    suite.loop_step()
+    suite.loop.step()
   until #suite.done == #suite.tests
 
   local statuses = {}
@@ -774,7 +781,7 @@ busted.run = function(got_options)
   local function run_suite()
     repeat
       next_test()
-      suite.loop_step()
+      suite.loop.step()
     until #suite.done == #suite.tests
 
     for _, test in ipairs(suite.tests) do

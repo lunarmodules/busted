@@ -47,6 +47,9 @@ build = {
     ["busted.languages.ua"] = "src/languages/ua.lua",
     ["busted.languages.zh"] = "src/languages/zh.lua",
     ["busted.languages.ja"] = "src/languages/ja.lua",
+    ["busted.loop.default"] = "src/loop/default.lua",
+    ["busted.loop.ev"] = "src/loop/ev.lua",
+    ["busted.loop.copas"] = "src/loop/copas.lua",
   },
   install = {
     bin = {
