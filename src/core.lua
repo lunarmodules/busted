@@ -118,7 +118,11 @@ local gettestfiles = function(root_file, pattern)
     end)
 
     filelist = tablex.filter(filelist, function(filename)
-      return not filename:find('/%.%w+.%w+')
+      if path.is_windows then
+        return not filename:find('%\\%.%w+.%w+')
+      else
+        return not filename:find('/%.%w+.%w+')
+      end
     end)
   else
     filelist = {}
@@ -463,7 +467,7 @@ next_test = function()
 
       test.done = done
 
-      local ok, err = suite.loop_pcall(test.f, wrap_done(done)) -- reintroduce error to check message
+      local ok, err = suite.loop.pcall(test.f, wrap_done(done)) 
       if ok then
         if settimeout and not timer and not test.done_trace then
           settimeout(1.0)
