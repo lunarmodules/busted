@@ -3,7 +3,12 @@ if not pcall(require, "copas") then
     pending("The 'copas' loop was not tested because 'copas' isn't installed")
   end)
 else
+  -- temporarily adjust path to find the test file in the spec directory
+  local old_path = package.path
+  package.path = "./spec/?.lua"
   local generic_async = require'generic_async_test'
+  package.path = old_path
+  
   local statuses = busted.run_internal_test(function()
     local copas = require'copas'
     local socket = require'socket'

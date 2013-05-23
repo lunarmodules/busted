@@ -1,3 +1,8 @@
+-- do not use on its own.
+-- This is called from the following test files;
+--    ev_spec.lua
+--    copas_spec.lua
+
 local setup_async_tests = function(yield,loopname)
   describe(
     loopname..' test suite',
