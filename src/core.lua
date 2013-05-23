@@ -118,7 +118,11 @@ local gettestfiles = function(root_file, pattern)
     end)
 
     filelist = tablex.filter(filelist, function(filename)
-      return not filename:find('/%.%w+.%w+')
+      if path.is_windows then
+        return not filename:find('%\\%.%w+.%w+')
+      else
+        return not filename:find('/%.%w+.%w+')
+      end
     end)
   else
     filelist = {}
@@ -283,7 +287,115 @@ local syncwrapper = function(f)
     end
   end
 end
-  
+
+-- wraps a done callback into a done-object supporting tokens to sign-off
+local function wrap_done(done_callback)
+  local obj = {
+    tokens = {},
+    tokens_done = {},
+    done_cb = done_callback,
+
+    ordered = true,  -- default for sign off of tokens
+
+    -- adds tokens to the current wait list, does not change order/unordered
+    wait = function(self, ...)
+      local tlist = { ... }
+      for _, token in ipairs(tlist) do
+        if type(token) ~= "string" then
+          error("Wait tokens must be strings. Got "..type(token), 2)
+        end
+        table.insert(self.tokens, token)
+      end
+    end,
+
+    -- set list as unordered, adds tokens to current wait list
+    wait_unordered = function(self, ...)
+      self.ordered = false
+      self:wait(...)
+    end,
+
+    -- set list as ordered, adds tokens to current wait list
+    wait_ordered = function(self, ...)
+      self.ordered = true
+      self:wait(...)
+    end,
+
+    -- generates a message listing tokens received/open
+    tokenlist = function(self)
+      local list
+      if #self.tokens_done == 0 then
+        list = "No tokens received."
+      else
+        list = "Tokens received ("..tostring(#self.tokens_done)..")"
+        local s = ": "
+        for _,t in ipairs(self.tokens_done) do
+          list = list .. s .. "'"..t.."'"
+          s = ", "
+        end
+        list = list .. "."
+      end
+      if #self.tokens == 0 then
+        list = list .. " No more tokens expected."
+      else
+        list = list .. " Tokens not received ("..tostring(#self.tokens)..")"
+        local s = ": "
+        for _, t in ipairs(self.tokens) do
+          list = list .. s .. "'"..t.."'"
+          s = ", "
+        end
+        list = list .. "."
+      end
+      return list
+    end,
+    
+    -- marks a token as completed, checks for ordered/unordered, checks for completeness
+    done = function(self, ...) self:_done(...) end,  -- extra wrapper for same error level constant as __call method
+    _done = function(self, token)
+      if token then
+        if type(token) ~= "string" then
+          error("Wait tokens must be strings. Got "..type(token), 3)
+        end
+        if self.ordered then
+          if self.tokens[1] == token then
+            table.remove(self.tokens, 1)
+            table.insert(self.tokens_done, token)
+          else
+            if self.tokens[1] then
+              error(("Bad token, expected '%s' got '%s'. %s"):format(self.tokens[1], token, self:tokenlist()), 3)
+            else
+              error(("Bad token (no more tokens expected) got '%s'. %s"):format(token, self:tokenlist()), 3)
+            end
+          end
+        else
+          -- unordered
+          for i, t in ipairs(self.tokens) do
+            if t == token then
+              table.remove(self.tokens, i)
+              table.insert(self.tokens_done, token)
+              token = nil
+              break
+            end
+          end
+          if token then
+            error(("Unknown token '%s'. %s"):format(token, self:tokenlist()), 3)
+          end
+        end
+      end
+      if not next(self.tokens) then
+        -- no more tokens, so we're really done...
+        self.done_cb()
+      end
+    end,
+  }
+
+  setmetatable( obj, {
+    __call = function(self, ...)
+      self:_done(...)
+    end })
+
+  return obj
+end
+
 local next_test
 
 next_test = function()
@@ -303,10 +415,10 @@ next_test = function()
     local execute_test = function(next)
       local timer
       local done = function()
-         if timer then
-           timer:stop()
-           timer = nil
-         end
+        if timer then
+          timer:stop()
+          timer = nil
+        end
         if test.done_trace then
           if test.status.err == nil then
             local stack_trace = debug.traceback("", 2)
@@ -356,7 +468,7 @@ next_test = function()
 
       test.done = done
 
-      local ok, err = suite.loop.pcall(test.f, done)
+      local ok, err = suite.loop.pcall(test.f, wrap_done(done)) 
       if ok then
         if settimeout and not timer and not test.done_trace then
           settimeout(1.0)
@@ -380,11 +492,11 @@ next_test = function()
     local check_before = function(context)
       if context.before then
         local execute_before = function(next)
-          context.before(
+          context.before(wrap_done(
             function()
               context.before = nil
               next()
-            end)
+            end))
         end
 
         push(steps, execute_before)
@@ -422,11 +534,11 @@ next_test = function()
         if context.after then
           if context:all_tests_done() then
             local execute_after = function(next)
-              context.after(
+              context.after(wrap_done(
                 function()
                   context.after = nil
                   next()
-                end)
+                end))
             end
 
             push(post_steps, execute_after)
