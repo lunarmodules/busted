@@ -2,7 +2,7 @@ local moon = require('busted.moon')
 local path = require('pl.path')
 local dir = require('pl.dir')
 local tablex = require('pl.tablex')
-require'pl'
+local pretty = require('pl.pretty')
 
 -- exported module table
 busted = {}
@@ -76,7 +76,8 @@ local language = function(lang)
 end
 
 -- load the outputter as set in the options, revert to default if it fails
-local getoutputter = function(output, opath, default)
+local getoutputter  -- define first to enable recursion
+getoutputter = function(output, opath, default)
   local success, out, f
   if output:match(".lua$") then
     f = function()
@@ -110,7 +111,7 @@ local gettestfiles = function(root_file, pattern)
   if path.isfile(root_file) then
     filelist = { root_file }
   elseif path.isdir(root_file) then
-    local pattern = pattern ~= "" and pattern or defaultpattern
+    local pattern = pattern ~= "" and pattern or busted.defaultpattern
     filelist = dir.getallfiles(root_file)
 
     filelist = tablex.filter(filelist, function(filename)
@@ -204,8 +205,6 @@ local suite = {
   loop = require('busted.loop.default')
 }
 
-local options
-
 busted.step = function(...)
   local steps = { ... }
   if #steps == 1 and type(steps[1]) == 'table' then
@@ -227,7 +226,7 @@ busted.step = function(...)
   next()
 end
 
-busted.async = function(f, test)
+busted.async = function(f)
   test_is_async = true
   if not f then
     -- this allows async() to be called on its own to mark any test as async.
@@ -463,7 +462,7 @@ next_test = function()
           end
         end
       else
-         settimeout = nil
+        settimeout = nil
       end
 
       test.done = done
@@ -608,7 +607,7 @@ end
 busted.describe = function(desc, more)
   local context = create_context(desc)
 
-  for i, parent in ipairs(current_context.parents) do
+  for _, parent in ipairs(current_context.parents) do
     context:add_parent(parent)
   end
 
@@ -649,7 +648,7 @@ local function buildInfo(debug_info)
     linedefined = debug_info.linedefined,
   }
 
-  fname = get_fname(info.short_src)
+  local fname = get_fname(info.short_src)
 
   if fname and moon.is_moon(fname) then
     info.linedefined = moon.rewrite_linenumber(fname, info.linedefined) or info.linedefined
