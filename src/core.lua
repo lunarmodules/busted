@@ -301,7 +301,7 @@ local function wrap_done(done_callback)
     wait = function(self, ...)
       local tlist = { ... }
       for _, token in ipairs(tlist) do
-        if not type(token) == "string" then
+        if type(token) ~= "string" then
           error("Wait tokens must be strings. Got "..type(token), 2)
         end
         table.insert(self.tokens, token)
@@ -349,10 +349,10 @@ local function wrap_done(done_callback)
     end,
     
     -- marks a token as completed, checks for ordered/unordered, checks for completeness
-    done = function(self, ...) self._done(...) end,  -- extra wrapper for same error level constant as __call method
+    done = function(self, ...) self:_done(...) end,  -- extra wrapper for same error level constant as __call method
     _done = function(self, token)
       if token then
-        if not type(token) == "string" then
+        if type(token) ~= "string" then
           error("Wait tokens must be strings. Got "..type(token), 3)
         end
         if self.ordered then
