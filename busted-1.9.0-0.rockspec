@@ -1,8 +1,8 @@
 package = "busted"
-version = "1.8.3-0"
+version = "1.9.0-0"
 source = {
-  url = "https://github.com/Olivine-Labs/busted/archive/v1.8.3.tar.gz",
-  dir = "busted-1.8.3"
+  url = "https://github.com/Olivine-Labs/busted/archive/v1.9.0.tar.gz",
+  dir = "busted-1.9.0"
 }
 description = {
   summary = "Elegant Lua unit testing.",
@@ -23,7 +23,7 @@ dependencies = {
   "luafilesystem >= 1.5.0",
   "dkjson >= 2.1.0",
   "say >= 1.2-1",
-  "luassert >= 1.6-1",
+  "luassert >= 1.7.0-0",
   "ansicolors >= 1.0-1",
   "penlight >= 1.0.0-1"
 }
