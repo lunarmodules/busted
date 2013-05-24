@@ -6,7 +6,12 @@ if not pcall(require, "ev") then
     end)
 else
   
-  local generic_async = require 'generic_async_test'
+  -- temporarily adjust path to find the test file in the spec directory
+  local old_path = package.path
+  package.path = "./spec/?.lua"
+  local generic_async = require'generic_async_test'
+  package.path = old_path
+  
   local ev = require 'ev'
   local loop = ev.Loop.default
   
