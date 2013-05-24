@@ -19,10 +19,14 @@ else
           done()
         end,eps):start(loop)
     end
-      
+
+    local create_timer = function(timeout,done)
+       ev.Timer.new(done,timeout):start(loop)
+    end
+    
     setloop('ev')
       
-    generic_async.setup_tests(yield,'ev')
+    generic_async.setup_tests(yield,'ev',create_timer)
   end)
   
   generic_async.describe_statuses(statuses)
