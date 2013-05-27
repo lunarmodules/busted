@@ -4,7 +4,8 @@ if not success then
   return {
     is_moon = function(x) return false end,
     loadfile = loadfile,
-    rewrite_traceback = function(err, trace) return err, trace end
+    rewrite_traceback = function(err, trace) return err, trace end,
+    rewrite_linenumber = function(fname, lineno) return end
   }
 end
 
@@ -16,14 +17,6 @@ local _cache = {}
 
 local is_moon = function(fname)
   return fname:find(".moon", #fname-6, true) and true or false
-end
-
-local loader = function(fname)  
-  if is_moon(fname) then
-    return ms.loadfile(fname)
-  else
-    return loadfile(fname)
-  end
 end
 
 -- find the line number of `pos` chars into fname
@@ -76,8 +69,8 @@ local rewrite_traceback = function(err, trace)
 end
 
 return {
-    loadfile=loader,
-    is_moon=is_moon,
-    rewrite_linenumber=rewrite_linenumber,
-    rewrite_traceback=rewrite_traceback
+    is_moon = is_moon,
+    loadfile = ms.loadfile,
+    rewrite_linenumber = rewrite_linenumber,
+    rewrite_traceback = rewrite_traceback
 }

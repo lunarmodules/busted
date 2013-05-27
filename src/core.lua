@@ -131,13 +131,27 @@ local gettestfiles = function(root_file, pattern)
   return filelist
 end
 
+local is_terra = function(fname)
+  return (terralib and fname:find(".t", #fname-2, true)) and true or false
+end
+
+local loader = function(fname)
+  if is_terra(fname) then
+    return terralib.loadfile(fname)
+  elseif moon.is_moon(fname) then
+    return moon.loadfile(fname)
+  else
+    return loadfile(fname)
+  end
+end
+
 -- runs a testfile, loading its tests
 local load_testfile = function(filename)
   local old_TEST = _TEST
   _TEST = busted._VERSION
 
   local success, err = pcall(function() 
-    local chunk,err = moon.loadfile(filename)
+    local chunk,err = loader(filename)
     if not chunk then
       error(err,2)
     end
@@ -258,6 +272,7 @@ next_test = function()
     local test = suite.tests[suite.test_index]
     assert(test, suite.test_index..debug.traceback('', 1))
     local steps = {}
+    local err
 
     local execute_test = function(next)
       local done = function()
@@ -495,7 +510,7 @@ local function buildInfo(debug_info)
     linedefined = debug_info.linedefined,
   }
 
-  fname = get_fname(info.short_src)
+  local fname = get_fname(info.short_src)
 
   if fname and moon.is_moon(fname) then
     info.linedefined = moon.rewrite_linenumber(fname, info.linedefined) or info.linedefined
