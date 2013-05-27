@@ -1,6 +1,8 @@
 Busted
 ======
 
+[![travis-ci status](https://secure.travis-ci.org/Olivine-Labs/busted.png)](http://travis-ci.org/#!/Olivine-Labs/busted/builds)
+
 busted is a unit testing framework with a focus on being **easy to
 use**. Supports Lua >= 5.1, luajit >= 2.0.0, and moonscript.
 
@@ -65,9 +67,10 @@ Testing
 You'll need `libev` to run async tests. Then do the following, assuming you
 have luarocks installed:
 
-Install dependencies not in the rockspec (only needed for testing):
+Install these dependencies for core testing:
 
 ```
+luarocks install copas
 luarocks install lua-ev
 luarocks install moonscript
 ```

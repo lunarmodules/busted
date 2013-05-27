@@ -1,13 +1,15 @@
-local setup_async_tests = function(yield,loopname)
+
+local pl = require'pl.pretty'
+
+local setup_async_tests = function(yield,loopname,create_timer)
   describe(
     loopname..' test suite',
     function()
       local before_each_count = 0
       local before_called
       before(
-        async,
         function(done)
-          yield(guard(
+          yield(async(
               function()
                 before_called = true
                 done()
@@ -16,9 +18,8 @@ local setup_async_tests = function(yield,loopname)
         end)
       
       before_each(
-        async,
         function(done)
-          yield(guard(
+          yield(async(
               function()
                 before_each_count = before_each_count + 1
                 done()
@@ -27,9 +28,8 @@ local setup_async_tests = function(yield,loopname)
       
       it(
         'should async succeed',
-        async,
         function(done)
-          yield(guard(
+          yield(async(
               function()
                 assert.is_true(before_called)
                 assert.is.equal(before_each_count,1)
@@ -39,9 +39,8 @@ local setup_async_tests = function(yield,loopname)
       
       it(
         'should async fail',
-        async,
         function(done)
-          yield(guard(
+          yield(async(
               function()
                 assert.is_truthy(false)
                 done()
@@ -50,14 +49,12 @@ local setup_async_tests = function(yield,loopname)
       
       it(
         'should async fails epicly',
-        async,
         function(done)
           does_not_exist.foo = 3
         end)
       
       it(
         'should succeed',
-        async,
         function(done)
           done()
         end)
@@ -78,14 +75,13 @@ local setup_async_tests = function(yield,loopname)
       
       it(
         'spies should async succeed',
-        async,
         function(done)
           local thing = {
             greet = function()
             end
           }
           spy.on(thing, "greet")
-          yield(guard(
+          yield(async(
               function()
                 assert.spy(thing.greet).was.called()
                 assert.spy(thing.greet).was.called_with("Hi!")
@@ -99,9 +95,8 @@ local setup_async_tests = function(yield,loopname)
         function()
           local before_called
           before(
-            async,
             function(done)
-              yield(guard(
+              yield(async(
                   function()
                     before_called = true
                     done()
@@ -109,9 +104,8 @@ local setup_async_tests = function(yield,loopname)
             end)
           it(
             'nested async test before is called succeeds',
-            async,
             function(done)
-              yield(guard(
+              yield(async(
                   function()
                     assert.is_true(before_called)
                     done()
@@ -123,14 +117,91 @@ local setup_async_tests = function(yield,loopname)
       
       it(
         'calling done twice fails',
-        async,
         function(done)
-          yield(guard(
+          yield(async(
               function()
                 done()
                 done()
             end))
         end)
+      
+      if create_timer then
+        it(
+          'wait_ordered succeeds',
+          function(done)
+            done:wait_ordered('t1','t2','t3')
+            create_timer(0.001,async(function()
+                  done('t1')
+              end))
+            create_timer(0.002,async(function()
+                  done('t2')
+              end))
+            create_timer(0.003,async(function()
+                  done('t3')
+              end))
+          end)
+        
+        it(
+          'wait_ordered fails with wrong order',
+          function(done)
+            done:wait_ordered('t1','t2','t3')
+            create_timer(0.001,async(function()
+                  done('t1')
+              end))
+            create_timer(0.002,async(function()
+                  done('t3')
+              end))
+            create_timer(0.003,async(function()
+                  done('t2')
+              end))
+          end)
+        
+        it(
+          'wait_ordered fails with double token',
+          function(done)
+            done:wait_ordered('t1','t2','t3')
+            create_timer(0.001,async(function()
+                  done('t1')
+              end))
+            create_timer(0.002,async(function()
+                  done('t3')
+              end))
+            create_timer(0.003,async(function()
+                  done('t3')
+              end))
+          end)
+        
+        it(
+          'wait_unordered succeeds',
+          function(done)
+            done:wait_unordered('t1','t2','t3')
+            create_timer(0.001,async(function()
+                  done('t1')
+              end))
+            create_timer(0.002,async(function()
+                  done('t3')
+              end))
+            create_timer(0.003,async(function()
+                  done('t2')
+              end))
+          end)
+        
+        it(
+          'wait_unordered fails with unknown token',
+          function(done)
+            done:wait_unordered('t1','t2','t3')
+            create_timer(0.001,async(function()
+                  done('t1')
+              end))
+            create_timer(0.002,async(function()
+                  done('t3')
+              end))
+            create_timer(0.003,async(function()
+                  done('t5')
+              end))
+          end)
+      end
+      
       
     end)
 end
@@ -164,13 +235,16 @@ local describe_statuses = function(statuses,print_statuses)
             if pend then
               count = count + 1
             end
+            if not succeed and not pend and not fail then
+              print('STATUS',status.description)
+            end
             assert.equal(count,1)
             if succeed then
-              assert(status.type == 'success', status.description)
+              assert(status.type == 'success', status.description..' '..pl.write(status))
             elseif fail then
-              assert(status.type == 'failure', status.description)
+              assert(status.type == 'failure', status.description..' '..pl.write(status))
             elseif pend then
-              assert(status.type == 'pending', status.description)
+              assert(status.type == 'pending', status.description..' '..pl.write(status))
             end
           end
         end)
@@ -223,6 +297,6 @@ local describe_statuses = function(statuses,print_statuses)
 end
 
 return {
-   setup_tests = setup_async_tests,
-   describe_statuses = describe_statuses
-       }
+  setup_tests = setup_async_tests,
+  describe_statuses = describe_statuses
+}

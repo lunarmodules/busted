@@ -1,3 +1,4 @@
+-- supporting testfile; belongs to 'cl_spec.lua'
 
 describe("Tests the busted command-line options", function()
 
