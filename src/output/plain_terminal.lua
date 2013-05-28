@@ -65,11 +65,13 @@ local output = function()
       short_status = ""
     end
 
+    local formatted_time = ("%.6f"):format(ms):gsub("([0-9])0+$", "%1")
+
     return short_status.."\n"..
            successes.." "..success_str..", "..
            failures.." "..failure_str..", and "..
            pendings.." "..pending_str.." in "..
-           ms.." "..s('output.seconds').."."..descriptive_status
+           formatted_time.." "..s('output.seconds').."."..descriptive_status
   end
 
   format_statuses = function (statuses, options)
@@ -122,12 +124,10 @@ local output = function()
   return {
     options = {},
 
-    header = function(context_tree)
+    header = function(desc, test_count)
       on_first = true
     end,
 
-    footer = function(context_tree)
-    end,
 
     formatted_status = function(statuses, options, ms)
       local short_status, descriptive_status, successes, failures, pendings = format_statuses(statuses, options)

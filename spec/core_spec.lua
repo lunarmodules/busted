@@ -6,6 +6,7 @@ assert(type(spy) == "table")
 assert(type(stub) == "table")
 assert(type(mock) == "function")
 
+
 local test_val = false
 
 assert.is_not_nil(_TEST)  -- test on file-level
@@ -255,4 +256,58 @@ teardown A
 
   end)
 
+end)
+
+it("Malformated Lua code gets reported correctly", function()
+  local filename = ".malformed_test.lua"
+  local f = io.open(filename,"w")
+  f:write("end)") -- write some non-sense which will cause a parse error
+  f:close()
+  local statuses = busted.run_internal_test(filename)
+  assert.is_equal(#statuses,1)
+  local status = statuses[1]
+  assert.is_equal(status.type, "failure")
+  assert.is_equal(status.description, "Failed executing testfile; "..filename)
+  assert.is_truthy(status.err:match("expected"))
+  os.remove(filename)
+end)
+
+describe("testing the done callback with tokens", function()
+  
+  it("Tests done call back ordered", function(done)
+    stub(done, "done_cb") -- create a stub to prevent actually calling 'done'
+    done:wait_ordered("1", "2", "3")
+    assert.has_no_error(function() done("1") end)
+    assert.has_error(function() done("1") end)      -- was already done
+    assert.has_error(function() done("3") end)      -- bad order
+    assert.has_no_error(function() done("2") end)
+    assert.has_error(function() done("this is no valid token") end)
+    assert.has_no_error(function() done("3") end)
+    assert.has_error(function() done("3") end)      -- tokenlist empty by now
+    assert.stub(done.done_cb).was.called(1)
+    done.done_cb:revert() -- revert so test can complete
+  end)
+  
+  it("Tests done call back unordered", function(done)
+    stub(done, "done_cb") -- create a stub to prevent actually calling 'done'
+    done:wait_unordered("1", "2", "3")
+    assert.has_no_error(function() done("1") end)
+    assert.has_error(function() done("1") end)      -- was already done
+    assert.has_no_error(function() done("3") end)   -- different order
+    assert.has_no_error(function() done("2") end)
+    assert.has_error(function() done("this is no valid token") end)
+    assert.has_error(function() done("3") end)      -- tokenlist empty by now
+    assert.stub(done.done_cb).was.called(1)
+    done.done_cb:revert() -- revert so test can complete
+  end)
+  
+  it("Tests done call back defaulting to ordered", function(done)
+    stub(done, "done_cb") -- create a stub to prevent actually calling 'done'
+    done:wait("1", "2")
+    assert.has_error(function() done("2") end)     -- different order
+    assert.has_no_error(function() done("1") end)
+    assert.has_no_error(function() done("2") end)  
+    done.done_cb:revert() -- revert so test can complete
+  end)
+  
 end)

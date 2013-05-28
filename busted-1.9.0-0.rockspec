@@ -1,8 +1,8 @@
 package = "busted"
-version = "1.6-1"
+version = "1.9.0-0"
 source = {
-  url = "https://github.com/Olivine-Labs/busted/archive/v1.6.tar.gz",
-  dir = "busted"
+  url = "https://github.com/Olivine-Labs/busted/archive/v1.9.0.tar.gz",
+  dir = "busted-1.9.0"
 }
 description = {
   summary = "Elegant Lua unit testing.",
@@ -23,7 +23,7 @@ dependencies = {
   "luafilesystem >= 1.5.0",
   "dkjson >= 2.1.0",
   "say >= 1.2-1",
-  "luassert >= 1.6-1",
+  "luassert >= 1.7.0-0",
   "ansicolors >= 1.0-1",
   "penlight >= 1.0.0-1"
 }
@@ -36,7 +36,9 @@ build = {
     ["busted.output.TAP"] = "src/output/TAP.lua",
     ["busted.output.json"] = "src/output/json.lua",
     ["busted.output.junit"] = "src/output/junit.lua",
+    ["busted.output.stub"] = "src/output/stub.lua",
     ["busted.init"] = "src/init.lua",
+    ["busted.moon"] = "src/moon.lua",
     ["busted.languages.en"] = "src/languages/en.lua",
     ["busted.languages.ar"] = "src/languages/ar.lua",
     ["busted.languages.fr"] = "src/languages/fr.lua",
@@ -45,6 +47,9 @@ build = {
     ["busted.languages.ua"] = "src/languages/ua.lua",
     ["busted.languages.zh"] = "src/languages/zh.lua",
     ["busted.languages.ja"] = "src/languages/ja.lua",
+    ["busted.loop.default"] = "src/loop/default.lua",
+    ["busted.loop.ev"] = "src/loop/ev.lua",
+    ["busted.loop.copas"] = "src/loop/copas.lua",
   },
   install = {
     bin = {

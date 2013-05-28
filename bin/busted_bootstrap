@@ -3,6 +3,7 @@
 local cli = require 'cliargs'
 local utils = require 'pl.utils'
 local path = require 'pl.path'
+local tablex = require 'pl.tablex'
 local busted = require 'busted'
 
 local defaultoutput = busted.defaultoutput
@@ -41,10 +42,9 @@ if args then
   end
 
   local fpath = args.d
-  local root_file = path.normpath(path.join(fpath, args.ROOT))
 
   local tasks = nil
-  local bfile = path.normpath(path.join(fpath, ".", ".busted"))
+  local bfile = path.normpath(path.join(fpath, ".busted"))
   local success, err = pcall(function() tasks = loadfile(bfile)() end)
 
   if args.run ~= "" then
@@ -67,6 +67,8 @@ if args then
     end
   end
 
+  local root_file = path.normpath(path.join(fpath, args.ROOT))
+
   if args.coverage then
     local result, luacov = pcall(require, "luacov.runner")
     if not result then
@@ -88,14 +90,14 @@ if args then
     lpathprefix = lpathprefix:gsub(";%.[/%\\]", ";" .. fpath)
     package.path = (lpathprefix .. ";" .. package.path):gsub(";;",";")
   end
-  
+
   if #args.cpath > 0 then
     cpathprefix = args.cpath
     cpathprefix = cpathprefix:gsub("^%.[/%\\]", fpath )
     cpathprefix = cpathprefix:gsub(";%.[/%\\]", ";" .. fpath)
     package.cpath = (cpathprefix .. ";" .. package.cpath):gsub(";;",";")
   end
-  
+
   local options = {
     path = fpath,
     lang = args.lang,
@@ -112,11 +114,11 @@ if args then
     failure_messages = busted.failure_messages or nil,
     filelist = nil,
   }
-  
+
   -- execute tests
   local status_string, failures = busted(options)
-    
-  print(status_string.."\n")
+
+  print((status_string or "").."\n")
 
   os.exit(failures)
 end
