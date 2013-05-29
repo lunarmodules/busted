@@ -3,6 +3,7 @@ if not pcall(require, "copas") then
     pending("The 'copas' loop was not tested because 'copas' isn't installed")
   end)
 else
+  local busted = require("busted")
   -- temporarily adjust path to find the test file in the spec directory
   local old_path = package.path
   package.path = "./spec/?.lua;"..old_path
