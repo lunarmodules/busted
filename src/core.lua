@@ -5,7 +5,7 @@ local tablex = require('pl.tablex')
 local pretty = require('pl.pretty')
 
 -- exported module table
-busted = {}
+local busted = {}
 busted._COPYRIGHT   = "Copyright (c) 2013 Olivine Labs, LLC."
 busted._DESCRIPTION = "A unit testing framework with a focus on being easy to use. http://www.olivinelabs.com/busted"
 busted._VERSION     = "Busted 1.9.0"
@@ -621,7 +621,7 @@ busted.describe = function(desc, more)
   current_context = old_context
 end
 
-busted.before = function(before_func)
+busted.setup = function(before_func)
   assert(type(before_func) == "function", "Expected function, got "..type(before_func))
   current_context.before = syncwrapper(before_func)
 end
@@ -631,7 +631,7 @@ busted.before_each = function(before_func)
   current_context.before_each = syncwrapper(before_func)
 end
 
-busted.after = function(after_func)
+busted.teardown = function(after_func)
   assert(type(after_func) == "function", "Expected function, got "..type(after_func))
   current_context.after = syncwrapper(after_func)
 end
@@ -841,21 +841,6 @@ busted.run = function(got_options)
 
   return status_string, failures
 end
-
-busted.setup    = busted.before
-busted.teardown = busted.after
-it              = busted.it
-pending         = busted.pending
-describe        = busted.describe
-before          = busted.before
-after           = busted.after
-setup           = busted.setup
-teardown        = busted.teardown
-before_each     = busted.before_each
-after_each      = busted.after_each
-step            = busted.step
-setloop         = busted.setloop
-async           = busted.async
 
 return setmetatable(busted, {
   __call = function(self, ...)
