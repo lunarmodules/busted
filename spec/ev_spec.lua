@@ -5,7 +5,7 @@ if not pcall(require, "ev") then
       pending("The 'ev' loop was not tested because 'ev' isn't installed")
     end)
 else
-  
+  local busted = require("busted")
   -- temporarily adjust path to find the test file in the spec directory
   local old_path = package.path
   package.path = "./spec/?.lua"

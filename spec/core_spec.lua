@@ -5,7 +5,7 @@ assert(type(after_each) == "function")
 assert(type(spy) == "table")
 assert(type(stub) == "table")
 assert(type(mock) == "function")
-
+local busted = require("busted")
 
 local test_val = false
 
