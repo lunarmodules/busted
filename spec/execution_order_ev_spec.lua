@@ -25,9 +25,9 @@ else
   setloop('ev')
 
   describe('before_each after_each egg test', function()
-    before(concat('S'))
+    setup(concat('S'))
 
-    after(concat('T'))
+    teardown(concat('T'))
 
     before_each(concat('b'))
 

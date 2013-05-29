@@ -2,11 +2,11 @@ local egg = ''
 describe(
   'before_each after_each egg test',
   function()
-    before(
+    setup(
       function()
         egg = egg..'S'
       end)
-    after(
+    teardown(
       function()
         egg = egg..'T'
       end)

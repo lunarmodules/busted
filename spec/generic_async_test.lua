@@ -7,7 +7,7 @@ local setup_async_tests = function(yield,loopname,create_timer)
     function()
       local before_each_count = 0
       local before_called
-      before(
+      setup(
         function(done)
           yield(async(
               function()
@@ -94,7 +94,7 @@ local setup_async_tests = function(yield,loopname,create_timer)
         'with nested contexts',
         function()
           local before_called
-          before(
+          setup(
             function(done)
               yield(async(
                   function()

@@ -13,5 +13,8 @@ setup       = busted.setup
 teardown    = busted.teardown
 before_each = busted.before_each
 after_each  = busted.after_each
+step        = busted.step
+setloop     = busted.setloop
+async       = busted.async
 
 return busted
