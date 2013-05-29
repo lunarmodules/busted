@@ -213,17 +213,17 @@ busted.step = function(...)
 
   local i = 0
 
-  local next
+  local do_next
 
-  next = function()
+  do_next = function()
     i = i + 1
     local step = steps[i]
     if step then
-      step(next)
+      step(do_next)
     end
   end
 
-  next()
+  do_next()
 end
 
 busted.async = function(f)
@@ -411,7 +411,7 @@ next_test = function()
 
     local steps = {}
 
-    local execute_test = function(next)
+    local execute_test = function(do_next)
       local timer
       local done = function()
         if timer then
@@ -445,7 +445,7 @@ next_test = function()
         end
 
         test.context:decrement_test_count()
-        next()
+        do_next()
       end
 
       if suite.loop.create_timer then
@@ -490,11 +490,11 @@ next_test = function()
 
     local check_before = function(context)
       if context.before then
-        local execute_before = function(next)
+        local execute_before = function(do_next)
           context.before(wrap_done(
             function()
               context.before = nil
-              next()
+              do_next()
             end))
         end
 
@@ -526,17 +526,17 @@ next_test = function()
       push(steps, test.context.after_each)
     end
 
-    local post_test = function(next)
+    local post_test = function(do_next)
       local post_steps = {}
 
       local check_after = function(context)
         if context.after then
           if context:all_tests_done() then
-            local execute_after = function(next)
+            local execute_after = function(do_next)
               context.after(wrap_done(
                 function()
                   context.after = nil
-                  next()
+                  do_next()
                 end))
             end
 
@@ -557,10 +557,10 @@ next_test = function()
         check_after(parents[p])
       end
 
-      local forward = function(next)
+      local forward = function(do_next)
         suite.test_index = suite.test_index + 1
         next_test()
-        next()
+        do_next()
       end
 
       push(post_steps, forward)
