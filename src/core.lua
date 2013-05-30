@@ -273,6 +273,8 @@ local match_tags = function(testName)
   end
 end
 
+-- wraps test callbacks (it, for_each, setup, etc.) to ensure that sync
+-- tests also call the `done` callback to mark the test/step as complete
 local syncwrapper = function(f)
   return function(done, ...)
     test_is_async = nil
@@ -571,7 +573,7 @@ next_test = function()
 end
 
 local create_context = function(desc)
-  local context = {
+  return {
     desc = desc,
     parents = {},
     test_count = 0,
@@ -597,8 +599,6 @@ local create_context = function(desc)
       table.insert(self.parents, parent)
     end
   }
-
-  return context
 end
 
 
@@ -655,7 +655,6 @@ local function buildInfo(debug_info)
   return info
 end
 
-
 busted.pending = function(name)
   local test = {
     context = current_context,
@@ -665,17 +664,16 @@ busted.pending = function(name)
   test.context:increment_test_count()
 
   local debug_info = debug.getinfo(2)
-
   test.f = syncwrapper(function() end)
 
   test.status = {
-    description = name,
+    description = test.name,
     type = 'pending',
     info = buildInfo(debug_info)
   }
 
   if match_tags(test.name) then
-    suite.tests[#suite.tests+1] = test
+    table.insert(suite.tests, test)
   end
 end
 
@@ -688,9 +686,7 @@ busted.it = function(name, test_func)
 
   test.context:increment_test_count()
 
-  local debug_info
-
-  debug_info = debug.getinfo(test_func)
+  local debug_info = debug.getinfo(test_func)
   test.f = syncwrapper(test_func)
 
   test.status = {
@@ -700,7 +696,7 @@ busted.it = function(name, test_func)
   }
 
   if match_tags(test.name) then
-    suite.tests[#suite.tests+1] = test
+    table.insert(suite.tests, test)
   end
 end
 
