@@ -784,11 +784,17 @@ busted.run = function(got_options)
   local suites = {}
   local tests = 0
 
-  local function run_suite()
+  local function run_suite(s)
+    local old_TEST = _TEST
+    _TEST = busted._VERSION
+    
+    suite = s
     repeat
       next_test()
       suite.loop.step()
     until #suite.done == #suite.tests
+    
+    _TEST = old_TEST
 
     for _, test in ipairs(suite.tests) do
       table.insert(statuses, test.status)
@@ -800,33 +806,22 @@ busted.run = function(got_options)
 
   -- there's already a test! probably an error
   if #suite.tests > 0 then
-    run_suite()
+    run_suite(suite)
   end
 
   for i, filename in ipairs(options.filelist) do
-    local old_TEST = _TEST
-    _TEST = busted._VERSION
-
     busted.reset()
     load_testfile(filename)
     tests = tests + #suite.tests
     suites[i] = suite
-    
-    _TEST = old_TEST
   end
 
   if not options.defer_print then
     print(busted.output.header('global', tests))
   end
 
-  for i, filename in ipairs(options.filelist) do
-    local old_TEST = _TEST
-    _TEST = busted._VERSION
-    
-    suite = suites[i]
-    run_suite()
-  
-    _TEST = old_TEST
+  for i, s in ipairs(suites) do
+    run_suite(s)
   end
 
   --final run time
