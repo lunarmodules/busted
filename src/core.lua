@@ -808,13 +808,10 @@ busted.run = function(got_options)
     _TEST = busted._VERSION
 
     busted.reset()
-
-    suite._TEST = _TEST
-
     load_testfile(filename)
     tests = tests + #suite.tests
-
     suites[i] = suite
+    
     _TEST = old_TEST
   end
 
@@ -823,9 +820,13 @@ busted.run = function(got_options)
   end
 
   for i, filename in ipairs(options.filelist) do
-    _TEST = suites[i]._TEST
+    local old_TEST = _TEST
+    _TEST = busted._VERSION
+    
     suite = suites[i]
     run_suite()
+  
+    _TEST = old_TEST
   end
 
   --final run time
