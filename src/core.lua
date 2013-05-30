@@ -55,8 +55,8 @@ local internal_error = function(description, err)
     busted.reset()
   end
 
-  describe("Busted process errors occured" .. tag, function()
-    it(description .. tag, function()
+  busted.describe("Busted process errors occured" .. tag, function()
+    busted.it(description .. tag, function()
       error(err)
     end)
   end)
@@ -146,7 +146,7 @@ local load_testfile = function(filename)
       else
         chunk = function()
           busted.describe("Moon script not installed", function()
-            pending("File not tested because 'moonscript' isn't installed; "..tostring(filename))
+            busted.pending("File not tested because 'moonscript' isn't installed; "..tostring(filename))
           end)
         end
       end      
@@ -564,11 +564,11 @@ next_test = function()
       end
 
       table.insert(post_steps, forward)
-      step(post_steps)
+      busted.step(post_steps)
     end
 
     table.insert(steps, post_test)
-    step(steps)
+    busted.step(steps)
   end
 end
 
@@ -816,7 +816,7 @@ busted.run = function(got_options)
     print(busted.output.header('global', tests))
   end
 
-  for i, s in ipairs(suites) do
+  for _, s in ipairs(suites) do
     run_suite(s)
   end
 
