@@ -224,6 +224,7 @@ busted.step = function(...)
   do_next()
 end
 
+-- Required to use on async callbacks. So busted can catch any errors and mark test as failed
 busted.async = function(f)
   test_is_async = true
   if not f then
@@ -249,6 +250,7 @@ busted.async = function(f)
       test.status.type = 'failure'
       test.status.trace = stack_trace
       test.status.err = err
+-- TODO: line below tests 'test.done' to be function, but done may also be a table, callable. Yet no tests failed...      
       assert(type(test.done) == 'function', 'non-test step failed (before/after/etc.):\n'..err)
       test.done()
     end
