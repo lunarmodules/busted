@@ -55,8 +55,8 @@ local internal_error = function(description, err)
     busted.reset()
   end
 
-  describe("Busted process errors occured" .. tag, function()
-    it(description .. tag, function()
+  busted.describe("Busted process errors occured" .. tag, function()
+    busted.it(description .. tag, function()
       error(err)
     end)
   end)
@@ -146,7 +146,7 @@ local load_testfile = function(filename)
       else
         chunk = function()
           busted.describe("Moon script not installed", function()
-            pending("File not tested because 'moonscript' isn't installed; "..tostring(filename))
+            busted.pending("File not tested because 'moonscript' isn't installed; "..tostring(filename))
           end)
         end
       end      
@@ -195,8 +195,6 @@ end
 -- Test engine
 --=============================
 
-local push = table.insert
-
 local suite = {
   tests = {},
   done = {},
@@ -205,6 +203,8 @@ local suite = {
   loop = require('busted.loop.default')
 }
 
+-- execute a list of steps (functions)
+-- each step gets a callback parameter to commence to the next step
 busted.step = function(...)
   local steps = { ... }
   if #steps == 1 and type(steps[1]) == 'table' then
@@ -214,18 +214,17 @@ busted.step = function(...)
   local i = 0
 
   local do_next
-
   do_next = function()
     i = i + 1
-    local step = steps[i]
-    if step then
-      step(do_next)
+    if steps[i] then 
+      return steps[i](do_next) -- tail call to preserve stackspace
     end
   end
 
   do_next()
 end
 
+-- Required to use on async callbacks. So busted can catch any errors and mark test as failed
 busted.async = function(f)
   test_is_async = true
   if not f then
@@ -251,6 +250,7 @@ busted.async = function(f)
       test.status.type = 'failure'
       test.status.trace = stack_trace
       test.status.err = err
+-- TODO: line below tests 'test.done' to be function, but done may also be a table, callable. Yet no tests failed...      
       assert(type(test.done) == 'function', 'non-test step failed (before/after/etc.):\n'..err)
       test.done()
     end
@@ -275,6 +275,8 @@ local match_tags = function(testName)
   end
 end
 
+-- wraps test callbacks (it, for_each, setup, etc.) to ensure that sync
+-- tests also call the `done` callback to mark the test/step as complete
 local syncwrapper = function(f)
   return function(done, ...)
     test_is_async = nil
@@ -498,7 +500,7 @@ next_test = function()
             end))
         end
 
-        push(steps, execute_before)
+        table.insert(steps, execute_before)
       end
     end
 
@@ -512,18 +514,18 @@ next_test = function()
 
     for p=1, #parents do
       if parents[p].before_each then
-        push(steps, parents[p].before_each)
+        table.insert(steps, parents[p].before_each)
       end
     end
 
     if test.context.before_each then
-      push(steps, test.context.before_each)
+      table.insert(steps, test.context.before_each)
     end
 
-    push(steps, execute_test)
+    table.insert(steps, execute_test)
 
     if test.context.after_each then
-      push(steps, test.context.after_each)
+      table.insert(steps, test.context.after_each)
     end
 
     local post_test = function(do_next)
@@ -540,14 +542,14 @@ next_test = function()
                 end))
             end
 
-            push(post_steps, execute_after)
+            table.insert(post_steps, execute_after)
           end
         end
       end
 
       for p=#parents, 1, -1 do
         if parents[p].after_each then
-          push(post_steps, parents[p].after_each)
+          table.insert(post_steps, parents[p].after_each)
         end
       end
 
@@ -563,17 +565,17 @@ next_test = function()
         do_next()
       end
 
-      push(post_steps, forward)
-      step(post_steps)
+      table.insert(post_steps, forward)
+      busted.step(post_steps)
     end
 
-    push(steps, post_test)
-    step(steps)
+    table.insert(steps, post_test)
+    busted.step(steps)
   end
 end
 
 local create_context = function(desc)
-  local context = {
+  return {
     desc = desc,
     parents = {},
     test_count = 0,
@@ -596,11 +598,9 @@ local create_context = function(desc)
     end,
 
     add_parent = function(self, parent)
-      push(self.parents, parent)
+      table.insert(self.parents, parent)
     end
   }
-
-  return context
 end
 
 
@@ -657,7 +657,6 @@ local function buildInfo(debug_info)
   return info
 end
 
-
 busted.pending = function(name)
   local test = {
     context = current_context,
@@ -667,17 +666,16 @@ busted.pending = function(name)
   test.context:increment_test_count()
 
   local debug_info = debug.getinfo(2)
-
   test.f = syncwrapper(function() end)
 
   test.status = {
-    description = name,
+    description = test.name,
     type = 'pending',
     info = buildInfo(debug_info)
   }
 
   if match_tags(test.name) then
-    suite.tests[#suite.tests+1] = test
+    table.insert(suite.tests, test)
   end
 end
 
@@ -690,9 +688,7 @@ busted.it = function(name, test_func)
 
   test.context:increment_test_count()
 
-  local debug_info
-
-  debug_info = debug.getinfo(test_func)
+  local debug_info = debug.getinfo(test_func)
   test.f = syncwrapper(test_func)
 
   test.status = {
@@ -702,7 +698,7 @@ busted.it = function(name, test_func)
   }
 
   if match_tags(test.name) then
-    suite.tests[#suite.tests+1] = test
+    table.insert(suite.tests, test)
   end
 end
 
@@ -758,7 +754,7 @@ busted.run_internal_test = function(describe_tests)
   local statuses = {}
 
   for _, test in ipairs(suite.tests) do
-    push(statuses, test.status)
+    table.insert(statuses, test.status)
   end
 
   suite = suite_bak
@@ -786,14 +782,20 @@ busted.run = function(got_options)
   local suites = {}
   local tests = 0
 
-  local function run_suite()
+  local function run_suite(s)
+    local old_TEST = _TEST
+    _TEST = busted._VERSION
+    
+    suite = s
     repeat
       next_test()
       suite.loop.step()
     until #suite.done == #suite.tests
+    
+    _TEST = old_TEST
 
     for _, test in ipairs(suite.tests) do
-      push(statuses, test.status)
+      table.insert(statuses, test.status)
       if test.status.type == 'failure' then
         failures = failures + 1
       end
@@ -802,32 +804,22 @@ busted.run = function(got_options)
 
   -- there's already a test! probably an error
   if #suite.tests > 0 then
-    run_suite()
+    run_suite(suite)
   end
 
   for i, filename in ipairs(options.filelist) do
-    local old_TEST = _TEST
-    _TEST = busted._VERSION
-
     busted.reset()
-
-    suite._TEST = _TEST
-
     load_testfile(filename)
     tests = tests + #suite.tests
-
     suites[i] = suite
-    _TEST = old_TEST
   end
 
   if not options.defer_print then
     print(busted.output.header('global', tests))
   end
 
-  for i, filename in ipairs(options.filelist) do
-    _TEST = suites[i]._TEST
-    suite = suites[i]
-    run_suite()
+  for _, s in ipairs(suites) do
+    run_suite(s)
   end
 
   --final run time
