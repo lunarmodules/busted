@@ -195,8 +195,6 @@ end
 -- Test engine
 --=============================
 
-local push = table.insert
-
 local suite = {
   tests = {},
   done = {},
@@ -205,6 +203,8 @@ local suite = {
   loop = require('busted.loop.default')
 }
 
+-- execute a list of steps (functions)
+-- each step gets a callback parameter to commence to the next step
 busted.step = function(...)
   local steps = { ... }
   if #steps == 1 and type(steps[1]) == 'table' then
@@ -214,12 +214,10 @@ busted.step = function(...)
   local i = 0
 
   local do_next
-
   do_next = function()
     i = i + 1
-    local step = steps[i]
-    if step then
-      step(do_next)
+    if steps[i] then 
+      return steps[i](do_next) -- tail call to preserve stackspace
     end
   end
 
@@ -498,7 +496,7 @@ next_test = function()
             end))
         end
 
-        push(steps, execute_before)
+        table.insert(steps, execute_before)
       end
     end
 
@@ -512,18 +510,18 @@ next_test = function()
 
     for p=1, #parents do
       if parents[p].before_each then
-        push(steps, parents[p].before_each)
+        table.insert(steps, parents[p].before_each)
       end
     end
 
     if test.context.before_each then
-      push(steps, test.context.before_each)
+      table.insert(steps, test.context.before_each)
     end
 
-    push(steps, execute_test)
+    table.insert(steps, execute_test)
 
     if test.context.after_each then
-      push(steps, test.context.after_each)
+      table.insert(steps, test.context.after_each)
     end
 
     local post_test = function(do_next)
@@ -540,14 +538,14 @@ next_test = function()
                 end))
             end
 
-            push(post_steps, execute_after)
+            table.insert(post_steps, execute_after)
           end
         end
       end
 
       for p=#parents, 1, -1 do
         if parents[p].after_each then
-          push(post_steps, parents[p].after_each)
+          table.insert(post_steps, parents[p].after_each)
         end
       end
 
@@ -563,11 +561,11 @@ next_test = function()
         do_next()
       end
 
-      push(post_steps, forward)
+      table.insert(post_steps, forward)
       step(post_steps)
     end
 
-    push(steps, post_test)
+    table.insert(steps, post_test)
     step(steps)
   end
 end
@@ -596,7 +594,7 @@ local create_context = function(desc)
     end,
 
     add_parent = function(self, parent)
-      push(self.parents, parent)
+      table.insert(self.parents, parent)
     end
   }
 
@@ -758,7 +756,7 @@ busted.run_internal_test = function(describe_tests)
   local statuses = {}
 
   for _, test in ipairs(suite.tests) do
-    push(statuses, test.status)
+    table.insert(statuses, test.status)
   end
 
   suite = suite_bak
@@ -793,7 +791,7 @@ busted.run = function(got_options)
     until #suite.done == #suite.tests
 
     for _, test in ipairs(suite.tests) do
-      push(statuses, test.status)
+      table.insert(statuses, test.status)
       if test.status.type == 'failure' then
         failures = failures + 1
       end
