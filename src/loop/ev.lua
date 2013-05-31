@@ -20,8 +20,6 @@ loop.create_timer = function(secs,on_timeout)
   }
 end
 
-loop.pcall = pcall
-
 loop.step = function()
   ev.Loop.default:loop()
 end

@@ -234,7 +234,7 @@ busted.async = function(f)
   local test = suite.tests[suite.test_index]
 
   local safef = function(...)
-    local result = { suite.loop.pcall(f, ...) }
+    local result = { pcall(f, ...) }
 
     if result[1] then
       return unpack(result, 2)
@@ -469,7 +469,7 @@ next_test = function()
 
       test.done = done
 
-      local ok, err = suite.loop.pcall(test.f, wrap_done(done)) 
+      local ok, err = pcall(test.f, wrap_done(done)) 
       if ok then
         if settimeout and not timer and not test.done_trace then
           settimeout(1.0)
@@ -719,7 +719,6 @@ busted.setloop = function(loop)
   if type(loop) == 'string' then
      suite.loop = require('busted.loop.'..loop)
   else
-     assert(loop.pcall)
      assert(loop.step)
      suite.loop = loop
   end
