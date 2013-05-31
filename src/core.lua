@@ -63,9 +63,9 @@ local internal_error = function(description, err)
 end
 
 -- returns current time in seconds
-local get_time = os.clock
+busted.gettime = os.clock
 if pcall(require, "socket") then
-  get_time = package.loaded["socket"].gettime
+  busted.gettime = package.loaded["socket"].gettime
 end
 
 local language = function(lang)
@@ -774,7 +774,7 @@ busted.run = function(got_options)
   options.filelist = options.filelist or gettestfiles(options.root_file, options.pattern)
   -- load testfiles
 
-  local ms = get_time()
+  local ms = busted.gettime()
 
   local statuses = {}
   local failures = 0
@@ -822,7 +822,7 @@ busted.run = function(got_options)
   end
 
   --final run time
-  ms = get_time() - ms
+  ms = busted.gettime() - ms
 
   local status_string = busted.output.formatted_status(statuses, options, ms)
 
