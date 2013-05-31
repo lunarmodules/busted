@@ -25,12 +25,18 @@ This method should execute a single step in the async loop for the framework it 
 To use your custom loop you can use the `setloop` method. `setloop` takes 1 parameters which is either a module name (eg. `setloop('copas')` to load the `busted.loop.copas` module) or a table providing the loop methods.
 
 ```lua
--- example providing your own loop
+-- example providing your own loop in a test file
 
 setloop({
   settimeout = function(sec,cb)
     -- some implementation here
+  end,
+  step = function()
+    -- do an async step here
   end
-  
-  
+})
+
+-- or use an existing loop, in which case busted will load the loop module
+setloop('copas')
+
 ````
