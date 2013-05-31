@@ -63,9 +63,9 @@ local internal_error = function(description, err)
 end
 
 -- returns current time in seconds
-local get_time = os.clock
+busted.gettime = os.clock
 if pcall(require, "socket") then
-  get_time = package.loaded["socket"].gettime
+  busted.gettime = package.loaded["socket"].gettime
 end
 
 local language = function(lang)
@@ -234,7 +234,7 @@ busted.async = function(f)
   local test = suite.tests[suite.test_index]
 
   local safef = function(...)
-    local result = { suite.loop.pcall(f, ...) }
+    local result = { pcall(f, ...) }
 
     if result[1] then
       return unpack(result, 2)
@@ -469,7 +469,7 @@ next_test = function()
 
       test.done = done
 
-      local ok, err = suite.loop.pcall(test.f, wrap_done(done)) 
+      local ok, err = pcall(test.f, wrap_done(done)) 
       if ok then
         if settimeout and not timer and not test.done_trace then
           settimeout(1.0)
@@ -719,7 +719,6 @@ busted.setloop = function(loop)
   if type(loop) == 'string' then
      suite.loop = require('busted.loop.'..loop)
   else
-     assert(loop.pcall)
      assert(loop.step)
      suite.loop = loop
   end
@@ -775,7 +774,7 @@ busted.run = function(got_options)
   options.filelist = options.filelist or gettestfiles(options.root_file, options.pattern)
   -- load testfiles
 
-  local ms = get_time()
+  local ms = busted.gettime()
 
   local statuses = {}
   local failures = 0
@@ -823,7 +822,7 @@ busted.run = function(got_options)
   end
 
   --final run time
-  ms = get_time() - ms
+  ms = busted.gettime() - ms
 
   local status_string = busted.output.formatted_status(statuses, options, ms)
 

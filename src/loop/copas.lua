@@ -1,12 +1,11 @@
 local copas = require'copas'
-require'coxpcall'
+local super = require'busted.loop.default'
 
-local loop = {}
+-- create OO table, using `loop.default` as the ancestor/super class
+return setmetatable({ 
+    step = function()
+      copas.step(0)
+      super.step()  -- call ancestor to check for timers 
+    end,
+  }, { __index = super})
 
-loop.pcall = copcall
-
-loop.step = function()
-  copas.step(0)
-end
-
-return loop
