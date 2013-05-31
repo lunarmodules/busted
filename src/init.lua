@@ -1,3 +1,7 @@
+local coxpcall = require('coxpcall')
+pcall = copcall
+xpcall = coxpcall
+
 -- Expose luassert elements as part of global interface
 assert = require('luassert')
 spy    = require('luassert.spy')
