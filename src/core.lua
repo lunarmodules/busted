@@ -445,6 +445,8 @@ next_test = function()
     end
 
     if suite.loop.create_timer then
+--TODO: global `settimeout` is created for an `it()` test, but never deleted, so it remains in the global namespace
+--TODO: timeouts should also be available for before/after/before_each/after_each      
       settimeout = function(timeout)
         if not timer then
           timer = suite.loop.create_timer(timeout,function()
@@ -465,7 +467,9 @@ next_test = function()
 
     local ok, err = pcall(this_test.f, wrap_done(done)) 
     if ok then
+      -- test returned, set default timer if one hasn't been set already
       if settimeout and not timer and not this_test.done_trace then
+--TODO: parametrize constant!
         settimeout(1.0)
       end
     else
