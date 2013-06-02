@@ -394,178 +394,175 @@ end
 local next_test
 
 next_test = function()
-  if #suite.done == #suite.tests then
-    return
-  end
+  if #suite.done == #suite.tests     then return end  -- suite is complete
+  if suite.started[suite.test_index] then return end  -- current test already started
+    
+  suite.started[suite.test_index] = true
 
-  if not suite.started[suite.test_index] then
-    suite.started[suite.test_index] = true
+  local test = suite.tests[suite.test_index]
 
-    local test = suite.tests[suite.test_index]
+  assert(test, suite.test_index..debug.traceback('', 1))
 
-    assert(test, suite.test_index..debug.traceback('', 1))
+  local steps = {}
 
-    local steps = {}
+  local execute_test = function(do_next)
+    local timer
+    local done = function()
+      if timer then
+        timer:stop()
+        timer = nil
+      end
+      if test.done_trace then
+        if test.status.err == nil then
+          local stack_trace = debug.traceback("", 2)
+          err, stack_trace = moon.rewrite_traceback(err, stack_trace)
 
-    local execute_test = function(do_next)
-      local timer
-      local done = function()
-        if timer then
-          timer:stop()
-          timer = nil
+          test.status.err = 'test already "done":"'..test.name..'"'
+          test.status.err = test.status.err..'. First called from '..test.done_trace
+          test.status.type = 'failure'
+          test.status.trace = stack_trace
         end
-        if test.done_trace then
-          if test.status.err == nil then
-            local stack_trace = debug.traceback("", 2)
-            err, stack_trace = moon.rewrite_traceback(err, stack_trace)
-
-            test.status.err = 'test already "done":"'..test.name..'"'
-            test.status.err = test.status.err..'. First called from '..test.done_trace
-            test.status.type = 'failure'
-            test.status.trace = stack_trace
-          end
-          return
-        end
-
-        assert(suite.test_index <= #suite.tests, 'invalid test index: '..suite.test_index)
-
-        suite.done[suite.test_index] = true
-        -- keep done trace for easier error location when called multiple time
-        local done_trace = debug.traceback("", 2)
-        err, done_trace = moon.rewrite_traceback(err, done_trace)
-
-        test.done_trace = pretty.write(done_trace)
-
-        if not options.defer_print then
-          busted.output.currently_executing(test.status, options)
-        end
-
-        test.context:decrement_test_count()
-        do_next()
+        return
       end
 
-      if suite.loop.create_timer then
-        settimeout = function(timeout)
-          if not timer then
-            timer = suite.loop.create_timer(timeout,function()
-              if not test.done_trace then
-                test.status.type = 'failure'
-                test.status.trace = ''
-                test.status.err = 'test timeout elapsed ('..timeout..'s)'
-                done()
-              end
-            end)
-          end
-        end
-      else
-        settimeout = nil
+      assert(suite.test_index <= #suite.tests, 'invalid test index: '..suite.test_index)
+
+      suite.done[suite.test_index] = true
+      -- keep done trace for easier error location when called multiple time
+      local done_trace = debug.traceback("", 2)
+      err, done_trace = moon.rewrite_traceback(err, done_trace)
+
+      test.done_trace = pretty.write(done_trace)
+
+      if not options.defer_print then
+        busted.output.currently_executing(test.status, options)
       end
 
-      test.done = done
-
-      local ok, err = pcall(test.f, wrap_done(done)) 
-      if ok then
-        if settimeout and not timer and not test.done_trace then
-          settimeout(1.0)
-        end
-      else
-        if type(err) == "table" then
-          err = pretty.write(err)
-        end
-
-        local trace = debug.traceback("", 2)
-
-        err, trace = moon.rewrite_traceback(err, trace)
-
-        test.status.type = 'failure'
-        test.status.trace = trace
-        test.status.err = err
-        done()
-      end
+      test.context:decrement_test_count()
+      do_next()
     end
 
-    local check_before = function(context)
-      if context.before then
-        local execute_before = function(do_next)
-          context.before(wrap_done(
-            function()
-              context.before = nil
-              do_next()
-            end))
-        end
-
-        table.insert(steps, execute_before)
-      end
-    end
-
-    local parents = test.context.parents
-
-    for p=1, #parents do
-      check_before(parents[p])
-    end
-
-    check_before(test.context)
-
-    for p=1, #parents do
-      if parents[p].before_each then
-        table.insert(steps, parents[p].before_each)
-      end
-    end
-
-    if test.context.before_each then
-      table.insert(steps, test.context.before_each)
-    end
-
-    table.insert(steps, execute_test)
-
-    if test.context.after_each then
-      table.insert(steps, test.context.after_each)
-    end
-
-    local post_test = function(do_next)
-      local post_steps = {}
-
-      local check_after = function(context)
-        if context.after then
-          if context:all_tests_done() then
-            local execute_after = function(do_next)
-              context.after(wrap_done(
-                function()
-                  context.after = nil
-                  do_next()
-                end))
+    if suite.loop.create_timer then
+      settimeout = function(timeout)
+        if not timer then
+          timer = suite.loop.create_timer(timeout,function()
+            if not test.done_trace then
+              test.status.type = 'failure'
+              test.status.trace = ''
+              test.status.err = 'test timeout elapsed ('..timeout..'s)'
+              done()
             end
-
-            table.insert(post_steps, execute_after)
-          end
+          end)
         end
       end
-
-      for p=#parents, 1, -1 do
-        if parents[p].after_each then
-          table.insert(post_steps, parents[p].after_each)
-        end
-      end
-
-      check_after(test.context)
-
-      for p=#parents, 1, -1 do
-        check_after(parents[p])
-      end
-
-      local forward = function(do_next)
-        suite.test_index = suite.test_index + 1
-        next_test()
-        do_next()
-      end
-
-      table.insert(post_steps, forward)
-      busted.step(post_steps)
+    else
+      settimeout = nil
     end
 
-    table.insert(steps, post_test)
-    busted.step(steps)
+    test.done = done
+
+    local ok, err = pcall(test.f, wrap_done(done)) 
+    if ok then
+      if settimeout and not timer and not test.done_trace then
+        settimeout(1.0)
+      end
+    else
+      if type(err) == "table" then
+        err = pretty.write(err)
+      end
+
+      local trace = debug.traceback("", 2)
+
+      err, trace = moon.rewrite_traceback(err, trace)
+
+      test.status.type = 'failure'
+      test.status.trace = trace
+      test.status.err = err
+      done()
+    end
   end
+
+  local check_before = function(context)
+    if context.before then
+      local execute_before = function(do_next)
+        context.before(wrap_done(
+          function()
+            context.before = nil
+            do_next()
+          end))
+      end
+
+      table.insert(steps, execute_before)
+    end
+  end
+
+  local parents = test.context.parents
+
+  for p=1, #parents do
+    check_before(parents[p])
+  end
+
+  check_before(test.context)
+
+  for p=1, #parents do
+    if parents[p].before_each then
+      table.insert(steps, parents[p].before_each)
+    end
+  end
+
+  if test.context.before_each then
+    table.insert(steps, test.context.before_each)
+  end
+
+  table.insert(steps, execute_test)
+
+  if test.context.after_each then
+    table.insert(steps, test.context.after_each)
+  end
+
+  local post_test = function(do_next)
+    local post_steps = {}
+
+    local check_after = function(context)
+      if context.after then
+        if context:all_tests_done() then
+          local execute_after = function(do_next)
+            context.after(wrap_done(
+              function()
+                context.after = nil
+                do_next()
+              end))
+          end
+
+          table.insert(post_steps, execute_after)
+        end
+      end
+    end
+
+    for p=#parents, 1, -1 do
+      if parents[p].after_each then
+        table.insert(post_steps, parents[p].after_each)
+      end
+    end
+
+    check_after(test.context)
+
+    for p=#parents, 1, -1 do
+      check_after(parents[p])
+    end
+
+    local forward = function(do_next)
+      suite.test_index = suite.test_index + 1
+      next_test()
+      do_next()
+    end
+
+    table.insert(post_steps, forward)
+    busted.step(post_steps)
+  end
+
+  table.insert(steps, post_test)
+  busted.step(steps)
 end
 
 local create_context = function(desc)
