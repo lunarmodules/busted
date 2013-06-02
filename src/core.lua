@@ -190,9 +190,9 @@ end
 --=============================
 
 local suite = {
-  tests = {},
-  done = {},
-  started = {},
+  tests = {},       -- list holding all tests
+  done = {},        -- list (boolean) indicating test was completed (either succesful or failed)
+  started = {},     -- list (boolean) indicating test was started
   test_index = 1,
   loop = require('busted.loop.default')
 }
@@ -399,9 +399,9 @@ next_test = function()
     
   suite.started[suite.test_index] = true
 
-  local test = suite.tests[suite.test_index]
+  local this_test = suite.tests[suite.test_index]
 
-  assert(test, suite.test_index..debug.traceback('', 1))
+  assert(this_test, suite.test_index..debug.traceback('', 1))
 
   local steps = {}
 
@@ -412,15 +412,15 @@ next_test = function()
         timer:stop()
         timer = nil
       end
-      if test.done_trace then
-        if test.status.err == nil then
+      if this_test.done_trace then
+        if this_test.status.err == nil then
           local stack_trace = debug.traceback("", 2)
           err, stack_trace = moon.rewrite_traceback(err, stack_trace)
 
-          test.status.err = 'test already "done":"'..test.name..'"'
-          test.status.err = test.status.err..'. First called from '..test.done_trace
-          test.status.type = 'failure'
-          test.status.trace = stack_trace
+          this_test.status.err = 'test already "done":"'..this_test.name..'"'
+          this_test.status.err = this_test.status.err..'. First called from '..this_test.done_trace
+          this_test.status.type = 'failure'
+          this_test.status.trace = stack_trace
         end
         return
       end
@@ -432,13 +432,13 @@ next_test = function()
       local done_trace = debug.traceback("", 2)
       err, done_trace = moon.rewrite_traceback(err, done_trace)
 
-      test.done_trace = pretty.write(done_trace)
+      this_test.done_trace = pretty.write(done_trace)
 
       if not options.defer_print then
-        busted.output.currently_executing(test.status, options)
+        busted.output.currently_executing(this_test.status, options)
       end
 
-      test.context:decrement_test_count()
+      this_test.context:decrement_test_count()
       do_next()
     end
 
@@ -446,10 +446,10 @@ next_test = function()
       settimeout = function(timeout)
         if not timer then
           timer = suite.loop.create_timer(timeout,function()
-            if not test.done_trace then
-              test.status.type = 'failure'
-              test.status.trace = ''
-              test.status.err = 'test timeout elapsed ('..timeout..'s)'
+            if not this_test.done_trace then
+              this_test.status.type = 'failure'
+              this_test.status.trace = ''
+              this_test.status.err = 'test timeout elapsed ('..timeout..'s)'
               done()
             end
           end)
@@ -459,11 +459,11 @@ next_test = function()
       settimeout = nil
     end
 
-    test.done = done
+    this_test.done = done
 
-    local ok, err = pcall(test.f, wrap_done(done)) 
+    local ok, err = pcall(this_test.f, wrap_done(done)) 
     if ok then
-      if settimeout and not timer and not test.done_trace then
+      if settimeout and not timer and not this_test.done_trace then
         settimeout(1.0)
       end
     else
@@ -475,9 +475,9 @@ next_test = function()
 
       err, trace = moon.rewrite_traceback(err, trace)
 
-      test.status.type = 'failure'
-      test.status.trace = trace
-      test.status.err = err
+      this_test.status.type = 'failure'
+      this_test.status.trace = trace
+      this_test.status.err = err
       done()
     end
   end
@@ -496,13 +496,13 @@ next_test = function()
     end
   end
 
-  local parents = test.context.parents
+  local parents = this_test.context.parents
 
   for p=1, #parents do
     check_before(parents[p])
   end
 
-  check_before(test.context)
+  check_before(this_test.context)
 
   for p=1, #parents do
     if parents[p].before_each then
@@ -510,14 +510,14 @@ next_test = function()
     end
   end
 
-  if test.context.before_each then
-    table.insert(steps, test.context.before_each)
+  if this_test.context.before_each then
+    table.insert(steps, this_test.context.before_each)
   end
 
   table.insert(steps, execute_test)
 
-  if test.context.after_each then
-    table.insert(steps, test.context.after_each)
+  if this_test.context.after_each then
+    table.insert(steps, this_test.context.after_each)
   end
 
   local post_test = function(do_next)
@@ -545,7 +545,7 @@ next_test = function()
       end
     end
 
-    check_after(test.context)
+    check_after(this_test.context)
 
     for p=#parents, 1, -1 do
       check_after(parents[p])
