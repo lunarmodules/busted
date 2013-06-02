@@ -182,13 +182,7 @@ local play_sound = function(failures)
 end
 
 local get_fname = function(short_src)
-  local i = short_src:find('"', 1, true)
-  if i then
-    local j = short_src:find('"', i+1, true)
-    if j then
-      return short_src:sub(i+1, j-1)
-    end
-  end
+  return short_src:match('%"(.-)%"') -- matches first string within double quotes
 end
 
 --=============================
