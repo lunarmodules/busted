@@ -400,8 +400,10 @@ next_test = function()
   suite.started[suite.test_index] = true
 
   local this_test = suite.tests[suite.test_index]
+  this_test.index = suite.test_index
+  
 
-  assert(this_test, suite.test_index..debug.traceback('', 1))
+  assert(this_test, this_test.index..debug.traceback('', 1))
 
   local steps = {}
 
@@ -425,10 +427,10 @@ next_test = function()
         return
       end
 
-      assert(suite.test_index <= #suite.tests, 'invalid test index: '..suite.test_index)
+      assert(this_test.index <= #suite.tests, 'invalid test index: '..this_test.index)
 
-      suite.done[suite.test_index] = true
-      -- keep done trace for easier error location when called multiple time
+      suite.done[this_test.index] = true
+      -- keep done trace for easier error location when called multiple times
       local done_trace = debug.traceback("", 2)
       err, done_trace = moon.rewrite_traceback(err, done_trace)
 
