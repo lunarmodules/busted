@@ -5,16 +5,16 @@ The API for implementing your own loop with busted is fairly simple. It uses onl
 1. settimeout(seconds, callback)
 1. step()
 
-## settimeout(seconds, callback)
+## create_timer(seconds, callback)
 This (optional) method should create a `timer` object. The object should have a single method `stop` to cancel the timer. And after the period of `seconds` number of seconds has elapsed, it should call `callback()` (the callback does not take any parameters).
 
-If you do not provide a `settimeout` method, then  busted might hang on faulty tests. A test will generally only exit on;
+If you do not provide a `create_timer` method, then  busted might hang on faulty tests. A test will generally only exit on;
 
 1. success
 2. failure (explicit, eg. an `error` or `assert` call, caught by the `async` callback wrapper)
 3. on timeout
 
-So if you do not provide a `settimeout` method and a test neither fails nor succeeds, it will hang.
+So if you do not provide a `create_timer` method and a test neither fails nor succeeds, it will hang.
 
 The default loop has a timer implementation that can be reused for coroutine based schedulers. See the `busted.loop.copas` module for an example. If you do a event framework similar as Lua-ev, then you should use timers as provided by that framework. In that case see the `busted.loop.ev` module for an example.
 
