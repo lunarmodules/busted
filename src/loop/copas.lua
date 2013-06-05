@@ -7,5 +7,6 @@ return setmetatable({
       copas.step(0)
       super.step()  -- call ancestor to check for timers 
     end,
+    pcall = copcall
   }, { __index = super})
 
