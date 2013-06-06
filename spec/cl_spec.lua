@@ -124,6 +124,16 @@ describe("Tests the busted command-line options", function()
     error_end()
   end)
 
+  it("tests no tests to exit with a fail-exitcode", function()
+    local success, exitcode
+    error_start()
+    success, exitcode = execute("busted --pattern=this_filename_does_simply_not_exist$")
+    assert.is_false(success)
+    assert.is_equal(1, exitcode)
+    error_end()
+  end)
+
+
 end)
 
 --[[  --TODO: uncomment this failing test and fix it
