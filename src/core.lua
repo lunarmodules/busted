@@ -127,7 +127,6 @@ local gettestfiles = function(root_file, pattern)
     end)
   else
     filelist = {}
-    internal_error("Getting test files", "No test files found for path '"..root_file.."' and pattern `"..pattern.."`. Please review your commandline, re-run with `--help` for usage.")
   end
 
   return filelist
@@ -827,6 +826,7 @@ busted.run = function(got_options)
     play_sound(failures)
   end
 
+  if tests == 0 then failures = 1 end -- no tests found, so exitcode should be non-zero
   return status_string, failures
 end
 
