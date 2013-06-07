@@ -550,46 +550,36 @@ local function buildInfo(debug_info)
 end
 
 busted.pending = function(name)
-  local test = {
-    context = current_context,
-    name = name
-  }
-
-  test.context:increment_test_count()
-
-  local debug_info = debug.getinfo(2)
-  test.f = syncwrapper(function() end)
-
-  test.status = {
-    description = test.name,
-    type = 'pending',
-    info = buildInfo(debug_info)
-  }
-
-  if match_tags(test.name) then
+  if match_tags(name) then
+    local test = {
+      context = current_context,
+      name = name,
+      f = syncwrapper(function() end),
+      status = {
+        description = name,
+        type = 'pending',
+        info = buildInfo(debug.getinfo(2)),
+      }
+    }
+    test.context:increment_test_count()
     table.insert(suite.tests, test)
   end
 end
 
 busted.it = function(name, test_func)
   assert(type(test_func) == "function", "Expected function, got "..type(test_func))
-  local test = {
-    context = current_context,
-    name = name
-  }
-
-  test.context:increment_test_count()
-
-  local debug_info = debug.getinfo(test_func)
-  test.f = syncwrapper(test_func)
-
-  test.status = {
-    description = test.name,
-    type = 'success',
-    info = buildInfo(debug_info)
-  }
-
-  if match_tags(test.name) then
+  if match_tags(name) then
+    local test = {
+      context = current_context,
+      name = name,
+      f = syncwrapper(test_func),
+      status = {
+        description = name,
+        type = 'success',
+        info = buildInfo(debug.getinfo(test_func)),
+      },
+    }
+    test.context:increment_test_count()
     table.insert(suite.tests, test)
   end
 end
