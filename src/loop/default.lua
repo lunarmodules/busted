@@ -1,4 +1,4 @@
-local busted 
+local busted = require('busted')
 local loop = {}
 local timers = {}
 
@@ -18,7 +18,6 @@ local checktimers = function()
 end
 
 loop.create_timer = function(secs,on_timeout)
-  busted = busted or require("busted")  -- lazy-load to prevent 'require-loop'
   local timer = {
     timeout = busted.gettime() + secs,
     on_timeout = on_timeout,
@@ -31,7 +30,6 @@ loop.create_timer = function(secs,on_timeout)
 end
 
 loop.step = function()
-  busted = busted or require("busted")  -- lazy-load to prevent 'require-loop'
   checktimers()
 end
 
