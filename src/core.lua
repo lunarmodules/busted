@@ -196,7 +196,7 @@ end
 local suite = {
   tests = {},       -- list holding all tests
   --done = {},        -- list (boolean) indicating test was completed (either succesful or failed)
-  started = {},     -- list (boolean) indicating test was started
+  --started = {},     -- list (boolean) indicating test was started
   test_index = 1,
 }
 
@@ -292,19 +292,21 @@ next_test = function()
 --print(suite.test_index, #suite.tests, suite.tests[suite.test_index])  
   local this_test = suite.tests[suite.test_index]
   if not this_test then return end -- no more tests
-  if suite.started[suite.test_index] then return end  -- current test already started
+  --if suite.started[suite.test_index] then return end  -- current test already started
+  if this_test.started then return end  -- current test already started
   this_test.index = suite.test_index
   
 --  if #suite.done == #suite.tests     then return end  -- suite is complete
 --  if suite.started[suite.test_index] then return end  -- current test already started
-    
-  suite.started[suite.test_index] = true
+  
+  this_test.started = true
+--  suite.started[suite.test_index] = true
 
 --  local this_test = suite.tests[suite.test_index]
 --  this_test.index = suite.test_index
   
 
-  assert(this_test, this_test.index..debug.traceback('', 1))
+--  assert(this_test, this_test.index..debug.traceback('', 1))
 
   local steps = {}
 
@@ -601,7 +603,7 @@ busted.reset = function()
   suite = {
     tests = {},
     --done = {},
-    started = {},
+    --started = {},
     test_index = 1,
   }
   busted.loop = require('busted.loop.default')
@@ -627,7 +629,7 @@ busted.run_internal_test = function(describe_tests)
   suite = {
     tests = {},
     --done = {},
-    started = {},
+    --started = {},
     test_index = 1,
   }
   busted.loop = require('busted.loop.default')
