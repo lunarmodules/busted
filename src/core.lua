@@ -195,7 +195,7 @@ end
 
 local suite = {
   tests = {},       -- list holding all tests
-  done = {},        -- list (boolean) indicating test was completed (either succesful or failed)
+  --done = {},        -- list (boolean) indicating test was completed (either succesful or failed)
   started = {},     -- list (boolean) indicating test was started
   test_index = 1,
 }
@@ -289,13 +289,19 @@ end
 local next_test
 
 next_test = function()
-  if #suite.done == #suite.tests     then return end  -- suite is complete
+--print(suite.test_index, #suite.tests, suite.tests[suite.test_index])  
+  local this_test = suite.tests[suite.test_index]
+  if not this_test then return end -- no more tests
   if suite.started[suite.test_index] then return end  -- current test already started
+  this_test.index = suite.test_index
+  
+--  if #suite.done == #suite.tests     then return end  -- suite is complete
+--  if suite.started[suite.test_index] then return end  -- current test already started
     
   suite.started[suite.test_index] = true
 
-  local this_test = suite.tests[suite.test_index]
-  this_test.index = suite.test_index
+--  local this_test = suite.tests[suite.test_index]
+--  this_test.index = suite.test_index
   
 
   assert(this_test, this_test.index..debug.traceback('', 1))
@@ -322,9 +328,10 @@ next_test = function()
         return
       end
 
-      assert(this_test.index <= #suite.tests, 'invalid test index: '..this_test.index)
+      --assert(this_test.index <= #suite.tests, 'invalid test index: '..this_test.index)
 
-      suite.done[this_test.index] = true
+      --suite.done[this_test.index] = true
+      this_test.done = true
       -- keep done trace for easier error location when called multiple times
       local done_trace = debug.traceback("", 2)
       err, done_trace = moon.rewrite_traceback(err, done_trace)
@@ -555,6 +562,8 @@ busted.pending = function(name)
       context = current_context,
       name = name,
       f = syncwrapper(function() end),
+      started = false,
+      done = false,
       status = {
         description = name,
         type = 'pending',
@@ -573,6 +582,8 @@ busted.it = function(name, test_func)
       context = current_context,
       name = name,
       f = syncwrapper(test_func),
+      started = false,
+      done = false,
       status = {
         description = name,
         type = 'success',
@@ -589,7 +600,7 @@ busted.reset = function()
 
   suite = {
     tests = {},
-    done = {},
+    --done = {},
     started = {},
     test_index = 1,
   }
@@ -615,7 +626,7 @@ busted.run_internal_test = function(describe_tests)
   busted.output = require 'busted.output.stub'()
   suite = {
     tests = {},
-    done = {},
+    --done = {},
     started = {},
     test_index = 1,
   }
@@ -630,7 +641,8 @@ busted.run_internal_test = function(describe_tests)
   repeat
     next_test()
     busted.loop.step()
-  until #suite.done == #suite.tests
+  --until #suite.done == #suite.tests
+  until #suite.tests == 0 or suite.tests[#suite.tests].done
 
   local statuses = {}
 
@@ -671,7 +683,8 @@ busted.run = function(got_options)
     repeat
       next_test()
       busted.loop.step()
-    until #suite.done == #suite.tests
+    --until #suite.done == #suite.tests
+    until #suite.tests == 0 or suite.tests[#suite.tests].done
     
     _TEST = old_TEST
 
