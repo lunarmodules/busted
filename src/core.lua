@@ -20,6 +20,7 @@ busted.defaultpattern = '_spec'
 busted.defaultlua = 'luajit'
 busted.lpathprefix = "./src/?.lua;./src/?/?.lua;./src/?/init.lua"
 busted.cpathprefix = path.is_windows and "./csrc/?.dll;./csrc/?/?.dll;" or "./csrc/?.so;./csrc/?/?.so;"
+busted.loop = require('busted.loop.default')
 require('busted.languages.en')-- Load default language pack
 
 -- platform detection
@@ -197,7 +198,6 @@ local suite = {
   done = {},        -- list (boolean) indicating test was completed (either succesful or failed)
   started = {},     -- list (boolean) indicating test was started
   test_index = 1,
-  loop = require('busted.loop.default')
 }
 
 -- execute a list of steps (functions)
@@ -339,12 +339,12 @@ next_test = function()
       do_next()
     end
 
-    if suite.loop.create_timer then
+    if busted.loop.create_timer then
 --TODO: global `settimeout` is created for an `it()` test, but never deleted, so it remains in the global namespace
 --TODO: timeouts should also be available for before/after/before_each/after_each      
       settimeout = function(timeout)
         if not timer then
-          timer = suite.loop.create_timer(timeout,function()
+          timer = busted.loop.create_timer(timeout,function()
             if not this_test.done_trace then
               this_test.status.type = 'failure'
               this_test.status.trace = ''
@@ -592,17 +592,17 @@ busted.reset = function()
     done = {},
     started = {},
     test_index = 1,
-    loop = require('busted.loop.default')
   }
+  busted.loop = require('busted.loop.default')
   busted.output = busted.output_reset
 end
 
 busted.setloop = function(loop)
   if type(loop) == 'string' then
-     suite.loop = require('busted.loop.'..loop)
+     busted.loop = require('busted.loop.'..loop)
   else
      assert(loop.step)
-     suite.loop = loop
+     busted.loop = loop
   end
 end
 
@@ -618,8 +618,8 @@ busted.run_internal_test = function(describe_tests)
     done = {},
     started = {},
     test_index = 1,
-    loop = require('busted.loop.default')
   }
+  busted.loop = require('busted.loop.default')
 
   if type(describe_tests) == 'function' then
      describe_tests()
@@ -629,7 +629,7 @@ busted.run_internal_test = function(describe_tests)
 
   repeat
     next_test()
-    suite.loop.step()
+    busted.loop.step()
   until #suite.done == #suite.tests
 
   local statuses = {}
@@ -670,7 +670,7 @@ busted.run = function(got_options)
     suite = s
     repeat
       next_test()
-      suite.loop.step()
+      busted.loop.step()
     until #suite.done == #suite.tests
     
     _TEST = old_TEST
