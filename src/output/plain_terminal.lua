@@ -74,7 +74,7 @@ local output = function()
            formatted_time.." "..s('output.seconds').."."..descriptive_status
   end
 
-  format_statuses = function (statuses, options)
+  local format_statuses = function (statuses, options)
     local short_status = ""
     local descriptive_status = ""
     local successes = 0

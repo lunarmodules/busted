@@ -19,14 +19,6 @@ local table = require("table")
 
 local _cache = {}
 
-local loader = function(fname)  
-  if is_moon(fname) then
-    return ms.loadfile(fname)
-  else
-    return loadfile(fname)
-  end
-end
-
 -- find the line number of `pos` chars into fname
 local lookup_line = function(fname, pos)
   if not _cache[fname] then
@@ -77,7 +69,7 @@ local rewrite_traceback = function(err, trace)
 end
 
 return {
-    loadfile=loader,
+    loadfile=ms.loadfile,
     has_moon=true,
     is_moon=is_moon,
     rewrite_linenumber=rewrite_linenumber,

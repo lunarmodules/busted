@@ -5,6 +5,9 @@ local tablex = require('pl.tablex')
 local pretty = require('pl.pretty')
 local wrap_done = require('busted.done').new
 
+-- globals
+settimeout = nil
+
 -- exported module table
 local busted = {}
 busted._COPYRIGHT   = "Copyright (c) 2013 Olivine Labs, LLC."
@@ -133,6 +136,10 @@ local gettestfiles = function(root_file, pattern)
   return filelist
 end
 
+local is_terra = function(fname)
+  return fname:find(".t", #fname-2, true) and true or false
+end
+
 -- runs a testfile, loading its tests
 local load_testfile = function(filename)
   local old_TEST = _TEST
@@ -149,7 +156,17 @@ local load_testfile = function(filename)
             busted.pending("File not tested because 'moonscript' isn't installed; "..tostring(filename))
           end)
         end
-      end      
+      end
+    elseif is_terra(filename) then
+      if terralib then
+        chunk,err = terralib.loadfile(filename)
+      else
+        chunk = function()
+          busted.describe("Not running tests under Terra", function()
+            pending("File not tested because tests are not being run with 'terra'; "..tostring(filename))
+          end)
+        end
+      end
     else
       chunk,err = loadfile(filename)
     end
@@ -324,7 +341,7 @@ next_test = function()
       suite.done[this_test.index] = true
       -- keep done trace for easier error location when called multiple times
       local done_trace = debug.traceback("", 2)
-      err, done_trace = moon.rewrite_traceback(err, done_trace)
+      local err, done_trace = moon.rewrite_traceback(nil, done_trace)
 
       this_test.done_trace = pretty.write(done_trace)
 
