@@ -26,7 +26,6 @@ dependencies = {
   "luassert >= 1.7.0-0",
   "ansicolors >= 1.0-1",
   "penlight >= 1.0.0-1",
-  "coxpcall >= 1.13",
 }
 build = {
   type = "builtin",
