@@ -18,6 +18,7 @@ busted._VERSION     = "Busted 1.9.0"
 busted.defaultoutput = path.is_windows and "plain_terminal" or "utf_terminal"
 busted.defaultpattern = '_spec'
 busted.defaultlua = 'luajit'
+busted.defaulttimeout = 1  -- in seconds
 busted.lpathprefix = "./src/?.lua;./src/?/?.lua;./src/?/init.lua"
 busted.cpathprefix = path.is_windows and "./csrc/?.dll;./csrc/?/?.dll;" or "./csrc/?.so;./csrc/?/?.so;"
 busted.loop = require('busted.loop.default')
@@ -371,8 +372,7 @@ next_test = function()
     if ok then
       -- test returned, set default timer if one hasn't been set already
       if settimeout and not timer and not this_test.done_trace then
---TODO: parametrize constant!
-        settimeout(1.0)
+        settimeout(busted.defaulttimeout)
       end
     else
       if type(err) == "table" then
