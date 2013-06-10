@@ -31,8 +31,10 @@ local modexit = function(exitcode)
   end
 end
 
-
-
+local execute = function(cmd)
+  local success, exitcode = utils.execute(cmd..ditch)
+  return success, modexit(exitcode)
+end
 
 
 describe("Tests the busted command-line options", function()
@@ -54,72 +56,103 @@ describe("Tests the busted command-line options", function()
   it("tests running with --tags specified", function()
     local success, exitcode
     error_start()
-    success, exitcode = utils.execute("busted --pattern=_tags.lua$"..ditch)
+    success, exitcode = execute("busted --pattern=_tags.lua$")
     assert.is_false(success)
-    assert.is_equal(3, (modexit(exitcode)))
-    success, exitcode = utils.execute("busted --pattern=_tags.lua$ --tags=tag1"..ditch)
+    assert.is_equal(3, exitcode)
+    success, exitcode = execute("busted --pattern=_tags.lua$ --tags=tag1")
     assert.is_false(success)
-    assert.is_equal(2, (modexit(exitcode)))
-    success, exitcode = utils.execute("busted --pattern=_tags.lua$ --tags=tag1,tag2"..ditch)
+    assert.is_equal(2, exitcode)
+    success, exitcode = execute("busted --pattern=_tags.lua$ --tags=tag1,tag2")
     assert.is_false(success)
-    assert.is_equal(3, (modexit(exitcode)))
+    assert.is_equal(3, exitcode)
     error_end()
   end)
 
   it("tests running with --lang specified", function()
     local success, exitcode
     error_start()
-    success, exitcode = utils.execute("busted --pattern=cl_success.lua$ --lang=en"..ditch)
+    success, exitcode = execute("busted --pattern=cl_success.lua$ --lang=en")
     assert.is_true(success)
-    assert.is_equal(0, (modexit(exitcode)))  
-    success, exitcode = utils.execute("busted --pattern=cl_success --lang=not_found_here"..ditch)
+    assert.is_equal(0, exitcode)  
+    success, exitcode = execute("busted --pattern=cl_success --lang=not_found_here")
     assert.is_false(success)
-    assert.is_equal(1, (modexit(exitcode)))  -- busted errors out on non-available language
+    assert.is_equal(1, exitcode)  -- busted errors out on non-available language
     error_end()
   end)
 
   it("tests running with --version specified", function()
     local success, exitcode
-    success, exitcode = utils.execute("busted --version"..ditch)
+    success, exitcode = execute("busted --version")
     assert.is_true(success)
-    assert.is_equal(0, (modexit(exitcode)))
+    assert.is_equal(0, exitcode)
   end)
 
   it("tests running with --help specified", function()
     local success, exitcode
-    success, exitcode = utils.execute("busted --help"..ditch)
+    success, exitcode = execute("busted --help")
     assert.is_true(success)
-    assert.is_equal(0, (modexit(exitcode)))
+    assert.is_equal(0, exitcode)
   end)
 
   it("tests running a non-compiling testfile", function()
     local success, exitcode
     error_start()
-    success, exitcode = utils.execute("busted --pattern=cl_compile_fail.lua$"..ditch)
+    success, exitcode = execute("busted --pattern=cl_compile_fail.lua$")
     assert.is_false(success)
-    assert.is_equal(1, (modexit(exitcode)))
+    assert.is_equal(1, exitcode)
     error_end()
   end)
 
   it("tests running a testfile throwing errors when being run", function()
     local success, exitcode
     error_start()
-    success, exitcode = utils.execute("busted --pattern=cl_execute_fail.lua$"..ditch)
+    success, exitcode = execute("busted --pattern=cl_execute_fail.lua$")
     assert.is_false(success)
-    assert.is_equal(1, (modexit(exitcode)))
+    assert.is_equal(1, exitcode)
     error_end()
   end)
 
   it("tests running with --output specified", function()
     local success, exitcode
     error_start()
-    success, exitcode = utils.execute("busted --pattern=cl_success.lua$ --output=TAP"..ditch)
+    success, exitcode = execute("busted --pattern=cl_success.lua$ --output=TAP")
     assert.is_true(success)
-    assert.is_equal(0, (modexit(exitcode)))  
-    success, exitcode = utils.execute("busted --pattern=cl_two_failures.lua$ --output=not_found_here"..ditch)
+    assert.is_equal(0, exitcode)  
+    success, exitcode = execute("busted --pattern=cl_two_failures.lua$ --output=not_found_here")
     assert.is_false(success)
-    assert.is_equal(3, (modexit(exitcode)))  -- outputter missing, defaults to default outputter +1 error
+    assert.is_equal(3, exitcode)  -- outputter missing, defaults to default outputter +1 error
     error_end()
   end)
 
+  it("tests no tests to exit with a fail-exitcode", function()
+    local success, exitcode
+    error_start()
+    success, exitcode = execute("busted --pattern=this_filename_does_simply_not_exist$")
+    assert.is_false(success)
+    assert.is_equal(1, exitcode)
+    error_end()
+  end)
+
+
 end)
+
+--[[  --TODO: uncomment this failing test and fix it
+describe("Tests failing tests through the commandline", function()
+  local old_ditch
+  before_each(function()
+    old_ditch, ditch = ditch, ""   -- dump this test output only
+  end)
+  after_each(function()
+    ditch = old_ditch
+  end)
+  
+  it("tests failing setup/before_each/after_each/teardown functions", function()
+    local success, exitcode
+    error_start()
+    success, exitcode = execute("busted --pattern=cl_failing_support.lua$")
+    assert.is_false(success)
+    assert.is_equal(8, exitcode)
+    error_end()
+  end)
+end)
+--]]

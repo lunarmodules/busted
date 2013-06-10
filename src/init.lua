@@ -1,4 +1,4 @@
--- Expose luassert elements as part of global interfcae
+-- Expose luassert elements as part of global interface
 assert = require('luassert')
 spy    = require('luassert.spy')
 mock   = require('luassert.mock')
@@ -13,5 +13,7 @@ setup       = busted.setup
 teardown    = busted.teardown
 before_each = busted.before_each
 after_each  = busted.after_each
+setloop     = busted.setloop
+async       = busted.async
 
 return busted
