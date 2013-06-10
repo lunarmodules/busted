@@ -228,7 +228,7 @@ busted.async = function(f)
   local test = suite.tests[suite.test_index]
 
   local safef = function(...)
-    local result = { pcall(f, ...) }
+    local result = { suite.loop.pcall(f, ...) }
 
     if result[1] then
       return unpack(result, 2)

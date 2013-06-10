@@ -24,4 +24,6 @@ loop.step = function()
   ev.Loop.default:loop()
 end
 
+loop.pcall = pcall
+
 return loop

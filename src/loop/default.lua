@@ -35,4 +35,6 @@ loop.step = function()
   checktimers()
 end
 
+loop.pcall = pcall
+
 return loop
