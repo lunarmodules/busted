@@ -1,7 +1,3 @@
-local coxpcall = require('coxpcall')
-pcall = copcall
-xpcall = coxpcall
-
 -- Expose luassert elements as part of global interface
 assert = require('luassert')
 spy    = require('luassert.spy')
@@ -19,5 +15,6 @@ before_each = busted.before_each
 after_each  = busted.after_each
 setloop     = busted.setloop
 async       = busted.async
+settimeout  = nil -- will be set based upon loop framework used
 
 return busted

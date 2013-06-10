@@ -137,6 +137,10 @@ local gettestfiles = function(root_file, pattern)
   return filelist
 end
 
+local is_terra = function(fname)
+  return fname:find(".t", #fname-2, true) and true or false
+end
+
 -- runs a testfile, loading its tests
 local load_testfile = function(filename)
   local old_TEST = _TEST
@@ -153,7 +157,17 @@ local load_testfile = function(filename)
             busted.pending("File not tested because 'moonscript' isn't installed; "..tostring(filename))
           end)
         end
-      end      
+      end
+    elseif is_terra(filename) then
+      if terralib then
+        chunk,err = terralib.loadfile(filename)
+      else
+        chunk = function()
+          busted.describe("Not running tests under Terra", function()
+            pending("File not tested because tests are not being run with 'terra'; "..tostring(filename))
+          end)
+        end
+      end
     else
       chunk,err = loadfile(filename)
     end
@@ -229,7 +243,7 @@ busted.async = function(f)
   local test = suite.tests[suite.test_index]
 
   local safef = function(...)
-    local result = { pcall(f, ...) }
+    local result = { (busted.loop.pcall or pcall)(f, ...) }
 
     if result[1] then
       return unpack(result, 2)
@@ -320,7 +334,7 @@ next_test = function()
       this_test.done = true
       -- keep done trace for easier error location when called multiple times
       local done_trace = debug.traceback("", 2)
-      err, done_trace = moon.rewrite_traceback(err, done_trace)
+      local err, done_trace = moon.rewrite_traceback(nil, done_trace)
 
       this_test.done_trace = pretty.write(done_trace)
 
@@ -353,7 +367,7 @@ next_test = function()
 
     this_test.done = done
 
-    local ok, err = pcall(this_test.f, wrap_done(done)) 
+    local ok, err = (busted.loop.pcall or pcall)(this_test.f, wrap_done(done)) 
     if ok then
       -- test returned, set default timer if one hasn't been set already
       if settimeout and not timer and not this_test.done_trace then
@@ -623,7 +637,6 @@ busted.run_internal_test = function(describe_tests)
   repeat
     next_test()
     busted.loop.step()
-  --until #suite.done == #suite.tests
   until #suite.tests == 0 or suite.tests[#suite.tests].done
 
   local statuses = {}
