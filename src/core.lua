@@ -332,7 +332,7 @@ next_test = function()
         return
       end
 
-      this_test.done = true
+      this_test.completed = true
       -- keep done trace for easier error location when called multiple times
       local done_trace = debug.traceback("", 2)
       local err, done_trace = moon.rewrite_traceback(nil, done_trace)
@@ -563,7 +563,7 @@ busted.pending = function(name)
       name = name,
       f = syncwrapper(function() end),
       started = false,
-      done = false,
+      completed = false,
       status = {
         description = name,
         type = 'pending',
@@ -583,7 +583,7 @@ busted.it = function(name, test_func)
       name = name,
       f = syncwrapper(test_func),
       started = false,
-      done = false,
+      completed = false,
       status = {
         description = name,
         type = 'success',
@@ -637,7 +637,7 @@ busted.run_internal_test = function(describe_tests)
   repeat
     next_test()
     busted.loop.step()
-  until #suite.tests == 0 or suite.tests[#suite.tests].done
+  until #suite.tests == 0 or suite.tests[#suite.tests].completed
 
   local statuses = {}
 
@@ -677,7 +677,7 @@ busted.run = function(got_options)
     repeat
       next_test()
       busted.loop.step()
-    until #suite.tests == 0 or suite.tests[#suite.tests].done
+    until #suite.tests == 0 or suite.tests[#suite.tests].completed
     
     _TEST = old_TEST
 
