@@ -516,7 +516,7 @@ busted.describe = function(desc, more)
 
   current_context = context
   more()
-
+--TODO: if context is empty; context:firsttest() == nil, then fail it
   current_context = old_context
 end
 
