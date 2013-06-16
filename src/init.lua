@@ -15,5 +15,6 @@ before_each = busted.before_each
 after_each  = busted.after_each
 setloop     = busted.setloop
 async       = busted.async
+settimeout  = nil -- will be set based upon loop framework used
 
 return busted

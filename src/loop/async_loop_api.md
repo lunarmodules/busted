@@ -1,9 +1,10 @@
 #Asynchronous loop API
 
-The API for implementing your own loop with busted is fairly simple. It uses only two methods.
+The API for implementing your own loop with busted is fairly simple. It uses only three methods.
 
 1. settimeout(seconds, callback)
 1. step()
+1. pcall()
 
 ## create_timer(seconds, callback)
 This (optional) method should create a `timer` object. The object should have a single method `stop` to cancel the timer. And after the period of `seconds` number of seconds has elapsed, it should call `callback()` (the callback does not take any parameters).
@@ -20,6 +21,9 @@ The default loop has a timer implementation that can be reused for coroutine bas
 
 ##step()
 This method should execute a single step in the async loop for the framework it supports. In between executing steps, busted will check for test results and commence to the next test when required.
+
+##pcall()
+If using Lua 5.1 with coroutines, then the `coxpcall` module may be required to safely execute `pcall()` statements with coroutines. If not set, then the global pcall will be used.
 
 #Using a loop
 To use your custom loop you can use the `setloop` method. `setloop` takes 1 parameters which is either a module name (eg. `setloop('copas')` to load the `busted.loop.copas` module) or a table providing the loop methods.

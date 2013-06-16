@@ -5,11 +5,11 @@ local tablex = require('pl.tablex')
 local pretty = require('pl.pretty')
 local wrap_done = require('busted.done').new
 
--- globals
-settimeout = nil
-
--- exported module table
+-- exported module table, pre-store in package.loaded to prevent 'require loops'
 local busted = {}
+package.loaded['busted'] = busted
+package.loaded['busted.core'] = busted
+
 busted._COPYRIGHT   = "Copyright (c) 2013 Olivine Labs, LLC."
 busted._DESCRIPTION = "A unit testing framework with a focus on being easy to use. http://www.olivinelabs.com/busted"
 busted._VERSION     = "Busted 1.9.0"
@@ -18,8 +18,10 @@ busted._VERSION     = "Busted 1.9.0"
 busted.defaultoutput = path.is_windows and "plain_terminal" or "utf_terminal"
 busted.defaultpattern = '_spec'
 busted.defaultlua = 'luajit'
+busted.defaulttimeout = 1  -- in seconds
 busted.lpathprefix = "./src/?.lua;./src/?/?.lua;./src/?/init.lua"
 busted.cpathprefix = path.is_windows and "./csrc/?.dll;./csrc/?/?.dll;" or "./csrc/?.so;./csrc/?/?.so;"
+busted.loop = require('busted.loop.default')
 require('busted.languages.en')-- Load default language pack
 
 -- platform detection
@@ -208,10 +210,7 @@ end
 
 local suite = {
   tests = {},       -- list holding all tests
-  done = {},        -- list (boolean) indicating test was completed (either succesful or failed)
-  started = {},     -- list (boolean) indicating test was started
   test_index = 1,
-  loop = require('busted.loop.default')
 }
 
 -- execute a list of steps (functions)
@@ -245,7 +244,7 @@ busted.async = function(f)
   local test = suite.tests[suite.test_index]
 
   local safef = function(...)
-    local result = { suite.loop.pcall(f, ...) }
+    local result = { (busted.loop.pcall or pcall)(f, ...) }
 
     if result[1] then
       return unpack(result, 2)
@@ -303,16 +302,13 @@ end
 local next_test
 
 next_test = function()
-  if #suite.done == #suite.tests     then return end  -- suite is complete
-  if suite.started[suite.test_index] then return end  -- current test already started
-    
-  suite.started[suite.test_index] = true
-
   local this_test = suite.tests[suite.test_index]
-  this_test.index = suite.test_index
   
-
-  assert(this_test, this_test.index..debug.traceback('', 1))
+  if not this_test then return end      -- no more tests
+  if this_test.started then return end  -- current test already started
+  
+  this_test.index = suite.test_index
+  this_test.started = true
 
   local steps = {}
 
@@ -336,9 +332,7 @@ next_test = function()
         return
       end
 
-      assert(this_test.index <= #suite.tests, 'invalid test index: '..this_test.index)
-
-      suite.done[this_test.index] = true
+      this_test.completed = true
       -- keep done trace for easier error location when called multiple times
       local done_trace = debug.traceback("", 2)
       local err, done_trace = moon.rewrite_traceback(nil, done_trace)
@@ -353,12 +347,12 @@ next_test = function()
       do_next()
     end
 
-    if suite.loop.create_timer then
+    if busted.loop.create_timer then
 --TODO: global `settimeout` is created for an `it()` test, but never deleted, so it remains in the global namespace
 --TODO: timeouts should also be available for before/after/before_each/after_each      
       settimeout = function(timeout)
         if not timer then
-          timer = suite.loop.create_timer(timeout,function()
+          timer = busted.loop.create_timer(timeout,function()
             if not this_test.done_trace then
               this_test.status.type = 'failure'
               this_test.status.trace = ''
@@ -374,12 +368,11 @@ next_test = function()
 
     this_test.done = done
 
-    local ok, err = pcall(this_test.f, wrap_done(done)) 
+    local ok, err = (busted.loop.pcall or pcall)(this_test.f, wrap_done(done)) 
     if ok then
       -- test returned, set default timer if one hasn't been set already
       if settimeout and not timer and not this_test.done_trace then
---TODO: parametrize constant!
-        settimeout(1.0)
+        settimeout(busted.defaulttimeout)
       end
     else
       if type(err) == "table" then
@@ -523,7 +516,7 @@ busted.describe = function(desc, more)
 
   current_context = context
   more()
-
+--TODO: if context is empty; context:firsttest() == nil, then fail it
   current_context = old_context
 end
 
@@ -564,46 +557,40 @@ local function buildInfo(debug_info)
 end
 
 busted.pending = function(name)
-  local test = {
-    context = current_context,
-    name = name
-  }
-
-  test.context:increment_test_count()
-
-  local debug_info = debug.getinfo(2)
-  test.f = syncwrapper(function() end)
-
-  test.status = {
-    description = test.name,
-    type = 'pending',
-    info = buildInfo(debug_info)
-  }
-
-  if match_tags(test.name) then
+  if match_tags(name) then
+    local test = {
+      context = current_context,
+      name = name,
+      f = syncwrapper(function() end),
+      started = false,
+      completed = false,
+      status = {
+        description = name,
+        type = 'pending',
+        info = buildInfo(debug.getinfo(2)),
+      }
+    }
+    test.context:increment_test_count()
     table.insert(suite.tests, test)
   end
 end
 
 busted.it = function(name, test_func)
   assert(type(test_func) == "function", "Expected function, got "..type(test_func))
-  local test = {
-    context = current_context,
-    name = name
-  }
-
-  test.context:increment_test_count()
-
-  local debug_info = debug.getinfo(test_func)
-  test.f = syncwrapper(test_func)
-
-  test.status = {
-    description = test.name,
-    type = 'success',
-    info = buildInfo(debug_info)
-  }
-
-  if match_tags(test.name) then
+  if match_tags(name) then
+    local test = {
+      context = current_context,
+      name = name,
+      f = syncwrapper(test_func),
+      started = false,
+      completed = false,
+      status = {
+        description = name,
+        type = 'success',
+        info = buildInfo(debug.getinfo(test_func)),
+      },
+    }
+    test.context:increment_test_count()
     table.insert(suite.tests, test)
   end
 end
@@ -613,20 +600,18 @@ busted.reset = function()
 
   suite = {
     tests = {},
-    done = {},
-    started = {},
     test_index = 1,
-    loop = require('busted.loop.default')
   }
+  busted.loop = require('busted.loop.default')
   busted.output = busted.output_reset
 end
 
 busted.setloop = function(loop)
   if type(loop) == 'string' then
-     suite.loop = require('busted.loop.'..loop)
+     busted.loop = require('busted.loop.'..loop)
   else
      assert(loop.step)
-     suite.loop = loop
+     busted.loop = loop
   end
 end
 
@@ -639,11 +624,9 @@ busted.run_internal_test = function(describe_tests)
   busted.output = require 'busted.output.stub'()
   suite = {
     tests = {},
-    done = {},
-    started = {},
     test_index = 1,
-    loop = require('busted.loop.default')
   }
+  busted.loop = require('busted.loop.default')
 
   if type(describe_tests) == 'function' then
      describe_tests()
@@ -653,8 +636,8 @@ busted.run_internal_test = function(describe_tests)
 
   repeat
     next_test()
-    suite.loop.step()
-  until #suite.done == #suite.tests
+    busted.loop.step()
+  until #suite.tests == 0 or suite.tests[#suite.tests].completed
 
   local statuses = {}
 
@@ -678,7 +661,6 @@ busted.run = function(got_options)
   busted.output_reset = busted.output  -- store in case we need a reset
   -- if no filelist given, get them
   options.filelist = options.filelist or gettestfiles(options.root_file, options.pattern)
-  -- load testfiles
 
   local ms = busted.gettime()
 
@@ -694,8 +676,8 @@ busted.run = function(got_options)
     suite = s
     repeat
       next_test()
-      suite.loop.step()
-    until #suite.done == #suite.tests
+      busted.loop.step()
+    until #suite.tests == 0 or suite.tests[#suite.tests].completed
     
     _TEST = old_TEST
 
