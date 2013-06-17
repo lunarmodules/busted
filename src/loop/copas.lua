@@ -1,12 +1,19 @@
 local copas = require'copas'
-require'coxpcall'
+local super = require'busted.loop.default'
 
-local loop = {}
-
-loop.pcall = copcall
-
-loop.step = function()
-  copas.step(0)
+local protected
+if _VERSION == 'Lua 5.1' then
+   protected = copcall
+else
+   protected = pcall
 end
 
-return loop
+-- create OO table, using `loop.default` as the ancestor/super class
+return setmetatable({ 
+    step = function()
+      copas.step(0)
+      super.step()  -- call ancestor to check for timers 
+    end,
+    pcall = protected
+  }, { __index = super})
+
