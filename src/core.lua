@@ -318,6 +318,12 @@ next_test = function()
 
   local execute_test = function(do_next)
     local timer
+    local finally_callback
+
+    finally = function(f)
+      finally_callback = f
+    end
+
     local done = function()
       if timer then
         timer:stop()
@@ -350,6 +356,10 @@ next_test = function()
       end
 
       this_test.context:decrement_test_count()
+      if finally_callback then
+ 	      finally_callback()
+	      finally_callback = nil
+      end
       do_next()
     end
 
