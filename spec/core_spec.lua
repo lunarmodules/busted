@@ -272,6 +272,44 @@ it("Malformated Lua code gets reported correctly", function()
   os.remove(filename)
 end)
 
+local before_statuses = busted.run_internal_test(function()
+  describe('before fail tests',function()
+    local virgin = true
+    local let_before_each_fail
+    before_each(function()
+      if let_before_each_fail then                              
+        let_before_each_fail = false
+        error('fooerror')
+      end
+    end)
+
+    it('should succeed',function()
+      let_before_each_fail = true
+    end)                        
+
+    it('should not be entered',function()
+      virgin = false
+    end)
+
+    it('previous test was not entered',function()
+      assert.is_true(virgin)
+    end)
+  end)
+end)
+
+it("Error thrown in before_each is reported correctly", function()
+  assert.is_equal(#before_statuses,3)
+  local status = before_statuses[1]
+  assert.is_equal(status.type, "success")
+
+  status = before_statuses[2]
+  assert.is_equal(status.type, "failure")
+  assert.is_truthy(status.err:match("fooerror"))
+
+  status = before_statuses[3]
+  assert.is_equal(status.type, "success")
+end)
+
 describe("testing the done callback with tokens", function()
   
   it("Tests done call back ordered", function(done)
@@ -311,3 +349,4 @@ describe("testing the done callback with tokens", function()
   end)
   
 end)
+

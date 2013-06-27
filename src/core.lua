@@ -205,12 +205,7 @@ local suite = {
   loop = require('busted.loop.default')
 }
 
-busted.step = function(...)
-  local steps = { ... }
-  if #steps == 1 and type(steps[1]) == 'table' then
-    steps = steps[1]
-  end
-
+busted.step = function(steps,on_err)
   local i = 0
 
   local next
@@ -219,7 +214,11 @@ busted.step = function(...)
     i = i + 1
     local step = steps[i]
     if step then
-      step(next)
+      local ok,err = suite.loop.pcall(step,next)
+      if not ok then         
+        on_err(err)
+        return
+      end
     end
   end
 
@@ -526,6 +525,21 @@ next_test = function()
       push(steps, test.context.after_each)
     end
 
+    local mark_test_failed = function(err)
+      local trace = debug.traceback("", 2)
+      err, trace = moon.rewrite_traceback(err, trace)
+      test.status.type = 'failure'
+      test.status.trace = trace
+      test.status.err = err
+      if not options.defer_print then
+        busted.output.currently_executing(test.status, options)
+      end
+      suite.done[suite.test_index] = true
+      suite.test_index = suite.test_index + 1
+      test.context:decrement_test_count()
+      next_test()
+    end
+
     local post_test = function(next)
       local post_steps = {}
 
@@ -564,11 +578,11 @@ next_test = function()
       end
 
       push(post_steps, forward)
-      step(post_steps)
+      step(post_steps, mark_test_failed)
     end
 
     push(steps, post_test)
-    step(steps)
+    step(steps, mark_test_failed)
   end
 end
 
