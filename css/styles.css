@@ -4,6 +4,11 @@ body {
   font-family: 'Open Sans', sans-serif;
 }
 
+/* disgusting hack because bootstrap specifically defines fonts on elements */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Open Sans', sans-serif;
+}
+
 .navbar-inner {
   background: #333;
   background: rgba(0,0,0,.8)
@@ -80,14 +85,12 @@ footer.span12 {
           border-radius: 0 0 6px 6px;
 }
 .sidenav > .active > a {
+  background: #eee;
   position: relative;
   z-index: 2;
   padding: 9px 15px;
   border: 0;
   text-shadow: 0 1px 0 rgba(0,0,0,.15);
-  -webkit-box-shadow: inset 1px 0 0 rgba(0,0,0,.1), inset -1px 0 0 rgba(0,0,0,.1);
-     -moz-box-shadow: inset 1px 0 0 rgba(0,0,0,.1), inset -1px 0 0 rgba(0,0,0,.1);
-          box-shadow: inset 1px 0 0 rgba(0,0,0,.1), inset -1px 0 0 rgba(0,0,0,.1);
 }
 /* Chevrons */
 .sidenav .icon-chevron-right {
