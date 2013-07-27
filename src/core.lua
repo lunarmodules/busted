@@ -12,7 +12,7 @@ settimeout = nil
 local busted = {}
 busted._COPYRIGHT   = "Copyright (c) 2013 Olivine Labs, LLC."
 busted._DESCRIPTION = "A unit testing framework with a focus on being easy to use. http://www.olivinelabs.com/busted"
-busted._VERSION     = "Busted 1.9.0"
+busted._VERSION     = "Busted 1.9.1"
 
 -- set defaults
 busted.defaultoutput = path.is_windows and "plain_terminal" or "utf_terminal"
