@@ -51,10 +51,12 @@ local test_is_async
 -- report a test-process error as a failed test
 local internal_error = function(description, err)
   local tag = ""
+
   if options.tags and #options.tags > 0 then
     -- tags specified; must insert a tag to make sure the error gets displayed
     tag = " #"..options.tags[1]
   end
+
   if not current_context then
     busted.reset()
   end
@@ -515,6 +517,9 @@ local create_context = function(desc)
 
     add_parent = function(self, parent)
       table.insert(self.parents, parent)
+      if parent.desc ~= "" then
+        self.desc = parent.desc .. " / " .. self.desc
+      end
     end
   }
 end
@@ -576,7 +581,7 @@ end
 busted.pending = function(name)
   local test = {
     context = current_context,
-    name = name
+    name = current_context.desc .. " / " .. name
   }
 
   test.context:increment_test_count()
@@ -597,9 +602,10 @@ end
 
 busted.it = function(name, test_func)
   assert(type(test_func) == "function", "Expected function, got "..type(test_func))
+
   local test = {
     context = current_context,
-    name = name
+    name = current_context.desc .. " / " .. name
   }
 
   test.context:increment_test_count()
@@ -619,7 +625,7 @@ busted.it = function(name, test_func)
 end
 
 busted.reset = function()
-  current_context = create_context('Root context')
+  current_context = create_context('')
 
   suite = {
     tests = {},
@@ -628,6 +634,7 @@ busted.reset = function()
     test_index = 1,
     loop = require('busted.loop.default')
   }
+
   busted.output = busted.output_reset
 end
 
