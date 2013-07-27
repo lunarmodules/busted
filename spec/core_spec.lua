@@ -267,7 +267,7 @@ it("Malformated Lua code gets reported correctly", function()
   assert.is_equal(#statuses,1)
   local status = statuses[1]
   assert.is_equal(status.type, "failure")
-  assert.is_equal(status.description, "Failed executing testfile; "..filename)
+  assert.is_equal(status.description, "Busted process errors occured / Failed executing testfile; "..filename)
   assert.is_truthy(status.err:match("expected"))
   os.remove(filename)
 end)
