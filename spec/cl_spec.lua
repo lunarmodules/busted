@@ -68,6 +68,30 @@ describe("Tests the busted command-line options", function()
     error_end()
   end)
 
+  it("tests running with --exclude-tags specified", function()
+    local success, exitcode
+    error_start()
+    success, exitcode = execute("busted --pattern=_tags.lua$ --exclude-tags=tag1,tag2")
+    assert.is_true(success)
+    assert.is_equal(0, exitcode)
+    success, exitcode = execute("busted --pattern=_tags.lua$ --exclude-tags=tag2")
+    assert.is_false(success)
+    assert.is_equal(2, exitcode)
+    error_end()
+  end)
+
+  it("tests running with --tags and --exclude-tags specified", function ()
+    local success, exitcode
+    error_start()
+    success, exitcode = execute("busted --pattern=_tags.lua$ --tags=tag1 --exclude-tags=tag1")
+    assert.is_false(success)
+    assert.is_equal(1, exitcode)
+    success, exitcode = execute("busted --pattern=_tags.lua$ --tags=tag3 --exclude-tags=tag4")
+    assert.is_true(success)
+    assert.is_equal(0, exitcode)
+    error_end()
+  end)
+
   it("tests running with --lang specified", function()
     local success, exitcode
     error_start()
