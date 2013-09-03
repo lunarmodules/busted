@@ -288,6 +288,22 @@ local match_tags = function(testName)
   end
 end
 
+local match_excluded_tags = function(testName)
+  if #options.excluded_tags > 0 then
+
+    for t = 1, #options.excluded_tags do
+      if testName:find(options.excluded_tags[t]) then
+        return true
+      end
+    end
+
+  end
+
+  -- By default we return false so that Busted will not exclude a test
+  -- unless explicitly told to do so.
+  return false
+end
+
 -- wraps test callbacks (it, for_each, setup, etc.) to ensure that sync
 -- tests also call the `done` callback to mark the test/step as complete
 local syncwrapper = function(f)
@@ -584,6 +600,10 @@ busted.pending = function(name)
     name = current_context.desc .. " / " .. name
   }
 
+  if match_excluded_tags(test.name) then
+    return
+  end
+
   test.context:increment_test_count()
 
   local debug_info = debug.getinfo(2)
@@ -607,6 +627,10 @@ busted.it = function(name, test_func)
     context = current_context,
     name = current_context.desc .. " / " .. name
   }
+
+  if match_excluded_tags(test.name) then
+    return
+  end
 
   test.context:increment_test_count()
 
