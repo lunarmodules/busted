@@ -187,6 +187,8 @@ OPTIONS:
   -p, --pattern=pattern only run test files matching this pattern
                         (default: _spec.lua$)
   -t, --tags=tags       only run tests with these #tags (default: )
+  --exclude-tags=tags   do not run tests with these #tags, takes
+                        precedence over --tags
   -m, --lpath=path      optional path to be prefixed to the Lua module
                         search path (default:
                         ./src/?.lua;./src/?/?.lua;./src/?/init.lua)
@@ -294,6 +296,29 @@ end)
           <p>This runs the first group of tests, but not the second.</p>
           <pre><code>busted ./test.lua -t="tag,another"</code></pre>
           <p>This runs both groups.</p>
+
+          <p>You can also exclude tests that use tags with
+            the <code>--exclude-tags</code> flag.  This can be useful,
+            for example, if tests using a certain tag take a long time
+            to run and you want busted to skip them.  This would run
+            all tests except the second group in the example above.</p>
+          <pre><code>busted ./test.lua --exclude-tags="another"</code></pre>
+          
+          <p>If you use <code>-t, --tags</code> and <code>--exclude-tags</code>
+            together then <code>--exclude-tags</code> always takes precedence.</p>
+
+<pre><code data-language="lua">describe("a test with two tags #one #two", function ()
+  -- tests
+end)
+</code></pre>
+
+          <pre>><code>busted ./test.lua --tags="one" --exclude-tags="two"</code></pre>
+          <p>Both tags refer to the same test but busted will not run it since
+            <code>--exclude-tags</code> takes precedence.</p>
+          <pre><code>busted ./test.lua --tags="one" --exclude-tags="one"</code></pre>
+          <p>It is ok for different tags to refer to the same tests, but using the
+            exact same tag name with <code>--tags</code> and <code>--exclude-tags</code>
+            at the same time is an error.</p>
 
           <h4 id="it">It: Defining tests</h4>
           <p>
