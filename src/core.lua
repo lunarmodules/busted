@@ -402,7 +402,15 @@ next_test = function()
 
     this_test.done = done
 
-    local ok, err = pcall(this_test.f, wrap_done(done)) 
+    local trace
+    local ok, err = xpcall(
+      function()
+        this_test.f(wrap_done(done))
+      end,
+      function(err)
+        trace = debug.traceback("", 2)
+        return err
+      end)
     if ok then
       -- test returned, set default timer if one hasn't been set already
       if settimeout and not timer and not this_test.done_trace then
@@ -413,8 +421,6 @@ next_test = function()
       if type(err) == "table" then
         err = pretty.write(err)
       end
-
-      local trace = debug.traceback("", 2)
 
       err, trace = moon.rewrite_traceback(err, trace)
 
