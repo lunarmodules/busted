@@ -7,6 +7,7 @@ local wrap_done = require('busted.done').new
 
 -- globals
 settimeout = nil
+_TEST_FILENAME = nil
 
 -- exported module table
 local busted = {}
@@ -144,6 +145,7 @@ end
 
 -- runs a testfile, loading its tests
 local load_testfile = function(filename)
+  _TEST_FILENAME = filename
   local old_TEST = _TEST
   _TEST = busted._VERSION
 
@@ -421,6 +423,20 @@ next_test = function()
       if type(err) == "table" then
         err = pretty.write(err)
       end
+
+      -- remove all frames after the last frame found in the test file
+      local lines = {}
+      local j = 0
+      local last_j = nil
+      for line in trace:gmatch("[^\r\n]+") do
+        j = j + 1
+        lines[j] = line
+        local fname, lineno = line:match('%s+([^:]+):(%d+):')
+        if fname == _TEST_FILENAME then
+          last_j = j
+        end
+      end
+      trace = table.concat(lines, trace:match("[\r\n]+"), 1, last_j)
 
       err, trace = moon.rewrite_traceback(err, trace)
 
