@@ -47,6 +47,7 @@ system = nil
 local options = {}
 local current_context
 local test_is_async
+local current_test_filename
 
 -- report a test-process error as a failed test
 local internal_error = function(description, err)
@@ -144,6 +145,7 @@ end
 
 -- runs a testfile, loading its tests
 local load_testfile = function(filename)
+  current_test_filename = filename
   local old_TEST = _TEST
   _TEST = busted._VERSION
 
@@ -402,7 +404,15 @@ next_test = function()
 
     this_test.done = done
 
-    local ok, err = pcall(this_test.f, wrap_done(done)) 
+    local trace
+    local ok, err = xpcall(
+      function()
+        this_test.f(wrap_done(done))
+      end,
+      function(err)
+        trace = debug.traceback("", 2)
+        return err
+      end)
     if ok then
       -- test returned, set default timer if one hasn't been set already
       if settimeout and not timer and not this_test.done_trace then
@@ -414,7 +424,19 @@ next_test = function()
         err = pretty.write(err)
       end
 
-      local trace = debug.traceback("", 2)
+      -- remove all frames after the last frame found in the test file
+      local lines = {}
+      local j = 0
+      local last_j = nil
+      for line in trace:gmatch("[^\r\n]+") do
+        j = j + 1
+        lines[j] = line
+        local fname, lineno = line:match('%s+([^:]+):(%d+):')
+        if fname == current_test_filename then
+          last_j = j
+        end
+      end
+      trace = table.concat(lines, trace:match("[\r\n]+"), 1, last_j)
 
       err, trace = moon.rewrite_traceback(err, trace)
 
