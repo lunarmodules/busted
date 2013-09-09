@@ -7,7 +7,6 @@ local wrap_done = require('busted.done').new
 
 -- globals
 settimeout = nil
-_TEST_FILENAME = nil
 
 -- exported module table
 local busted = {}
@@ -48,6 +47,7 @@ system = nil
 local options = {}
 local current_context
 local test_is_async
+local current_test_filename
 
 -- report a test-process error as a failed test
 local internal_error = function(description, err)
@@ -145,7 +145,7 @@ end
 
 -- runs a testfile, loading its tests
 local load_testfile = function(filename)
-  _TEST_FILENAME = filename
+  current_test_filename = filename
   local old_TEST = _TEST
   _TEST = busted._VERSION
 
@@ -432,7 +432,7 @@ next_test = function()
         j = j + 1
         lines[j] = line
         local fname, lineno = line:match('%s+([^:]+):(%d+):')
-        if fname == _TEST_FILENAME then
+        if fname == current_test_filename then
           last_j = j
         end
       end
