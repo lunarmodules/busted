@@ -1,8 +1,8 @@
 package = "busted"
-version = "1.9.1-0"
+version = "1.10.0-0"
 source = {
-  url = "https://github.com/Olivine-Labs/busted/archive/v1.9.1.tar.gz",
-  dir = "busted-1.9.1"
+  url = "https://github.com/Olivine-Labs/busted/archive/v1.10.0.tar.gz",
+  dir = "busted-1.10.0"
 }
 description = {
   summary = "Elegant Lua unit testing.",
