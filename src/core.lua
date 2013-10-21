@@ -377,15 +377,16 @@ next_test = function()
 
       this_test.context:decrement_test_count()
       if finally_callback then
- 	      finally_callback()
-	      finally_callback = nil
+         finally_callback()
+         finally_callback = nil
       end
+
       do_next()
     end
 
     if suite.loop.create_timer then
---TODO: global `settimeout` is created for an `it()` test, but never deleted, so it remains in the global namespace
---TODO: timeouts should also be available for before/after/before_each/after_each      
+      --TODO: global `settimeout` is created for an `it()` test, but never deleted, so it remains in the global namespace
+      --TODO: timeouts should also be available for before/after/before_each/after_each
       settimeout = function(timeout)
         if not timer then
           timer = suite.loop.create_timer(timeout,function()
@@ -416,7 +417,7 @@ next_test = function()
     if ok then
       -- test returned, set default timer if one hasn't been set already
       if settimeout and not timer and not this_test.done_trace then
---TODO: parametrize constant!
+        --TODO: parametrize constant!
         settimeout(1.0)
       end
     else
@@ -753,13 +754,13 @@ busted.run = function(got_options)
   local function run_suite(s)
     local old_TEST = _TEST
     _TEST = busted._VERSION
-    
+
     suite = s
     repeat
       next_test()
       suite.loop.step()
     until #suite.done == #suite.tests
-    
+
     _TEST = old_TEST
 
     for _, test in ipairs(suite.tests) do
@@ -807,5 +808,5 @@ return setmetatable(busted, {
   __call = function(self, ...)
     return busted.run(...)
   end
- })
+})
 
