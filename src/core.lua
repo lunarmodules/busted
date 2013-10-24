@@ -437,7 +437,10 @@ next_test = function()
           last_j = j
         end
       end
-      trace = table.concat(lines, trace:match("[\r\n]+"), 1, last_j)
+      -- the error may not originate from testfile in all cases
+      if last_j then
+        trace = table.concat(lines, trace:match("[\r\n]+"), 1, last_j)
+      end
 
       err, trace = moon.rewrite_traceback(err, trace)
 
