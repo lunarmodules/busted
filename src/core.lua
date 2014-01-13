@@ -567,7 +567,7 @@ local create_context = function(desc)
 end
 
 
-busted.describe = function(desc, more)
+busted.raw_describe = function(desc, more)
   local context = create_context(desc)
 
   for _, parent in ipairs(current_context.parents) do
@@ -579,9 +579,21 @@ busted.describe = function(desc, more)
   local old_context = current_context
 
   current_context = context
+  assert(type(more) == "function", "Expected function, got "..type(more))
   more()
 
   current_context = old_context
+end
+
+local busted_raw_describe = busted.raw_describe -- cache to local for performance (avoid table lookup)
+busted.describe = function(desc, more)
+  if type(more) == "nil" then
+    return function(more)
+      return busted_raw_describe(desc, more)
+    end
+  end
+
+  return busted_raw_describe(desc, more)
 end
 
 busted.setup = function(before_func)
@@ -646,7 +658,7 @@ busted.pending = function(name)
   end
 end
 
-busted.it = function(name, test_func)
+busted.raw_it = function(name, test_func)
   assert(type(test_func) == "function", "Expected function, got "..type(test_func))
 
   local test = {
@@ -672,6 +684,17 @@ busted.it = function(name, test_func)
   if match_tags(test.name) then
     table.insert(suite.tests, test)
   end
+end
+
+local busted_raw_it = busted.raw_it -- cache to local for performance (avoid table lookup)
+busted.it = function(name, test_func)
+  if type(test_func) == "nil" then
+    return function(test_func)
+      return busted_raw_it(name, test_func)
+    end
+  end
+
+  return busted_raw_it(name, test_func)
 end
 
 busted.reset = function()
