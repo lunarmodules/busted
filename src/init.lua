@@ -6,8 +6,10 @@ stub   = require('luassert.stub')
 
 -- Load and expose busted core as part of global interface
 local busted = require('busted.core')
+
 it          = busted.it
 describe    = busted.describe
+context     = busted.describe
 pending     = busted.pending
 setup       = busted.setup
 teardown    = busted.teardown

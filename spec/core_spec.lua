@@ -1,4 +1,6 @@
 assert(type(describe) == "function")
+assert(type(context) == "function")
+assert(context == describe)
 assert(type(it) == "function")
 assert(type(before_each) == "function")
 assert(type(after_each) == "function")
