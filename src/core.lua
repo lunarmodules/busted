@@ -428,7 +428,7 @@ next_test = function()
       -- remove all frames after the last frame found in the test file
       local lines = {}
       local j = 0
-      local last_j = nil
+      local last_j = 0
       for line in trace:gmatch("[^\r\n]+") do
         j = j + 1
         lines[j] = line
