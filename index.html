@@ -378,6 +378,24 @@ end)
 end)
 </code></pre>
 
+          <p>
+            <code>finally</code> is also available as a lighter alternative
+            that avoids setting upvalues.
+          </p>
+
+          <pre><code data-language="lua">it('checks file contents',function()
+  local f = io.popen('stupid_process')
+
+  -- ensure that once test has finished f:close() is called
+  -- independent of test outcome
+  finally(function() f:close() end)
+
+  it('does a thing', function()
+    -- do things with f
+  end)
+end)
+</code></pre>
+
           <h4 id="pending">Pending</h4>
           <p>
             Pending functions are placeholders for tests you plan to write
