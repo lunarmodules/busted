@@ -177,21 +177,24 @@ end)
                         traversed for any file that matches the
                         --pattern option. (optional, default: spec)
 
-OPTIONS: 
+OPTIONS:
   --version             prints the program's version and exits
-  --help                prints the program's commands
   -o, --output=LIBRARY  output library to load (default: utf_terminal)
-  -l, --lua=luajit      path to the execution environment (lua or
-                        luajit) (default: )
-  -d, --cwd=cwd         path to current working directory (default: )
-  -p, --pattern=pattern only run test files matching this pattern
-                        (default: _spec.lua$)
-  -t, --tags=tags       only run tests with these #tags (default: )
+  -l, --lua=luajit      path to the execution environment (luajit or
+                        lua), picks first available (default: luajit)
+  -d, --cwd=cwd         path to current working directory (default: ./)
+  -p, --pattern=pattern only run test files matching the Lua pattern
+                        (default: _spec)
+  -t, --tags=tags       only run tests with these #tags
   --exclude-tags=tags   do not run tests with these #tags, takes
                         precedence over --tags
   -m, --lpath=path      optional path to be prefixed to the Lua module
                         search path (default:
                         ./src/?.lua;./src/?/?.lua;./src/?/init.lua)
+  --cpath=path          optional path to be prefixed to the Lua C module
+                        search path (default:
+                        ./csrc/?.so;./csrc/?/?.so;)
+  -r, --run=run         config to run from .busted file
   --lang=LANG           language for error messages (default: en)
   -c, --coverage        do code coverage analysis (requires 'LuaCov' to
                         be installed)
