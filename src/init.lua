@@ -4,6 +4,9 @@ spy    = require('luassert.spy')
 mock   = require('luassert.mock')
 stub   = require('luassert.stub')
 
+-- Assign default value for strict lua syntax checking
+_TEST  = nil
+
 -- Load and expose busted core as part of global interface
 local busted = require('busted.core')
 
