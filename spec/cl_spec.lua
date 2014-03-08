@@ -33,7 +33,7 @@ end
 
 local execute = function(cmd)
   local success, exitcode = utils.execute(cmd..ditch)
-  return success, modexit(exitcode)
+  return not not success, modexit(exitcode)
 end
 
 

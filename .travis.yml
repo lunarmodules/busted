@@ -1,37 +1,23 @@
-language: erlang
+language: c
 
 env:
-  - LUA="luajit-2.0.0-beta9"
+  - LUA="Lua 5.1"
+  - LUA="Lua 5.2"
+  - LUA="LuaJIT 2.0"
+
+before_install:
+  - bash .travis_setup.sh
 
 install:
+  - sudo luarocks make
   - sudo apt-get update -qq
-  - sudo apt-get install -qq git luajit luarocks libev-dev make
-  - sudo ln -s /usr/bin/luajit-2.0.0-beta9 /usr/bin/luajit
-  - sudo luarocks install luafilesystem
+  - sudo apt-get install -qq libev-dev
+  - sudo luarocks install lua-ev scm --server=http://luarocks.org/repositories/rocks-scm/
   - sudo luarocks install copas
   - sudo luarocks install moonscript
-  - sudo luarocks install lua-ev
-  - git clone git://github.com/Olivine-Labs/say.git
-  - cd say
-  - sudo luarocks make
-  - cd ../
-  - git clone git://github.com/Olivine-Labs/luassert.git
-  - cd luassert
-  - sudo luarocks make
-  - cd ../
 
-script: "sudo luarocks make && sudo busted"
+script: busted spec
 
-notifications:
-  webhooks:
-    - http://exobot.herokuapp.com/hubot/travis
-  recipients:
-    - engineers@olivinelabs.com
-  email:
-    on_success: always
-    on_failure: always
-    
 branches:
   except:
     - gh-pages
-    
