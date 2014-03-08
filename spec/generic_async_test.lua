@@ -276,7 +276,7 @@ local describe_statuses = function(statuses,print_statuses)
           for i,status in ipairs(statuses) do
             if status.type == 'failure' then
               assert.is.equal(type(status.trace),'string')
-              assert.is_not.equal(#status.trace,0)
+              assert.is_not.equal(string.len(#status.trace),0)
             end
           end
         end)
