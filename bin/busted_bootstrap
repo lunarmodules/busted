@@ -91,7 +91,7 @@ if args then
       "pl",
       "say",
       "dkjson",
-      "lfs",
+      "lfs"
     }
 
     for t = 1, #paths do
@@ -104,7 +104,8 @@ if args then
     table.insert(luacov.configuration.exclude, "%busted_bootstrap$")
 
     -- exclude luarocks files
-    table.insert(luacov.configuration.exclude, ".usr.local..+")
+    table.insert(luacov.configuration.exclude, "%luarocks.config.+")
+    table.insert(luacov.configuration.exclude, "%luarocks.rocks.manifest")
   end
 
   if #args.lpath > 0 then
