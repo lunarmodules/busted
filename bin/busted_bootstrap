@@ -72,17 +72,39 @@ if args then
 
   if args.coverage then
     local result, luacov = pcall(require, "luacov.runner")
+
     if not result then
       return print("LuaCov not found on the system, try running without --coverage option, or install LuaCov first")
     end
+
     -- call it to start
     luacov()
+
+    loader = require("luarocks.loader")
+
+    -- exclude dependencies; load them here instead of using ".usr.local" in case
+    -- of locally installed deps
+
+    paths = {
+      "busted",
+      "luassert",
+      "pl",
+      "say",
+      "dkjson",
+      "lfs",
+    }
+
+    for t = 1, #paths do
+      path = loader.which(paths[t]):gsub("(.+/)("..paths[t].."/.+%.lua)", "%1%.%+"):gsub("/", "%.")
+      table.insert(luacov.configuration.exclude, path)
+    end
+
+
     -- exclude busted files
-    table.insert(luacov.configuration.exclude, "busted_bootstrap$")
-    table.insert(luacov.configuration.exclude, "busted%.")
-    table.insert(luacov.configuration.exclude, "luassert%.")
-    table.insert(luacov.configuration.exclude, "say%.")
-    table.insert(luacov.configuration.exclude, "pl%.")
+    table.insert(luacov.configuration.exclude, "%busted_bootstrap$")
+
+    -- exclude luarocks files
+    table.insert(luacov.configuration.exclude, ".usr.local..+")
   end
 
   if #args.lpath > 0 then
