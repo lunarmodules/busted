@@ -4,15 +4,11 @@ commandExists () {
 }
 
 # Obtain $COMMAND
-while getopts ":l:" optchar; do
-  case $optchar in
-    l)
-      COMMAND="$OPTARG"
-      ;;
-    :)
-      echo "Option -$OPTARG requires an argument." >&2
-      exit 1
-      ;;
+
+while getopts :l: opt
+  do case $opt in
+    l) COMMAND="$OPTARG";;
+    *) ;;
   esac
 done
 
@@ -25,7 +21,7 @@ elif commandExists luajit ; then
 elif commandExists lua ; then
   COMMAND=lua;
 else
-  echo >&2 "Busted requires that a valid execution environment be specified(or that you have lua or luajit accessible in your PATH). Aborting.";
+  echo >&2 "Busted requires that a valid execution environment be specified(or that you have lua or luajit accessible in your PATH). You specified $COMMAND. Aborting.";
   exit 1
 fi
 
