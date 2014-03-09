@@ -71,11 +71,11 @@ Install these dependencies for core testing:
 
 ```
 luarocks install copas
-luarocks install lua-ev
+luarocks install lua-ev scm --server=http://luarocks.org/repositories/rocks-scm/
 luarocks install moonscript
 ```
 
-(Note: you must have `libev` installed to run `lua-ev`; you can `brew install libev` or `apt-get install libevent-dev`)
+(Note: you must have `libev` installed to run `lua-ev`; you can `brew install libev` or `apt-get install libev-dev`)
 
 Then to reinstall and run tests:
 
