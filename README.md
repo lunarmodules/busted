@@ -75,6 +75,8 @@ luarocks install lua-ev
 luarocks install moonscript
 ```
 
+(Note: you must have `libev` installed to run `lua-ev`; you can `brew install libev` or `apt-get install libevent-dev`)
+
 Then to reinstall and run tests:
 
 ```
