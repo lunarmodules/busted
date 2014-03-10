@@ -77,9 +77,16 @@ if args then
       return print("LuaCov not found on the system, try running without --coverage option, or install LuaCov first")
     end
 
-    -- call it to start
-    luacov()
+    luacov.load_config() -- load config file
 
+---[[
+    luacov.excludetree("busted.core", true)
+    luacov.excludetree("say.init", true)
+    luacov.excludetree("pl.path", true)
+    luacov.excludetree("luassert.assert", true)
+    luacov.excludefile(function() end)  -- define a function here and exclude its file; this file
+--]]
+--[[
 	local recurse = {}
 
     -- recursively finds a function in a table to fetch debuginfo to get the filename
@@ -127,7 +134,10 @@ if args then
     -- cleanup left overs    
     package.loaded["_____busted"] = nil  -- remove temporarily add the bootstrap script
 	recurse = nil
+--]]
 
+    -- call it to start
+    luacov()
   end
 
   if #args.lpath > 0 then
