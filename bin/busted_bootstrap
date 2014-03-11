@@ -79,62 +79,11 @@ if args then
 
     luacov.load_config() -- load config file
 
----[[
     luacov.excludetree("busted.core", true)
     luacov.excludetree("say.init", true)
     luacov.excludetree("pl.path", true)
     luacov.excludetree("luassert.assert", true)
-    luacov.excludefile(function() end)  -- define a function here and exclude its file; this file
---]]
---[[
-	local recurse = {}
-
-    -- recursively finds a function in a table to fetch debuginfo to get the filename
-	local function ff(t)
-	  if recurse[t] then return nil end
-	  if type(t)=="function" then return t end
-	  if type(t)~="table" then return nil end
-	  for k,v in pairs(t) do
-	    if type(v)=="function" then return v end
-	    if type(v)=="table" then
-	      recurse[t] = true
-	      local result = ff(v)
-	      if result then return result end
-	    end
-	  end
-	  return nil -- no function found
-	end
-	
-    -- Escape a filename, replacing all magic string pattern matches, 
-    -- @ in front, remove .lua extension, and replace dir seps by '.' (as a magic character)
-	local function escape(fname)
-	  return fname:gsub("%@",""):gsub("%.lua$", ""):gsub("%.","%%%."):gsub("/", "%."):gsub("\\", "%."):gsub("%(","%%%("):gsub("%)","%%%)"):gsub("%+","%%%+"):gsub("%*","%%%*"):gsub("%-","%%%-"):gsub("%?","%%%?"):gsub("%[","%%%["):gsub("%]","%%%]")
-	end
-	
-    -- add Penlight tree to exclusion list; path = pl.path
-    local d = "^"..escape(debug.getinfo(ff(path)).source):gsub("%.path$","%%%.")
-    table.insert(luacov.configuration.exclude, d)
-    -- add Busted tree to exclusion list; busted = busted.core
-    local d = "^"..escape(debug.getinfo(ff(busted)).source):gsub("%.core$","%%%.")
-    table.insert(luacov.configuration.exclude, d)
-
-    -- add the entire package.loaded table to the exclusion list of LuaCov
-    package.loaded["_____busted"] = { f = ff }  -- temporarily add the bootstrap script to exclude it by full filename
-	for k,v in pairs(package.loaded) do 
-	  local f = ff(v)  -- find a function in this module
-	  if f then
-	    local d = debug.getinfo(f).source
-	    if d and d:sub(1,1) == "@" then
-	      d = "^"..escape(d).."$"
-	      table.insert(luacov.configuration.exclude, d)
-	    end
-	  end
-	end
-    
-    -- cleanup left overs    
-    package.loaded["_____busted"] = nil  -- remove temporarily add the bootstrap script
-	recurse = nil
---]]
+    luacov.excludefile(function() end)  -- define a function here and exclude its file -> this file
 
     -- call it to start
     luacov()
