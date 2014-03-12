@@ -77,14 +77,24 @@ if args then
       return print("LuaCov not found on the system, try running without --coverage option, or install LuaCov first")
     end
 
-    luacov.load_config() -- load config file
+    -- load config file, or if not found the defaults
+    luacov.load_config()
 
-    luacov.excludetree("busted.core", true)
-    luacov.excludetree("say.init", true)
-    luacov.excludetree("pl.path", true)
-    luacov.excludetree("luassert.assert", true)
-    luacov.excludefile(function() end)  -- define a function here and exclude its file -> this file
-
+    -- exclude files used by Busted from LuaCov analysis
+    for _, lib in pairs(package.loaded) do      -- exclude entire package.loaded table
+      luacov.excludefile(lib)  
+    end
+    luacov.excludetree("pl.path", true)         -- exclude Penlight tree, make sure optionals are excluded
+    luacov.excludetree("busted.core", true)     -- exclude Busted tree, make sure optionals are excluded
+    luacov.excludetree("luassert.assert", true) -- exclude Busted tree, exclude non-module returning files
+    luacov.excludefile(function() end)          -- define a function here and exclude its file -> this file
+    luacov.excludetree("copas")
+    luacov.excludetree("coxpcall")
+    luacov.excludetree("ansicolors")
+    luacov.excludetree("socket.http", true)
+    luacov.excludetree("moonscript")
+    luacov.excludetree("dkjson")
+    
     -- call it to start
     luacov()
   end
