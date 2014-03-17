@@ -40,6 +40,7 @@ build = {
     ["busted.init"] = "src/init.lua",
     ["busted.moon"] = "src/moon.lua",
     ["busted.done"] = "src/done.lua",
+    ["busted.bootstrap"] = "src/bootstrap.lua",
     ["busted.languages.en"] = "src/languages/en.lua",
     ["busted.languages.ar"] = "src/languages/ar.lua",
     ["busted.languages.fr"] = "src/languages/fr.lua",
@@ -52,11 +53,20 @@ build = {
     ["busted.loop.ev"] = "src/loop/ev.lua",
     ["busted.loop.copas"] = "src/loop/copas.lua",
   },
-  install = {
-    bin = {
-      ["busted"] = "bin/busted",
-      ["busted.bat"] = "bin/busted.bat",
-      ["busted_bootstrap"] = "bin/busted_bootstrap"
+  platforms = {
+    windows = {
+      install = {
+        bin = {
+          ["busted.bat"] = "bin/busted.bat",
+        }
+      }
+    },
+    unix = {
+      install = {
+        bin = {
+          ["busted"] = "bin/busted",
+        }
+      }
     }
   }
 }

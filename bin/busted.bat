@@ -15,10 +15,11 @@ if "%cmd%"=="" (
 ) else (
   if "%*"=="--help" set TRUE=1
   if "%*"=="--version" set TRUE=1
+  echo require^('busted.bootstrap'^) > %TEMP%\busted_starter
   if defined TRUE  (
-    ("%cmd%" "%~dp0busted_bootstrap" %*)
+    ("%cmd%" "%TEMP%\busted_starter" %*)
   ) else (
-    ("%cmd%" "%~dp0busted_bootstrap" --cwd="%cwd%\\" %*)
+    ("%cmd%" "%TEMP%\busted_starter" --cwd="%cwd%\\" %*)
     exit /B !ERRORLEVEL!
   )
 )
