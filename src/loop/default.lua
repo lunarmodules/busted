@@ -1,8 +1,8 @@
-local busted 
+local busted
 local loop = {}
 local timers = {}
 
--- the timers implemented here will not be useful within the 
+-- the timers implemented here will not be useful within the
 -- context of the 'default' loop (this file). But they can be used
 -- in combination with coroutine schedulers, see 'busted.loop.copas.lua'
 -- for an example of how the timer code here can be reused.

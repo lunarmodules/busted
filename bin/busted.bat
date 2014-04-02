@@ -1,5 +1,5 @@
 @ECHO OFF
-setlocal ENABLEDELAYEDEXPANSION 
+setlocal ENABLEDELAYEDEXPANSION
 for /f "delims=" %%i in ('cd') do set cwd=%%i
 for %%X in (luajit.exe) do (set FOUND=%%~$PATH:X)
 if defined FOUND (

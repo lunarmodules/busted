@@ -14,9 +14,9 @@ local setup_async_tests = function(yield,loopname,create_timer)
                 before_called = true
                 done()
             end))
-          
+
         end)
-      
+
       before_each(
         function(done)
           yield(async(
@@ -25,7 +25,7 @@ local setup_async_tests = function(yield,loopname,create_timer)
                 done()
             end))
         end)
-      
+
       it(
         'should async succeed',
         function(done)
@@ -36,7 +36,7 @@ local setup_async_tests = function(yield,loopname,create_timer)
                 done()
             end))
         end)
-      
+
       it(
         'should async fail',
         function(done)
@@ -46,19 +46,19 @@ local setup_async_tests = function(yield,loopname,create_timer)
                 done()
             end))
         end)
-      
+
       it(
         'should async fails epicly',
         function(done)
           does_not_exist.foo = 3
         end)
-      
+
       it(
         'should succeed',
         function(done)
           done()
         end)
-      
+
       it(
         'spies should sync succeed',
         function()
@@ -72,7 +72,7 @@ local setup_async_tests = function(yield,loopname,create_timer)
           assert.spy(thing.greet).was.called()
           assert.spy(thing.greet).was.called_with("Hi!")
         end)
-      
+
       it(
         'spies should async succeed',
         function(done)
@@ -89,7 +89,7 @@ local setup_async_tests = function(yield,loopname,create_timer)
             end))
           thing.greet("Hi!")
         end)
-      
+
       describe(
         'with nested contexts',
         function()
@@ -112,9 +112,9 @@ local setup_async_tests = function(yield,loopname,create_timer)
                 end))
             end)
         end)
-      
+
       pending('is pending')
-      
+
       it(
         'calling done twice fails',
         function(done)
@@ -124,7 +124,7 @@ local setup_async_tests = function(yield,loopname,create_timer)
                 done()
             end))
         end)
-      
+
       if create_timer then
         it(
           'wait_ordered succeeds',
@@ -140,7 +140,7 @@ local setup_async_tests = function(yield,loopname,create_timer)
                   done('t3')
               end))
           end)
-        
+
         it(
           'wait_ordered fails with wrong order',
           function(done)
@@ -155,7 +155,7 @@ local setup_async_tests = function(yield,loopname,create_timer)
                   done('t2')
               end))
           end)
-        
+
         it(
           'wait_ordered fails with double token',
           function(done)
@@ -170,7 +170,7 @@ local setup_async_tests = function(yield,loopname,create_timer)
                   done('t3')
               end))
           end)
-        
+
         it(
           'wait_unordered succeeds',
           function(done)
@@ -185,7 +185,7 @@ local setup_async_tests = function(yield,loopname,create_timer)
                   done('t2')
               end))
           end)
-        
+
         it(
           'wait_unordered fails with unknown token',
           function(done)
@@ -201,8 +201,8 @@ local setup_async_tests = function(yield,loopname,create_timer)
               end))
           end)
       end
-      
-      
+
+
     end)
 end
 
@@ -212,7 +212,7 @@ local describe_statuses = function(statuses,print_statuses)
     print(pretty.write(statuses))
     print('------------------------------')
   end
-  
+
   describe(
     'Test statuses',
     function()
@@ -248,7 +248,7 @@ local describe_statuses = function(statuses,print_statuses)
             end
           end
         end)
-      
+
       it(
         'info is correct',
         function()
@@ -258,7 +258,7 @@ local describe_statuses = function(statuses,print_statuses)
             assert.is_truthy(status.info.short_src:match('generic_async_test%.lua'))
           end
         end)
-      
+
       it(
         'provides "err" for failed tests',
         function()
@@ -269,7 +269,7 @@ local describe_statuses = function(statuses,print_statuses)
             end
           end
         end)
-      
+
       it(
         'provides "traceback" for failed tests',
         function()
@@ -280,7 +280,7 @@ local describe_statuses = function(statuses,print_statuses)
             end
           end
         end)
-      
+
       it(
         'calling done twice fails is reported correctly',
         function()
@@ -292,7 +292,7 @@ local describe_statuses = function(statuses,print_statuses)
           end
           assert.is_falsy('twice report failed')
         end)
-      
+
     end)
 end
 

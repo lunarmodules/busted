@@ -9,10 +9,10 @@ else
 end
 
 -- create OO table, using `loop.default` as the ancestor/super class
-return setmetatable({ 
+return setmetatable({
     step = function()
       copas.step(0)
-      super.step()  -- call ancestor to check for timers 
+      super.step()  -- call ancestor to check for timers
     end,
     pcall = protected
   }, { __index = super})

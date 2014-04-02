@@ -30,8 +30,8 @@ local lookup_line = function(fname, pos)
 end
 
 local rewrite_linenumber = function(fname, lineno)
-  local tbl = line_tables[fname]  
-  if fname and tbl then    
+  local tbl = line_tables[fname]
+  if fname and tbl then
     for i = lineno,0,-1 do
       if tbl[i] then
         return lookup_line(fname, tbl[i])

@@ -9,7 +9,7 @@ else
   package.path = "./spec/?.lua;"..old_path
   local generic_async = require'generic_async_test'
   package.path = old_path
-  
+
   local statuses = busted.run_internal_test(function()
     local copas = require'copas'
     local socket = require'socket'
@@ -18,7 +18,7 @@ else
 
     local echo = function(done)
       local listener = socket.bind('*',port)
-      
+
       copas.addthread(
         async(
           function()
@@ -64,31 +64,31 @@ else
   end)
 
   generic_async.describe_statuses(statuses)
-  
+
   local statuses = busted.run_internal_test(function()
     setloop('copas')
     it('this should timeout',function(done)
       settimeout(0.1)
       async() -- mark test as async, but do NOT call done(), so it stays incomplete
     end)
-      
+
     it('this should not timeout',function(done)
       settimeout(0.1)
       async() -- mark test as async
       done()  -- mark test as complete
     end)
   end)
-  
+
   it('first test is timeout',function()
     local status = statuses[1]
     assert.is_equal(status.type,'failure')
     assert.is_equal(status.err,'test timeout elapsed (0.1s)')
     assert.is_equal(status.trace,'')
   end)
-  
+
   it('second test is not timeout',function()
     local status = statuses[2]
     assert.is_equal(status.type,'success')
   end)
-    
+
 end
