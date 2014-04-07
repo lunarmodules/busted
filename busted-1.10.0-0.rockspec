@@ -54,9 +54,7 @@ build = {
   },
   install = {
     bin = {
-      ["busted"] = "bin/busted",
-      ["busted.bat"] = "bin/busted.bat",
-      ["busted_bootstrap"] = "bin/busted_bootstrap"
+      ["busted"] = "bin/busted.lua"
     }
   }
 }
