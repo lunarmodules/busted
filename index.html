@@ -67,7 +67,12 @@
             <li>
               <a>
                 <h4>Status</h4>
-                <p>Version: <strong>1.10.0</strong></p>
+
+                <p>Version: <strong>1.11.0</strong></p>
+
+                <p>
+                  <a href="http://travis-ci.org/#!/Olivine-Labs/busted/builds"><img src="https://github-camo.global.ssl.fastly.net/5c9ddc5d7b57bc68f2b2c26d8a7ad81366aa80db/68747470733a2f2f7365637572652e7472617669732d63692e6f72672f4f6c6976696e652d4c6162732f6275737465642e706e67" alt="travis-ci status" data-canonical-src="https://secure.travis-ci.org/Olivine-Labs/busted.png" style="max-width:100%;"></a>
+                </p>
               </a>
             </li>
           </ul>
@@ -180,8 +185,6 @@ end)
 OPTIONS:
   --version             prints the program's version and exits
   -o, --output=LIBRARY  output library to load (default: utf_terminal)
-  -l, --lua=luajit      path to the execution environment (luajit or
-                        lua), picks first available (default: luajit)
   -d, --cwd=cwd         path to current working directory (default: ./)
   -p, --pattern=pattern only run test files matching the Lua pattern
                         (default: _spec)
@@ -203,12 +206,6 @@ OPTIONS:
   --suppress-pending    suppress 'pending' test output
   --defer-print         defer print to when test suite is complete
 </code></pre>
-
-            <p>
-              Note: because of an OSX issue with <code>getopt</code>, you must
-              supply the <code>-l</code> parameter <em>before</em> the
-              <code>lpath</code> parameter if using both.
-            </p>
 
             <h4>Predefined Busted Tasks</h4>
 
@@ -268,7 +265,8 @@ OPTIONS:
 
             <h4 id="describe">Describe: Context blocks</h4>
             <p>
-              Describe takes a title and a callback, and can be nested.
+              Describe takes a title and a callback, and can be nested. You can
+              also use <code>context</code> as an alias if you like.
             </p>
 <pre><code data-language="lua">describe("a test", function()
   -- tests go here
