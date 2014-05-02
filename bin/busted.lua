@@ -1,5 +1,3 @@
-#!/usr/bin/env lua 
-
 -- Busted command-line runner
 
 local cli = require 'cliargs'
@@ -21,6 +19,7 @@ cli:add_flag("--version", "prints the program's version and exits")
 cli:optarg("ROOT", "test script file/folder. Folders will be traversed for any file that matches the --pattern option.", "spec", 1)
 
 cli:add_option("-o, --output=LIBRARY", "output library to load", defaultoutput)
+cli:add_option("-l, --lua=luajit", "path to the execution environment (luajit or lua), picks first available", defaultlua)
 cli:add_option("-d, --cwd=cwd", "path to current working directory", "./")
 cli:add_option("-p, --pattern=pattern", "only run test files matching the Lua pattern", defaultpattern)
 cli:add_option("-t, --tags=tags", "only run tests with these #tags")
