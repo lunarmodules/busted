@@ -77,35 +77,26 @@ if args then
       return print("LuaCov not found on the system, try running without --coverage option, or install LuaCov first")
     end
 
+    -- load config file, or if not found the defaults
+    luacov.load_config()
+
+    -- exclude files used by Busted from LuaCov analysis
+    for _, lib in pairs(package.loaded) do      -- exclude entire package.loaded table
+      luacov.excludefile(lib)  
+    end
+    luacov.excludetree("pl.path", true)         -- exclude Penlight tree, make sure optionals are excluded
+    luacov.excludetree("busted.core", true)     -- exclude Busted tree, make sure optionals are excluded
+    luacov.excludetree("luassert.assert", true) -- exclude Busted tree, exclude non-module returning files
+    luacov.excludefile(function() end)          -- define a function here and exclude its file -> this file
+    luacov.excludetree("copas")
+    luacov.excludetree("coxpcall")
+    luacov.excludetree("ansicolors")
+    luacov.excludetree("socket.http", true)
+    luacov.excludetree("moonscript")
+    luacov.excludetree("dkjson")
+    
     -- call it to start
     luacov()
-
-    loader = require("luarocks.loader")
-
-    -- exclude dependencies; load them here instead of using ".usr.local" in case
-    -- of locally installed deps
-
-    paths = {
-      "busted",
-      "luassert",
-      "pl",
-      "say",
-      "dkjson",
-      "lfs"
-    }
-
-    for t = 1, #paths do
-      path = loader.which(paths[t]):gsub("(.+/)("..paths[t].."/.+%.lua)", "%1%.%+"):gsub("/", "%.")
-      table.insert(luacov.configuration.exclude, path)
-    end
-
-
-    -- exclude busted files
-    table.insert(luacov.configuration.exclude, "%busted_bootstrap$")
-
-    -- exclude luarocks files
-    table.insert(luacov.configuration.exclude, "%luarocks.config.+")
-    table.insert(luacov.configuration.exclude, "%luarocks.rocks.manifest")
   end
 
   if #args.lpath > 0 then
