@@ -257,6 +257,8 @@ busted.async = function(f)
       local err = result[2]
       if type(err) == "table" then
         err = pretty.write(err)
+      elseif type(err) ~= "string" then
+        err = tostring(err)
       end
 
       local stack_trace = debug.traceback("", 2)
@@ -423,6 +425,8 @@ next_test = function()
     else
       if type(err) == "table" then
         err = pretty.write(err)
+      elseif type(err) ~= "string" then
+        err = tostring(err)
       end
 
       -- remove all frames after the last frame found in the test file
