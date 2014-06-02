@@ -1,83 +1,40 @@
+--ensure environment is set up
 assert(type(describe) == "function")
 assert(type(context) == "function")
-assert(context == describe)
 assert(type(it) == "function")
 assert(type(before_each) == "function")
 assert(type(after_each) == "function")
 assert(type(spy) == "table")
 assert(type(stub) == "table")
 assert(type(mock) == "function")
-local busted = require("busted")
+assert(type(assert) == "table")
 
-local test_val = false
-
-assert.is_not_nil(_TEST)  -- test on file-level
-
-describe "testing global _TEST" (function()
-  
-  assert.is_not_nil(_TEST)
-  
-  setup(function()
-    assert.is_not_nil(_TEST)
-  end)
-  
-  before_each(function()
-    assert.is_not_nil(_TEST)
-  end)
-  
-  after_each(function()
-    assert.is_not_nil(_TEST)
-  end)
-  
-  teardown(function()
-    assert.is_not_nil(_TEST)
-  end)
-
-  it "Tests the _TEST global in an it() block" (function()
-    assert.is_not_nil(_TEST)
-  end)
-
-end)
-
-describe "Test Case" (function()
-  local test_val = true
-  assert(test_val)
-end)
-
-describe "Test case" (function()
-  local test_val = false
-  it "changes test_val to true" (function()
-    test_val = true
-    assert(test_val)
-  end)
-end)
-
-describe "Before each" (function()
+describe("Before each", function()
   local test_val = false
 
   before_each(function()
     test_val = true
   end)
 
-  it "is called" (function()
+  it("is called", function()
     assert(test_val)
   end)
 end)
 
-describe "After each" (function()
+describe("After each", function()
   local test_val = false
 
   after_each(function()
     test_val = true
   end)
 
-  it "runs once to fire an after_each and then" (function() end)
-  it "checks if after_each was called" (function()
-   assert(test_val)
+  it("runs once to fire an after_each and then", function() end)
+  it("checks if after_each was called", function()
+    assert(test_val)
   end)
 end)
 
-describe "Both before and after each" (function()
+describe("Both before and after each", function()
   local test_val = 0
 
   before_each(function()
@@ -88,79 +45,79 @@ describe "Both before and after each" (function()
     test_val = test_val + 1
   end)
 
-  it "checks if both were called" (function() end)
-  it "runs again just to be sure" (function() end)
+  it("checks if both were called", function() end)
+  it("runs again just to be sure", function() end)
 
-  it "checks the value" (function() 
+  it("checks the value", function() 
     assert(test_val == 5)
   end)
 end)
 
-describe "Before_each on describe blocks" (function()
+describe("Before_each on describe blocks", function()
   local test_val = 0
 
   before_each(function()
     test_val = test_val + 1
   end)
 
-  describe "A block" (function()
-    it "derps" (function()
+  describe("A block", function()
+    it("derps", function()
       assert(test_val == 1)
     end)
 
-    it "herps" (function()
+    it("herps", function()
       assert(test_val == 2)
     end)
   end)
 end)
 
-describe "Before_each on describe blocks, part II" (function()
+describe("Before_each on describe blocks, part II", function()
   local test_val = 0
 
   before_each(function()
     test_val = test_val + 1
   end)
 
-  it "checks the value" (function()
+  it("checks the value", function()
     assert.are.equal(1, test_val)
   end)
 
-  describe "A block" (function()
+  describe("A block", function()
     before_each(function()
       test_val = test_val + 1
     end)
 
-    it "derps" (function() end) --add two: two before-eaches
-    it "herps" (function() end)
+    it("derps", function() end) --add two: two before-eaches
+    it("herps", function() end)
 
-    it "checks the value" (function()
-      assert(test_val == 7)
+    it("checks the value", function()
+      assert.equal(7, test_val)
     end)
   end)
 end)
 
-describe "A failing test" (function()
-  it "explodes" (function()
+describe("A failing test", function()
+  it("explodes", function()
     assert.has.error(function() assert(false, "this should fail") end)
   end)
 end)
 
-describe "tagged tests #test" (function()
-  it "runs" (function()
+describe("tagged tests #test", function()
+  it("runs", function()
     assert(true)
   end)
 end)
 
 
-describe "Testing test order" (function()
-  
+describe("Testing test order", function()
+
   local testorder, level = "", 0
   local function report_level(desc)
     testorder = testorder .. string.rep(" ", level * 2) .. desc .. "\n"
   end
 
-  describe "describe, level A" (function()
-  
+  describe("describe, level A", function()
+
     setup(function()
       report_level("setup A")
       level = level + 1
@@ -181,15 +138,15 @@ describe "Testing test order" (function()
       report_level("after_each A")
     end)
 
-    it "tests A one" (function()
-      report_level("test A one")        
-    end)
-    
-    it "tests A two" (function()
-      report_level("test A two")        
+    it("tests A one", function()
+      report_level("test A one")
     end)
 
-    describe "describe level B" (function()
+    it("tests A two", function()
+      report_level("test A two")
+    end)
+
+    describe("describe level B", function()
 
       setup(function()
         report_level("setup B")
@@ -211,25 +168,25 @@ describe "Testing test order" (function()
         report_level("after_each B")
       end)
 
-      it "tests B one" (function()
+      it("tests B one", function()
         report_level("test B one")
       end)
-      
-      it "tests B two" (function()
-        report_level("test B two")        
+
+      it("tests B two", function()
+        report_level("test B two")
       end)
-          
+
     end)
-  
-    it "tests A three" (function()
-      report_level("test A three")        
+
+    it("tests A three", function()
+      report_level("test A three")
     end)
 
   end)
-    
-  describe "Test testorder" (function()
-    it "verifies order of execution" (function()
-local expected = [[setup A
+
+  describe("Test testorder", function()
+    it("verifies order of execution", function()
+    local expected = [[setup A
   before_each A
     test A one
   after_each A
@@ -252,7 +209,7 @@ local expected = [[setup A
     test A three
   after_each A
 teardown A
-]]        
+]]
       assert.is.equal(expected, testorder)
     end)
 
@@ -260,46 +217,21 @@ teardown A
 
 end)
 
-it "Malformated Lua code gets reported correctly" (function()
-  local filename = ".malformed_test.lua"
-  local f = io.open(filename,"w")
-  f:write("end)") -- write some non-sense which will cause a parse error
-  f:close()
-  local statuses = busted.run_internal_test(filename)
-  assert.is_equal(#statuses,1)
-  local status = statuses[1]
-  assert.is_equal(status.type, "failure")
-  assert.is_equal(status.description, "Busted process errors occured / Failed executing testfile; "..filename)
-  assert.is_truthy(status.err:match("expected"))
-  os.remove(filename)
-end)
-
-it "finally callback is called in case of success" (function()
+describe("finally callback is called in case of success", function()
   local f = spy.new(function() end)
-  busted.run_internal_test(function()
-	  it "write variable in finally" (function()
-		  finally(f)
-			assert.is_true(true)						     
-		end)
-	end)				   
-  assert.spy(f).was_called(1)
+  it("write variable in finally", function()
+    finally(f)
+    assert.is_true(true)
+  end)
+  it("ensures finally was called", function()
+    assert.spy(f).was_called(1)
+  end)
 end)
 
-it "finally callback is called in case of error" (function()
-  local f = spy.new(function() end)
-  busted.run_internal_test(function()
-		it "write variable in finally" (function()
-			finally(f)
-			assert.is_true(false)						     
-		end)
-	end)
-	assert.spy(f).was_called(1)
-end)
+describe("testing the done callback with tokens", function()
 
-
-describe "testing the done callback with tokens" (function()
-  
-  it "Tests done call back ordered" (function(done)
+  it("Tests done call back ordered", function()
+    async()
     stub(done, "done_cb") -- create a stub to prevent actually calling 'done'
     done:wait_ordered("1", "2", "3")
     assert.has_no_error(function() done("1") end)
@@ -312,8 +244,9 @@ describe "testing the done callback with tokens" (function()
     assert.stub(done.done_cb).was.called(1)
     done.done_cb:revert() -- revert so test can complete
   end)
-  
-  it "Tests done call back unordered" (function(done)
+
+  it("Tests done call back unordered", function()
+    async()
     stub(done, "done_cb") -- create a stub to prevent actually calling 'done'
     done:wait_unordered("1", "2", "3")
     assert.has_no_error(function() done("1") end)
@@ -325,8 +258,9 @@ describe "testing the done callback with tokens" (function()
     assert.stub(done.done_cb).was.called(1)
     done.done_cb:revert() -- revert so test can complete
   end)
-  
-  it "Tests done call back defaulting to ordered" (function(done)
+
+  it("Tests done call back defaulting to ordered", function()
+    async()
     stub(done, "done_cb") -- create a stub to prevent actually calling 'done'
     done:wait("1", "2")
     assert.has_error(function() done("2") end)     -- different order
@@ -334,58 +268,53 @@ describe "testing the done callback with tokens" (function()
     assert.has_no_error(function() done("2") end)  
     done.done_cb:revert() -- revert so test can complete
   end)
-  
+
 end)
 
---[[  TODO: uncomment this failing test and fix it
-describe "testing done callbacks being provided" (function()
-  setup(function(done)
+describe("testing done callbacks being provided for async tests", function()
+  setup(function()
+    async()
     assert.is_table(done)
     assert.is_function(done.wait)
   end)
-  before_each(function(done)
+  before_each(function()
+    async()
     assert.is_table(done)
     assert.is_function(done.wait)
   end)
-  after_each(function(done)
+  after_each(function()
+    async()
     assert.is_table(done)
     assert.is_function(done.wait)
   end)
-  teardown(function(done)
+  teardown(function()
+    async()
     assert.is_table(done)
     assert.is_function(done.wait)
   end)
-  it "Tests done callbacks being provided" (function(done)
+  it("Tests done callbacks being provided for async tests", function()
+    async()
     assert.is_table(done)
     assert.is_function(done.wait)
   end)
 end)
 
-describe "testing done callbacks being provided for async tests" (function()
-  setup(function(done)
-    async()
-    assert.is_table(done)
-    assert.is_function(done.wait)
+describe("tests environment", function()
+  global = "global"
+  it("can access globals", function()
+    assert.equal("global", global)
+    notglobal = "notglobal"
   end)
-  before_each(function(done)
-    async()
-    assert.is_table(done)
-    assert.is_function(done.wait)
+
+  it("cannot access globals set in siblings", function()
+    assert.equal(nil, notglobal)
   end)
-  after_each(function(done)
-    async()
-    assert.is_table(done)
-    assert.is_function(done.wait)
-  end)
-  teardown(function(done)
-    async()
-    assert.is_table(done)
-    assert.is_function(done.wait)
-  end)
-  it "Tests done callbacks being provided for async tests" (function(done)
-    async()
-    assert.is_table(done)
-    assert.is_function(done.wait)
+
+  describe("cannot access globals set in children", function()
+    it("has a global", function()
+      notglobal = "notglobal"
+    end)
+
+    assert.are.equal(notglobal, nil)
   end)
 end)
---]]

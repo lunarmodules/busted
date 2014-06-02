@@ -1,7 +1,18 @@
-describe "moonscript tests", ->
-  it "runs", ->
+describe 'moonscript tests', ->
+
+  -- failure
+  it 'really fails', ->
+    assert.are.equal true, false
+
+  -- pending
+  pending 'pending', ->
+
+  -- success
+  it 'succeeds', ->
     assert.are.equal true, true
 
-  it "fails", ->
-    assert.error(-> assert.are.equal false, true)
+  pending 'another', ->
+
+  it 'is a moonscript bug?', ->
+    assert.are.equal 'a', 'a'
 
