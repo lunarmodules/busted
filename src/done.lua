@@ -3,6 +3,7 @@ local M = {}
 -- adds tokens to the current wait list, does not change order/unordered
 M.wait = function(self, ...)
   local tlist = { ... }
+
   for _, token in ipairs(tlist) do
     if type(token) ~= "string" then
       error("Wait tokens must be strings. Got "..type(token), 2)
@@ -26,28 +27,35 @@ end
 -- generates a message listing tokens received/open
 M.tokenlist = function(self)
   local list
+
   if #self.tokens_done == 0 then
     list = "No tokens received."
   else
     list = "Tokens received ("..tostring(#self.tokens_done)..")"
     local s = ": "
+
     for _,t in ipairs(self.tokens_done) do
       list = list .. s .. "'"..t.."'"
       s = ", "
     end
+
     list = list .. "."
   end
+
   if #self.tokens == 0 then
     list = list .. " No more tokens expected."
   else
     list = list .. " Tokens not received ("..tostring(#self.tokens)..")"
     local s = ": "
+
     for _, t in ipairs(self.tokens) do
       list = list .. s .. "'"..t.."'"
       s = ", "
     end
+
     list = list .. "."
   end
+
   return list
 end
 
@@ -58,6 +66,7 @@ M._done = function(self, token)
     if type(token) ~= "string" then
       error("Wait tokens must be strings. Got "..type(token), 3)
     end
+
     if self.ordered then
       if self.tokens[1] == token then
         table.remove(self.tokens, 1)
@@ -79,6 +88,7 @@ M._done = function(self, token)
           break
         end
       end
+
       if token then
         error(("Unknown token '%s'. %s"):format(token, self:tokenlist()), 3)
       end
@@ -99,12 +109,13 @@ M.new = function(done_callback)
     done_cb = done_callback,
     ordered = true,  -- default for sign off of tokens
   }
+
   return setmetatable( obj, {
-      __call = function(self, ...)
-        self:_done(...)
-      end,
-      __index = M,
-    })
+    __call = function(self, ...)
+      self:_done(...)
+    end,
+    __index = M,
+  })
 end
 
 return M
