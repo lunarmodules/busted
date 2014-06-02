@@ -75,7 +75,7 @@ end
 
 -- If coverage arg is passed in, load LuaCovsupport
 if cliArgs.coverage then
-  luaCov()
+  luacov()
 end
 
 -- Add additional package paths based on lpath and cpath cliArgs

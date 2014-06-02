@@ -38,6 +38,12 @@ return {
     'luacov.runner$',
     'luacov.stats$',
     'luacov.tick$',
+    'ansicolors$',
+    'copas$',
+    'coxpcall$',
+    'mediator$',
+    'moonscript.*$',
+    'socket$',
   },
 
 
