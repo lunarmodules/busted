@@ -52,7 +52,7 @@ return function(options, busted)
     local string =  ansicolors('%{red}' .. s('output.failure')) .. ' → ' ..
     ansicolors('%{cyan}' .. failure.elementTrace.short_src) .. ' @ ' ..
     ansicolors('%{cyan}' .. failure.elementTrace.currentline) ..
-    '\n' .. ansicolors('%{bright}' .. getFullName(failure)) .. '\n'
+    '\n' .. ansicolors('%{bright}' .. getFullName(failure)) .. '\n\n'
 
     if type(failure.message) == 'string' then
       string = string .. failure.message
