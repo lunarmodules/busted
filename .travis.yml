@@ -21,3 +21,6 @@ script: ./bin/busted
 branches:
   except:
     - gh-pages
+
+notifications:
+  slack: olivinelabs:ZFLBu3JQfLAlTn7eNeh7rott
