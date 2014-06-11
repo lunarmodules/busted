@@ -1,7 +1,6 @@
 local ansicolors = require 'ansicolors'
 local s = require 'say'
 local pretty = require 'pl.pretty'
-local socket = require 'socket'
 
 require('busted.languages.en')
 
@@ -128,11 +127,11 @@ return function(options)
   end
 
   handler.suiteStart = function(name, parent)
-    startTime = socket.gettime()
+    startTime = os.clock()
   end
 
   handler.suiteEnd = function(name, parent)
-    endTime = socket.gettime()
+    endTime = os.clock()
     -- print an extra newline of defer print
     if not options.deferPrint then
       print('')

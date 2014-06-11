@@ -27,7 +27,6 @@ dependencies = {
   'ansicolors >= 1.0-1',
   'penlight >= 1.0.0-1',
   'mediator_lua >= 1.1-3',
-  'luasocket >= 3.0rc1-1',
 }
 build = {
   type = 'builtin',
