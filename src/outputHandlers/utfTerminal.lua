@@ -34,15 +34,17 @@ return function(options)
   end
 
   local failureDescription = function(failure)
-    local string =  '\n\n' .. ansicolors('%{red}' .. s('output.failure')) .. ' → ' ..
+    local string =  ansicolors('%{red}' .. s('output.failure')) .. ' → ' ..
     ansicolors('%{cyan}' .. failure.elementTrace.short_src) .. ' @ ' ..
     ansicolors('%{cyan}' .. failure.elementTrace.currentline) ..
     '\n' .. ansicolors('%{bright}' .. (failure.name or failure.descriptor)) .. '\n'
 
     if type(failure.message) == 'string' then
       string = string .. failure.message
-    elseif type(failure.message) == 'table' then
-      string = string.. pretty.write(failure.message)
+    elseif failure.message == nil then
+      string = string .. 'Nil error'
+    else
+      string = string .. pretty.write(failure.message)
     end
 
     if options.verbose then
@@ -115,7 +117,6 @@ return function(options)
     if not options.suppressPending and not options.deferPrint then
       pendings = pendings + 1
       io.write(pendingString)
-
       table.insert(pendingInfos, { name = element.name, elementTrace = element.trace, debug = debug })
     end
   end
@@ -139,13 +140,13 @@ return function(options)
 
     print(statusString(successes, failures, pendings, endTime - startTime, {}))
 
+    for i, pending in pairs(pendingInfos) do
+      print(pendingDescription(pending))
+    end
+
     if #failureInfos > 0 then
       print('')
       print(ansicolors('%{red}Errors:'))
-    end
-
-    for i, pending in pairs(pendingInfos) do
-      print(pendingDescription(pending))
     end
 
     for i, err in pairs(failureInfos) do

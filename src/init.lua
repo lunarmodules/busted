@@ -65,7 +65,9 @@ return function(busted)
     busted.publish({ 'test', 'start' }, it, parent)
     busted.publish({ 'test', 'end' }, it, parent, busted.safe('it', it.run, it))
 
-    if finally then busted.safe('finally', finally, it) end
+    if finally then
+      busted.safe('finally', finally, it)
+    end
 
     dexecAll('after_each', parent, true)
   end

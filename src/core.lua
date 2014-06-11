@@ -69,7 +69,7 @@ return function()
       trace = busted.getTrace(element, 3)
     end) }
 
-    if message then
+    if not ret[1] then
       busted.publish({ 'error', descriptor }, element, busted.context.parent(element), message, trace)
     end
 
