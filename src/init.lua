@@ -1,3 +1,15 @@
+math.randomseed(os.time())
+
+local function shuffle(t)
+  local n = #t
+  while n >= 2 do
+    local k = math.random(n)
+    t[n], t[k] = t[k], t[n]
+    n = n - 1
+  end
+  return t
+end
+
 return function(busted)
   local function execAll(descriptor, current, propagate)
     local parent = busted.context.parent(current)
@@ -41,7 +53,17 @@ return function(busted)
 
     busted.publish({ 'describe', 'start' }, describe, parent)
 
+    if not describe.env then describe.env = {} end
+
+    local randomize = false
+    describe.env.randomize = function()
+      randomize = true
+    end
+
     if busted.safe('describe', describe.run, describe) then
+      if randomize then
+        shuffle(busted.context.children(describe))
+      end
       execAll('setup', describe)
       busted.execute(describe)
       dexecAll('teardown', describe)
