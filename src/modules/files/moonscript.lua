@@ -1,6 +1,6 @@
-local moonscript = require 'moonscript'
-local line_tables = require 'moonscript.line_tables'
-local util = require 'moonscript.util'
+local ok, moonscript, line_tables, util = pcall(function()
+  return require 'moonscript', require 'moonscript.line_tables', require 'moonscript.util'
+end)
 
 local _cache = {}
 
@@ -67,7 +67,7 @@ end
 
 ret.match = function(busted, filename)
   local path, name, ext = filename:match('(.-)([^\\/\\\\]-%.?([^%.\\/]*))$')
-  if ext == 'moon' then
+  if ok and ext == 'moon' then
     return true
   end
   return false
