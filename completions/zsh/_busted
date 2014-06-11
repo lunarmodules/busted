@@ -1,0 +1,27 @@
+#compdef busted
+#autoload
+
+#alias rbu="unfunction _busted; autoload -U _busted"
+
+local -a _busted_args
+_busted_args=(
+"--cpath=:Optional path to be prefixed to the Lua C module search path (default: ./csrc/?.so;./csrc/?/?.so;)"
+"--defer-print:Print to when test suite is complete"
+"--exclude-tags=:Do not run tests with these #tags, takes precedence over --tags"
+"--lang=:Language for error messages (default: en)"
+"--suppress-pending:'pending' test output"
+"--version:Prints the program's version and exits"
+"-c:Do code coverage analysis (requires 'LuaCov' to be installed) --coverage "
+"-d:Path to current working directory (default: ./) --cwd=cwd "
+"-h:Help"
+"-l:Path to the execution environment (luajit or lua), picks first available (default: luajit) --lua=luajit "
+"-m:Optional path to be prefixed to the Lua module search path (default: ./src/?.lua;./src/?/?.lua;./src/?/init.lua) --lpath=path "
+"-o:Output library to load (default: utf_terminal) --output=LIBRARY "
+"-p:Only run test files matching the Lua pattern (default: _spec) --pattern=pattern "
+"-r:Config to run from .busted file --run=run "
+"-s:Executes 'say' command if available --enable-sound "
+"-t:Only run tests with these #tags --tags=tags "
+"-v:Verbose output of errors --verbose "
+)
+
+_describe -t commands "busted args" _busted_args
