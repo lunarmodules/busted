@@ -10,6 +10,7 @@ before_install:
 
 install:
   - sudo apt-get update -qq
+  - sudo luarocks install luasec
   - sudo apt-get install -qq libev-dev
   - sudo luarocks install lua-ev scm --server=http://luarocks.org/repositories/rocks-scm/
   - sudo luarocks install copas
