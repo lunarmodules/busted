@@ -63,13 +63,12 @@ return function(busted)
 
     execAll('before_each', parent, true)
     busted.publish({ 'test', 'start' }, it, parent)
-    busted.publish({ 'test', 'end' }, it, parent, busted.safe('it', it.run, it))
-
-    if finally then
-      busted.safe('finally', finally, it)
+    local res = busted.safe('it', it.run, it)
+    if not it.env.done then
+      busted.publish({ 'test', 'end' }, it, parent, res)
+      if finally then busted.safe('finally', finally, it) end
+      dexecAll('after_each', parent, true)
     end
-
-    dexecAll('after_each', parent, true)
   end
 
   local pending = function(pending)
@@ -81,7 +80,11 @@ return function(busted)
     local parent = busted.context.get()
     if not parent.env then parent.env = {} end
 
-    parent.env.done = require 'busted.done'.new()
+    parent.env.done = require 'busted.done'.new(function()
+      busted.publish({ 'test', 'end' }, it, parent, true)
+      if finally then busted.safe('finally', finally, it) end
+      dexecAll('after_each', parent, true)
+    end)
   end
 
   busted.register('file', file)
