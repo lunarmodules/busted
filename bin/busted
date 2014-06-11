@@ -127,7 +127,6 @@ busted.subscribe({ 'file', 'start' }, outputHandler.fileStart)
 busted.subscribe({ 'file', 'end' }, outputHandler.fileEnd)
 busted.subscribe({ 'suite', 'start' }, outputHandler.suiteStart)
 busted.subscribe({ 'suite', 'end' }, outputHandler.suiteEnd)
-busted.subscribe({ 'pending' }, outputHandler.pending)
 busted.subscribe({ 'error' }, outputHandler.error)
 
 -- Set up sound

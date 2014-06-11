@@ -102,12 +102,22 @@ return function(options, busted)
     tests = tests + 1
   end
 
-  handler.testEnd = function(name, parent, status)
+  handler.testEnd = function(element, parent, status, debug)
     local string = successString
 
-    if status then
+    if status == 'success' then
       successes = successes + 1
-    else
+    elseif status == 'pending' then
+      if not options.suppressPending then
+        pendings = pendings + 1
+        io.write(pendingString)
+        table.insert(pendingInfos, {
+          name = element.name,
+          elementTrace = element.trace,
+          parent = parent
+        })
+      end
+    elseif status == 'failure' then
       string = failureString
       failures = failures + 1
     end
@@ -119,16 +129,7 @@ return function(options, busted)
   end
 
   handler.pending = function(element, parent, message, debug)
-    if not options.suppressPending and not options.deferPrint then
-      pendings = pendings + 1
-      io.write(pendingString)
-      table.insert(pendingInfos, {
-        name = element.name,
-        elementTrace = element.trace,
-        debug = debug,
-        parent = parent
-      })
-    end
+    
   end
 
   handler.fileStart = function(name, parent)
