@@ -2,6 +2,12 @@
 # Sets up Lua and Luarocks. 
 # LUA must be "Lua 5.1", "Lua 5.2" or "LuaJIT 2.0". 
 
+echo 'rocks_servers = {
+  "http://rocks.moonscript.org/",
+  "http://luarocks.org/repositories/rocks"
+}' >> ~/config.lua
+
+
 if [ "$LUA" == "LuaJIT 2.0" ]; then
   curl http://luajit.org/download/LuaJIT-2.0.2.tar.gz | tar xz
   cd LuaJIT-2.0.2
