@@ -16,7 +16,7 @@ return function()
     level = level or  3
 
     local info = debug.getinfo(level, 'Sl')
-    info.traceback = debug.traceback(0)
+    info.traceback = debug.traceback("", level)
 
     local file = busted.getFile(element, name)
     return file.getTrace(name, info)

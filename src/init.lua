@@ -87,7 +87,7 @@ return function(busted)
     busted.publish({ 'test', 'start' }, it, parent)
     local res = busted.safe('it', it.run, it)
     if not it.env.done then
-      busted.publish({ 'test', 'end' }, it, parent, res)
+      busted.publish({ 'test', 'end' }, it, parent, res and 'success' or 'failure')
       if finally then busted.safe('finally', finally, it) end
       dexecAll('after_each', parent, true)
     end
@@ -95,7 +95,7 @@ return function(busted)
 
   local pending = function(pending)
     local trace = busted.getTrace(pending, 3)
-    busted.publish({ 'pending' }, pending, busted.context.parent(pending), 'pending', trace)
+    busted.publish({ 'test', 'end' }, pending, busted.context.parent(pending), 'pending', trace)
   end
 
   local async = function()
@@ -103,7 +103,7 @@ return function(busted)
     if not parent.env then parent.env = {} end
 
     parent.env.done = require 'busted.done'.new(function()
-      busted.publish({ 'test', 'end' }, it, parent, true)
+      busted.publish({ 'test', 'end' }, it, parent, 'success')
       if finally then busted.safe('finally', finally, it) end
       dexecAll('after_each', parent, true)
     end)
