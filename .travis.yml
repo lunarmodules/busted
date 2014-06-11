@@ -16,7 +16,7 @@ install:
   - sudo luarocks install copas
   - sudo luarocks install moonscript
 
-script: ./bin/busted.lua spec
+script: ./bin/busted
 
 branches:
   except:
