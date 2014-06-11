@@ -51,13 +51,12 @@ return function(busted, loaders)
     for i, fileName in pairs(fileList) do
       local testFile, getTrace = loadTestFile(busted, fileName, loaders)
 
-      local file = setmetatable({
-        getTrace = getTrace
-      }, {
-        __call = testFile
-      })
-
-      if file then
+      if testFile then
+        local file = setmetatable({
+          getTrace = getTrace
+        }, {
+          __call = testFile
+        })
         busted.executors.file(fileName, file)
       end
     end
