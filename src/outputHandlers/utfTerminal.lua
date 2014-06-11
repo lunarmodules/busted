@@ -4,7 +4,7 @@ local pretty = require 'pl.pretty'
 
 require('busted.languages.en')
 
-return function(options)
+return function(options, busted)
   -- options.language, options.deferPrint, options.suppressPending, options.verbose
   local handler = { }
   local tests = 0
@@ -22,8 +22,23 @@ return function(options)
 
   local startTime, endTime
 
+  local getFullName = function(context)
+    local parent = context.parent
+    local names = { (context.name or context.descriptor) }
+
+    while parent and (parent.name or parent.descriptor) and
+          parent.descriptor ~= 'file' do
+
+      current_context = context.parent
+      table.insert(names, 1, parent.name or parent.descriptor)
+      parent = busted.context.parent(parent)
+    end
+
+    return table.concat(names, ' ')
+  end
+
   local pendingDescription = function(pending)
-    local name = pending.name or ''
+    local name = getFullName(pending)
 
     local string = '\n\n' .. ansicolors('%{yellow}' .. s('output.pending')) .. ' → ' ..
       ansicolors('%{cyan}' .. pending.elementTrace.short_src) .. ' @ ' ..
@@ -37,7 +52,7 @@ return function(options)
     local string =  ansicolors('%{red}' .. s('output.failure')) .. ' → ' ..
     ansicolors('%{cyan}' .. failure.elementTrace.short_src) .. ' @ ' ..
     ansicolors('%{cyan}' .. failure.elementTrace.currentline) ..
-    '\n' .. ansicolors('%{bright}' .. (failure.name or failure.descriptor)) .. '\n'
+    '\n' .. ansicolors('%{bright}' .. getFullName(failure)) .. '\n'
 
     if type(failure.message) == 'string' then
       string = string .. failure.message
@@ -117,7 +132,12 @@ return function(options)
     if not options.suppressPending and not options.deferPrint then
       pendings = pendings + 1
       io.write(pendingString)
-      table.insert(pendingInfos, { name = element.name, elementTrace = element.trace, debug = debug })
+      table.insert(pendingInfos, {
+        name = element.name,
+        elementTrace = element.trace,
+        debug = debug,
+        parent = parent
+      })
     end
   end
 
@@ -161,7 +181,8 @@ return function(options)
       name = element.name,
       descriptor = element.descriptor,
       message = message,
-      debug = debug
+      debug = debug,
+      parent = parent
     })
   end
 
