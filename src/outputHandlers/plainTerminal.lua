@@ -1,4 +1,3 @@
-local ansicolors = require 'ansicolors'
 local s = require 'say'
 local pretty = require 'pl.pretty'
 
@@ -12,9 +11,9 @@ return function(options, busted)
   local failures = 0
   local pendings = 0
 
-  local successString =  ansicolors('%{green}●')
-  local failureString =  ansicolors('%{red}●')
-  local pendingString = ansicolors('%{yellow}●')
+  local successString =  '+'
+  local failureString =  '-'
+  local pendingString = '.'
 
   local failureInfos = { }
   local pendingInfos = { }
@@ -39,19 +38,19 @@ return function(options, busted)
   local pendingDescription = function(pending)
     local name = getFullName(pending)
 
-    local string = '\n\n' .. ansicolors('%{yellow}' .. s('output.pending')) .. ' → ' ..
-      ansicolors('%{cyan}' .. pending.elementTrace.short_src) .. ' @ ' ..
-      ansicolors('%{cyan}' .. pending.elementTrace.currentline)  ..
-      '\n' .. ansicolors('%{bright}' .. name)
+    local string = '\n\n' .. s('output.pending') .. ': ' ..
+      pending.elementTrace.short_src .. ' @ ' ..
+      pending.elementTrace.currentline  ..
+      '\n' .. name
 
     return string
   end
 
   local failureDescription = function(failure)
-    local string =  ansicolors('%{red}' .. s('output.failure')) .. ' → ' ..
-    ansicolors('%{cyan}' .. failure.elementTrace.short_src) .. ' @ ' ..
-    ansicolors('%{cyan}' .. failure.elementTrace.currentline) ..
-    '\n' .. ansicolors('%{bright}' .. getFullName(failure)) .. '\n\n'
+    local string =  s('output.failure') .. ': ' ..
+    failure.elementTrace.short_src .. ' @ ' ..
+    failure.elementTrace.currentline ..
+    '\n' .. getFullName(failure) .. '\n\n'
 
     if type(failure.message) == 'string' then
       string = string .. failure.message
@@ -93,10 +92,10 @@ return function(options, busted)
 
     local formattedTime = ('%.6f'):format(ms):gsub('([0-9])0+$', '%1')
 
-    return ansicolors('%{green}' .. successes) .. ' ' .. successString .. ' / ' ..
-      ansicolors('%{red}' .. failures) .. ' ' .. failureString .. ' / ' ..
-      ansicolors('%{yellow}' .. pendings) .. ' ' .. pendingString .. ' : ' ..
-      ansicolors('%{bright}' .. formattedTime) .. ' ' .. s('output.seconds')
+    return successes .. ' ' .. successString .. ' / ' ..
+      failures .. ' ' .. failureString .. ' / ' ..
+      pendings .. ' ' .. pendingString .. ' : ' ..
+      formattedTime .. ' ' .. s('output.seconds')
   end
 
   handler.testStart = function(name, parent)
