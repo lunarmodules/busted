@@ -265,7 +265,7 @@ describe("testing the done callback with tokens", function()
     done:wait("1", "2")
     assert.has_error(function() done("2") end)     -- different order
     assert.has_no_error(function() done("1") end)
-    assert.has_no_error(function() done("2") end)  
+    assert.has_no_error(function() done("2") end)
     done.done_cb:revert() -- revert so test can complete
   end)
 
