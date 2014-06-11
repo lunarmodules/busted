@@ -48,7 +48,8 @@ build = {
     ['busted.modules.files.terra']            = 'src/modules/files/terra.lua',
 
     ['busted.outputHandlers.utfTerminal']    = 'src/outputHandlers/utfTerminal.lua',
-    ['busted.outputHandlers.plainTerminal']    = 'src/outputHandlers/plainTerminal.lua',
+    ['busted.outputHandlers.plainTerminal']  = 'src/outputHandlers/plainTerminal.lua',
+    ['busted.outputHandlers.TAP']            = 'src/outputHandlers/TAP.lua',
 
     ['busted.languages.en']                   = 'src/languages/en.lua',
     ['busted.languages.ar']                   = 'src/languages/ar.lua',

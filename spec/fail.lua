@@ -1,7 +1,0 @@
-describe("describe", function()
-  describe("nested", function()
-    it("fails", function()
-      assert(false)
-    end)
-  end)
-end)
