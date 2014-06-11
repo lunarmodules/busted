@@ -51,6 +51,7 @@ build = {
     ['busted.outputHandlers.plainTerminal']  = 'src/outputHandlers/plainTerminal.lua',
     ['busted.outputHandlers.TAP']            = 'src/outputHandlers/TAP.lua',
     ['busted.outputHandlers.json']           = 'src/outputHandlers/json.lua',
+    ['busted.outputHandlers.sound']          = 'src/outputHandlers/sound.lua',
 
     ['busted.languages.en']                   = 'src/languages/en.lua',
     ['busted.languages.ar']                   = 'src/languages/ar.lua',

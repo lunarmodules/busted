@@ -129,11 +129,13 @@ busted.subscribe({ 'suite', 'start' }, outputHandler.suiteStart)
 busted.subscribe({ 'suite', 'end' }, outputHandler.suiteEnd)
 busted.subscribe({ 'error' }, outputHandler.error)
 
--- Set up sound
 if cliArgs.s then
-  soundHandler = require 'busted.output.sound'
-  busted.subscribe({ 'suite', 'end' }, function(...) soundHandler:testEnd(...) end)
+  local sound = require 'busted.outputHandlers.sound'(outputHandlerOptions, busted)
+  busted.subscribe({ 'test', 'end' }, sound.testEnd)
+  busted.subscribe({ 'suite', 'end' }, sound.suiteEnd)
+  busted.subscribe({ 'error' }, sound.error)
 end
+
 
 local testFileLoader = require 'busted.modules.test_file_loader'(busted, loaders)
 testFileLoader(rootFile, pattern)

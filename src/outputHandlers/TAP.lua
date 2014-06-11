@@ -1,6 +1,8 @@
 local pretty = require 'pl.pretty'
 
 return function(options, busted)
+  local language = require('busted.languages.' .. options.language)
+
   -- options.language, options.deferPrint, options.suppressPending, options.verbose
   local handler = {}
   local tests = {}
@@ -21,6 +23,7 @@ return function(options, busted)
   end
 
   handler.testStart = function(name, parent)
+    return nil, true
   end
 
   handler.testEnd = function(element, parent, status)
@@ -30,15 +33,20 @@ return function(options, busted)
         success = true
       })
     end
+
+    return nil, true
   end
 
   handler.fileStart = function(name, parent)
+    return nil, true
   end
 
   handler.fileEnd = function(name, parent)
+    return nil, true
   end
 
   handler.suiteStart = function(name, parent)
+    return nil, true
   end
 
   handler.suiteEnd = function(name, parent)
@@ -64,6 +72,8 @@ return function(options, busted)
         print('# ' .. message:gsub('\n', '\n# ' ))
       end
     end
+
+    return nil, true
   end
 
   handler.error = function(element, parent, message, debug)
@@ -73,6 +83,8 @@ return function(options, busted)
       message = message,
       success = false
     })
+
+    return nil, true
   end
 
   return handler

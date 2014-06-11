@@ -22,6 +22,7 @@ return function(options, busted)
   end
 
   handler.testStart = function(name, parent)
+    return nil, true
   end
 
   handler.testEnd = function(element, parent, status)
@@ -30,20 +31,26 @@ return function(options, busted)
       status = status,
       trace = element.trace
     })
-    
+
     print(json.encode(tests[#tests]))
+
+    return nil, true
   end
 
   handler.fileStart = function(name, parent)
+    return nil, true
   end
 
   handler.fileEnd = function(name, parent)
+    return nil, true
   end
 
   handler.suiteStart = function(name, parent)
+    return nil, true
   end
 
   handler.suiteEnd = function(name, parent)
+    return nil, true
   end
 
   handler.error = function(element, parent, message, debug)
@@ -53,6 +60,8 @@ return function(options, busted)
       message = message,
       success = false
     })
+
+    return nil, true
   end
 
   return handler

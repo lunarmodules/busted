@@ -2,9 +2,9 @@ local ansicolors = require 'ansicolors'
 local s = require 'say'
 local pretty = require 'pl.pretty'
 
-require('busted.languages.en')
-
 return function(options, busted)
+  local language = require('busted.languages.' .. options.language)
+
   -- options.language, options.deferPrint, options.suppressPending, options.verbose
   local handler = { }
   local tests = 0
@@ -101,6 +101,7 @@ return function(options, busted)
 
   handler.testStart = function(name, parent)
     tests = tests + 1
+    return nil, true
   end
 
   handler.testEnd = function(element, parent, status, debug)
@@ -127,16 +128,22 @@ return function(options, busted)
       io.write(string)
       io.flush()
     end
+
+    return nil, true
   end
 
   handler.fileStart = function(name, parent)
+    return nil, true
   end
 
   handler.fileEnd = function(name, parent)
+    return nil, true
   end
 
   handler.suiteStart = function(name, parent)
     startTime = os.clock()
+
+    return nil, true
   end
 
   handler.suiteEnd = function(name, parent)
@@ -157,6 +164,8 @@ return function(options, busted)
     for i, err in pairs(failureInfos) do
       print(failureDescription(err))
     end
+
+    return nil, true
   end
 
   handler.error = function(element, parent, message, debug)
@@ -168,6 +177,8 @@ return function(options, busted)
       debug = debug,
       parent = parent
     })
+
+    return nil, true
   end
 
   return handler
