@@ -160,19 +160,15 @@ return function(options, busted)
 
     print(statusString(successes, failures, pendings, endTime - startTime, {}))
 
+    if #pendingInfos > 0 then print('') end
     for i, pending in pairs(pendingInfos) do
       print(pendingDescription(pending))
     end
 
-    if #failureInfos > 0 then
-      print('')
-      print(ansicolors('%{red}Errors:'))
-    end
-
+    if #failureInfos > 0 then print('') end
     for i, err in pairs(failureInfos) do
       print(failureDescription(err))
     end
-
   end
 
   handler.error = function(element, parent, message, debug)
