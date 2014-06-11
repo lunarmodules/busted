@@ -1,4 +1,5 @@
 local pretty = require 'pl.pretty'
+local json = require 'dkjson'
 
 return function(options, busted)
   -- options.language, options.deferPrint, options.suppressPending, options.verbose
@@ -24,12 +25,13 @@ return function(options, busted)
   end
 
   handler.testEnd = function(element, parent, status)
-    if status == 'success' then
-      table.insert(tests, {
-        name = getFullName(element),
-        success = true
-      })
-    end
+    table.insert(tests, {
+      name = getFullName(element),
+      status = status,
+      trace = element.trace
+    })
+    
+    print(json.encode(tests[#tests]))
   end
 
   handler.fileStart = function(name, parent)
@@ -42,28 +44,6 @@ return function(options, busted)
   end
 
   handler.suiteEnd = function(name, parent)
-    print('1..' .. #tests)
-
-    local success = 'ok %u - %s'
-    local failure = 'not ' .. success
-
-    for i,t in pairs(tests) do
-      if t.success then
-        print(success:format(i, t.name))
-      else
-        local message = t.message
-
-        if message == nil then
-          message = 'Nil error'
-        elseif type(message) ~= 'string' then
-          message = pretty.write(message)
-        end
-
-        print(failure:format(i, t.name))
-        print('# ' .. t.elementTrace.short_src .. ' @ ' .. t.elementTrace.currentline)
-        print('# ' .. message:gsub('\n', '\n# ' ))
-      end
-    end
   end
 
   handler.error = function(element, parent, message, debug)
