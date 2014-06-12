@@ -104,6 +104,7 @@ local output = function()
 
     currently_executing = function(test_status, options)
       print(strings[test_status.type](index, test_status, options))
+      io.flush()
       index = index + 1
     end
   }
