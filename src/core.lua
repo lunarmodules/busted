@@ -149,7 +149,7 @@ local load_testfile = function(filename)
   local old_TEST = _TEST
   _TEST = busted._VERSION
 
-  local success, err = pcall(function() 
+  local success, err = pcall(function()
     local chunk,err
     if moon.is_moon(filename) then
       if moon.has_moon then
@@ -174,7 +174,7 @@ local load_testfile = function(filename)
     else
       chunk,err = loadfile(filename)
     end
-    
+
     if not chunk then
       error(err,2)
     end
@@ -231,7 +231,7 @@ busted.step = function(...)
   local do_next
   do_next = function()
     i = i + 1
-    if steps[i] then 
+    if steps[i] then
       return steps[i](do_next) -- tail call to preserve stackspace
     end
   end
@@ -267,7 +267,7 @@ busted.async = function(f)
       test.status.type = 'failure'
       test.status.trace = stack_trace
       test.status.err = err
--- TODO: line below tests 'test.done' to be function, but done may also be a table, callable. Yet no tests failed...      
+-- TODO: line below tests 'test.done' to be function, but done may also be a table, callable. Yet no tests failed...
       assert(type(test.done) == 'function', 'non-test step failed (before/after/etc.):\n'..err)
       test.done()
     end
@@ -327,12 +327,12 @@ local next_test
 next_test = function()
   if #suite.done == #suite.tests     then return end  -- suite is complete
   if suite.started[suite.test_index] then return end  -- current test already started
-    
+
   suite.started[suite.test_index] = true
 
   local this_test = suite.tests[suite.test_index]
   this_test.index = suite.test_index
-  
+
 
   assert(this_test, this_test.index..debug.traceback('', 1))
 
@@ -761,6 +761,10 @@ busted.run_internal_test = function(describe_tests)
   busted.output = output_bak
 
   return statuses
+end
+
+-- serializer
+busted.let = function(name, fn)
 end
 
 -- test runner

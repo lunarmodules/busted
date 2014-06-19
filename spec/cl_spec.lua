@@ -51,7 +51,7 @@ describe("Tests the busted command-line options", function()
       error_started = false
     end
   end)
-  
+
 
   it("tests running with --tags specified", function()
     local success, exitcode
@@ -97,7 +97,7 @@ describe("Tests the busted command-line options", function()
     error_start()
     success, exitcode = execute("busted --pattern=cl_success.lua$ --lang=en")
     assert.is_true(success)
-    assert.is_equal(0, exitcode)  
+    assert.is_equal(0, exitcode)
     success, exitcode = execute("busted --pattern=cl_success --lang=not_found_here")
     assert.is_false(success)
     assert.is_equal(1, exitcode)  -- busted errors out on non-available language
@@ -141,7 +141,7 @@ describe("Tests the busted command-line options", function()
     error_start()
     success, exitcode = execute("busted --pattern=cl_success.lua$ --output=TAP")
     assert.is_true(success)
-    assert.is_equal(0, exitcode)  
+    assert.is_equal(0, exitcode)
     success, exitcode = execute("busted --pattern=cl_two_failures.lua$ --output=not_found_here")
     assert.is_false(success)
     assert.is_equal(3, exitcode)  -- outputter missing, defaults to default outputter +1 error
@@ -169,7 +169,7 @@ describe("Tests failing tests through the commandline", function()
   after_each(function()
     ditch = old_ditch
   end)
-  
+
   it("tests failing setup/before_each/after_each/teardown functions", function()
     local success, exitcode
     error_start()

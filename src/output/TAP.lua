@@ -13,7 +13,7 @@ local output = function()
   local failure_string = function(test_index, test_status)
     return string.format("not ok %d - %s", test_index, test_status.description)
   end
-  
+
   local error_description = function(status, options)
     return "\n\n"..s('output.failure')..": "..
            status.info.short_src.." @ "..

@@ -129,7 +129,7 @@ if args then
       end
     end
   end
-  
+
   -- execute tests
   local status_string, failures = busted(options)
 

@@ -8,7 +8,7 @@ loop.create_timer = function(secs,on_timeout)
     timer = nil
     on_timeout()
   end,secs)
-  
+
   timer:start(ev.Loop.default)
   return {
     stop = function()
