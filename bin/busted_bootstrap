@@ -72,17 +72,31 @@ if args then
 
   if args.coverage then
     local result, luacov = pcall(require, "luacov.runner")
+
     if not result then
       return print("LuaCov not found on the system, try running without --coverage option, or install LuaCov first")
     end
+
+    -- load config file, or if not found the defaults
+    luacov.load_config()
+
+    -- exclude files used by Busted from LuaCov analysis
+    for _, lib in pairs(package.loaded) do      -- exclude entire package.loaded table
+      luacov.excludefile(lib)  
+    end
+    luacov.excludetree("pl.path", true)         -- exclude Penlight tree, make sure optionals are excluded
+    luacov.excludetree("busted.core", true)     -- exclude Busted tree, make sure optionals are excluded
+    luacov.excludetree("luassert.assert", true) -- exclude Busted tree, exclude non-module returning files
+    luacov.excludefile(function() end)          -- define a function here and exclude its file -> this file
+    luacov.excludetree("copas")
+    luacov.excludetree("coxpcall")
+    luacov.excludetree("ansicolors")
+    luacov.excludetree("socket.http", true)
+    luacov.excludetree("moonscript")
+    luacov.excludetree("dkjson")
+    
     -- call it to start
     luacov()
-    -- exclude busted files
-    table.insert(luacov.configuration.exclude, "busted_bootstrap$")
-    table.insert(luacov.configuration.exclude, "busted%.")
-    table.insert(luacov.configuration.exclude, "luassert%.")
-    table.insert(luacov.configuration.exclude, "say%.")
-    table.insert(luacov.configuration.exclude, "pl%.")
   end
 
   if #args.lpath > 0 then
