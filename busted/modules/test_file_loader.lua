@@ -49,15 +49,16 @@ return function(busted, loaders)
     local fileList = getTestFiles(rootFile, pattern)
 
     for i, fileName in pairs(fileList) do
-      local testFile, getTrace = loadTestFile(busted, fileName, loaders)
+      local testFile, getTrace, rewriteMessage = loadTestFile(busted, fileName, loaders)
 
-      local file = setmetatable({
-        getTrace = getTrace
-      }, {
-        __call = testFile
-      })
+      if testFile then
+        local file = setmetatable({
+          getTrace = getTrace,
+          rewriteMessage = rewriteMessage
+        }, {
+          __call = testFile
+        })
 
-      if file then
         busted.executors.file(fileName, file)
       end
     end

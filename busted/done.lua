@@ -5,8 +5,8 @@ M.wait = function(self, ...)
   local tlist = { ... }
 
   for _, token in ipairs(tlist) do
-    if type(token) ~= "string" then
-      error("Wait tokens must be strings. Got "..type(token), 2)
+    if type(token) ~= 'string' then
+      error('Wait tokens must be strings. Got '..type(token), 2)
     end
     table.insert(self.tokens, token)
   end
@@ -29,31 +29,31 @@ M.tokenlist = function(self)
   local list
 
   if #self.tokens_done == 0 then
-    list = "No tokens received."
+    list = 'No tokens received.'
   else
-    list = "Tokens received ("..tostring(#self.tokens_done)..")"
-    local s = ": "
+    list = 'Tokens received ('..tostring(#self.tokens_done)..')'
+    local s = ': '
 
     for _,t in ipairs(self.tokens_done) do
-      list = list .. s .. "'"..t.."'"
-      s = ", "
+      list = list .. s .. '\''..t..'\''
+      s = ', '
     end
 
-    list = list .. "."
+    list = list .. '.'
   end
 
   if #self.tokens == 0 then
-    list = list .. " No more tokens expected."
+    list = list .. ' No more tokens expected.'
   else
-    list = list .. " Tokens not received ("..tostring(#self.tokens)..")"
-    local s = ": "
+    list = list .. ' Tokens not received ('..tostring(#self.tokens)..')'
+    local s = ': '
 
     for _, t in ipairs(self.tokens) do
-      list = list .. s .. "'"..t.."'"
-      s = ", "
+      list = list .. s .. '\''..t..'\''
+      s = ', '
     end
 
-    list = list .. "."
+    list = list .. '.'
   end
 
   return list
@@ -63,8 +63,8 @@ end
 M.done = function(self, ...) self:_done(...) end  -- extra wrapper for same error level constant as __call method
 M._done = function(self, token)
   if token then
-    if type(token) ~= "string" then
-      error("Wait tokens must be strings. Got "..type(token), 3)
+    if type(token) ~= 'string' then
+      error('Wait tokens must be strings. Got '..type(token), 3)
     end
 
     if self.ordered then
@@ -73,9 +73,9 @@ M._done = function(self, token)
         table.insert(self.tokens_done, token)
       else
         if self.tokens[1] then
-          error(("Bad token, expected '%s' got '%s'. %s"):format(self.tokens[1], token, self:tokenlist()), 3)
+          error(('Bad token, expected \'%s\' got \'%s\'. %s'):format(self.tokens[1], token, self:tokenlist()), 3)
         else
-          error(("Bad token (no more tokens expected) got '%s'. %s"):format(token, self:tokenlist()), 3)
+          error(('Bad token (no more tokens expected) got \'%s\'. %s'):format(token, self:tokenlist()), 3)
         end
       end
     else
@@ -90,7 +90,7 @@ M._done = function(self, token)
       end
 
       if token then
-        error(("Unknown token '%s'. %s"):format(token, self:tokenlist()), 3)
+        error(('Unknown token \'%s\'. %s'):format(token, self:tokenlist()), 3)
       end
     end
   end

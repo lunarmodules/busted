@@ -1,6 +1,8 @@
-local moonscript = require 'moonscript'
-local line_tables = require 'moonscript.line_tables'
-local util = require 'moonscript.util'
+local utils = require 'pl.utils'
+
+local ok, moonscript, line_tables, util = pcall(function()
+  return require 'moonscript', require 'moonscript.line_tables', require 'moonscript.util'
+end)
 
 local _cache = {}
 
@@ -8,24 +10,29 @@ local _cache = {}
 local lookup_line = function(fname, pos)
   if not _cache[fname] then
     local f = io.open(fname)
-    _cache[fname] = f:read("*a")
+    _cache[fname] = f:read('*a')
     f:close()
   end
+
   return util.pos_to_line(_cache[fname], pos)
 end
 
 local rewrite_linenumber = function(fname, lineno)
-  local tbl = line_tables[fname]
+  local p = require 'pl.pretty'
+
+  local tbl = line_tables['@' .. fname]
   if fname and tbl then
-    for i = lineno,0,-1 do
+    for i = lineno, 0 ,-1 do
       if tbl[i] then
         return lookup_line(fname, tbl[i])
       end
     end
   end
+
+  return lineno
 end
 
-local rewrite_traceback = function(trace)
+local rewrite_traceback = function(fname, trace)
   local lines = {}
   local j = 0
 
@@ -56,18 +63,34 @@ end
 local ret = {}
 
 local getTrace =  function(filename, info)
-  info.traceback = rewrite_traceback(info.traceback)
-  info.linedefined = rewrite_linenumber(filename, info.currentline)
+  local index = info.traceback:find('\n%s*%[C]')
+  info.traceback = info.traceback:sub(1, index)
 
-  -- make short_src consistent with lua
-  info.short_src = info.source
+  info.traceback = rewrite_traceback(filename, info.traceback)
+  info.linedefined = rewrite_linenumber(filename, info.linedefined)
+  info.currentline = rewrite_linenumber(filename, info.currentline)
 
   return info
 end
 
+local rewriteMessage = function(filename, message)
+  local split = utils.split(message, ':', true, 3)
+
+  if #split < 3 then
+    return message
+  end
+
+  local filename = split[1]
+  local line = split[2]
+
+  split[2] = rewrite_linenumber(split[1], split[2])
+
+  return table.concat(split, ':')
+end
+
 ret.match = function(busted, filename)
   local path, name, ext = filename:match('(.-)([^\\/\\\\]-%.?([^%.\\/]*))$')
-  if ext == 'moon' then
+  if ok and ext == 'moon' then
     return true
   end
   return false
@@ -89,7 +112,7 @@ ret.load = function(busted, filename)
     busted.publish({ 'error', 'file' }, filename, nil, nil, err)
   end
 
-  return file, getTrace
+  return file, getTrace, rewriteMessage
 end
 
 return ret

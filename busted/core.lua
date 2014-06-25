@@ -12,14 +12,21 @@ return function()
   busted.executors = {}
   local executors = {}
 
-  busted.getTrace = function(element, level, name)
+  busted.getTrace = function(element, level, msg)
     level = level or  3
 
     local info = debug.getinfo(level, 'Sl')
-    info.traceback = debug.traceback(0)
+    info.traceback = debug.traceback('', level)
+    info.message = msg
 
-    local file = busted.getFile(element, name)
-    return file.getTrace(name, info)
+    local file = busted.getFile(element)
+    return file.getTrace(file.name, info)
+  end
+
+  busted.rewriteMessage = function(element, message)
+    local file = busted.getFile(element)
+
+    return file.rewriteMessage and file.rewriteMessage(file.name, message) or message
   end
 
   function busted.publish(...)
@@ -30,7 +37,7 @@ return function()
     return mediator:subscribe(...)
   end
 
-  function busted.getFile(element, name)
+  function busted.getFile(element)
     local current, parent = element, busted.context.parent(element)
 
     while parent do
@@ -38,14 +45,16 @@ return function()
         local file = parent.file[1]
         return {
           name = file.name,
-          getTrace = file.run.getTrace
+          getTrace = file.run.getTrace,
+          rewriteMessage = file.run.rewriteMessage
         }
       end
 
       if parent.descriptor == 'file' then
         return {
           name = parent.name,
-          getTrace = parent.run.getTrace
+          getTrace = parent.run.getTrace,
+          rewriteMessage = parent.run.rewriteMessage
         }
       end
 
@@ -65,11 +74,11 @@ return function()
     local trace, message
 
     local ret = { xpcall(run, function(msg)
-      message = msg
-      trace = busted.getTrace(element, 3)
+      message = busted.rewriteMessage(element, msg)
+      trace = busted.getTrace(element, 3, msg)
     end) }
 
-    if message then
+    if not ret[1] then
       busted.publish({ 'error', descriptor }, element, busted.context.parent(element), message, trace)
     end
 

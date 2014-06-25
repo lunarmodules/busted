@@ -1,4 +1,4 @@
-require 'busted.compatibility'
+local setfenv = require 'busted.compatibility'.setfenv
 
 return function(context)
 
