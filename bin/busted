@@ -130,7 +130,7 @@ local outputHandlerOptions = {
   deferPrint = cliArgs['defer-print']
 }
 
-outputHandler = outputHandlerLoader(cliArgs.output, cliArgs.o, outputHandlerOptions)
+outputHandler = outputHandlerLoader(cliArgs.output, cliArgs.o, outputHandlerOptions, busted)
 
 busted.subscribe({ 'test', 'start' }, outputHandler.testStart)
 busted.subscribe({ 'test', 'end' }, outputHandler.testEnd)

@@ -37,7 +37,7 @@ local execute = function(cmd)
 end
 
 
-pending('Tests the busted command-line options', function()
+it('Tests the busted command-line options', function()
 
   setup(function()
     require('pl')
