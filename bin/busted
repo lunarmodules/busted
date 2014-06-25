@@ -53,6 +53,17 @@ if cliArgs.version then
   return print(busted.version)
 end
 
+local tags = {}
+local excludeTags = {}
+
+if cliArgs.t ~= '' then
+  tags = utils.split(cliArgs.t, ',')
+end
+
+if cliArgs['exclude-tags'] ~= '' then
+  excludeTags = utils.split(cliArgs['exclude-tags'], ',')
+end
+
 -- Load current working directory
 local fpath = cliArgs.d
 
@@ -102,8 +113,8 @@ end
 -- and `options.excluded_tags` because it does not make sense for the
 -- user to tell Busted to include and exclude the same tests at the
 -- same time.
-for _, excluded in pairs(utils.split(cliArgs['exclude-tags'], ',')) do
-  for _, included in pairs(options.tags) do
+for _, excluded in pairs(excludeTags) do
+  for _, included in pairs(tags) do
     if excluded == included then
       print('Cannot use --tags and --exclude-tags for the same tags')
       os.exit(1)
@@ -127,13 +138,40 @@ busted.subscribe({ 'file', 'start' }, outputHandler.fileStart)
 busted.subscribe({ 'file', 'end' }, outputHandler.fileEnd)
 busted.subscribe({ 'suite', 'start' }, outputHandler.suiteStart)
 busted.subscribe({ 'suite', 'end' }, outputHandler.suiteEnd)
-busted.subscribe({ 'pending' }, outputHandler.pending)
 busted.subscribe({ 'error' }, outputHandler.error)
 
--- Set up sound
 if cliArgs.s then
-  soundHandler = require 'busted.output.sound'
-  busted.subscribe({ 'suite', 'end' }, function(...) soundHandler:testEnd(...) end)
+  local sound = require 'busted.outputHandlers.sound'(outputHandlerOptions, busted)
+  busted.subscribe({ 'test', 'end' }, sound.testEnd)
+  busted.subscribe({ 'suite', 'end' }, sound.suiteEnd)
+  busted.subscribe({ 'error' }, sound.error)
+end
+
+local checkTag = function(name, tag, modifier)
+  local found = name:find('#' .. tag)
+  return (modifier == (found ~= nil))
+end
+
+local checkTags = function(name)
+  for i, tag in pairs(tags) do
+    if not checkTag(name, tag, true) then
+      return nil, false
+    end
+  end
+
+  for i, tag in pairs(excludeTags) do
+    if not checkTag(name, tag, false) then
+      return nil, false
+    end
+  end
+
+  return nil, true
+end
+
+if cliArgs.t ~= '' or cliArgs['exclude-tags'] ~= '' then
+  -- Watch for tags
+  busted.subscribe({ 'register', 'it' }, checkTags, { priority = 1 })
+  busted.subscribe({ 'register', 'pending' }, checkTags, { priority = 1 })
 end
 
 local testFileLoader = require 'busted.modules.test_file_loader'(busted, loaders)
