@@ -26,28 +26,30 @@
       </header>
     </div>
 
-    <div class="navbar navbar-fixed-top">
+    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
       <div class="container">
-        <a class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </a>
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
 
-        <a class="navbar-brand" href="http://olivinelabs.com/busted">Busted</a>
+          <a class="navbar-brand" href="http://olivinelabs.com/busted">Busted</a>
+        </div>
 
-        <div class="nav-collapse collapse">
-          <nav>
-            <ul class="nav navbar-nav">
-              <li><a href="https://github.com/Olivine-Labs/busted"><span class="icon icon-folder-open icon-white"></span> View On <strong>GitHub</strong> @ <small>Olivine-Labs/busted</small></a></li>
-              <li><a href="https://github.com/Olivine-Labs/busted/zipball/master"><span class="icon icon-download-alt icon-white"></span> <strong>ZIP File</strong></a></li>
-              <li><a href="https://github.com/Olivine-Labs/busted/tarball/master"><span class="icon icon-download-alt icon-white"></span> <strong>TAR Ball</strong></a></li>
-              <li><a href="#usage"><strong>Install:</strong> luarocks install busted</a></li>
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav">
+              <li><a href="https://github.com/Olivine-Labs/busted"><span class="glyphicon glyphicon-folder-open glyphicon-white"></span> View On <strong>GitHub</strong> @ <small>Olivine-Labs/busted</small></a></li>
+              <li><a href="https://github.com/Olivine-Labs/busted/zipball/master"><span class="glyphicon glyphicon-download-alt glyphicon-white"></span> <strong>ZIP File</strong></a></li>
+              <li><a href="https://github.com/Olivine-Labs/busted/tarball/master"><span class="glyphicon glyphicon-download-alt glyphicon-white"></span> <strong>TAR Ball</strong></a></li>
+              <li><a href="http://luarocks.org" target="_blank"><strong>Install:</strong> luarocks install busted</a></li>
             </ul>
           </nav>
         </div>
       </div>
-    </div>
+    </nav>
 
     <div class="container">
       <div class="row">
@@ -63,15 +65,16 @@
             <li><a href="#output-types"><i class="icon-chevron-right"></i>Output Types</a></li>
             <li><a href="#moonscript"><i class="icon-chevron-right"></i>Moonscript</a></li>
             <li><a href="#language-packs"><i class="icon-chevron-right"></i>i18n</a></li>
+            <li><a href="#shell-completion"><i class="icon-chevron-right"></i>Shell Completion</a></li>
             <li><a href="#contributing"><i class="icon-chevron-right"></i>Contributing</a></li>
             <li>
               <a>
                 <h4>Status</h4>
 
-                <p>Version: <strong>1.11.0</strong></p>
+                <p>Version: <strong>2.0.rc0</strong></p>
 
                 <p>
-                  <a href="http://travis-ci.org/#!/Olivine-Labs/busted/builds"><img src="https://github-camo.global.ssl.fastly.net/5c9ddc5d7b57bc68f2b2c26d8a7ad81366aa80db/68747470733a2f2f7365637572652e7472617669732d63692e6f72672f4f6c6976696e652d4c6162732f6275737465642e706e67" alt="travis-ci status" data-canonical-src="https://secure.travis-ci.org/Olivine-Labs/busted.png" style="max-width:100%;"></a>
+                  <a href="http://travis-ci.org/#!/Olivine-Labs/busted/builds"><img src="https://secure.travis-ci.org/Olivine-Labs/busted.png" alt="travis-ci status" data-canonical-src="https://secure.travis-ci.org/Olivine-Labs/busted.png" style="max-width:100%;"></a>
                 </p>
               </a>
             </li>
@@ -86,7 +89,7 @@
               busted is a unit testing framework with a focus on being
               <strong>easy to use</strong>. busted works with 
               <strong>lua &gt;= 5.1</strong>, <strong>moonscript</strong>,
-              and <strong>LuaJIT &gt;= 2.0.0 </strong>
+              <strong>terra</strong>, and <strong>LuaJIT &gt;= 2.0.0</strong>.
             </p>
 
             <p>
@@ -319,13 +322,26 @@ end)
 end)
 </code></pre>
 
-          <pre>><code>busted ./test.lua --tags="one" --exclude-tags="two"</code></pre>
+          <pre><code>busted ./test.lua --tags="one" --exclude-tags="two"</code></pre>
           <p>Both tags refer to the same test but busted will not run it since
             <code>--exclude-tags</code> takes precedence.</p>
           <pre><code>busted ./test.lua --tags="one" --exclude-tags="one"</code></pre>
           <p>It is ok for different tags to refer to the same tests, but using the
             exact same tag name with <code>--tags</code> and <code>--exclude-tags</code>
             at the same time is an error.</p>
+
+          <h4>Randomizing Tests</h4>
+          <p>
+            You can cause nested tests and describes to be randomized by calling
+            <code>randomize()</code>.
+          </p>
+<pre><code data-language="lua">describe("a test #tag", function()
+  randomize()
+
+  it("runs a test", function() end)
+  it("runs another test", function() end)
+end)
+</code></pre>
 
           <h4 id="it">It: Defining tests</h4>
           <p>
@@ -685,37 +701,23 @@ end)
           <p>
             Sometimes you need to write tests that work with asynchronous calls
             such as when dealing with HTTP requests, threads, or database
-            calls.
+            calls. Call <code>async()</code> at the top of an <code>it</code>
+            to specify that your test should wait, and call <code>done()</code>
+            to complete a test.
           </p>
 
-<pre><code data-language="lua">-- you will need libev to run the following example which uses 'ev'
-local ev = require'ev'
+<pre><code data-language="lua">
+describe('API integration tests', function()
+  it('loads user data', function()
+    async()
 
--- `asynchronous_call` is function to act as our asynchronous, time-taking test. In
--- reality, you'll call out to your asynchronous code instead.
-local asynchronous_call = function(on_timeout)
-  ev.Timer.new(function()
-    on_timeout()
-  end,0.01):start(ev.Loop.default)
-end
+    local user_id = 1
 
--- specify the loop framework ('copas' or 'ev')
-setloop('ev')
-
-describe('Some async stuff', function()
-
-  -- The callbacks for `setup`, `teardown`, `before_each`, `after_each` and `it` all
-  -- get a "done" parameter. This parameter is a callback function that must be called
-  -- to report the test as succesful.
-  it('make some async test',function(done)  -- `done` callback provided by busted
-
-    -- The asynchroneous callback itself must be wrapped in `async`, this will notify busted
-    -- in case of a failure. If it fails outside the callback the test will hang forever
-    -- (timeouts have not been implemented yet).
-    asynchronous_call(async(function()      -- wrap in `async` to catch any errors
-      assert.is_true(true)                  -- an error inside `async` will be reported as a failure
-      done()                                -- calling `done` will be reported as success
-    end))
+    makeAPICall(function(data)
+      -- do things
+      assert.are.equal(user_id, data.id)
+      done()
+    )
   end)
 end)
 </code></pre>
@@ -845,7 +847,9 @@ describe "moonscript tests", ->
     assert.error(-> assert.are.equal false, true)
 
 describe "async moonscript tests", ->
-  it "runs async tests", async, (done) ->
+  it "runs async tests", () ->
+    async()
+
     some_asynchronous_call(guard ->
       assert.is_true true
       done()
@@ -881,6 +885,15 @@ describe "async moonscript tests", ->
           </p>
         </section>
 
+        <section class="division" id="shell-completion">
+          <h2>Shell Completion</h2>
+          <p>
+            You can download shell completion packs from the
+            <a href="https://github.com/Olivine-Labs/busted/tree/master/completions" target="_blank">./completions</a>
+            folder of the Github repository.
+          </p>
+        </section>
+
         <section class="division" id="contributing">
           <h2>Contributing</h2>
           <p>
@@ -892,24 +905,10 @@ describe "async moonscript tests", ->
             to see if you can help.
           </p>
 
-          <h4>Contributors</h4>
-          <ul>
-            <li><a href="https://github.com/DorianGray">DorianGray</a></li>
-            <li><a href="https://github.com/ajacksified">ajacksified</a></li>
-            <li><a href="https://github.com/Tieske">Tieske</a></li>
-            <li><a href="https://github.com/a-b">a-b</a></li>
-            <li><a href="https://github.com/Yonaba">Yonaba</a></li>
-            <li><a href="https://github.com/nilnor">nilnor</a></li>
-            <li><a href="https://github.com/kikito">kikito</a></li>
-            <li><a href="https://github.com/faulkner">faulkner</a></li>
-            <li><a href="https://github.com/Eloff">Eloff</a></li>
-            <li><a href="https://github.com/lipp">lipp</a></li>
-            <li><a href="https://github.com/leafo">leafo</a></li>
-            <li><a href="https://github.com/ejmr">emjr</a></li>
-            <li>bokko</li>
-          </ul>
-
-          <p>And many thanks to the libraries that help make busted possible!</p>
+          <p>
+            busted has a <a href="https://github.com/Olivine-Labs/busted/graphs/contributors" target="_blank">big list of contributors</a>
+            and we welcome contributions from all!
+          </p>
         </section>
       </div>
     </div>
