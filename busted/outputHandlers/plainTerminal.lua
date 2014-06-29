@@ -46,10 +46,16 @@ return function(options, busted)
   end
 
   local failureDescription = function(failure)
-    local string =  s('output.failure') .. ': ' ..
-    failure.elementTrace.short_src .. ' @ ' ..
-    failure.elementTrace.currentline ..
-    '\n' .. getFullName(failure) .. '\n\n'
+    local string =  s('output.failure') .. ': '
+
+    if failure.elementTrace then
+      string = string .. failure.elementTrace.short_src .. ' @ ' ..
+                failure.elementTrace.currentline
+    else
+      string = string .. failure.debug
+    end
+
+    string = string .. '\n' .. getFullName(failure) .. '\n\n'
 
     if type(failure.message) == 'string' then
       string = string .. failure.message

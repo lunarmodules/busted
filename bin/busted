@@ -177,8 +177,29 @@ end
 local testFileLoader = require 'busted.modules.test_file_loader'(busted, loaders)
 testFileLoader(rootFile, pattern)
 
+-- watch for test errors
+local failures = 0
+local errors = 0
+
+busted.subscribe({ 'error' }, function()
+  errors = errors + 1
+end)
+
+busted.subscribe({ 'test', 'end' }, function(element, parent, status)
+  if status == 'failure' then
+    failures = failures + 1
+  end
+end)
+
 busted.publish({ 'suite', 'start' })
 busted.execute()
 busted.publish({ 'suite', 'end' })
 
-os.exit(failures)
+local exit = 0
+if failures > 0 then
+  exit = failures
+elseif errors > 0 then
+  exit = errors
+end
+
+os.exit(exit)

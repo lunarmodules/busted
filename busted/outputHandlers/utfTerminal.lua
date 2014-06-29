@@ -48,10 +48,17 @@ return function(options, busted)
   end
 
   local failureDescription = function(failure)
-    local string =  ansicolors('%{red}' .. s('output.failure')) .. ' → ' ..
-    ansicolors('%{cyan}' .. failure.elementTrace.short_src) .. ' @ ' ..
-    ansicolors('%{cyan}' .. failure.elementTrace.currentline) ..
-    '\n' .. ansicolors('%{bright}' .. getFullName(failure)) .. '\n'
+    local string =  ansicolors('%{red}' .. s('output.failure')) .. ' → '
+
+    if failure.elementTrace then
+      string = string ..
+          ansicolors('%{cyan}' .. failure.elementTrace.short_src) .. ' @ ' ..
+          ansicolors('%{cyan}' .. failure.elementTrace.currentline)
+    else
+      string = string .. failure.debug
+    end
+
+    string = string .. '\n' .. ansicolors('%{bright}' .. getFullName(failure)) .. '\n'
 
     if type(failure.message) == 'string' then
       string = string .. failure.message

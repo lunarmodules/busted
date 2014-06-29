@@ -55,7 +55,7 @@ return function(options, busted)
 
   handler.error = function(element, parent, message, debug)
     table.insert(tests, {
-      elementTrace = element.trace,
+      elementTrace = element.trace or debug,
       name = getFullName(element),
       message = message,
       success = false
