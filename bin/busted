@@ -196,10 +196,8 @@ busted.execute()
 busted.publish({ 'suite', 'end' })
 
 local exit = 0
-if failures > 0 then
-  exit = failures
-elseif errors > 0 then
-  exit = errors
+if failures > 0 or errors > 0 then
+  exit = 1
 end
 
 os.exit(exit)
