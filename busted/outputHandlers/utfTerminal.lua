@@ -54,8 +54,10 @@ return function(options, busted)
       string = string ..
           ansicolors('%{cyan}' .. failure.elementTrace.short_src) .. ' @ ' ..
           ansicolors('%{cyan}' .. failure.elementTrace.currentline)
-    else
+    elseif type(failure.debug) == 'string' then
       string = string .. failure.debug
+    else
+      string = string .. pretty.write(failure.debug)
     end
 
     string = string .. '\n' .. ansicolors('%{bright}' .. getFullName(failure)) .. '\n'
