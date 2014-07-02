@@ -94,7 +94,6 @@ return function(busted)
   end
 
   local pending = function(pending)
-    local p = require 'pl.pretty'
     local trace = busted.getTrace(pending, 3)
     busted.publish({ 'test', 'end' }, pending, busted.context.parent(pending), 'pending', trace)
   end

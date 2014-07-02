@@ -1,8 +1,8 @@
 local pretty = require 'pl.pretty'
 
 return function(options, busted)
+  local handler = require 'busted.outputHandlers.base'(busted)
   local language = require('busted.languages.' .. options.language)
-  local handler = {}
 
   local isFailure = false
 
@@ -28,8 +28,6 @@ return function(options, busted)
       sayer_pre = 'say '
       sayer_post = ''
     end
-
-    math.randomseed(os.time())
 
     if isFailure then
       messages = language.failure_messages

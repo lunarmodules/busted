@@ -2,10 +2,9 @@ local xml = require 'pl.xml'
 local hostname = assert(io.popen('uname -n')):read('*l')
 
 return function(options, busted)
-  -- options.language, options.deferPrint, options.suppressPending, options.verbose
+  local handler = require 'busted.outputHandlers.base'(busted)
   local node
   local startTime, endTime
-  local handler = {}
 
   local getFullName = function(context)
     local parent = context.parent
@@ -22,10 +21,6 @@ return function(options, busted)
     return table.concat(names, ' ')
   end
 
-  handler.testStart = function(name, parent)
-    return nil, true
-  end
-
   handler.testEnd = function(element, parent, status)
     node.attr.tests = node.attr.tests + 1
 
@@ -38,14 +33,6 @@ return function(options, busted)
       node.attr.failures = node.attr.failures + 1
     end
 
-    return nil, true
-  end
-
-  handler.fileStart = function(name, parent)
-    return nil, true
-  end
-
-  handler.fileEnd = function(name, parent)
     return nil, true
   end
 

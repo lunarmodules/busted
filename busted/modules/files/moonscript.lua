@@ -18,9 +18,7 @@ local lookup_line = function(fname, pos)
 end
 
 local rewrite_linenumber = function(fname, lineno)
-  local p = require 'pl.pretty'
-
-  local tbl = line_tables['@' .. fname]
+  local tbl = line_tables[fname]
   if fname and tbl then
     for i = lineno, 0 ,-1 do
       if tbl[i] then
@@ -63,9 +61,13 @@ end
 local ret = {}
 
 local getTrace =  function(filename, info)
+  local p = require 'pl.pretty'
   local index = info.traceback:find('\n%s*%[C]')
   info.traceback = info.traceback:sub(1, index)
 
+  -- sometimes moonscript gives files like [string "./filename.moon"], so
+  -- we'll chop it up to only get the filename.
+  info.short_src = info.short_src:match('string "(.+)"') or info.short_src
   info.traceback = rewrite_traceback(filename, info.traceback)
   info.linedefined = rewrite_linenumber(filename, info.linedefined)
   info.currentline = rewrite_linenumber(filename, info.currentline)
@@ -82,10 +84,11 @@ local rewriteMessage = function(filename, message)
 
   local filename = split[1]
   local line = split[2]
+  filename = filename:match('string "(.+)"')
 
-  split[2] = rewrite_linenumber(split[1], split[2])
+  line = rewrite_linenumber(filename, line)
 
-  return table.concat(split, ':')
+  return filename .. ':' .. tostring(line)
 end
 
 ret.match = function(busted, filename)

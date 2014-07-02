@@ -47,6 +47,7 @@ build = {
     ['busted.modules.files.moonscript']       = 'busted/modules/files/moonscript.lua',
     ['busted.modules.files.terra']            = 'busted/modules/files/terra.lua',
 
+    ['busted.outputHandlers.base']            = 'busted/outputHandlers/base.lua',
     ['busted.outputHandlers.utfTerminal']     = 'busted/outputHandlers/utfTerminal.lua',
     ['busted.outputHandlers.plainTerminal']   = 'busted/outputHandlers/plainTerminal.lua',
     ['busted.outputHandlers.TAP']             = 'busted/outputHandlers/TAP.lua',

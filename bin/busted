@@ -131,14 +131,7 @@ local outputHandlerOptions = {
 }
 
 outputHandler = outputHandlerLoader(cliArgs.output, cliArgs.o, outputHandlerOptions, busted)
-
-busted.subscribe({ 'test', 'start' }, outputHandler.testStart)
-busted.subscribe({ 'test', 'end' }, outputHandler.testEnd)
-busted.subscribe({ 'file', 'start' }, outputHandler.fileStart)
-busted.subscribe({ 'file', 'end' }, outputHandler.fileEnd)
-busted.subscribe({ 'suite', 'start' }, outputHandler.suiteStart)
-busted.subscribe({ 'suite', 'end' }, outputHandler.suiteEnd)
-busted.subscribe({ 'error' }, outputHandler.error)
+outputHandler:subscribe(busted, outputHandlerOptions)
 
 if cliArgs.s then
   local sound = require 'busted.outputHandlers.sound'(outputHandlerOptions, busted)
