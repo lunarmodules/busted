@@ -1,7 +1,17 @@
 return function(busted)
-  local handler = { }
+  local handler = {
+    successes = {},
+    successesCount = 0,
+    pendings = {},
+    pendingsCount = 0,
+    failures = {},
+    failuresCount = 0,
+    errors = {},
+    errorsCount = 0,
+    inProgress = {}
+  }
 
-  handler.subscribe = function(handler, busted, options)
+  handler.subscribe = function(handler, options)
     require('busted.languages.en')
 
     if options.language ~= 'en' then
@@ -15,17 +25,6 @@ return function(busted)
     busted.subscribe({ 'error', 'it' }, handler.baseError)
     busted.subscribe({ 'error', 'file' }, handler.baseError)
     busted.subscribe({ 'error', 'pending' }, handler.baseError)
-
-    busted.subscribe({ 'test', 'start' }, handler.testStart)
-    busted.subscribe({ 'test', 'end' }, handler.testEnd)
-    busted.subscribe({ 'file', 'start' }, handler.fileStart)
-    busted.subscribe({ 'file', 'end' }, handler.fileEnd)
-    busted.subscribe({ 'suite', 'start' }, handler.suiteStart)
-    busted.subscribe({ 'suite', 'end' }, handler.suiteEnd)
-    busted.subscribe({ 'error', 'file' }, handler.error)
-    busted.subscribe({ 'error', 'pending' }, handler.error)
-    busted.subscribe({ 'error', 'describe' }, handler.failure)
-    busted.subscribe({ 'error', 'it' }, handler.failure)
   end
 
   handler.getFullName = function(context)
@@ -54,20 +53,6 @@ return function(busted)
 
     return formatted
   end
-
-  handler.successes = {}
-  handler.successesCount = 0
-
-  handler.pendings = {}
-  handler.pendingsCount = 0
-
-  handler.failures = {}
-  handler.failuresCount = 0
-
-  handler.errors = {}
-  handler.errorsCount = 0
-
-  handler.inProgress = {}
 
   handler.getDuration = function()
     if not handler.endTime or not handler.startTime then
@@ -129,40 +114,6 @@ return function(busted)
       table.insert(handler.errors, handler.format(element, parent, message, debug, true))
     end
 
-    return nil, true
-  end
-
-  -- Overwrite these
-
-  handler.testStart = function(name, parent)
-    return nil, true
-  end
-
-  handler.testEnd = function(element, parent, status)
-    return nil, true
-  end
-
-  handler.fileStart = function(name, parent)
-    return nil, true
-  end
-
-  handler.fileEnd = function(name, parent)
-    return nil, true
-  end
-
-  handler.suiteStart = function(name, parent)
-    return nil, true
-  end
-
-  handler.suiteEnd = function(name, parent)
-    return nil, true
-  end
-
-  handler.failure = function(element, parent, message, debug)
-    return nil, true
-  end
-
-  handler.error = function(element, parent, message, debug)
     return nil, true
   end
 

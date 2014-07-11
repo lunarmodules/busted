@@ -4,22 +4,6 @@ local hostname = assert(io.popen('uname -n')):read('*l')
 return function(options, busted)
   local handler = require 'busted.outputHandlers.base'(busted)
   local node
-  local startTime, endTime
-
-  local getFullName = function(context)
-    local parent = context.parent
-    local names = { (context.name or context.descriptor) }
-
-    while parent and (parent.name or parent.descriptor) and
-          parent.descriptor ~= 'file' do
-
-      current_context = context.parent
-      table.insert(names, 1, parent.name or parent.descriptor)
-      parent = busted.context.parent(parent)
-    end
-
-    return table.concat(names, ' ')
-  end
 
   handler.testEnd = function(element, parent, status)
     node.attr.tests = node.attr.tests + 1
@@ -37,8 +21,6 @@ return function(options, busted)
   end
 
   handler.suiteStart = function(name, parent)
-    startTime = os.clock()
-
     node = xml.new('testsuite', {
       tests = 0,
       errors = 0,
@@ -53,9 +35,7 @@ return function(options, busted)
   end
 
   handler.suiteEnd = function(name, parent)
-    endTime = os.clock()
-
-    local ms = (endTime - startTime) * 1000
+    local ms = handler.getDuration()
     node.attr.time = ms
 
     print(xml.tostring(node, '', '\t'))
@@ -74,6 +54,11 @@ return function(options, busted)
 
     return nil, true
   end
+
+  busted.subscribe({ 'test', 'end' }, handler.testEnd)
+  busted.subscribe({ 'suite', 'start' }, handler.suiteStart)
+  busted.subscribe({ 'suite', 'end' }, handler.suiteEnd)
+  busted.subscribe({ 'error', 'file' }, handler.error)
 
   return handler
 end

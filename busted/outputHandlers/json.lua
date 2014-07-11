@@ -16,5 +16,7 @@ return function(options, busted)
     return nil, true
   end
 
+  busted.subscribe({ 'suite', 'end' }, handler.suiteEnd)
+
   return handler
 end

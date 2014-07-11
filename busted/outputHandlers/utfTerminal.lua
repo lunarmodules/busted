@@ -137,11 +137,15 @@ return function(options, busted)
   end
 
   handler.error = function(element, parent, message, debug)
-    io.write(errorString)
+    io.write(errorDot)
     io.flush()
 
     return nil, true
   end
+
+  busted.subscribe({ 'test', 'end' }, handler.testEnd)
+  busted.subscribe({ 'suite', 'end' }, handler.suiteEnd)
+  busted.subscribe({ 'error', 'file' }, handler.error)
 
   return handler
 end
