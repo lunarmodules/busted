@@ -131,20 +131,10 @@ local outputHandlerOptions = {
 }
 
 outputHandler = outputHandlerLoader(cliArgs.output, cliArgs.o, outputHandlerOptions, busted)
-
-busted.subscribe({ 'test', 'start' }, outputHandler.testStart)
-busted.subscribe({ 'test', 'end' }, outputHandler.testEnd)
-busted.subscribe({ 'file', 'start' }, outputHandler.fileStart)
-busted.subscribe({ 'file', 'end' }, outputHandler.fileEnd)
-busted.subscribe({ 'suite', 'start' }, outputHandler.suiteStart)
-busted.subscribe({ 'suite', 'end' }, outputHandler.suiteEnd)
-busted.subscribe({ 'error' }, outputHandler.error)
+outputHandler:subscribe(outputHandlerOptions)
 
 if cliArgs.s then
-  local sound = require 'busted.outputHandlers.sound'(outputHandlerOptions, busted)
-  busted.subscribe({ 'test', 'end' }, sound.testEnd)
-  busted.subscribe({ 'suite', 'end' }, sound.suiteEnd)
-  busted.subscribe({ 'error' }, sound.error)
+  require 'busted.outputHandlers.sound'(outputHandlerOptions, busted)
 end
 
 local checkTag = function(name, tag, modifier)

@@ -1,18 +1,8 @@
 local pretty = require 'pl.pretty'
 
 return function(options, busted)
+  local handler = require 'busted.outputHandlers.base'(busted)
   local language = require('busted.languages.' .. options.language)
-  local handler = {}
-
-  local isFailure = false
-
-  handler.testEnd = function(element, parent, status)
-    if status == 'failure' then
-      isFailure = true
-    end
-
-    return nil, true
-  end
 
   handler.suiteEnd = function(name, parent)
     local system, sayer_pre, sayer_post
@@ -29,9 +19,7 @@ return function(options, busted)
       sayer_post = ''
     end
 
-    math.randomseed(os.time())
-
-    if isFailure then
+    if handler.failuresCount > 0 then
       messages = language.failure_messages
     else
       messages = language.success_messages
@@ -42,11 +30,7 @@ return function(options, busted)
     return nil, true
   end
 
-  handler.error = function(element, parent, message, debug)
-    isFailure = true
-
-    return nil, true
-  end
+  busted.subscribe({ 'suite', 'end' }, handler.suiteEnd)
 
   return handler
 end

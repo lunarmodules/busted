@@ -1,11 +1,8 @@
 local pretty = require 'pl.pretty'
+local tablex = require 'pl.tablex'
 
 return function(options, busted)
-  local language = require('busted.languages.' .. options.language)
-
-  -- options.language, options.deferPrint, options.suppressPending, options.verbose
-  local handler = {}
-  local tests = {}
+  local handler = require 'busted.outputHandlers.base'(busted)
 
   local getFullName = function(context)
     local parent = context.parent
@@ -22,70 +19,38 @@ return function(options, busted)
     return table.concat(names, ' ')
   end
 
-  handler.testStart = function(name, parent)
-    return nil, true
-  end
-
-  handler.testEnd = function(element, parent, status)
-    if status == 'success' then
-      table.insert(tests, {
-        name = getFullName(element),
-        success = true
-      })
-    end
-
-    return nil, true
-  end
-
-  handler.fileStart = function(name, parent)
-    return nil, true
-  end
-
-  handler.fileEnd = function(name, parent)
-    return nil, true
-  end
-
-  handler.suiteStart = function(name, parent)
-    return nil, true
-  end
-
   handler.suiteEnd = function(name, parent)
-    print('1..' .. #tests)
+    local total = handler.successesCount + handler.errorsCount + handler.failuresCount
+    print('1..' .. total)
 
     local success = 'ok %u - %s'
     local failure = 'not ' .. success
+    local counter = 0
 
-    for i,t in pairs(tests) do
-      if t.success then
-        print(success:format(i, t.name))
-      else
-        local message = t.message
+    for i,t in pairs(handler.successes) do
+      counter = counter + 1
+      print(counter .. ' ' .. handler.format(t).name)
+    end
 
-        if message == nil then
-          message = 'Nil error'
-        elseif type(message) ~= 'string' then
-          message = pretty.write(message)
-        end
+    for i,t in pairs(handler.failures) do
+      counter = counter + 1
+      local message = t.message
 
-        print(failure:format(i, t.name))
-        print('# ' .. t.elementTrace.short_src .. ' @ ' .. t.elementTrace.currentline)
-        print('# ' .. message:gsub('\n', '\n# ' ))
+      if message == nil then
+        message = 'Nil error'
+      elseif type(message) ~= 'string' then
+        message = pretty.write(message)
       end
+
+      print(counter .. ' ' .. handler.format(t).name)
+      print('# ' .. t.trace.short_src .. ' @ ' .. t.trace.currentline)
+      print('# Failure message: ' .. message:gsub('\n', '\n# ' ))
     end
 
     return nil, true
   end
 
-  handler.error = function(element, parent, message, debug)
-    table.insert(tests, {
-      elementTrace = element.trace,
-      name = getFullName(element),
-      message = message,
-      success = false
-    })
-
-    return nil, true
-  end
+  busted.subscribe({ 'suite', 'end' }, handler.suiteEnd)
 
   return handler
 end

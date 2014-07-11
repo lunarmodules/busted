@@ -2,80 +2,66 @@ local s = require 'say'
 local pretty = require 'pl.pretty'
 
 return function(options, busted)
-  local language = require('busted.languages.' .. options.language)
-  -- options.language, options.deferPrint, options.suppressPending, options.verbose
-  local handler = { }
-  local tests = 0
-  local successes = 0
-  local failures = 0
-  local pendings = 0
+  local handler = require 'busted.outputHandlers.base'(busted)
 
-  local successString =  '+'
-  local failureString =  '-'
-  local pendingString = '.'
-
-  local failureInfos = { }
-  local pendingInfos = { }
-
-  local startTime, endTime
-
-  local getFullName = function(context)
-    local parent = context.parent
-    local names = { (context.name or context.descriptor) }
-
-    while parent and (parent.name or parent.descriptor) and
-          parent.descriptor ~= 'file' do
-
-      current_context = context.parent
-      table.insert(names, 1, parent.name or parent.descriptor)
-      parent = busted.context.parent(parent)
-    end
-
-    return table.concat(names, ' ')
-  end
+  local successDot =  '+'
+  local failureDot =  '-'
+  local errorDot =  '*'
+  local pendingDot = '.'
 
   local pendingDescription = function(pending)
-    local name = getFullName(pending)
+    local name = handler.getFullName(pending)
 
-    local string = '\n\n' .. s('output.pending') .. ': ' ..
-      pending.elementTrace.short_src .. ' @ ' ..
-      pending.elementTrace.currentline  ..
+    local string = s('output.pending') .. ' → ' ..
+      pending.trace.short_src .. ' @ ' ..
+      pending.trace.currentline  ..
       '\n' .. name
 
     return string
   end
 
-  local failureDescription = function(failure)
-    local string =  s('output.failure') .. ': '
+  local failureDescription = function(failure, isError)
+    local string = s('output.failure') .. ' → '
 
-    if failure.elementTrace then
-      string = string .. failure.elementTrace.short_src .. ' @ ' ..
-                failure.elementTrace.currentline
+    if isError then
+      string = s('output.error')
+
+      if failure.message then
+        string = string .. ' → ' ..  failure.message .. '\n'
+      end
     else
-      string = string .. failure.debug
-    end
+      string = string ..
+        failure.trace.short_src .. ' @ ' ..
+        failure.trace.currentline .. '\n' ..
+        handler.getFullName(failure) .. '\n'
 
-    string = string .. '\n' .. getFullName(failure) .. '\n\n'
-
-    if type(failure.message) == 'string' then
-      string = string .. failure.message
-    elseif failure.message == nil then
-      string = string .. 'Nil error'
-    else
-      string = string .. pretty.write(failure.message)
+      if type(failure.message) == 'string' then
+        string = string .. failure.message
+      elseif failure.message == nil then
+        string = string .. 'Nil error'
+      else
+        string = string .. pretty.write(failure.message)
+      end
     end
 
     if options.verbose then
-      string = string .. failure.debug.traceback
+      string = string .. '\n' .. failure.trace.traceback
     end
 
     return string
   end
 
-  local statusString = function(successes, failures, pendings, ms)
+  local statusString = function()
     local successString = s('output.success_plural')
     local failureString = s('output.failure_plural')
     local pendingString = s('output.pending_plural')
+    local errorString = s('output.error_plural')
+
+    local ms = handler.getDuration()
+    local successes = handler.successesCount
+    local pendings = handler.pendingsCount
+    local failures = handler.failuresCount
+    local errors = handler.errorsCount
 
     if successes == 0 then
       successString = s('output.success_zero')
@@ -95,41 +81,31 @@ return function(options, busted)
       pendingString = s('output.pending_single')
     end
 
+    if errors == 0 then
+      errorString = s('output.error_zero')
+    elseif errors == 1 then
+      errorString = s('output.error_single')
+    end
+
     local formattedTime = ('%.6f'):format(ms):gsub('([0-9])0+$', '%1')
 
     return successes .. ' ' .. successString .. ' / ' ..
       failures .. ' ' .. failureString .. ' / ' ..
+      errors .. ' ' .. errorString .. ' / ' ..
       pendings .. ' ' .. pendingString .. ' : ' ..
       formattedTime .. ' ' .. s('output.seconds')
   end
 
-  handler.testStart = function(name, parent)
-    tests = tests + 1
-
-    return nil, true
-  end
-
   handler.testEnd = function(element, parent, status, debug)
-    local string = successString
-
-    if status == 'success' then
-      successes = successes + 1
-    elseif status == 'pending' then
-      if not options.suppressPending then
-        string = pendingString
-        pendings = pendings + 1
-        table.insert(pendingInfos, {
-          name = element.name,
-          elementTrace = element.trace,
-          parent = parent
-        })
-      end
-    elseif status == 'failure' then
-      string = failureString
-      failures = failures + 1
-    end
-
     if not options.deferPrint then
+      local string = successDot
+
+      if status == 'pending' then
+        string = pendingDot
+      elseif status == 'failure' then
+        string = failureDot
+      end
+
       io.write(string)
       io.flush()
     end
@@ -137,57 +113,38 @@ return function(options, busted)
     return nil, true
   end
 
-  handler.pending = function(element, parent, message, debug)
-    return nil, true
-  end
-
-  handler.fileStart = function(name, parent)
-    return nil, true
-  end
-
-  handler.fileEnd = function(name, parent)
-    return nil, true
-  end
-
-  handler.suiteStart = function(name, parent)
-    startTime = os.clock()
-    return nil, true
-  end
-
   handler.suiteEnd = function(name, parent)
-    endTime = os.clock()
-    -- print an extra newline of defer print
-    if not options.deferPrint then
+    print('')
+    print(statusString())
+
+    for i, pending in pairs(handler.pendings) do
       print('')
-    end
-
-    print(statusString(successes, failures, pendings, endTime - startTime, {}))
-
-    if #pendingInfos > 0 then print('') end
-    for i, pending in pairs(pendingInfos) do
       print(pendingDescription(pending))
     end
 
-    if #failureInfos > 0 then print('') end
-    for i, err in pairs(failureInfos) do
+    for i, err in pairs(handler.failures) do
+      print('')
       print(failureDescription(err))
+    end
+
+    for i, err in pairs(handler.errors) do
+      print('')
+      print(failureDescription(err, true))
     end
 
     return nil, true
   end
 
   handler.error = function(element, parent, message, debug)
-    table.insert(failureInfos, {
-      elementTrace = element.trace,
-      name = element.name,
-      descriptor = element.descriptor,
-      message = message,
-      debug = debug,
-      parent = parent
-    })
+    io.write(errorDot)
+    io.flush()
 
     return nil, true
   end
+
+  busted.subscribe({ 'test', 'end' }, handler.testEnd)
+  busted.subscribe({ 'suite', 'end' }, handler.suiteEnd)
+  busted.subscribe({ 'error', 'file' }, handler.error)
 
   return handler
 end
