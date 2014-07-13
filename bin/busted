@@ -37,6 +37,7 @@ cli:add_option('--cpath=PATH', 'optional path to be prefixed to the Lua C module
 cli:add_option('-r, --run=RUN', 'config to run from .busted file')
 cli:add_option('--lang=LANG', 'language for error messages', 'en')
 cli:add_option('--loaders=NAME', 'test file loaders', defaultLoaders)
+cli:add_option('--helper=PATH', 'A helper script that is run before tests')
 
 cli:add_flag('-c, --coverage', 'do code coverage analysis (requires `LuaCov` to be installed)')
 
@@ -102,6 +103,10 @@ if #cliArgs.cpath > 0 then
   cpathprefix = cpathprefix:gsub('^%.[/%\\]', fpath )
   cpathprefix = cpathprefix:gsub(';%.[/%\\]', ';' .. fpath)
   package.cpath = (cpathprefix .. ';' .. package.cpath):gsub(';;',';')
+end
+
+if cliArgs.helper ~= '' then
+  dofile(cliArgs.helper)
 end
 
 local loaders = {}
