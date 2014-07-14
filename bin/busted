@@ -74,10 +74,12 @@ local pattern = cliArgs.pattern
 
 -- Load busted config file if available
 local bustedConfigFilePath = path.normpath(path.join(fpath, '.busted'))
-local bustedConfigFile = pcall(function() tasks = loadfile(bustedConfigFilePath)() end)
+local configTasks = {}
+local bustedConfigFile = pcall(function() configTasks = loadfile(bustedConfigFilePath)() end)
 
 if bustedConfigFile then
-  local config, err = configLoader(bustedConfigFile, config, cliArgs)
+  local config, err = configLoader(configTasks, cliArgs, cliArgs.run)
+  cliArgs = config
 
   if err then
     print(err)
