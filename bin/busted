@@ -47,7 +47,10 @@ cli:add_flag('--suppress-pending', 'suppress `pending` test output')
 cli:add_flag('--defer-print', 'defer print to when test suite is complete')
 
 -- Parse the cli arguments
-local cliArgs = cli:parse_args()
+local cliArgs, error = cli:parse()
+if error then
+  os.exit(1)
+end
 
 -- Return early if only asked for the version
 if cliArgs.version then
