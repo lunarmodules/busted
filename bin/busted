@@ -47,8 +47,8 @@ cli:add_flag('--suppress-pending', 'suppress `pending` test output')
 cli:add_flag('--defer-print', 'defer print to when test suite is complete')
 
 -- Parse the cli arguments
-local cliArgs, error = cli:parse()
-if error then
+local cliArgs, hasError = cli:parse()
+if hasError then
   os.exit(1)
 end
 
@@ -181,14 +181,16 @@ testFileLoader(rootFile, pattern)
 local failures = 0
 local errors = 0
 
-busted.subscribe({ 'error' }, function()
+busted.subscribe({ 'error' }, function(...)
   errors = errors + 1
+  return nil, true
 end)
 
 busted.subscribe({ 'test', 'end' }, function(element, parent, status)
   if status == 'failure' then
     failures = failures + 1
   end
+  return nil, true
 end)
 
 busted.publish({ 'suite', 'start' })
@@ -199,5 +201,4 @@ local exit = 0
 if failures > 0 or errors > 0 then
   exit = 1
 end
-
 os.exit(exit)

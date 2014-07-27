@@ -98,17 +98,6 @@ return function(busted)
     busted.publish({ 'test', 'end' }, pending, busted.context.parent(pending), 'pending', trace)
   end
 
-  local async = function()
-    local parent = busted.context.get()
-    if not parent.env then parent.env = {} end
-
-    parent.env.done = require 'busted.done'.new(function()
-      busted.publish({ 'test', 'end' }, it, parent, 'success')
-      if finally then busted.safe('finally', finally, it) end
-      dexecAll('after_each', parent, true)
-    end)
-  end
-
   busted.register('file', file)
 
   busted.register('describe', describe)
@@ -116,8 +105,6 @@ return function(busted)
 
   busted.register('it', it)
   busted.register('pending', pending)
-
-  busted.context.get().env.async = async
 
   busted.register('setup')
   busted.register('teardown')
