@@ -57,24 +57,8 @@ if cliArgs.version then
   return print(busted.version)
 end
 
-local tags = {}
-local excludeTags = {}
-
-if cliArgs.t ~= '' then
-  tags = utils.split(cliArgs.t, ',')
-end
-
-if cliArgs['exclude-tags'] ~= '' then
-  excludeTags = utils.split(cliArgs['exclude-tags'], ',')
-end
-
 -- Load current working directory
 local fpath = cliArgs.d
-
--- Load test directory
-local rootFile = path.normpath(path.join(fpath, cliArgs.ROOT))
-
-local pattern = cliArgs.pattern
 
 -- Load busted config file if available
 local bustedConfigFilePath = path.normpath(path.join(fpath, '.busted'))
@@ -88,6 +72,22 @@ if bustedConfigFile then
   if err then
     print(err)
   end
+end
+
+-- Load test directory
+local rootFile = path.normpath(path.join(fpath, cliArgs.ROOT))
+
+local pattern = cliArgs.pattern
+
+local tags = {}
+local excludeTags = {}
+
+if cliArgs.t ~= '' then
+  tags = utils.split(cliArgs.t, ',')
+end
+
+if cliArgs['exclude-tags'] ~= '' then
+  excludeTags = utils.split(cliArgs['exclude-tags'], ',')
 end
 
 -- If coverage arg is passed in, load LuaCovsupport
