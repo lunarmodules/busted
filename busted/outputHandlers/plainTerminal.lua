@@ -145,6 +145,7 @@ return function(options, busted)
   busted.subscribe({ 'test', 'end' }, handler.testEnd)
   busted.subscribe({ 'suite', 'end' }, handler.suiteEnd)
   busted.subscribe({ 'error', 'file' }, handler.error)
+  busted.subscribe({ 'error', 'describe' }, handler.error)
 
   return handler
 end

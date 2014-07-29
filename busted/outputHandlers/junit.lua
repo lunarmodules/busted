@@ -59,6 +59,7 @@ return function(options, busted)
   busted.subscribe({ 'suite', 'start' }, handler.suiteStart)
   busted.subscribe({ 'suite', 'end' }, handler.suiteEnd)
   busted.subscribe({ 'error', 'file' }, handler.error)
+  busted.subscribe({ 'error', 'describe' }, handler.error)
 
   return handler
 end
