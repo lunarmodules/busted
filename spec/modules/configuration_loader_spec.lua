@@ -31,9 +31,10 @@ describe('Config Loader', function()
   end)
 
   it('returns a valid config with specified config', function()
-    local config, err = configLoader(testConfig, cliArgs, 'windows')
+    cliArgs.run = 'windows'
+    local config, err = configLoader(testConfig, cliArgs)
 
-    assert.are.same(testConfig.windows, config)
+    assert.are.same(testConfig.windows.output, config.output)
     assert.are.equal(nil, err)
   end)
 
@@ -43,7 +44,8 @@ describe('Config Loader', function()
   end)
 
   it('returns an error with an invalid run', function()
-    local config, err = configLoader(testConfig, cliArgs, 'run')
+    cliArgs.run = 'invalid'
+    local config, err = configLoader(testConfig, cliArgs)
     assert.are_not.equal(nil, err)
   end)
 end)

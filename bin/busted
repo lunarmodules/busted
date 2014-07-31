@@ -61,13 +61,13 @@ end
 local fpath = cliArgs.d
 
 -- Load busted config file if available
+local configFile = { }
 local bustedConfigFilePath = path.normpath(path.join(fpath, '.busted'))
-local configTasks = {}
-local bustedConfigFile = pcall(function() configTasks = loadfile(bustedConfigFilePath)() end)
+
+local bustedConfigFile = pcall(function() configFile = loadfile(bustedConfigFilePath)() end)
 
 if bustedConfigFile then
-  local config, err = configLoader(configTasks, cliArgs, cliArgs.run)
-  cliArgs = config
+  local config, err = configLoader(configFile, cliArgs)
 
   if err then
     print(err)
