@@ -63,7 +63,7 @@ return function(options, busted)
 
   busted.subscribe({ 'suite', 'start' }, handler.suiteStart)
   busted.subscribe({ 'suite', 'end' }, handler.suiteEnd)
-  busted.subscribe({ 'test', 'end' }, handler.testEnd)
+  busted.subscribe({ 'test', 'end' }, handler.testEnd, { predicate = handler.cancelOnPending })
   busted.subscribe({ 'error', 'file' }, handler.errorFile)
 
   return handler

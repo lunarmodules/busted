@@ -72,30 +72,36 @@ return function(busted)
     busted.publish({ 'describe', 'end' }, describe, parent)
   end
 
-  local it = function(it)
+  local it = function(element)
     local finally
 
-    if not it.env then it.env = {} end
+    if not element.env then element.env = {} end
 
-    it.env.finally = function(fn)
+    element.env.finally = function(fn)
       finally = fn
     end
 
-    local parent = busted.context.parent(it)
+    local parent = busted.context.parent(element)
 
     execAll('before_each', parent, true)
-    busted.publish({ 'test', 'start' }, it, parent)
-    local res = busted.safe('it', it.run, it)
-    if not it.env.done then
-      busted.publish({ 'test', 'end' }, it, parent, res and 'success' or 'failure')
-      if finally then busted.safe('finally', finally, it) end
+
+    busted.publish({ 'test', 'start' }, element, parent)
+    busted.publish({ 'test', 'foo' }, element, parent)
+
+    local res = busted.safe('element', element.run, element)
+    if not element.env.done then
+      local trace = busted.getTrace(element, 3)
+      busted.publish({ 'test', 'end' }, element, parent, res and 'success' or 'failure', trace)
+      if finally then busted.safe('finally', finally, element) end
       dexecAll('after_each', parent, true)
     end
   end
 
-  local pending = function(pending)
-    local trace = busted.getTrace(pending, 3)
-    busted.publish({ 'test', 'end' }, pending, busted.context.parent(pending), 'pending', trace)
+  local pending = function(element)
+    local parent = busted.context.parent(pending)
+    local trace = busted.getTrace(element, 3)
+    busted.publish({ 'test', 'start' }, element, parent)
+    busted.publish({ 'test', 'end' }, element, parent, 'pending', trace)
   end
 
   busted.register('file', file)

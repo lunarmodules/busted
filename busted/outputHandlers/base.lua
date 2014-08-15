@@ -11,8 +11,13 @@ return function(busted)
     inProgress = {}
   }
 
+  handler.cancelOnPending = function(element)
+    return not (element.descriptor == 'pending' and handler.options.suppressPending)
+  end
+
   handler.subscribe = function(handler, options)
     require('busted.languages.en')
+    handler.options = options
 
     if options.language ~= 'en' then
       require('busted.languages.' .. options.language)
@@ -20,8 +25,8 @@ return function(busted)
 
     busted.subscribe({ 'suite', 'start' }, handler.baseSuiteStart)
     busted.subscribe({ 'suite', 'end' }, handler.baseSuiteEnd)
-    busted.subscribe({ 'test', 'start' }, handler.baseTestStart)
-    busted.subscribe({ 'test', 'end' }, handler.baseTestEnd)
+    busted.subscribe({ 'test', 'start' }, handler.baseTestStart, { predicate = handler.cancelOnPending })
+    busted.subscribe({ 'test', 'end' }, handler.baseTestEnd, { predicate = handler.cancelOnPending })
     busted.subscribe({ 'error' }, handler.baseError)
   end
 
@@ -72,11 +77,16 @@ return function(busted)
   end
 
   handler.baseTestStart = function(element, parent)
+    if element.descriptor == 'pending' and handler.options.suppressPending then
+      return nil, false
+    end
+
     handler.inProgress[tostring(element)] = {}
     return nil, true
   end
 
   handler.baseTestEnd = function(element, parent, status, debug)
+
     local insertTable
     local id = tostring(element)
 
