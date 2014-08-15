@@ -44,10 +44,6 @@ return function(options, busted)
   end
 
   handler.error = function(element, parent, message, trace)
-    if status == 'failure' then
-      node.attr.errors = node.attr.errors + 1
-    end
-
     node:addtag('failure', {
       message = message
     }):text(trace.traceback):up()

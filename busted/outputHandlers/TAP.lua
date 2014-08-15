@@ -11,7 +11,6 @@ return function(options, busted)
     while parent and (parent.name or parent.descriptor) and
           parent.descriptor ~= 'file' do
 
-      current_context = context.parent
       table.insert(names, 1, parent.name or parent.descriptor)
       parent = busted.context.parent(parent)
     end

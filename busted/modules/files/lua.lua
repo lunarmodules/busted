@@ -16,7 +16,7 @@ end
 
 
 ret.load = function(busted, filename)
-  local file
+  local file, err
 
   local success, err = pcall(function()
     file, err = loadfile(filename)
