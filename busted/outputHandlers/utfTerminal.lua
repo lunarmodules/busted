@@ -45,7 +45,7 @@ return function(options, busted)
       end
     end
 
-    if options.verbose then
+    if options.verbose and failure.trace.traceback then
       string = string .. '\n' .. failure.trace.traceback
     end
 
