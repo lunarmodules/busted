@@ -71,6 +71,8 @@ if bustedConfigFile then
 
   if err then
     print(err)
+  else
+    cliArgs = config
   end
 end
 
