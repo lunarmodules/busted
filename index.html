@@ -727,7 +727,7 @@ end)
         <section class="division" id="private">
           <h2>Private</h2>
           <p>
-            Before Busted executes any tests it will define a global <code>_TEST</code> that
+            Before Busted executes any tests it will define a global <code>describe</code> that
             can be used to expose private elements only in case of testing.
           </p>
 <pre><code data-language="lua">-- a new module with private elements to be tested
@@ -739,7 +739,7 @@ function mymodule:display()
 end
 
 -- export locals for test
-if _TEST then
+if describe then
   -- setup test alias for private elements using a modified name
   mymodule._private_element = private_element
 end
