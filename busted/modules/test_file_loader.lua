@@ -62,6 +62,8 @@ return function(busted, loaders)
         busted.executors.file(fileName, file)
       end
     end
+
+    return fileList
   end
 
   return loadTestFiles, loadTestFile, getTestFiles

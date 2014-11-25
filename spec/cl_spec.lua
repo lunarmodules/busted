@@ -44,7 +44,7 @@ local run = function(cmd)
 end
 
 
-it('Tests the busted command-line options', function()
+describe('Tests the busted command-line options', function()
 
   setup(function()
     require('pl')
@@ -121,8 +121,8 @@ it('Tests the busted command-line options', function()
   it('tests running with --help specified', function()
     local success, exitcode
     success, exitcode = execute('bin/busted --help')
-    assert.is_true(success)
-    assert.is_equal(0, exitcode)
+    assert.is_false(success)
+    assert.is_equal(1, exitcode)
   end)
 
   it('tests running a non-compiling testfile', function()
@@ -167,20 +167,11 @@ it('Tests the busted command-line options', function()
 
 end)
 
---[[  --TODO: uncomment this failing test and fix it
 describe('Tests failing tests through the commandline', function()
-  local old_ditch
-  before_each(function()
-    old_ditch, ditch = ditch, ''   -- dump this test output only
-  end)
-  after_each(function()
-    ditch = old_ditch
-  end)
-  
   it('tests failing setup/before_each/after_each/teardown functions', function()
     local success, exitcode
     error_start()
-    success, exitcode = execute('busted --pattern=cl_failing_support.lua$')
+    success, exitcode = execute('bin/busted --pattern=cl_failing_support.lua$')
     assert.is_false(success)
     assert.is_equal(8, exitcode)
     error_end()
@@ -302,4 +293,3 @@ describe('Tests error messages through the command line', function()
     error_end()
   end)
 end)
---]]

@@ -134,6 +134,27 @@ for _, excluded in pairs(excludeTags) do
   end
 end
 
+-- watch for test errors
+local failures = 0
+local errors = 0
+
+busted.subscribe({ 'error' }, function(element, parent, status)
+  if element.descriptor == 'output' then
+    print('Cannot load output library: ' .. element.name)
+  end
+  errors = errors + 1
+  return nil, true
+end)
+
+busted.subscribe({ 'failure' }, function(element, parent, status)
+  if element.descriptor == 'it' then
+    failures = failures + 1
+  else
+    errors = errors + 1
+  end
+  return nil, true
+end)
+
 -- Set up output handler to listen to events
 local outputHandlerOptions = {
   verbose = cliArgs.verbose,
@@ -142,32 +163,32 @@ local outputHandlerOptions = {
   deferPrint = cliArgs['defer-print']
 }
 
-local outputHandler = outputHandlerLoader(cliArgs.output, cliArgs.o, outputHandlerOptions, busted)
+local outputHandler = outputHandlerLoader(cliArgs.output, cliArgs.o, outputHandlerOptions, busted, defaultOutput)
 outputHandler:subscribe(outputHandlerOptions)
 
 if cliArgs.s then
   require 'busted.outputHandlers.sound'(outputHandlerOptions, busted)
 end
 
-local checkTag = function(name, tag, modifier)
+local hasTag = function(name, tag)
   local found = name:find('#' .. tag)
-  return (modifier == (found ~= nil))
+  return (found ~= nil)
 end
 
 local checkTags = function(name)
-  for i, tag in pairs(tags) do
-    if not checkTag(name, tag, true) then
-      return nil, false
-    end
-  end
-
   for i, tag in pairs(excludeTags) do
-    if not checkTag(name, tag, false) then
+    if hasTag(name, tag) then
       return nil, false
     end
   end
 
-  return nil, true
+  for i, tag in pairs(tags) do
+    if hasTag(name, tag) then
+      return nil, true
+    end
+  end
+
+  return nil, (#tags == 0)
 end
 
 if cliArgs.t ~= '' or cliArgs['exclude-tags'] ~= '' then
@@ -177,23 +198,11 @@ if cliArgs.t ~= '' or cliArgs['exclude-tags'] ~= '' then
 end
 
 local testFileLoader = require 'busted.modules.test_file_loader'(busted, loaders)
-testFileLoader(rootFile, pattern)
-
--- watch for test errors
-local failures = 0
-local errors = 0
-
-busted.subscribe({ 'error' }, function(...)
+local fileList = testFileLoader(rootFile, pattern)
+if #fileList == 0 then
+  print('No test files found matching Lua pattern: ' .. pattern)
   errors = errors + 1
-  return nil, true
-end)
-
-busted.subscribe({ 'test', 'end' }, function(element, parent, status)
-  if status == 'failure' then
-    failures = failures + 1
-  end
-  return nil, true
-end)
+end
 
 busted.publish({ 'suite', 'start' })
 busted.execute()
@@ -201,6 +210,9 @@ busted.publish({ 'suite', 'end' })
 
 local exit = 0
 if failures > 0 or errors > 0 then
-  exit = 1
+  exit = failures + errors
+  if exit > 255 then
+    exit = 255
+  end
 end
 os.exit(exit)
