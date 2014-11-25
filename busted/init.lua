@@ -41,7 +41,7 @@ return function(busted)
   local file = function(file)
     busted.publish({ 'file', 'start' }, file.name)
 
-    if busted.safe('file', file.run, file, true) then
+    if busted.safe('file', file.run, file, true) == 'success' then
       busted.execute(file)
     end
 
@@ -60,7 +60,7 @@ return function(busted)
       randomize = true
     end
 
-    if busted.safe('describe', describe.run, describe) then
+    if busted.safe('describe', describe.run, describe) == 'success' then
       if randomize then
         shuffle(busted.context.children(describe))
       end
@@ -87,9 +87,9 @@ return function(busted)
 
     busted.publish({ 'test', 'start' }, element, parent)
 
-    local res = busted.safe('element', element.run, element)
+    local status = busted.safe('element', element.run, element)
     if not element.env.done then
-      busted.publish({ 'test', 'end' }, element, parent, res and 'success' or 'failure')
+      busted.publish({ 'test', 'end' }, element, parent, status)
       if finally then busted.safe('finally', finally, element) end
       dexecAll('after_each', parent, true)
     end
@@ -118,6 +118,9 @@ return function(busted)
   spy    = require 'luassert.spy'
   mock   = require 'luassert.mock'
   stub   = require 'luassert.stub'
+
+  busted.replaceErrorWithFail(assert)
+  busted.replaceErrorWithFail(assert.True)
 
   return busted
 end

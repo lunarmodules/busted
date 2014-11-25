@@ -29,6 +29,8 @@ return function(options, busted)
       if failure.message then
         string = string .. ' → ' ..  failure.message .. '\n'
       end
+      string = string ..
+        handler.getFullName(failure)
     else
       string = string ..
         failure.trace.short_src .. ' @ ' ..
@@ -44,7 +46,7 @@ return function(options, busted)
       end
     end
 
-    if options.verbose and failure.trace.traceback then
+    if options.verbose and failure.trace and failure.trace.traceback then
       string = string .. '\n' .. failure.trace.traceback
     end
 
@@ -104,6 +106,8 @@ return function(options, busted)
         string = pendingDot
       elseif status == 'failure' then
         string = failureDot
+      elseif status == 'error' then
+        string = errorDot
       end
 
       io.write(string)

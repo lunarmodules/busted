@@ -30,6 +30,8 @@ return function(options, busted)
       if failure.message then
         string = string .. ' → ' ..  ansicolors('%{cyan}' .. failure.message) .. '\n'
       end
+      string = string ..
+        ansicolors('%{bright}' .. handler.getFullName(failure))
     else
       string = string ..
         ansicolors('%{cyan}' .. failure.trace.short_src) .. ' @ ' ..
@@ -45,7 +47,7 @@ return function(options, busted)
       end
     end
 
-    if options.verbose and failure.trace.traceback then
+    if options.verbose and failure.trace and failure.trace.traceback then
       string = string .. '\n' .. failure.trace.traceback
     end
 
@@ -105,6 +107,8 @@ return function(options, busted)
         string = pendingDot
       elseif status == 'failure' then
         string = failureDot
+      elseif status == 'error' then
+        string = errorDot
       end
 
       io.write(string)
@@ -143,7 +147,7 @@ return function(options, busted)
     return nil, true
   end
 
-  local s = busted.subscribe({ 'test', 'end' }, handler.testEnd, { predicate = handler.cancelOnPending })
+  busted.subscribe({ 'test', 'end' }, handler.testEnd, { predicate = handler.cancelOnPending })
   busted.subscribe({ 'suite', 'end' }, handler.suiteEnd)
   busted.subscribe({ 'error', 'file' }, handler.error)
   busted.subscribe({ 'error', 'describe' }, handler.error)

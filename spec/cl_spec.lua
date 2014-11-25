@@ -36,6 +36,13 @@ local execute = function(cmd)
   return not not success, modexit(exitcode)
 end
 
+local run = function(cmd)
+  local p = io.popen(cmd, 'r')
+  local out = p:read('*a')
+  p:close()
+  return out
+end
+
 
 it('Tests the busted command-line options', function()
 
@@ -176,6 +183,122 @@ describe('Tests failing tests through the commandline', function()
     success, exitcode = execute('busted --pattern=cl_failing_support.lua$')
     assert.is_false(success)
     assert.is_equal(8, exitcode)
+    error_end()
+  end)
+
+  it('tests failing support functions as errors', function()
+    error_start()
+    local result = run('bin/busted --output=plainTerminal --pattern=cl_failing_support.lua$')
+    local _, numErrors = result:gsub('Error → .-\n','')
+    assert.is_equal(8, numErrors)
+    error_end()
+  end)
+end)
+
+describe('Tests distinguish between errors and failures', function()
+  it('by detecting errors as test errors', function()
+    error_start()
+    local result = run('bin/busted --output=plainTerminal --pattern=cl_errors.lua$ --tags=testerr')
+    local errmsg = result:match('(Error → .-)\n')
+    assert.is_truthy(errmsg)
+    error_end()
+  end)
+
+  it('by detecting assert failures as test failures', function()
+    error_start()
+    local result = run('bin/busted --output=plainTerminal --pattern=cl_two_failures.lua$')
+    local failmsg = result:match('(Failure → .-)\n')
+    assert.is_truthy(failmsg)
+    error_end()
+  end)
+
+  it('by detecting Lua runtime errors as test errors', function()
+    error_start()
+    local result = run('bin/busted --output=plainTerminal --pattern=cl_errors.lua$ --tags=luaerr')
+    local failmsg = result:match('(Error → .-)\n')
+    assert.is_truthy(failmsg)
+    error_end()
+  end)
+end)
+
+describe('Tests stack trackback', function()
+  it('when throwing an error', function()
+    error_start()
+    local result = run('bin/busted --verbose --pattern=cl_errors.lua$ --tags=testerr')
+    local errmsg = result:match('(stack traceback:.*)\n')
+    local expected = [[stack traceback:
+	./spec/cl_errors.lua:6: in function <./spec/cl_errors.lua:5>
+]]
+    assert.is_equal(expected, errmsg)
+    error_end()
+  end)
+
+  it('when assertion fails', function()
+    error_start()
+    local result = run('bin/busted --verbose --pattern=cl_two_failures.lua$ --tags=err1')
+    local errmsg = result:match('(stack traceback:.*)\n')
+    local expected = [[stack traceback:
+	./spec/cl_two_failures.lua:6: in function <./spec/cl_two_failures.lua:5>
+]]
+    assert.is_equal(expected, errmsg)
+    error_end()
+  end)
+
+  it('when Lua runtime error', function()
+    error_start()
+    local result = run('bin/busted --verbose --pattern=cl_errors.lua$ --tags=luaerr')
+    local errmsg = result:match('(stack traceback:.*)\n')
+    local expected = [[stack traceback:
+	./spec/cl_errors.lua:11: in function <./spec/cl_errors.lua:9>
+]]
+    assert.is_equal(expected, errmsg)
+    error_end()
+  end)
+end)
+
+describe('Tests error messages through the command line', function()
+  it('when throwing errors in a test', function()
+    error_start()
+    local result = run('bin/busted --output=plainTerminal --pattern=cl_errors.lua$ --tags=testerr')
+    local errmsg = result:match('(Error → .-)\n')
+    local expected = "Error → ./spec/cl_errors.lua:6: force an error"
+    assert.is_equal(expected, errmsg)
+    error_end()
+  end)
+
+  it('when running a non-compiling testfile', function()
+    error_start()
+    local result = run('bin/busted --output=plainTerminal --pattern=cl_compile_fail.lua$')
+    local errmsg = result:match('(Error → .-)\n')
+    local expected = "Error → ./spec/cl_compile_fail.lua:3: '=' expected near 'here'"
+    assert.is_equal(expected, errmsg)
+    error_end()
+  end)
+
+  it('when a testfile throws errors', function()
+    error_start()
+    local result = run('bin/busted --output=plainTerminal --pattern=cl_execute_fail.lua$')
+    local errmsg = result:match('(Error → .-)\n')
+    local expected = 'Error → ./spec/cl_execute_fail.lua:4: This compiles fine, but throws an error when being run'
+    assert.is_equal(expected, errmsg)
+    error_end()
+  end)
+
+  it('when output library not found', function()
+    error_start()
+    local result = run('bin/busted --pattern=cl_two_failures.lua$ --output=not_found_here')
+    local errmsg = result:match('(.-)\n')
+    local expected = 'Cannot load output library: not_found_here'
+    assert.is_equal(expected, errmsg)
+    error_end()
+  end)
+
+  it('when no test files matching Lua pattern', function()
+    error_start()
+    local result = run('bin/busted --output=plainTerminal --pattern=this_filename_does_simply_not_exist$')
+    local errmsg = result:match('(.-)\n')
+    local expected = 'No test files found matching Lua pattern: this_filename_does_simply_not_exist$'
+    assert.is_equal(expected, errmsg)
     error_end()
   end)
 end)

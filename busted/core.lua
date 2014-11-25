@@ -1,3 +1,24 @@
+local metatype = function(obj)
+  local otype = type(obj)
+  if otype == 'table' then
+    local mt = getmetatable(obj)
+    if mt and mt.__type then
+      return mt.__type
+    end
+  end
+  return otype
+end
+
+local failureMt = {
+  __index = {},
+  __tostring = function(e) return e.message end,
+  __type = 'failure'
+}
+
+local getfenv = require 'busted.compatibility'.getfenv
+local setfenv = require 'busted.compatibility'.setfenv
+local throw = error
+
 return function()
   local mediator = require 'mediator'()
 
@@ -16,6 +37,12 @@ return function()
     level = level or  3
 
     local info = debug.getinfo(level, 'Sl')
+    while info.what == 'C' or info.short_src:match('luassert[/\\].*%.lua$') or
+          info.short_src:match('busted[/\\].*%.lua$') do
+      level = level + 1
+      info = debug.getinfo(level, 'Sl')
+    end
+
     info.traceback = debug.traceback('', level)
     info.message = msg
 
@@ -64,6 +91,21 @@ return function()
     return parent
   end
 
+  function busted.fail(msg, level)
+    local _, emsg = pcall(error, msg, level+2)
+    local e = { message = emsg }
+    setmetatable(e, failureMt)
+    throw(e, level+1)
+  end
+
+  function busted.replaceErrorWithFail(callable)
+    local env = {}
+    local f = getmetatable(callable).__call or callable
+    setmetatable(env, { __index = getfenv(f) })
+    env.error = busted.fail
+    setfenv(f, env)
+  end
+
   function busted.safe(descriptor, run, element, setenv)
     if setenv and (type(run) == 'function' or getmetatable(run).__call) then
       -- prioritize __call if it exists, like in files
@@ -72,15 +114,19 @@ return function()
 
     busted.context.push(element)
     local trace, message
+    local status = 'success'
 
     local ret = { xpcall(run, function(msg)
-      message = busted.rewriteMessage(element, msg)
+      local errType = metatype(msg)
+      status = (errType == 'string' and 'error' or errType)
+      message = busted.rewriteMessage(element, tostring(msg))
       trace = busted.getTrace(element, 3, msg)
     end) }
 
     if not ret[1] then
-      busted.publish({ 'error', descriptor }, element, busted.context.parent(element), message, trace)
+      busted.publish({ status, descriptor }, element, busted.context.parent(element), message, trace)
     end
+    ret[1] = status
 
     busted.context.pop()
     return unpack(ret)

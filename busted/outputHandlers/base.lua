@@ -27,6 +27,7 @@ return function(busted)
     busted.subscribe({ 'suite', 'end' }, handler.baseSuiteEnd)
     busted.subscribe({ 'test', 'start' }, handler.baseTestStart, { predicate = handler.cancelOnPending })
     busted.subscribe({ 'test', 'end' }, handler.baseTestEnd, { predicate = handler.cancelOnPending })
+    busted.subscribe({ 'failure' }, handler.baseError)
     busted.subscribe({ 'error' }, handler.baseError)
   end
 
@@ -87,6 +88,7 @@ return function(busted)
 
   handler.baseTestEnd = function(element, parent, status, debug)
 
+    local isError
     local insertTable
     local id = tostring(element)
 
@@ -99,9 +101,13 @@ return function(busted)
     elseif status == 'failure' then
       insertTable = handler.failures
       handler.failuresCount = handler.failuresCount + 1
+    elseif status == 'error' then
+      insertTable = handler.errors
+      handler.errorsCount = handler.errorsCount + 1
+      isError = true
     end
 
-    insertTable[id] = handler.format(element, parent, nil, debug)
+    insertTable[id] = handler.format(element, parent, nil, debug, isError)
 
     if handler.inProgress[id] then
       for k, v in pairs(handler.inProgress[id]) do
