@@ -48,7 +48,7 @@ return function(busted)
 
   handler.format = function(element, parent, message, debug, isError)
     local formatted = {
-      trace = element.trace or debug,
+      trace = debug or element.trace,
       name = handler.getFullName(element),
       message = message,
       isError = isError
@@ -116,7 +116,9 @@ return function(busted)
 
   handler.baseError = function(element, parent, message, debug)
     if element.descriptor == 'it' then
-      handler.inProgress[tostring(element)].message = message
+      local id = tostring(element)
+      handler.inProgress[id].message = message
+      handler.inProgress[id].trace = debug
     else
       handler.errorsCount = handler.errorsCount + 1
       table.insert(handler.errors, handler.format(element, parent, message, debug, true))

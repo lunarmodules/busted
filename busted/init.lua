@@ -89,8 +89,7 @@ return function(busted)
 
     local res = busted.safe('element', element.run, element)
     if not element.env.done then
-      local trace = busted.getTrace(element, 3)
-      busted.publish({ 'test', 'end' }, element, parent, res and 'success' or 'failure', trace)
+      busted.publish({ 'test', 'end' }, element, parent, res and 'success' or 'failure')
       if finally then busted.safe('finally', finally, element) end
       dexecAll('after_each', parent, true)
     end
@@ -98,9 +97,8 @@ return function(busted)
 
   local pending = function(element)
     local parent = busted.context.parent(pending)
-    local trace = busted.getTrace(element, 3)
     busted.publish({ 'test', 'start' }, element, parent)
-    busted.publish({ 'test', 'end' }, element, parent, 'pending', trace)
+    busted.publish({ 'test', 'end' }, element, parent, 'pending')
   end
 
   busted.register('file', file)
