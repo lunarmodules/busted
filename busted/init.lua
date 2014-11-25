@@ -80,6 +80,9 @@ return function(busted)
     element.env.finally = function(fn)
       finally = fn
     end
+    element.env.pending = function(msg)
+      busted.pending(msg)
+    end
 
     local parent = busted.context.parent(element)
 

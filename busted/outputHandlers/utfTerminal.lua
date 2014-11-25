@@ -18,6 +18,12 @@ return function(options, busted)
       ansicolors('%{cyan}' .. pending.trace.currentline)  ..
       '\n' .. ansicolors('%{bright}' .. name)
 
+    if type(pending.message) == 'string' then
+      string = string .. '\n' .. pending.message
+    elseif pending.message ~= nil then
+      string = string .. '\n' .. pretty.write(pending.message)
+    end
+
     return string
   end
 

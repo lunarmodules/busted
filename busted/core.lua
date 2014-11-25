@@ -15,6 +15,12 @@ local failureMt = {
   __type = 'failure'
 }
 
+local pendingMt = {
+  __index = {},
+  __tostring = function(p) return p.message end,
+  __type = 'pending'
+}
+
 local getfenv = require 'busted.compatibility'.getfenv
 local setfenv = require 'busted.compatibility'.setfenv
 local throw = error
@@ -96,6 +102,12 @@ return function()
     local e = { message = emsg }
     setmetatable(e, failureMt)
     throw(e, level+1)
+  end
+
+  function busted.pending(msg)
+    local p = { message = msg }
+    setmetatable(p, pendingMt)
+    throw(p)
   end
 
   function busted.replaceErrorWithFail(callable)

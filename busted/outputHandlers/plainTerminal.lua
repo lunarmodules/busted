@@ -17,6 +17,12 @@ return function(options, busted)
       pending.trace.currentline  ..
       '\n' .. name
 
+    if type(pending.message) == 'string' then
+      string = string .. '\n' .. pending.message
+    elseif pending.message ~= nil then
+      string = string .. '\n' .. pretty.write(pending.message)
+    end
+
     return string
   end
 

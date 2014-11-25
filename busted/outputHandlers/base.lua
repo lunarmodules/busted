@@ -11,8 +11,8 @@ return function(busted)
     inProgress = {}
   }
 
-  handler.cancelOnPending = function(element)
-    return not (element.descriptor == 'pending' and handler.options.suppressPending)
+  handler.cancelOnPending = function(element, parent, status)
+    return not ((element.descriptor == 'pending' or status == 'pending') and handler.options.suppressPending)
   end
 
   handler.subscribe = function(handler, options)
@@ -27,6 +27,7 @@ return function(busted)
     busted.subscribe({ 'suite', 'end' }, handler.baseSuiteEnd)
     busted.subscribe({ 'test', 'start' }, handler.baseTestStart, { predicate = handler.cancelOnPending })
     busted.subscribe({ 'test', 'end' }, handler.baseTestEnd, { predicate = handler.cancelOnPending })
+    busted.subscribe({ 'pending' }, handler.basePending, { predicate = handler.cancelOnPending })
     busted.subscribe({ 'failure' }, handler.baseError)
     busted.subscribe({ 'error' }, handler.baseError)
   end
@@ -78,10 +79,6 @@ return function(busted)
   end
 
   handler.baseTestStart = function(element, parent)
-    if element.descriptor == 'pending' and handler.options.suppressPending then
-      return nil, false
-    end
-
     handler.inProgress[tostring(element)] = {}
     return nil, true
   end
@@ -115,6 +112,16 @@ return function(busted)
       end
 
       handler.inProgress[id] = nil
+    end
+
+    return nil, true
+  end
+
+  handler.basePending = function(element, parent, message, debug)
+    if element.descriptor == 'it' then
+      local id = tostring(element)
+      handler.inProgress[id].message = message
+      handler.inProgress[id].trace = debug
     end
 
     return nil, true
