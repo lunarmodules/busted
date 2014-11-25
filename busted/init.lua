@@ -35,7 +35,7 @@ return function(busted)
       end
     end
 
-    if propagate and parent then execAll(descriptor, parent, propagate) end
+    if propagate and parent then dexecAll(descriptor, parent, propagate) end
   end
 
   local file = function(file)
