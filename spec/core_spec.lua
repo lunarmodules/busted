@@ -2,6 +2,8 @@
 assert(type(describe) == 'function')
 assert(type(context) == 'function')
 assert(type(it) == 'function')
+assert(type(spec) == 'function')
+assert(type(test) == 'function')
 assert(type(before_each) == 'function')
 assert(type(after_each) == 'function')
 assert(type(spy) == 'table')
@@ -243,5 +245,39 @@ describe('tests environment', function()
     end)
 
     assert.are.equal(notglobal, nil)
+  end)
+end)
+
+describe('tests aliases', function()
+  local test_val = 0
+
+  context('runs context alias', function()
+    setup(function()
+      test_val = test_val + 1
+    end)
+
+    before_each(function()
+      test_val = test_val + 1
+    end)
+
+    after_each(function()
+      test_val = test_val + 1
+    end)
+
+    teardown(function()
+      test_val = test_val + 1
+    end)
+
+    spec('runs spec alias', function()
+      test_val = test_val + 1
+    end)
+
+    test('runs test alias', function()
+      test_val = test_val + 1
+    end)
+  end)
+
+  it('checks aliases were executed', function()
+    assert.is_equal(8, test_val)
   end)
 end)

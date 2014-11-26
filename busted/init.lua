@@ -110,6 +110,9 @@ return function(busted)
   busted.register('context', describe)
 
   busted.register('it', it)
+  busted.register('spec', it)
+  busted.register('test', it)
+
   busted.register('pending', pending)
 
   busted.register('setup')
