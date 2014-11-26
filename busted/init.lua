@@ -74,15 +74,21 @@ return function(busted)
 
   local it = function(element)
     local finally
+    local remove = function(descriptors)
+      for _, descriptor in ipairs(descriptors) do
+        element.env[descriptor] = function(...)
+          error("'"..descriptor.."' not supported inside an 'it' block", 2)
+        end
+      end
+    end
 
     if not element.env then element.env = {} end
 
-    element.env.finally = function(fn)
-      finally = fn
-    end
-    element.env.pending = function(msg)
-      busted.pending(msg)
-    end
+    remove({ 'randomize' })
+    remove({ 'describe', 'context', 'it', 'spec', 'test' })
+    remove({ 'setup', 'teardown', 'before_each', 'after_each' })
+    element.env.finally = function(fn) finally = fn end
+    element.env.pending = function(msg) busted.pending(msg) end
 
     local parent = busted.context.parent(element)
 
@@ -92,6 +98,7 @@ return function(busted)
 
     local status = busted.safe('element', element.run, element)
     if not element.env.done then
+      remove({ 'pending' }, element)
       busted.publish({ 'test', 'end' }, element, parent, status)
       if finally then busted.safe('finally', finally, element) end
       dexecAll('after_each', parent, true)
