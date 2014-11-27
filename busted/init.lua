@@ -86,7 +86,6 @@ return function(busted)
     execAll('before_each', parent, true)
 
     busted.publish({ 'test', 'start' }, element, parent)
-    busted.publish({ 'test', 'foo' }, element, parent)
 
     local res = busted.safe('element', element.run, element)
     if not element.env.done then
