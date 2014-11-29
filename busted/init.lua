@@ -59,7 +59,9 @@ return function(busted)
     busted.publish({ 'file', 'start' }, file.name)
 
     if busted.safe('file', file.run, file, true) == 'success' then
+      execAll('setup', file)
       busted.execute(file)
+      dexecAll('teardown', file)
     end
 
     busted.publish({ 'file', 'end' }, file.name)
