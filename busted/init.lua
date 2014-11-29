@@ -1,6 +1,7 @@
 math.randomseed(os.time())
 
-local function shuffle(t)
+local function shuffle(t, seed)
+  if seed then math.randomseed(seed) end
   local n = #t
   while n >= 2 do
     local k = math.random(n)
@@ -73,12 +74,13 @@ return function(busted)
 
     local randomize = false
     describe.env.randomize = function()
+      describe.randomseed = busted.randomseed
       randomize = true
     end
 
     if busted.safe('describe', describe.run, describe) == 'success' then
       if randomize then
-        shuffle(busted.context.children(describe))
+        shuffle(busted.context.children(describe), busted.randomseed)
       end
       execAll('setup', describe)
       busted.execute(describe)

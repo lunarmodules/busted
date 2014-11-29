@@ -7,7 +7,7 @@ describe('Randomizing test order', function()
   for i = 1, 100 do
     table.insert(unexpected, i)
 
-    it('does 1000 its', function()
+    it('does 100 its', function()
       table.insert(order, i)
     end)
   end

@@ -18,6 +18,7 @@ require 'busted.init'(busted)
 local defaultOutput = path.is_windows and 'plainTerminal' or 'utfTerminal'
 local defaultLoaders = 'lua,moonscript'
 local defaultPattern = '_spec'
+local defaultSeed = tostring(os.time())
 local lpathprefix = './src/?.lua;./src/?/?.lua;./src/?/init.lua'
 local cpathprefix = path.is_windows and './csrc/?.dll;./csrc/?/?.dll;' or './csrc/?.so;./csrc/?/?.so;'
 
@@ -35,6 +36,7 @@ cli:add_option('--exclude-tags=TAGS', 'do not run tests with these #tags, takes 
 cli:add_option('-m, --lpath=PATH', 'optional path to be prefixed to the Lua module search path', lpathprefix)
 cli:add_option('--cpath=PATH', 'optional path to be prefixed to the Lua C module search path', cpathprefix)
 cli:add_option('-r, --run=RUN', 'config to run from .busted file')
+cli:add_option('--seed=SEED', 'random seed value to use for randomizing test order', defaultSeed)
 cli:add_option('--lang=LANG', 'language for error messages', 'en')
 cli:add_option('--loaders=NAME', 'test file loaders', defaultLoaders)
 cli:add_option('--helper=PATH', 'A helper script that is run before tests')
@@ -78,8 +80,6 @@ end
 
 -- Load test directory
 local rootFile = path.normpath(path.join(fpath, cliArgs.ROOT))
-
-local pattern = cliArgs.pattern
 
 local tags = {}
 local excludeTags = {}
@@ -155,6 +155,16 @@ busted.subscribe({ 'failure' }, function(element, parent, status)
   return nil, true
 end)
 
+-- Set up random seed
+local randomseed = tonumber(cliArgs.seed)
+if randomseed then
+  busted.randomseed = randomseed
+else
+  print('Argument to --seed must be a number')
+  busted.randomseed = defaultSeed
+  errors = errors + 1
+end
+
 -- Set up output handler to listen to events
 local outputHandlerOptions = {
   verbose = cliArgs.verbose,
@@ -197,6 +207,7 @@ if cliArgs.t ~= '' or cliArgs['exclude-tags'] ~= '' then
   busted.subscribe({ 'register', 'pending' }, checkTags, { priority = 1 })
 end
 
+local pattern = cliArgs.pattern
 local testFileLoader = require 'busted.modules.test_file_loader'(busted, loaders)
 local fileList = testFileLoader(rootFile, pattern)
 if #fileList == 0 then

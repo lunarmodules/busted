@@ -129,6 +129,9 @@ return function(busted)
 
   handler.baseError = function(element, parent, message, debug)
     if element.descriptor == 'it' then
+      if parent.randomseed then
+        message = 'Random Seed: ' .. parent.randomseed .. '\n' .. message
+      end
       local id = tostring(element)
       handler.inProgress[id].message = message
       handler.inProgress[id].trace = debug
