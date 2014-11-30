@@ -250,9 +250,12 @@ describe('Tests error messages through the command line', function()
   it('when throwing errors in a test', function()
     error_start()
     local result = run('bin/busted --output=plainTerminal --pattern=cl_errors.lua$ --tags=testerr')
-    local errmsg = result:match('(Error → .-)\n')
-    local expected = "Error → ./spec/cl_errors.lua:6: force an error"
-    assert.is_equal(expected, errmsg)
+    local err = result:match('(Error → .-)\n')
+    local errmsg = result:match('\n(%./spec/.-)\n')
+    local expectedErr = "Error → ./spec/cl_errors.lua @ 6"
+    local expectedMsg = "./spec/cl_errors.lua:6: force an error"
+    assert.is_equal(expectedErr, err)
+    assert.is_equal(expectedMsg, errmsg)
     error_end()
   end)
 
@@ -268,9 +271,12 @@ describe('Tests error messages through the command line', function()
   it('when a testfile throws errors', function()
     error_start()
     local result = run('bin/busted --output=plainTerminal --pattern=cl_execute_fail.lua$')
-    local errmsg = result:match('(Error → .-)\n')
-    local expected = 'Error → ./spec/cl_execute_fail.lua:4: This compiles fine, but throws an error when being run'
-    assert.is_equal(expected, errmsg)
+    local err = result:match('(Error → .-)\n')
+    local errmsg = result:match('\n(%./spec/cl_execute_fail%.lua:%d+:.-)\n')
+    local expectedErr = 'Error → ./spec/cl_execute_fail.lua @ 4'
+    local expectedMsg = './spec/cl_execute_fail.lua:4: This compiles fine, but throws an error when being run'
+    assert.is_equal(expectedErr, err)
+    assert.is_equal(expectedMsg, errmsg)
     error_end()
   end)
 

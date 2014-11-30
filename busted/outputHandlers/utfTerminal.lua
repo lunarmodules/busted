@@ -27,30 +27,35 @@ return function(options, busted)
     return string
   end
 
+  local failureMessage = function(failure)
+    local string
+    if type(failure.message) == 'string' then
+      string = failure.message
+    elseif failure.message == nil then
+      string = 'Nil error'
+    else
+      string = pretty.write(failure.message)
+    end
+
+    return string
+  end
+
   local failureDescription = function(failure, isError)
     local string = ansicolors('%{red}' .. s('output.failure')) .. ' → '
-
     if isError then
-      string = ansicolors('%{magenta}' .. s('output.error'))
+      string = ansicolors('%{magenta}' .. s('output.error')) .. ' → '
+    end
 
-      if failure.message then
-        string = string .. ' → ' ..  ansicolors('%{cyan}' .. failure.message) .. '\n'
-      end
+    if not failure.trace or not failure.trace.short_src then
       string = string ..
+        ansicolors('%{cyan}' .. failureMessage(failure)) .. '\n' ..
         ansicolors('%{bright}' .. handler.getFullName(failure))
     else
       string = string ..
         ansicolors('%{cyan}' .. failure.trace.short_src) .. ' @ ' ..
         ansicolors('%{cyan}' .. failure.trace.currentline) .. '\n' ..
-        ansicolors('%{bright}' .. handler.getFullName(failure)) .. '\n'
-
-      if type(failure.message) == 'string' then
-        string = string .. failure.message
-      elseif failure.message == nil then
-        string = string .. 'Nil error'
-      else
-        string = string .. pretty.write(failure.message)
-      end
+        ansicolors('%{bright}' .. handler.getFullName(failure)) .. '\n' ..
+        failureMessage(failure)
     end
 
     if options.verbose and failure.trace and failure.trace.traceback then
