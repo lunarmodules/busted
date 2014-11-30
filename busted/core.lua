@@ -118,12 +118,14 @@ return function()
     setfenv(f, env)
   end
 
-  function busted.safe(descriptor, run, element, setenv)
-    if setenv and (type(run) == 'function' or getmetatable(run).__call) then
+  function busted.wrapEnv(callable)
+    if (type(callable) == 'function' or getmetatable(callable).__call) then
       -- prioritize __call if it exists, like in files
-      environment.wrap(getmetatable(run).__call or run)
+      environment.wrap(getmetatable(callable).__call or callable)
     end
+  end
 
+  function busted.safe(descriptor, run, element)
     busted.context.push(element)
     local trace, message
     local status = 'success'

@@ -58,7 +58,19 @@ return function(busted)
   local file = function(file)
     busted.publish({ 'file', 'start' }, file.name)
 
-    if busted.safe('file', file.run, file, true) == 'success' then
+    busted.wrapEnv(file.run)
+    if not file.env then file.env = {} end
+
+    local randomize = false
+    file.env.randomize = function()
+      randomize = true
+    end
+
+    if busted.safe('file', file.run, file) == 'success' then
+      if randomize then
+        file.randomseed = busted.randomseed
+        shuffle(busted.context.children(file), busted.randomseed)
+      end
       execAll('setup', file)
       busted.execute(file)
       dexecAll('teardown', file)
@@ -76,12 +88,12 @@ return function(busted)
 
     local randomize = false
     describe.env.randomize = function()
-      describe.randomseed = busted.randomseed
       randomize = true
     end
 
     if busted.safe('describe', describe.run, describe) == 'success' then
       if randomize then
+        describe.randomseed = busted.randomseed
         shuffle(busted.context.children(describe), busted.randomseed)
       end
       execAll('setup', describe)
