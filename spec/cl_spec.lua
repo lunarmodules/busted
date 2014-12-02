@@ -47,7 +47,6 @@ end
 describe('Tests the busted command-line options', function()
 
   setup(function()
-    require('pl')
   end)
 
   after_each(function()

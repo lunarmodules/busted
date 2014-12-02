@@ -164,7 +164,9 @@ return function()
     end
 
     busted.executors[descriptor] = publisher
-    environment.set(descriptor, publisher)
+    if descriptor ~= 'file' then
+      environment.set(descriptor, publisher)
+    end
 
     busted.subscribe({ 'register', descriptor }, function(name, fn, trace)
       local ctx = busted.context.get()

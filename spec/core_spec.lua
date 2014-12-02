@@ -1,4 +1,5 @@
 --ensure environment is set up
+assert(type(file) == 'nil')
 assert(type(describe) == 'function')
 assert(type(context) == 'function')
 assert(type(it) == 'function')
