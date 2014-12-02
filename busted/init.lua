@@ -11,28 +11,44 @@ local function shuffle(t)
 end
 
 return function(busted)
+  local function remove(descriptors, element)
+    for _, descriptor in ipairs(descriptors) do
+      element.env[descriptor] = function(...)
+        error("'" .. descriptor .. "' not supported inside current context block", 2)
+      end
+    end
+  end
+
+  local function exec(descriptor, element)
+      if not element.env then element.env = {} end
+
+      remove({ 'randomize' }, element)
+      remove({ 'pending' }, element)
+      remove({ 'describe', 'context', 'it', 'spec', 'test' }, element)
+      remove({ 'setup', 'teardown', 'before_each', 'after_each' }, element)
+
+      local ret = { busted.safe(descriptor, element.run, element) }
+      return unpack(ret)
+  end
+
   local function execAll(descriptor, current, propagate)
     local parent = busted.context.parent(current)
 
     if propagate and parent then execAll(descriptor, parent, propagate) end
 
-    local list = current[descriptor]
+    local list = current[descriptor] or {}
 
-    if list then
-      for _, v in pairs(list) do
-        busted.safe(descriptor, v.run, v)
-      end
+    for _, v in pairs(list) do
+      exec(descriptor, v)
     end
   end
 
   local function dexecAll(descriptor, current, propagate)
     local parent = busted.context.parent(current)
-    local list = current[descriptor]
+    local list = current[descriptor] or {}
 
-    if list then
-      for _, v in pairs(list) do
-        busted.safe(descriptor, v.run, v)
-      end
+    for _, v in pairs(list) do
+      exec(descriptor, v)
     end
 
     if propagate and parent then dexecAll(descriptor, parent, propagate) end
@@ -74,19 +90,12 @@ return function(busted)
 
   local it = function(element)
     local finally
-    local remove = function(descriptors)
-      for _, descriptor in ipairs(descriptors) do
-        element.env[descriptor] = function(...)
-          error("'"..descriptor.."' not supported inside an 'it' block", 2)
-        end
-      end
-    end
 
     if not element.env then element.env = {} end
 
-    remove({ 'randomize' })
-    remove({ 'describe', 'context', 'it', 'spec', 'test' })
-    remove({ 'setup', 'teardown', 'before_each', 'after_each' })
+    remove({ 'randomize' }, element)
+    remove({ 'describe', 'context', 'it', 'spec', 'test' }, element)
+    remove({ 'setup', 'teardown', 'before_each', 'after_each' }, element)
     element.env.finally = function(fn) finally = fn end
     element.env.pending = function(msg) busted.pending(msg) end
 

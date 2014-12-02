@@ -285,24 +285,58 @@ end)
 
 describe('tests unsupported functions', function()
   it('it block throws error on describe/context', function()
-    assert.has_error(describe, "'describe' not supported inside an 'it' block")
-    assert.has_error(context, "'context' not supported inside an 'it' block")
+    assert.has_error(describe, "'describe' not supported inside current context block")
+    assert.has_error(context, "'context' not supported inside current context block")
   end)
 
   it('it block throws error on it/spec/test', function()
-    assert.has_error(it, "'it' not supported inside an 'it' block")
-    assert.has_error(spec, "'spec' not supported inside an 'it' block")
-    assert.has_error(test, "'test' not supported inside an 'it' block")
+    assert.has_error(it, "'it' not supported inside current context block")
+    assert.has_error(spec, "'spec' not supported inside current context block")
+    assert.has_error(test, "'test' not supported inside current context block")
   end)
 
   it('it block throws error on setup/before_each/after_each/teardown', function()
-    assert.has_error(setup, "'setup' not supported inside an 'it' block")
-    assert.has_error(before_each, "'before_each' not supported inside an 'it' block")
-    assert.has_error(after_each, "'after_each' not supported inside an 'it' block")
-    assert.has_error(teardown, "'teardown' not supported inside an 'it' block")
+    assert.has_error(setup, "'setup' not supported inside current context block")
+    assert.has_error(before_each, "'before_each' not supported inside current context block")
+    assert.has_error(after_each, "'after_each' not supported inside current context block")
+    assert.has_error(teardown, "'teardown' not supported inside current context block")
   end)
 
   it('it block throws error on randomize', function()
-    assert.has_error(randomize, "'randomize' not supported inside an 'it' block")
+    assert.has_error(randomize, "'randomize' not supported inside current context block")
+  end)
+
+  it('finaly block throws error on pending', function()
+    finally(function()
+      assert.has_error(pending, "'pending' not supported inside current context block")
+    end)
+  end)
+end)
+
+describe('tests unsupported functions in setup/before_each/after_each/teardown', function()
+  local function testUnsupported()
+    assert.has_error(randomize, "'randomize' not supported inside current context block")
+
+    assert.has_error(describe, "'describe' not supported inside current context block")
+    assert.has_error(context, "'context' not supported inside current context block")
+
+    assert.has_error(pending, "'pending' not supported inside current context block")
+
+    assert.has_error(it, "'it' not supported inside current context block")
+    assert.has_error(spec, "'spec' not supported inside current context block")
+    assert.has_error(test, "'test' not supported inside current context block")
+
+    assert.has_error(setup, "'setup' not supported inside current context block")
+    assert.has_error(before_each, "'before_each' not supported inside current context block")
+    assert.has_error(after_each, "'after_each' not supported inside current context block")
+    assert.has_error(teardown, "'teardown' not supported inside current context block")
+  end
+
+  setup(testUnsupported)
+  teardown(testUnsupported)
+  before_each(testUnsupported)
+  after_each(testUnsupported)
+
+  it('tests nothing, all tests performed by support functions', function()
   end)
 end)
