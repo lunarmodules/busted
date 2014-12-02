@@ -35,7 +35,12 @@ return function(busted)
   local function execAll(descriptor, current, propagate)
     local parent = busted.context.parent(current)
 
-    if propagate and parent then execAll(descriptor, parent, propagate) end
+    if propagate and parent then
+      local success, ancestor = execAll(descriptor, parent, propagate)
+      if not success then
+        return success, ancestor
+      end
+    end
 
     local list = current[descriptor] or {}
 
@@ -45,7 +50,7 @@ return function(busted)
         status = nil
       end
     end
-    return status
+    return status, current
   end
 
   local function dexecAll(descriptor, current, propagate)
@@ -59,8 +64,28 @@ return function(busted)
       end
     end
 
-    if propagate and parent then dexecAll(descriptor, parent, propagate) end
+    if propagate and parent then
+      if not dexecAll(descriptor, parent, propagate) then
+        status = nil
+      end
+    end
     return status
+  end
+
+  local function mergeStatus(status1, status2)
+    local isSuccess = function(status) return (status == true or status == 'success') end
+    local map = {
+      ['success'] = 'success',
+      ['pending'] = 'pending',
+      ['failure'] = 'failure',
+      ['error'] = 'error',
+      ['true'] = 'success',
+      ['false'] = 'failure',
+      ['nil'] = 'error',
+    }
+    if (isSuccess(status1)) then return map[tostring(status2)] end
+    if (isSuccess(status2)) then return map[tostring(status1)] end
+    return (status1 == 'pending' and map[tostring(status2)] or map[tostring(status1)])
   end
 
   local file = function(file)
@@ -113,6 +138,8 @@ return function(busted)
   local it = function(element)
     local finally
 
+    busted.publish({ 'test', 'start' }, element, parent)
+
     if not element.env then element.env = {} end
 
     remove({ 'randomize' }, element)
@@ -121,18 +148,30 @@ return function(busted)
     element.env.finally = function(fn) finally = fn end
     element.env.pending = function(msg) busted.pending(msg) end
 
+    local status = 'success'
+    local supportError = function(descriptor)
+      if element.message then element.message = element.message .. '\n' end
+      element.message = (element.message or '') .. 'Error in ' .. descriptor
+      status = mergeStatus(status, 'error')
+    end
+
     local parent = busted.context.parent(element)
+    local pass, ancestor = execAll('before_each', parent, true)
 
-    execAll('before_each', parent, true)
+    if pass then
+      status = busted.safe('element', element.run, element)
+    else
+      supportError('before_each')
+    end
 
-    busted.publish({ 'test', 'start' }, element, parent)
-
-    local status = busted.safe('element', element.run, element)
     if not element.env.done then
       remove({ 'pending' }, element)
+      if finally then status = mergeStatus(status, busted.safe('finally', finally, element)) end
+      if not dexecAll('after_each', ancestor, true) then
+        supportError('after_each')
+      end
+
       busted.publish({ 'test', 'end' }, element, parent, status)
-      if finally then busted.safe('finally', finally, element) end
-      dexecAll('after_each', parent, true)
     end
   end
 

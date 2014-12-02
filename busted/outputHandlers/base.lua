@@ -104,7 +104,7 @@ return function(busted)
       isError = true
     end
 
-    insertTable[id] = handler.format(element, parent, nil, debug, isError)
+    insertTable[id] = handler.format(element, parent, element.message, debug, isError)
 
     if handler.inProgress[id] then
       for k, v in pairs(handler.inProgress[id]) do
