@@ -39,20 +39,28 @@ return function(busted)
 
     local list = current[descriptor] or {}
 
+    local status = true
     for _, v in pairs(list) do
-      exec(descriptor, v)
+      if exec(descriptor, v) ~= 'success' then
+        status = nil
+      end
     end
+    return status
   end
 
   local function dexecAll(descriptor, current, propagate)
     local parent = busted.context.parent(current)
     local list = current[descriptor] or {}
 
+    local status = true
     for _, v in pairs(list) do
-      exec(descriptor, v)
+      if exec(descriptor, v) ~= 'success' then
+        status = nil
+      end
     end
 
     if propagate and parent then dexecAll(descriptor, parent, propagate) end
+    return status
   end
 
   local file = function(file)
@@ -62,17 +70,16 @@ return function(busted)
     if not file.env then file.env = {} end
 
     local randomize = busted.randomize
-    file.env.randomize = function()
-      randomize = true
-    end
+    file.env.randomize = function() randomize = true end
 
     if busted.safe('file', file.run, file) == 'success' then
       if randomize then
         file.randomseed = busted.randomseed
         shuffle(busted.context.children(file), busted.randomseed)
       end
-      execAll('setup', file)
-      busted.execute(file)
+      if execAll('setup', file) then
+        busted.execute(file)
+      end
       dexecAll('teardown', file)
     end
 
@@ -87,17 +94,16 @@ return function(busted)
     if not describe.env then describe.env = {} end
 
     local randomize = busted.randomize
-    describe.env.randomize = function()
-      randomize = true
-    end
+    describe.env.randomize = function() randomize = true end
 
     if busted.safe('describe', describe.run, describe) == 'success' then
       if randomize then
         describe.randomseed = busted.randomseed
         shuffle(busted.context.children(describe), busted.randomseed)
       end
-      execAll('setup', describe)
-      busted.execute(describe)
+      if execAll('setup', describe) then
+        busted.execute(describe)
+      end
       dexecAll('teardown', describe)
     end
 
