@@ -61,7 +61,7 @@ return function(busted)
     busted.wrapEnv(file.run)
     if not file.env then file.env = {} end
 
-    local randomize = false
+    local randomize = busted.randomize
     file.env.randomize = function()
       randomize = true
     end
@@ -86,7 +86,7 @@ return function(busted)
 
     if not describe.env then describe.env = {} end
 
-    local randomize = false
+    local randomize = busted.randomize
     describe.env.randomize = function()
       randomize = true
     end

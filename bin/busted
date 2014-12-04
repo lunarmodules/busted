@@ -42,9 +42,9 @@ cli:add_option('--loaders=NAME', 'test file loaders', defaultLoaders)
 cli:add_option('--helper=PATH', 'A helper script that is run before tests')
 
 cli:add_flag('-c, --coverage', 'do code coverage analysis (requires `LuaCov` to be installed)')
-
 cli:add_flag('-v, --verbose', 'verbose output of errors')
 cli:add_flag('-s, --enable-sound', 'executes `say` command if available')
+cli:add_flag('--randomize', 'force randomized test order')
 cli:add_flag('--suppress-pending', 'suppress `pending` test output')
 cli:add_flag('--defer-print', 'defer print to when test suite is complete')
 
@@ -155,7 +155,8 @@ busted.subscribe({ 'failure' }, function(element, parent, status)
   return nil, true
 end)
 
--- Set up random seed
+-- Set up randomization options
+busted.randomize = cliArgs.randomize
 local randomseed = tonumber(cliArgs.seed)
 if randomseed then
   busted.randomseed = randomseed
