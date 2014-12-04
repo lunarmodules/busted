@@ -155,8 +155,9 @@ return function()
 
       local trace
 
-      if descriptor ~= 'file' then
-        trace = busted.getTrace(busted.context.get(), 3, name)
+      local ctx = busted.context.get()
+      if busted.context.parent(ctx) then
+        trace = busted.getTrace(ctx, 3, name)
       end
 
       busted.publish({ 'register', descriptor }, name, fn, trace)
