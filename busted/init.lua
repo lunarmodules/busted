@@ -44,48 +44,32 @@ return function(busted)
 
     local list = current[descriptor] or {}
 
-    local status = true
+    local success = true
     for _, v in pairs(list) do
-      if exec(descriptor, v) ~= 'success' then
-        status = nil
+      if not exec(descriptor, v):success() then
+        success = nil
       end
     end
-    return status, current
+    return success, current
   end
 
   local function dexecAll(descriptor, current, propagate)
     local parent = busted.context.parent(current)
     local list = current[descriptor] or {}
 
-    local status = true
+    local success = true
     for _, v in pairs(list) do
-      if exec(descriptor, v) ~= 'success' then
-        status = nil
+      if not exec(descriptor, v):success() then
+        success = nil
       end
     end
 
     if propagate and parent then
       if not dexecAll(descriptor, parent, propagate) then
-        status = nil
+        success = nil
       end
     end
-    return status
-  end
-
-  local function mergeStatus(status1, status2)
-    local isSuccess = function(status) return (status == true or status == 'success') end
-    local map = {
-      ['success'] = 'success',
-      ['pending'] = 'pending',
-      ['failure'] = 'failure',
-      ['error'] = 'error',
-      ['true'] = 'success',
-      ['false'] = 'failure',
-      ['nil'] = 'error',
-    }
-    if (isSuccess(status1)) then return map[tostring(status2)] end
-    if (isSuccess(status2)) then return map[tostring(status1)] end
-    return (status1 == 'pending' and map[tostring(status2)] or map[tostring(status1)])
+    return success
   end
 
   local file = function(file)
@@ -97,7 +81,7 @@ return function(busted)
     local randomize = busted.randomize
     file.env.randomize = function() randomize = true end
 
-    if busted.safe('file', file.run, file) == 'success' then
+    if busted.safe('file', file.run, file):success() then
       if randomize then
         file.randomseed = busted.randomseed
         shuffle(busted.context.children(file), busted.randomseed)
@@ -121,7 +105,7 @@ return function(busted)
     local randomize = busted.randomize
     describe.env.randomize = function() randomize = true end
 
-    if busted.safe('describe', describe.run, describe) == 'success' then
+    if busted.safe('describe', describe.run, describe):success() then
       if randomize then
         describe.randomseed = busted.randomseed
         shuffle(busted.context.children(describe), busted.randomseed)
@@ -148,30 +132,30 @@ return function(busted)
     element.env.finally = function(fn) finally = fn end
     element.env.pending = function(msg) busted.pending(msg) end
 
-    local status = 'success'
-    local supportError = function(descriptor)
+    local status = busted.status('success')
+    local updateErrorStatus = function(descriptor)
       if element.message then element.message = element.message .. '\n' end
       element.message = (element.message or '') .. 'Error in ' .. descriptor
-      status = mergeStatus(status, 'error')
+      status:update('error')
     end
 
     local parent = busted.context.parent(element)
     local pass, ancestor = execAll('before_each', parent, true)
 
     if pass then
-      status = busted.safe('element', element.run, element)
+      status:update(busted.safe('element', element.run, element))
     else
-      supportError('before_each')
+      updateErrorStatus('before_each')
     end
 
     if not element.env.done then
       remove({ 'pending' }, element)
-      if finally then status = mergeStatus(status, busted.safe('finally', finally, element)) end
+      if finally then status:update(busted.safe('finally', finally, element)) end
       if not dexecAll('after_each', ancestor, true) then
-        supportError('after_each')
+        updateErrorStatus('after_each')
       end
 
-      busted.publish({ 'test', 'end' }, element, parent, status)
+      busted.publish({ 'test', 'end' }, element, parent, tostring(status))
     end
   end
 

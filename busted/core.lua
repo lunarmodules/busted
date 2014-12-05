@@ -39,6 +39,8 @@ return function()
   busted.executors = {}
   local executors = {}
 
+  busted.status = require 'busted.status'
+
   busted.getTrace = function(element, level, msg)
     level = level or  3
 
@@ -140,7 +142,7 @@ return function()
     if not ret[1] then
       busted.publish({ status, descriptor }, element, busted.context.parent(element), message, trace)
     end
-    ret[1] = status
+    ret[1] = busted.status(status)
 
     busted.context.pop()
     return unpack(ret)
