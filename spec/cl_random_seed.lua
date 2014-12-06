@@ -16,7 +16,18 @@ describe('Order of tests ran', function()
   randomize()
 
   it('randomized with known random seed', function()
-    local expected = { 9, 3, 5, 7, 6, 1, 8, 10, 4, 2 }
+    math.randomseed(12345)
+    local t = {}
+    for i = 1, 10 do
+      table.insert(t, i)
+    end
+    local n = #t
+    while n >= 1 do
+      local k = math.random(n)
+      t[n], t[k] = t[k], t[n]
+      n = n - 1
+    end
+    local expected = t
     assert.are.same(expected, order)
   end)
 end)

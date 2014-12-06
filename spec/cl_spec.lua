@@ -262,8 +262,8 @@ describe('Tests error messages through the command line', function()
   it('when running a non-compiling testfile', function()
     error_start()
     local result = run('bin/busted --output=plainTerminal --pattern=cl_compile_fail.lua$')
-    local errmsg = result:match('(Error → .-)\n')
-    local expected = "Error → ./spec/cl_compile_fail.lua:3: '=' expected near 'here'"
+    local errmsg = result:match('(Error → .-:%d+:) ')
+    local expected = "Error → ./spec/cl_compile_fail.lua:3:"
     assert.is_equal(expected, errmsg)
     error_end()
   end)
