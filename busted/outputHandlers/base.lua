@@ -51,10 +51,12 @@ return function(busted)
   handler.format = function(element, parent, message, debug, isError)
     local formatted = {
       trace = debug or element.trace,
+      element = element,
       name = handler.getFullName(element),
       message = message,
       isError = isError
     }
+    formatted.element.trace = element.trace or debug
 
     return formatted
   end

@@ -46,14 +46,14 @@ return function(options, busted)
       string = ansicolors('%{magenta}' .. s('output.error')) .. ' → '
     end
 
-    if not failure.trace or not failure.trace.short_src then
+    if not failure.element.trace or not failure.element.trace.short_src then
       string = string ..
         ansicolors('%{cyan}' .. failureMessage(failure)) .. '\n' ..
         ansicolors('%{bright}' .. handler.getFullName(failure))
     else
       string = string ..
-        ansicolors('%{cyan}' .. failure.trace.short_src) .. ' @ ' ..
-        ansicolors('%{cyan}' .. failure.trace.currentline) .. '\n' ..
+        ansicolors('%{cyan}' .. failure.element.trace.short_src) .. ' @ ' ..
+        ansicolors('%{cyan}' .. failure.element.trace.currentline) .. '\n' ..
         ansicolors('%{bright}' .. handler.getFullName(failure)) .. '\n' ..
         failureMessage(failure)
     end

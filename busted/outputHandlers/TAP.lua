@@ -42,7 +42,7 @@ return function(options, busted)
       end
 
       print( failure:format( counter, handler.format(t).name ))
-      print('# ' .. t.trace.short_src .. ' @ ' .. t.trace.currentline)
+      print('# ' .. t.element.trace.short_src .. ' @ ' .. t.element.trace.currentline)
       print('# Failure message: ' .. message:gsub('\n', '\n# ' ))
     end
 

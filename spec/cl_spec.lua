@@ -252,7 +252,7 @@ describe('Tests error messages through the command line', function()
     local result = run('bin/busted --output=plainTerminal --pattern=cl_errors.lua$ --tags=testerr')
     local err = result:match('(Error → .-)\n')
     local errmsg = result:match('\n(%./spec/.-)\n')
-    local expectedErr = "Error → ./spec/cl_errors.lua @ 6"
+    local expectedErr = "Error → ./spec/cl_errors.lua @ 5"
     local expectedMsg = "./spec/cl_errors.lua:6: force an error"
     assert.is_equal(expectedErr, err)
     assert.is_equal(expectedMsg, errmsg)

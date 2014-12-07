@@ -45,14 +45,14 @@ return function(options, busted)
       string = s('output.error') .. ' → '
     end
 
-    if not failure.trace or not failure.trace.short_src then
+    if not failure.element.trace or not failure.element.trace.short_src then
       string = string ..
         failureMessage(failure) .. '\n' ..
         handler.getFullName(failure)
     else
       string = string ..
-        failure.trace.short_src .. ' @ ' ..
-        failure.trace.currentline .. '\n' ..
+        failure.element.trace.short_src .. ' @ ' ..
+        failure.element.trace.currentline .. '\n' ..
         handler.getFullName(failure) .. '\n' ..
         failureMessage(failure)
     end
