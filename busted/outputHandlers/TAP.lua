@@ -28,7 +28,7 @@ return function(options, busted)
 
     for i,t in pairs(handler.successes) do
       counter = counter + 1
-      print(counter .. ' ' .. handler.format(t).name)
+      print( success:format( counter, handler.format(t).name ))
     end
 
     for i,t in pairs(handler.failures) do
@@ -41,7 +41,7 @@ return function(options, busted)
         message = pretty.write(message)
       end
 
-      print(counter .. ' ' .. handler.format(t).name)
+      print( failure:format( counter, handler.format(t).name ))
       print('# ' .. t.trace.short_src .. ' @ ' .. t.trace.currentline)
       print('# Failure message: ' .. message:gsub('\n', '\n# ' ))
     end
