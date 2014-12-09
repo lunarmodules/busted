@@ -11,7 +11,7 @@ return function(options, busted)
   local pendingDot = ansicolors('%{yellow}●')
 
   local pendingDescription = function(pending)
-    local name = handler.getFullName(pending)
+    local name = pending.name
 
     local string = ansicolors('%{yellow}' .. s('output.pending')) .. ' → ' ..
       ansicolors('%{cyan}' .. pending.trace.short_src) .. ' @ ' ..
@@ -49,12 +49,12 @@ return function(options, busted)
     if not failure.element.trace or not failure.element.trace.short_src then
       string = string ..
         ansicolors('%{cyan}' .. failureMessage(failure)) .. '\n' ..
-        ansicolors('%{bright}' .. handler.getFullName(failure))
+        ansicolors('%{bright}' .. failure.name)
     else
       string = string ..
         ansicolors('%{cyan}' .. failure.element.trace.short_src) .. ' @ ' ..
         ansicolors('%{cyan}' .. failure.element.trace.currentline) .. '\n' ..
-        ansicolors('%{bright}' .. handler.getFullName(failure)) .. '\n' ..
+        ansicolors('%{bright}' .. failure.name) .. '\n' ..
         failureMessage(failure)
     end
 

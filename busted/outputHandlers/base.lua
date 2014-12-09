@@ -39,14 +39,12 @@ return function(busted)
     while parent and (parent.name or parent.descriptor) and
           parent.descriptor ~= 'file' do
 
-      current_context = context.parent
       table.insert(names, 1, parent.name or parent.descriptor)
       parent = busted.context.parent(parent)
     end
 
     return table.concat(names, ' ')
   end
-
 
   handler.format = function(element, parent, message, debug, isError)
     local formatted = {

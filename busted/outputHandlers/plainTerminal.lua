@@ -10,7 +10,7 @@ return function(options, busted)
   local pendingDot = '.'
 
   local pendingDescription = function(pending)
-    local name = handler.getFullName(pending)
+    local name = pending.name
 
     local string = s('output.pending') .. ' → ' ..
       pending.trace.short_src .. ' @ ' ..
@@ -48,12 +48,12 @@ return function(options, busted)
     if not failure.element.trace or not failure.element.trace.short_src then
       string = string ..
         failureMessage(failure) .. '\n' ..
-        handler.getFullName(failure)
+        failure.name
     else
       string = string ..
         failure.element.trace.short_src .. ' @ ' ..
         failure.element.trace.currentline .. '\n' ..
-        handler.getFullName(failure) .. '\n' ..
+        failure.name .. '\n' ..
         failureMessage(failure)
     end
 
