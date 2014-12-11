@@ -23,15 +23,23 @@ return function(busted)
   end
 
   local function exec(descriptor, element)
-      if not element.env then element.env = {} end
+    if not element.env then element.env = {} end
 
-      remove({ 'randomize' }, element)
-      remove({ 'pending' }, element)
-      remove({ 'describe', 'context', 'it', 'spec', 'test' }, element)
-      remove({ 'setup', 'teardown', 'before_each', 'after_each' }, element)
+    remove({ 'randomize' }, element)
+    remove({ 'pending' }, element)
+    remove({ 'describe', 'context', 'it', 'spec', 'test' }, element)
+    remove({ 'setup', 'teardown', 'before_each', 'after_each' }, element)
 
-      local ret = { busted.safe(descriptor, element.run, element) }
-      return unpack(ret)
+    local parent = busted.context.parent(element)
+    setmetatable(element.env, {
+      __newindex = function(self, key, value)
+        if not parent.env then parent.env = {} end
+        parent.env[key] = value
+      end
+    })
+
+    local ret = { busted.safe(descriptor, element.run, element) }
+    return unpack(ret)
   end
 
   local function execAll(descriptor, current, propagate)
