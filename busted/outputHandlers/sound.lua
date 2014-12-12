@@ -4,7 +4,7 @@ return function(options, busted)
   local handler = require 'busted.outputHandlers.base'(busted)
   local language = require('busted.languages.' .. options.language)
 
-  handler.suiteEnd = function(name, parent)
+  handler.suiteEnd = function()
     local system, sayer_pre, sayer_post
     local messages
 

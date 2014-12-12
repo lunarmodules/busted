@@ -67,13 +67,13 @@ return function(busted)
     return handler.endTime - handler.startTime
   end
 
-  handler.baseSuiteStart = function(name, parent)
+  handler.baseSuiteStart = function()
     handler.startTime = os.clock()
 
     return nil, true
   end
 
-  handler.baseSuiteEnd = function(name, parent)
+  handler.baseSuiteEnd = function()
     handler.endTime = os.clock()
     return nil, true
   end

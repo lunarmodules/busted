@@ -4,7 +4,7 @@ local tablex = require 'pl.tablex'
 return function(options, busted)
   local handler = require 'busted.outputHandlers.base'(busted)
 
-  handler.suiteEnd = function(name, parent)
+  handler.suiteEnd = function()
     local total = handler.successesCount + handler.errorsCount + handler.failuresCount
     print('1..' .. total)
 

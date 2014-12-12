@@ -129,7 +129,7 @@ return function(options, busted)
     return nil, true
   end
 
-  handler.suiteEnd = function(name, parent)
+  handler.suiteEnd = function()
     print('')
     print(statusString())
 
