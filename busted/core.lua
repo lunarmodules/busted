@@ -165,7 +165,11 @@ return function()
         trace = busted.getTrace(ctx, 3, name)
       end
 
-      busted.publish({ 'register', descriptor }, name, fn, trace)
+      local publish = function(f)
+        busted.publish({ 'register', descriptor }, name, f, trace)
+      end
+
+      if fn then publish(fn) else return publish end
     end
 
     busted.executors[descriptor] = publisher

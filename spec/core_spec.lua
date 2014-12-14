@@ -283,6 +283,12 @@ describe('tests environment', function()
   end)
 end)
 
+describe 'tests syntactic sugar' (function()
+   it 'works' (function()
+      assert(true)
+   end)
+end)
+
 describe('tests aliases', function()
   local test_val = 0
 
