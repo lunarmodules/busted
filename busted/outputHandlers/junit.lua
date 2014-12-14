@@ -51,12 +51,11 @@ return function(options, busted)
     return nil, true
   end
 
-  handler.errorFile = function()
-    if status == 'failure' then
-      xml_doc.attr.errors = xml_doc.attr.errors + 1
-    end
-
-    xml_doc:addtag('failure', {}):text(trace.traceback):up()
+  handler.errorFile = function(element, parent, message, trace)
+    xml_doc.attr.errors = xml_doc.attr.errors + 1
+    xml_doc:addtag('error')
+    xml_doc:text(trace.traceback)
+    xml_doc:up()
 
     return nil, true
   end
@@ -65,6 +64,7 @@ return function(options, busted)
   busted.subscribe({ 'suite', 'end' }, handler.suiteEnd)
   busted.subscribe({ 'test', 'end' }, handler.testEnd, { predicate = handler.cancelOnPending })
   busted.subscribe({ 'error', 'file' }, handler.errorFile)
+  busted.subscribe({ 'failure', 'file' }, handler.errorFile)
 
   return handler
 end
