@@ -4,6 +4,7 @@ return function()
   local data = {}
   local parents = {}
   local children = {}
+  local stack = {}
 
   function context.ref()
     local ref = {}
@@ -21,7 +22,7 @@ return function()
     function ref.attach(child)
       if not children[ctx] then children[ctx] = {} end
       parents[child] = ctx
-      children[ctx][#children[ctx]+1] = child
+      table.insert(children[ctx], child)
     end
 
     function ref.children(parent)
@@ -32,13 +33,16 @@ return function()
       return parents[child]
     end
 
-    function ref.push(child)
-      if not parents[child] then error('Detached child. Cannot push.') end
-      ctx = child
+    function ref.push(current)
+      if not parents[current] then error('Detached child. Cannot push.') end
+      table.insert(stack, ctx)
+      ctx = current
     end
 
     function ref.pop()
-      ctx = parents[ctx]
+      local current = ctx
+      ctx = table.remove(stack)
+      if not ctx then error('Context stack empty. Cannot pop.') end
     end
 
     return ref
