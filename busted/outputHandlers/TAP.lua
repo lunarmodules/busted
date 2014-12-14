@@ -1,5 +1,4 @@
 local pretty = require 'pl.pretty'
-local tablex = require 'pl.tablex'
 
 return function(options, busted)
   local handler = require 'busted.outputHandlers.base'(busted)
