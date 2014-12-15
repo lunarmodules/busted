@@ -430,7 +430,16 @@ describe('Tests random seed through the commandline', function()
   end)
 end)
 
-describe('Tests randomize commandline option', function()
+describe('Tests randomize/shuffle commandline option', function()
+  it('forces test shuffling for non-randomized tests', function()
+    local success, exitcode
+    error_start()
+    success, exitcode = execute('bin/busted --shuffle --pattern=cl_randomize.lua$')
+    assert.is_true(success)
+    assert.is_equal(0, exitcode)
+    error_end()
+  end)
+
   it('forces test randomization for non-randomized tests', function()
     local success, exitcode
     error_start()

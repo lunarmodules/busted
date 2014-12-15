@@ -69,7 +69,7 @@ cli:add_option('--exclude-tags=TAGS', 'do not run tests with these #tags, takes 
 cli:add_option('-m, --lpath=PATH', 'optional path to be prefixed to the Lua module search path', lpathprefix)
 cli:add_option('--cpath=PATH', 'optional path to be prefixed to the Lua C module search path', cpathprefix)
 cli:add_option('-r, --run=RUN', 'config to run from .busted file')
-cli:add_option('--seed=SEED', 'random seed value to use for randomizing test order', defaultSeed)
+cli:add_option('--seed=SEED', 'random seed value to use for shuffling test order', defaultSeed)
 cli:add_option('--lang=LANG', 'language for error messages', 'en')
 cli:add_option('--loaders=NAME', 'test file loaders', defaultLoaders)
 cli:add_option('--helper=PATH', 'A helper script that is run before tests')
@@ -78,6 +78,7 @@ cli:add_flag('-c, --coverage', 'do code coverage analysis (requires `LuaCov` to 
 cli:add_flag('-v, --verbose', 'verbose output of errors')
 cli:add_flag('-s, --enable-sound', 'executes `say` command if available')
 cli:add_flag('--randomize', 'force randomized test order')
+cli:add_flag('--shuffle', 'force randomized test order (alias for randomize)')
 cli:add_flag('--suppress-pending', 'suppress `pending` test output')
 cli:add_flag('--defer-print', 'defer print to when test suite is complete')
 
@@ -189,7 +190,7 @@ busted.subscribe({ 'failure' }, function(element, parent, status)
 end)
 
 -- Set up randomization options
-busted.randomize = cliArgs.randomize
+busted.randomize = cliArgs.randomize or cliArgs.shuffle
 busted.randomseed = tonumber(cliArgs.seed) or os.time()
 if cliArgs.seed ~= defaultSeed and tonumber(cliArgs.seed) == nil then
   print('Argument to --seed must be a number')
