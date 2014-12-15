@@ -23,6 +23,7 @@ return function(busted)
       require('busted.languages.' .. options.language)
     end
 
+    busted.subscribe({ 'suite', 'repeat' }, handler.baseSuiteRepeat, { priority = 1 })
     busted.subscribe({ 'suite', 'start' }, handler.baseSuiteStart, { priority = 1 })
     busted.subscribe({ 'suite', 'end' }, handler.baseSuiteEnd, { priority = 1 })
     busted.subscribe({ 'test', 'start' }, handler.baseTestStart, { predicate = handler.cancelOnPending })
@@ -69,6 +70,19 @@ return function(busted)
 
   handler.baseSuiteStart = function()
     handler.startTime = os.clock()
+    return nil, true
+  end
+
+  handler.baseSuiteRepeat = function()
+    handler.successes = {}
+    handler.successesCount = 0
+    handler.pendings = {}
+    handler.pendingsCount = 0
+    handler.failures = {}
+    handler.failuresCount = 0
+    handler.errors = {}
+    handler.errorsCount = 0
+    handler.inProgress = {}
 
     return nil, true
   end

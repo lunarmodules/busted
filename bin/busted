@@ -69,6 +69,7 @@ cli:add_option('--exclude-tags=TAGS', 'do not run tests with these #tags, takes 
 cli:add_option('-m, --lpath=PATH', 'optional path to be prefixed to the Lua module search path', lpathprefix)
 cli:add_option('--cpath=PATH', 'optional path to be prefixed to the Lua C module search path', cpathprefix)
 cli:add_option('-r, --run=RUN', 'config to run from .busted file')
+cli:add_option('--repeat=COUNT', 'run the tests repeatedly', '1')
 cli:add_option('--seed=SEED', 'random seed value to use for shuffling test order', defaultSeed)
 cli:add_option('--lang=LANG', 'language for error messages', 'en')
 cli:add_option('--loaders=NAME', 'test file loaders', defaultLoaders)
@@ -247,9 +248,41 @@ if #fileList == 0 then
   errors = errors + 1
 end
 
-busted.publish({ 'suite', 'start' })
-busted.execute()
-busted.publish({ 'suite', 'end' })
+busted.subscribe({'suite', 'repeat'}, function()
+  local oldctx = busted.context.get()
+  local children = busted.context.children(oldctx)
+
+  busted.context.clear()
+  local ctx = busted.context.get()
+  for k, v in pairs(oldctx) do
+    ctx[k] = v
+  end
+
+  for _, child in pairs(children) do
+    for descriptor, _ in pairs(busted.executors) do
+      child[descriptor] = nil
+    end
+    busted.context.attach(child)
+  end
+
+  busted.randomseed = tonumber(cliArgs.seed) or os.time()
+
+  return nil, true
+end)
+
+local runs = tonumber(cliArgs['repeat']) or 1
+local runString = (runs > 1 and '\nRepeating all tests (run %d of %d) . . .\n\n' or '')
+for i = 1, runs do
+  io.write(runString:format(i, runs))
+  io.flush()
+  if i > 1 then
+    busted.publish({ 'suite', 'repeat' })
+  end
+
+  busted.publish({ 'suite', 'start' })
+  busted.execute()
+  busted.publish({ 'suite', 'end' })
+end
 
 local exit = 0
 if failures > 0 or errors > 0 then

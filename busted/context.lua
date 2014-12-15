@@ -43,6 +43,14 @@ return function()
       ctx[key] = value
     end
 
+    function ref.clear()
+      data = {}
+      parents = {}
+      children = {}
+      stack = {}
+      ctx = data
+    end
+
     function ref.attach(child)
       if not children[ctx] then children[ctx] = {} end
       parents[child] = ctx
