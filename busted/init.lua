@@ -1,3 +1,5 @@
+local unpack = require 'busted.compatibility'.unpack
+
 math.randomseed(os.time())
 
 local function shuffle(t, seed)
