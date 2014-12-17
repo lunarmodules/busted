@@ -36,6 +36,7 @@ build = {
     ['busted.environment']                    = 'busted/environment.lua',
     ['busted.compatibility']                  = 'busted/compatibility.lua',
     ['busted.done']                           = 'busted/done.lua',
+    ['busted.status']                         = 'busted/status.lua',
     ['busted.init']                           = 'busted/init.lua',
 
     ['busted.modules.configuration_loader']   = 'busted/modules/configuration_loader.lua',

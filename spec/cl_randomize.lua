@@ -1,9 +1,8 @@
+-- supporting testfile; belongs to 'cl_spec.lua'
 local unexpected = {}
 local order = {}
 
-describe('Randomizing test order', function()
-  randomize()
-
+describe('Randomizing test order with --randomize flag', function()
   for i = 1, 100 do
     table.insert(unexpected, i)
 
@@ -11,10 +10,9 @@ describe('Randomizing test order', function()
       table.insert(order, i)
     end)
   end
-end)
 
-describe('Order of tests ran', function()
-  it('randomized', function()
+  teardown('runs tests in randomized order', function()
     assert.are_not.same(unexpected, order)
   end)
 end)
+

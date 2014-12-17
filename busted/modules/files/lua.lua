@@ -16,20 +16,10 @@ end
 
 
 ret.load = function(busted, filename)
-  local file, err
-
-  local success, err = pcall(function()
-    file, err = loadfile(filename)
-
-    if not file then
-      busted.publish({ 'error', 'file' }, filename, nil, nil, err)
-    end
-  end)
-
-  if not success then
-    busted.publish({ 'error', 'file' }, filename, nil, nil, err)
+  local file, err = loadfile(filename)
+  if not file then
+    busted.publish({ 'error', 'file' }, { descriptor = 'file', name = filename }, nil, err, {})
   end
-
   return file, getTrace
 end
 

@@ -35,15 +35,38 @@ describe('before_each after_each egg test', function()
       assert.equal(egg,'SbB1AabB')
       egg = egg..'2'
     end)
+
+    describe('jkl', function()
+      setup(function()
+        egg = egg..'s'
+      end)
+
+      teardown(function()
+        egg = egg..'t'
+      end)
+
+      before_each(function()
+        egg = egg..'E'
+      end)
+
+      after_each(function()
+        egg = egg..'F'
+      end)
+
+      it('3', function()
+        assert.equal(egg,'SbB1AabB2AasbBE')
+        egg = egg..'3'
+      end)
+    end)
   end)
 
-  it('3', function()
-    assert.equal(egg,'SbB1AabB2Aab')
-    egg = egg..'3'
+  it('4', function()
+    assert.equal(egg,'SbB1AabB2AasbBE3FAatb')
+    egg = egg..'4'
   end)
 end)
 
-it('4', function()
-  assert.equal(egg,'SbB1AabB2Aab3aT')
+it('5', function()
+  assert.equal(egg,'SbB1AabB2AasbBE3FAatb4aT')
 end)
 

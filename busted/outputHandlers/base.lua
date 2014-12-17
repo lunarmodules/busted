@@ -11,8 +11,8 @@ return function(busted)
     inProgress = {}
   }
 
-  handler.cancelOnPending = function(element)
-    return not (element.descriptor == 'pending' and handler.options.suppressPending)
+  handler.cancelOnPending = function(element, parent, status)
+    return not ((element.descriptor == 'pending' or status == 'pending') and handler.options.suppressPending)
   end
 
   handler.subscribe = function(handler, options)
@@ -27,6 +27,8 @@ return function(busted)
     busted.subscribe({ 'suite', 'end' }, handler.baseSuiteEnd)
     busted.subscribe({ 'test', 'start' }, handler.baseTestStart, { predicate = handler.cancelOnPending })
     busted.subscribe({ 'test', 'end' }, handler.baseTestEnd, { predicate = handler.cancelOnPending })
+    busted.subscribe({ 'pending' }, handler.basePending, { predicate = handler.cancelOnPending })
+    busted.subscribe({ 'failure' }, handler.baseError)
     busted.subscribe({ 'error' }, handler.baseError)
   end
 
@@ -37,7 +39,6 @@ return function(busted)
     while parent and (parent.name or parent.descriptor) and
           parent.descriptor ~= 'file' do
 
-      current_context = context.parent
       table.insert(names, 1, parent.name or parent.descriptor)
       parent = busted.context.parent(parent)
     end
@@ -45,14 +46,15 @@ return function(busted)
     return table.concat(names, ' ')
   end
 
-
   handler.format = function(element, parent, message, debug, isError)
     local formatted = {
-      trace = element.trace or debug,
+      trace = debug or element.trace,
+      element = element,
       name = handler.getFullName(element),
       message = message,
       isError = isError
     }
+    formatted.element.trace = element.trace or debug
 
     return formatted
   end
@@ -77,16 +79,13 @@ return function(busted)
   end
 
   handler.baseTestStart = function(element, parent)
-    if element.descriptor == 'pending' and handler.options.suppressPending then
-      return nil, false
-    end
-
     handler.inProgress[tostring(element)] = {}
     return nil, true
   end
 
   handler.baseTestEnd = function(element, parent, status, debug)
 
+    local isError
     local insertTable
     local id = tostring(element)
 
@@ -99,9 +98,13 @@ return function(busted)
     elseif status == 'failure' then
       insertTable = handler.failures
       handler.failuresCount = handler.failuresCount + 1
+    elseif status == 'error' then
+      insertTable = handler.errors
+      handler.errorsCount = handler.errorsCount + 1
+      isError = true
     end
 
-    insertTable[id] = handler.format(element, parent, nil, debug)
+    insertTable[id] = handler.format(element, parent, element.message, debug, isError)
 
     if handler.inProgress[id] then
       for k, v in pairs(handler.inProgress[id]) do
@@ -114,9 +117,24 @@ return function(busted)
     return nil, true
   end
 
+  handler.basePending = function(element, parent, message, debug)
+    if element.descriptor == 'it' then
+      local id = tostring(element)
+      handler.inProgress[id].message = message
+      handler.inProgress[id].trace = debug
+    end
+
+    return nil, true
+  end
+
   handler.baseError = function(element, parent, message, debug)
     if element.descriptor == 'it' then
-      handler.inProgress[tostring(element)].message = message
+      if parent.randomseed then
+        message = 'Random Seed: ' .. parent.randomseed .. '\n' .. message
+      end
+      local id = tostring(element)
+      handler.inProgress[id].message = message
+      handler.inProgress[id].trace = debug
     else
       handler.errorsCount = handler.errorsCount + 1
       table.insert(handler.errors, handler.format(element, parent, message, debug, true))

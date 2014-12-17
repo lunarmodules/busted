@@ -4,20 +4,6 @@ local tablex = require 'pl.tablex'
 return function(options, busted)
   local handler = require 'busted.outputHandlers.base'(busted)
 
-  local getFullName = function(context)
-    local parent = context.parent
-    local names = { (context.name or context.descriptor) }
-
-    while parent and (parent.name or parent.descriptor) and
-          parent.descriptor ~= 'file' do
-
-      table.insert(names, 1, parent.name or parent.descriptor)
-      parent = busted.context.parent(parent)
-    end
-
-    return table.concat(names, ' ')
-  end
-
   handler.suiteEnd = function(name, parent)
     local total = handler.successesCount + handler.errorsCount + handler.failuresCount
     print('1..' .. total)
@@ -28,7 +14,7 @@ return function(options, busted)
 
     for i,t in pairs(handler.successes) do
       counter = counter + 1
-      print( success:format( counter, handler.format(t).name ))
+      print( success:format( counter, t.name ))
     end
 
     for i,t in pairs(handler.failures) do
@@ -41,8 +27,8 @@ return function(options, busted)
         message = pretty.write(message)
       end
 
-      print( failure:format( counter, handler.format(t).name ))
-      print('# ' .. t.trace.short_src .. ' @ ' .. t.trace.currentline)
+      print( failure:format( counter, t.name ))
+      print('# ' .. t.element.trace.short_src .. ' @ ' .. t.element.trace.currentline)
       print('# Failure message: ' .. message:gsub('\n', '\n# ' ))
     end
 

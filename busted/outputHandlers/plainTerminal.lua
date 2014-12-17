@@ -10,41 +10,54 @@ return function(options, busted)
   local pendingDot = '.'
 
   local pendingDescription = function(pending)
-    local name = handler.getFullName(pending)
+    local name = pending.name
 
     local string = s('output.pending') .. ' → ' ..
       pending.trace.short_src .. ' @ ' ..
       pending.trace.currentline  ..
       '\n' .. name
 
+    if type(pending.message) == 'string' then
+      string = string .. '\n' .. pending.message
+    elseif pending.message ~= nil then
+      string = string .. '\n' .. pretty.write(pending.message)
+    end
+
+    return string
+  end
+
+  local failureMessage = function(failure)
+    local string
+    if type(failure.message) == 'string' then
+      string = failure.message
+    elseif failure.message == nil then
+      string = 'Nil error'
+    else
+      string = pretty.write(failure.message)
+    end
+
     return string
   end
 
   local failureDescription = function(failure, isError)
     local string = s('output.failure') .. ' → '
-
     if isError then
-      string = s('output.error')
-
-      if failure.message then
-        string = string .. ' → ' ..  failure.message .. '\n'
-      end
-    else
-      string = string ..
-        failure.trace.short_src .. ' @ ' ..
-        failure.trace.currentline .. '\n' ..
-        handler.getFullName(failure) .. '\n'
-
-      if type(failure.message) == 'string' then
-        string = string .. failure.message
-      elseif failure.message == nil then
-        string = string .. 'Nil error'
-      else
-        string = string .. pretty.write(failure.message)
-      end
+      string = s('output.error') .. ' → '
     end
 
-    if options.verbose and failure.trace.traceback then
+    if not failure.element.trace or not failure.element.trace.short_src then
+      string = string ..
+        failureMessage(failure) .. '\n' ..
+        failure.name
+    else
+      string = string ..
+        failure.element.trace.short_src .. ' @ ' ..
+        failure.element.trace.currentline .. '\n' ..
+        failure.name .. '\n' ..
+        failureMessage(failure)
+    end
+
+    if options.verbose and failure.trace and failure.trace.traceback then
       string = string .. '\n' .. failure.trace.traceback
     end
 
@@ -104,6 +117,8 @@ return function(options, busted)
         string = pendingDot
       elseif status == 'failure' then
         string = failureDot
+      elseif status == 'error' then
+        string = errorDot
       end
 
       io.write(string)

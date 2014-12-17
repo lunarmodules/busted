@@ -11,41 +11,54 @@ return function(options, busted)
   local pendingDot = ansicolors('%{yellow}●')
 
   local pendingDescription = function(pending)
-    local name = handler.getFullName(pending)
+    local name = pending.name
 
     local string = ansicolors('%{yellow}' .. s('output.pending')) .. ' → ' ..
       ansicolors('%{cyan}' .. pending.trace.short_src) .. ' @ ' ..
       ansicolors('%{cyan}' .. pending.trace.currentline)  ..
       '\n' .. ansicolors('%{bright}' .. name)
 
+    if type(pending.message) == 'string' then
+      string = string .. '\n' .. pending.message
+    elseif pending.message ~= nil then
+      string = string .. '\n' .. pretty.write(pending.message)
+    end
+
+    return string
+  end
+
+  local failureMessage = function(failure)
+    local string
+    if type(failure.message) == 'string' then
+      string = failure.message
+    elseif failure.message == nil then
+      string = 'Nil error'
+    else
+      string = pretty.write(failure.message)
+    end
+
     return string
   end
 
   local failureDescription = function(failure, isError)
     local string = ansicolors('%{red}' .. s('output.failure')) .. ' → '
-
     if isError then
-      string = ansicolors('%{magenta}' .. s('output.error'))
-
-      if failure.message then
-        string = string .. ' → ' ..  ansicolors('%{cyan}' .. failure.message) .. '\n'
-      end
-    else
-      string = string ..
-        ansicolors('%{cyan}' .. failure.trace.short_src) .. ' @ ' ..
-        ansicolors('%{cyan}' .. failure.trace.currentline) .. '\n' ..
-        ansicolors('%{bright}' .. handler.getFullName(failure)) .. '\n'
-
-      if type(failure.message) == 'string' then
-        string = string .. failure.message
-      elseif failure.message == nil then
-        string = string .. 'Nil error'
-      else
-        string = string .. pretty.write(failure.message)
-      end
+      string = ansicolors('%{magenta}' .. s('output.error')) .. ' → '
     end
 
-    if options.verbose and failure.trace.traceback then
+    if not failure.element.trace or not failure.element.trace.short_src then
+      string = string ..
+        ansicolors('%{cyan}' .. failureMessage(failure)) .. '\n' ..
+        ansicolors('%{bright}' .. failure.name)
+    else
+      string = string ..
+        ansicolors('%{cyan}' .. failure.element.trace.short_src) .. ' @ ' ..
+        ansicolors('%{cyan}' .. failure.element.trace.currentline) .. '\n' ..
+        ansicolors('%{bright}' .. failure.name) .. '\n' ..
+        failureMessage(failure)
+    end
+
+    if options.verbose and failure.trace and failure.trace.traceback then
       string = string .. '\n' .. failure.trace.traceback
     end
 
@@ -105,6 +118,8 @@ return function(options, busted)
         string = pendingDot
       elseif status == 'failure' then
         string = failureDot
+      elseif status == 'error' then
+        string = errorDot
       end
 
       io.write(string)
@@ -143,7 +158,7 @@ return function(options, busted)
     return nil, true
   end
 
-  local s = busted.subscribe({ 'test', 'end' }, handler.testEnd, { predicate = handler.cancelOnPending })
+  busted.subscribe({ 'test', 'end' }, handler.testEnd, { predicate = handler.cancelOnPending })
   busted.subscribe({ 'suite', 'end' }, handler.suiteEnd)
   busted.subscribe({ 'error', 'file' }, handler.error)
   busted.subscribe({ 'error', 'describe' }, handler.error)
