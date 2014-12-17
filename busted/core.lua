@@ -23,6 +23,7 @@ local pendingMt = {
 
 local getfenv = require 'busted.compatibility'.getfenv
 local setfenv = require 'busted.compatibility'.setfenv
+local unpack = require 'busted.compatibility'.unpack
 local throw = error
 
 return function()

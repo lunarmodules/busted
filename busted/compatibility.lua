@@ -25,5 +25,7 @@ return {
     if name then
       debug.upvaluejoin(f, up, function() return t end, 1)
     end
-  end
+  end,
+
+  unpack = table.unpack or unpack
 }
