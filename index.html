@@ -570,10 +570,7 @@ local function has_property(state, arguments)
     end
   end
 
-  # state.mod holds true or false, which is true normally, or false if we
-  # are negating the assertion by using is_not or one of its aliases.
-
-  return state.mod == has_key
+  return has_key
 end
 
 s:set("assertion.has_property.positive", "Expected property %s in:\n%s")
