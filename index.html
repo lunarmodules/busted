@@ -576,8 +576,8 @@ local function has_property(state, arguments)
   return state.mod == has_key
 end
 
-s:set("assertion.has_property.positive", "Expected %s to have:\n%s")
-s:set("assertion.has_property.negative", "Expected %s to not have:\n%s")
+say:set("assertion.has_property.positive", "Expected %s \nto have property: %s")
+say:set("assertion.has_property.negative", "Expected %s \nto not have property: %s")
 assert:register("assertion", "has_property", has_property, "assertion.has_property.positive", "assertion.has_property.negative")
 
 describe("my table", function()
