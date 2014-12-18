@@ -51,7 +51,7 @@ require 'busted.init'(busted)
 local defaultOutput = path.is_windows and 'plainTerminal' or 'utfTerminal'
 local defaultLoaders = 'lua,moonscript'
 local defaultPattern = '_spec'
-local defaultSeed = tostring(os.time())
+local defaultSeed = 'os.time()'
 local lpathprefix = './src/?.lua;./src/?/?.lua;./src/?/init.lua'
 local cpathprefix = path.is_windows and './csrc/?.dll;./csrc/?/?.dll;' or './csrc/?.so;./csrc/?/?.so;'
 
@@ -190,12 +190,9 @@ end)
 
 -- Set up randomization options
 busted.randomize = cliArgs.randomize
-local randomseed = tonumber(cliArgs.seed)
-if randomseed then
-  busted.randomseed = randomseed
-else
+busted.randomseed = tonumber(cliArgs.seed) or os.time()
+if cliArgs.seed ~= defaultSeed and tonumber(cliArgs.seed) == nil then
   print('Argument to --seed must be a number')
-  busted.randomseed = defaultSeed
   errors = errors + 1
 end
 
