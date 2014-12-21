@@ -24,6 +24,7 @@ local pendingMt = {
 local getfenv = require 'busted.compatibility'.getfenv
 local setfenv = require 'busted.compatibility'.setfenv
 local unpack = require 'busted.compatibility'.unpack
+local pretty = require 'pl.pretty'
 local throw = error
 
 return function()
@@ -59,8 +60,15 @@ return function()
     return file.getTrace(file.name, info)
   end
 
-  busted.rewriteMessage = function(element, message)
+  busted.rewriteMessage = function(element, message, trace)
     local file = busted.getFile(element)
+    if getmetatable(message) and getmetatable(message).__tostring then
+      message = tostring(message)
+    elseif type(message) ~= 'string' then
+      local trace = trace or busted.getTrace(element, 3, message)
+      local fileline = trace.short_src .. ':' .. trace.currentline .. ': '
+      message = fileline .. (message and pretty.write(message) or 'Nil error')
+    end
 
     return file.rewriteMessage and file.rewriteMessage(file.name, message) or message
   end
@@ -135,9 +143,9 @@ return function()
 
     local ret = { xpcall(run, function(msg)
       local errType = metatype(msg)
-      status = ((errType == 'string' or errType == 'table') and 'error' or errType)
-      message = busted.rewriteMessage(element, errType == 'table' and msg or tostring(msg))
+      status = ((errType == 'pending' or errType == 'failure') and errType or 'error')
       trace = busted.getTrace(element, 3, msg)
+      message = busted.rewriteMessage(element, msg, trace)
     end) }
 
     if not ret[1] then

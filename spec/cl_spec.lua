@@ -259,6 +259,24 @@ describe('Tests error messages through the command line', function()
     error_end()
   end)
 
+  it('when throwning an error table', function()
+    error_start()
+    local result = run('bin/busted --output=plainTerminal --tags=table --pattern=cl_error_messages.lua$')
+    local errmsg = result:match('\n(%./spec/.-)\n')
+    local expected = './spec/cl_error_messages.lua:5: {'
+    assert.is_equal(expected, errmsg)
+    error_end()
+  end)
+
+  it('when throwning a nil error', function()
+    error_start()
+    local result = run('bin/busted --output=plainTerminal --tags=nil --pattern=cl_error_messages.lua$')
+    local errmsg = result:match('\n(%./spec/.-)\n')
+    local expected = './spec/cl_error_messages.lua:9: Nil error'
+    assert.is_equal(expected, errmsg)
+    error_end()
+  end)
+
   it('when running a non-compiling testfile', function()
     error_start()
     local result = run('bin/busted --output=plainTerminal --pattern=cl_compile_fail.lua$')
