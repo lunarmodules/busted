@@ -1,5 +1,7 @@
 -- Busted command-line runner
 
+local getfenv = require 'busted.compatibility'.getfenv
+local setfenv = require 'busted.compatibility'.setfenv
 local path = require 'pl.path'
 local utils = require 'pl.utils'
 local loaded = false
@@ -60,7 +62,10 @@ return function(options)
   local lpathprefix = './src/?.lua;./src/?/?.lua;./src/?/init.lua'
   local cpathprefix = path.is_windows and './csrc/?.dll;./csrc/?/?.dll;' or './csrc/?.so;./csrc/?/?.so;'
 
-  local fileName = debug.getinfo(2).short_src
+  local level = 2
+  local info = debug.getinfo(level, 'Sf')
+  local source = info.source
+  local fileName = source:sub(1,1) == '@' and source:sub(2) or source
 
   -- Load up the command-line interface options
   cli:set_name(path.basename(fileName))
@@ -256,6 +261,12 @@ return function(options)
   if #fileList == 0 then
     print('No test files found matching Lua pattern: ' .. pattern)
     errors = errors + 1
+  end
+
+  if not cliArgs.ROOT then
+    local ctx = busted.context.get()
+    local file = busted.context.children(ctx)[1]
+    getmetatable(file.run).__call = info.func
   end
 
   busted.subscribe({'suite', 'repeat'}, function()
