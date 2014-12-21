@@ -16,7 +16,7 @@ return function(options, busted)
       print( success:format( counter, t.name ))
     end
 
-    for i,t in pairs(handler.failures) do
+    showFailure = function(t)
       counter = counter + 1
       local message = t.message
 
@@ -29,6 +29,13 @@ return function(options, busted)
       print( failure:format( counter, t.name ))
       print('# ' .. t.element.trace.short_src .. ' @ ' .. t.element.trace.currentline)
       print('# Failure message: ' .. message:gsub('\n', '\n# ' ))
+    end
+
+    for i,t in pairs(handler.errors) do
+      showFailure(t)
+    end
+    for i,t in pairs(handler.failures) do
+      showFailure(t)
     end
 
     return nil, true
