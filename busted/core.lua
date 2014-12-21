@@ -135,8 +135,8 @@ return function()
 
     local ret = { xpcall(run, function(msg)
       local errType = metatype(msg)
-      status = (errType == 'string' and 'error' or errType)
-      message = busted.rewriteMessage(element, tostring(msg))
+      status = ((errType == 'string' or errType == 'table') and 'error' or errType)
+      message = busted.rewriteMessage(element, errType == 'table' and msg or tostring(msg))
       trace = busted.getTrace(element, 3, msg)
     end) }
 
