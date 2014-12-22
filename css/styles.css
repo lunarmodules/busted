@@ -119,6 +119,16 @@ footer.span12 {
   bottom: 270px;
 }
 
+.extra-right-margin {
+  margin-right: 6px;
+}
+
+@media screen and (max-width: 999px) {
+  .extra-info {
+    display: none;
+  }
+}
+
 @media screen and (min-width: 768px) {
   /* From here, start to affix the nav because we keep columns here */
   .sidenav.affix {
