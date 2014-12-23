@@ -317,6 +317,50 @@ describe('Tests error messages through the command line', function()
   end)
 end)
 
+describe('Tests moonscript error messages through the command line', function()
+  it('when assertion fails', function()
+    error_start()
+    local result = run('bin/busted --output=plainTerminal --pattern=cl_moonscript_error_messages.moon$ --tags=fail')
+    local err = result:match('(Failure → .-)\n')
+    local errmsg = result:match('\n(%./spec/.-)\n')
+    local expectedErr = "Failure → ./spec/cl_moonscript_error_messages.moon @ 4"
+    local expectedMsg = "./spec/cl_moonscript_error_messages.moon:5: Expected objects to be equal."
+    assert.is_equal(expectedErr, err)
+    assert.is_equal(expectedMsg, errmsg)
+    error_end()
+  end)
+
+  it('when throwing string errors', function()
+    error_start()
+    local result = run('bin/busted --output=plainTerminal --pattern=cl_moonscript_error_messages.moon$ --tags=string')
+    local err = result:match('(Error → .-)\n')
+    local errmsg = result:match('\n(%./spec/.-)\n')
+    local expectedErr = "Error → ./spec/cl_moonscript_error_messages.moon @ 16"
+    local expectedMsg = "./spec/cl_moonscript_error_messages.moon:17: error message"
+    assert.is_equal(expectedErr, err)
+    assert.is_equal(expectedMsg, errmsg)
+    error_end()
+  end)
+
+  it('when throwning an error table', function()
+    error_start()
+    local result = run('bin/busted --output=plainTerminal --tags=table --pattern=cl_moonscript_error_messages.moon$')
+    local errmsg = result:match('\n(%./spec/.-)\n')
+    local expected = './spec/cl_moonscript_error_messages.moon:9: {'
+    assert.is_equal(expected, errmsg)
+    error_end()
+  end)
+
+  it('when throwning a nil error', function()
+    error_start()
+    local result = run('bin/busted --output=plainTerminal --tags=nil --pattern=cl_moonscript_error_messages.moon$')
+    local errmsg = result:match('\n(%./spec/.-)\n')
+    local expected = './spec/cl_moonscript_error_messages.moon:13: Nil error'
+    assert.is_equal(expected, errmsg)
+    error_end()
+  end)
+end)
+
 describe('Tests pending through the commandline', function()
   it('skips tests inside pending scope', function()
     local success, exitcode
