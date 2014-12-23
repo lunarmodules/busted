@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
     <title>busted : Elegant Lua unit testing, by Olivine-Labs</title>
 
@@ -41,12 +41,11 @@
 
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
           <ul class="nav navbar-nav">
-              <li><a href="https://github.com/Olivine-Labs/busted"><span class="glyphicon glyphicon-folder-open glyphicon-white extra-right-margin"></span><span class="extra-info">View On</span><strong>GitHub</strong><span class="extra-info"> @ <small>Olivine-Labs/busted</small></span></a></li>
-              <li><a href="https://github.com/Olivine-Labs/busted/zipball/master"><span class="glyphicon glyphicon-download-alt glyphicon-white"></span> <strong>ZIP File</strong></a></li>
-              <li><a href="https://github.com/Olivine-Labs/busted/tarball/master"><span class="glyphicon glyphicon-download-alt glyphicon-white"></span> <strong>TAR Ball</strong></a></li>
-              <li><a href="http://luarocks.org" target="_blank"><strong class="extra-info">Install:</strong> luarocks install busted</a></li>
-            </ul>
-          </nav>
+            <li><a href="https://github.com/Olivine-Labs/busted"><span class="glyphicon glyphicon-folder-open glyphicon-white extra-right-margin"></span><span class="extra-info">View On</span><strong>GitHub</strong><span class="extra-info"> @ <small>Olivine-Labs/busted</small></span></a></li>
+            <li><a href="https://github.com/Olivine-Labs/busted/zipball/master"><span class="glyphicon glyphicon-download-alt glyphicon-white"></span> <strong>ZIP File</strong></a></li>
+            <li><a href="https://github.com/Olivine-Labs/busted/tarball/master"><span class="glyphicon glyphicon-download-alt glyphicon-white"></span> <strong>TAR Ball</strong></a></li>
+            <li><a href="http://luarocks.org" target="_blank"><strong class="extra-info">Install:</strong> luarocks install busted</a></li>
+          </ul>
         </div>
       </div>
     </nav>
@@ -68,15 +67,11 @@
             <li><a href="#shell-completion"><i class="icon-chevron-right"></i>Shell Completion</a></li>
             <li><a href="#contributing"><i class="icon-chevron-right"></i>Contributing</a></li>
             <li>
-              <a>
-                <h4>Status</h4>
-
-                <p>Version: <strong>2.0.rc4-0</strong></p>
-
-                <p>
-                  <a href="http://travis-ci.org/#!/Olivine-Labs/busted/builds"><img src="https://secure.travis-ci.org/Olivine-Labs/busted.png" alt="travis-ci status" data-canonical-src="https://secure.travis-ci.org/Olivine-Labs/busted.png" style="max-width:100%;"></a>
-                </p>
-              </a>
+              <h4>Status</h4>
+              <p>Version: <strong>2.0.rc4-0</strong></p>
+              <p>
+                <a href="http://travis-ci.org/#!/Olivine-Labs/busted/builds"><img src="https://secure.travis-ci.org/Olivine-Labs/busted.png" alt="travis-ci status" data-canonical-src="https://secure.travis-ci.org/Olivine-Labs/busted.png" style="max-width:100%;"></a>
+              </p>
             </li>
           </ul>
         </div>
@@ -151,7 +146,7 @@ end)
 <pre><code>busted test.lua</code></pre>
 
             <div class="thumbnail">
-              <img src="img/run.png" />
+              <img src="img/run.png" alt="run"/>
             </div>
           </section>
 
@@ -266,7 +261,7 @@ OPTIONS:
               given tag. Seperate tags by commas to run more than one tag.
             </p>
 
-            <h4 id="describe">Describe: Context blocks</h4>
+            <h4 id="describe-blocks">Describe: Context blocks</h4>
             <p>
               Describe takes a title and a callback, and can be nested. You can
               also use <code>context</code> as an alias if you like.
@@ -285,7 +280,7 @@ end)
 
 </code></pre>
 
-          <h4 id="describe">Describe: Tagging Tests</h4>
+          <h4 id="describe-tags">Describe: Tagging Tests</h4>
           <p>
             Tag tests using #tags, and run using the <code>-t</code> flag to only run that
             test.
@@ -768,22 +763,22 @@ end)
           <h4 id="output-utf_terminal">UTF and Coloring: Pretty Terminal Output with utf_terminal</h4>
           <p>Uses ansicolors and utf to display a concise but informative output.</p>
 
-          <img src="img/run.png" />
+          <img src="img/run.png" alt="run" />
 
           <h4 id="output-plain_terminal">Clean output with plain_terminal</h4>
           <p>Uses safe characters and no coloring.</p>
 
-          <img src="img/plain.png" />
+          <img src="img/plain.png" alt="plain"/>
 
           <h4 id="output-json">JSON for integration with json output</h4>
           <p>Useful for streaming or loading all results at once with the --defer-print flag.</p>
 
-          <img src="img/json.png" />
+          <img src="img/json.png" alt="json"/>
 
-          <h4 id="output-json">TAP for use with CI systems</h4>
+          <h4 id="output-tap">TAP for use with CI systems</h4>
           <p><a href="http://en.wikipedia.org/wiki/Test_Anything_Protocol">TAP</a> is an agnostic protocol used by most automated testing suites.</p>
 
-          <img src="img/tap.png" />
+          <img src="img/tap.png" alt="tap" />
 
           <h4>Registering Your Own Output Type</h4>
 
@@ -861,7 +856,7 @@ describe "async moonscript tests", ->
           <p>
             Busted supports English (en), Arabic (ar), French (fr), Dutch (nl),
             Russian (ru), German (de), Japanese (ja), Chinese (zh), and Ukranian (ua) by default.
-            Check out the <a href="https://github.com/Olivine-Labs/busted/tree/master/src/languages" targt="_blank">existing language packs</a>
+            Check out the <a href="https://github.com/Olivine-Labs/busted/tree/master/src/languages" target="_blank">existing language packs</a>
             and send in a pull request.
           </p>
 
@@ -871,7 +866,7 @@ describe "async moonscript tests", ->
             parameter to choose one of the built-in languages, or a path
             to a lua file to run containing your own language. Don't forget
             to submit languages in pull requests as you make them!
-            Check out the <a href="https://github.com/Olivine-Labs/busted/tree/master/src/languages" targt="_blank">existing language packs</a>
+            Check out the <a href="https://github.com/Olivine-Labs/busted/tree/master/src/languages" target="_blank">existing language packs</a>
             to see a template for what you should replace. Copy any of the
             existing files. It uses the <a href="https://github.com/Olivine-Labs/say">say</a>
             string key/value store for registration.
