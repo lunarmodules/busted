@@ -69,7 +69,6 @@ footer.span12 {
 }
 .sidenav > li > a {
   display: block;
-  *width: 190px;
   margin: 0 0 -1px;
   padding: 8px 14px;
   border: 1px solid #e5e5e5;
@@ -110,20 +109,17 @@ footer.span12 {
   background-image: url(../img/glyphicons-halflings-white.png);
   opacity: 1;
 }
-.sidenav.affix {
-  top: 40px;
-}
-.sidenav.affix-bottom {
-  position: absolute;
-  top: auto;
-  bottom: 270px;
-}
+
 .extra-right-margin {
   margin-right: 6px;
 }
 .downsize-json-image {
   width: 850px;
   height: auto;
+}
+.version {
+  font-size: .7em;
+  font-weight: 700;
 }
 
 @media screen and (max-width: 999px) {
@@ -132,31 +128,28 @@ footer.span12 {
   }
 }
 
-@media screen and (min-width: 768px) {
-  /* From here, start to affix the nav because we keep columns here */
+@media screen and (max-width: 1199px) {
+  /* disable sidenav affix under this width */
   .sidenav.affix {
-    position: fixed;
-    top: 54px;
-  }
-  .sidenav {
-    width: 170px;
+    position: relative;
   }
   .sidenav.affix-bottom {
-    position: absolute;
-    top: auto;
-    bottom: 270px;
+    position: relative;
   }
-}
-
-/* Tablets/desktops and up */
-@media screen and (min-width: 992px) {
   .sidenav {
-    width: 220px;
+    max-width: 260px;
   }
 }
 
 /* Large desktops and up */
 @media screen and (min-width: 1200px) {
+  .sidenav.affix {
+    position: fixed;
+    top: 40px;
+  }
+  .sidenav.affix-bottom {
+    position: absolute;
+  }
   .sidenav {
     width: 260px;
   }
