@@ -220,7 +220,7 @@ return function()
     for _, v in pairs(busted.context.children(current)) do
       local executor = executors[v.descriptor]
       if executor then
-        busted.safe(v.descriptor, function() return executor(v) end, v)
+        busted.safe(v.descriptor, function() executor(v) end, v)
       end
     end
   end
