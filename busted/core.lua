@@ -1,4 +1,4 @@
-local metatype = function(obj)
+local function metatype(obj)
   local otype = type(obj)
   if otype == 'table' then
     local mt = getmetatable(obj)
@@ -43,7 +43,7 @@ return function()
 
   busted.status = require 'busted.status'
 
-  busted.getTrace = function(element, level, msg)
+  function busted.getTrace(element, level, msg)
     level = level or  3
 
     local info = debug.getinfo(level, 'Sl')
@@ -60,15 +60,18 @@ return function()
     return file.getTrace(file.name, info)
   end
 
-  busted.rewriteMessage = function(element, message, trace)
-    local file = busted.getFile(element)
-    if getmetatable(message) and getmetatable(message).__tostring then
-      message = tostring(message)
-    elseif type(message) ~= 'string' then
-      local trace = trace or busted.getTrace(element, 3, message)
-      local fileline = trace.short_src .. ':' .. trace.currentline .. ': '
-      message = fileline .. (message and pretty.write(message) or 'Nil error')
+  function busted.getErrorMessage(err)
+    if getmetatable(err) and getmetatable(err).__tostring then
+      return tostring(err)
+    elseif type(err) ~= 'string' then
+      return err and pretty.write(err) or 'Nil error'
     end
+
+    return err
+  end
+
+  function busted.rewriteMessage(element, message, trace)
+    local file = busted.getFile(element)
 
     return file.rewriteMessage and file.rewriteMessage(file.name, message) or message
   end
@@ -109,7 +112,7 @@ return function()
   end
 
   function busted.fail(msg, level)
-    local _, emsg = pcall(error, msg, level+2)
+    local _, emsg = pcall(throw, msg, level+2)
     local e = { message = emsg }
     setmetatable(e, failureMt)
     throw(e, level+1)
@@ -141,11 +144,19 @@ return function()
     local trace, message
     local status = 'success'
 
+    if not element.env then element.env = {} end
+
+    element.env.error = function(msg, level)
+      local level = level or 1
+      _, message = pcall(throw, busted.getErrorMessage(msg), level+2)
+      error(msg, level+1)
+    end
+
     local ret = { xpcall(run, function(msg)
       local errType = metatype(msg)
       status = ((errType == 'pending' or errType == 'failure') and errType or 'error')
       trace = busted.getTrace(element, 3, msg)
-      message = busted.rewriteMessage(element, msg, trace)
+      message = busted.rewriteMessage(element, message or tostring(msg), trace)
     end) }
 
     if not ret[1] then
