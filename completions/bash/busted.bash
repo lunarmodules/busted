@@ -1,10 +1,28 @@
 # bash completion for busted
 #
 
+_busted_comp() {
+  local opt IFS=' '$'\t'$'\n'
+  for opt in $1; do
+    case $opt in
+      --*=*) printf %s$'\n' "$opt"  ;;
+      *.)    printf %s$'\n' "$opt"  ;;
+      *)     printf %s$'\n' "$opt " ;;
+    esac
+  done
+}
+
 _busted() {
   COMPREPLY=()
   local cur="${COMP_WORDS[COMP_CWORD]}"
   local prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ "${cur}" == "=" ]]; then
+    cur=
+  fi
+  if [[ "${prev}" == "=" ]]; then
+    prev="${COMP_WORDS[COMP_CWORD-2]}"
+  fi
 
   case "${prev}" in
     --lang)
@@ -76,7 +94,7 @@ _busted() {
       return 0
       ;;
     -m|--lpath|--cpath)
-      _filedir
+      _filedir -d
       return 0
       ;;
     --repeat)
@@ -89,12 +107,31 @@ _busted() {
       ;;
   esac
 
-  if [[ ${cur} == -* ]] ; then
-    local opts="-h --help -v --verbose --version -o --output -p --pattern \
-      -d --cwd -t --tags --exclude-tags -m --lpath --cpath -r --run --repeat \
-      --seed --lang --loaders --helper -c --coverage -s --enable-sound \
-      --randomize --shuffle --supress-pending --defer-print"
-    COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+  if [[ "${cur}" == -* ]] ; then
+    local opts="
+      -h --help
+      -v --verbose
+      --version
+      -o --output=
+      -p --pattern=
+      -d --cwd=
+      -t --tags= --exclude-tags=
+      -m --lpath= --cpath=
+      -r --run=
+      --repeat=
+      --seed=
+      --lang=
+      --loaders=
+      --helper=
+      -c --coverage
+      -s --enable-sound
+      --randomize --shuffle
+      --supress-pending
+      --defer-print"
+    compopt -o nospace
+
+    local IFS=$'\n'
+    COMPREPLY=( $(compgen -W "$(_busted_comp "${opts-}")" -- "${cur}" ))
     return 0
   else
     _filedir
