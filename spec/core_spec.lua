@@ -231,13 +231,47 @@ end)
 describe('tests environment', function()
   global = 'global'
 
+  setup(function()
+    globalsetup = 'globalsetup'
+  end)
+
+  teardown(function()
+    globalteardown = 'globalteardown'
+  end)
+
+  before_each(function()
+    globalbefore = 'globalbefore'
+  end)
+
+  after_each(function()
+    globalafter = 'globalafter'
+  end)
+
+  it('cannot access globals which have not been created yet', function()
+    assert.equal(nil, globalafter)
+    assert.equal(nil, globalteardown)
+    notglobal = 'notglobal'
+  end)
+
   it('can access globals', function()
     assert.equal('global', global)
+    assert.equal('globalsetup', globalsetup)
+    assert.equal('globalbefore', globalbefore)
+    assert.equal('globalafter', globalafter)
     notglobal = 'notglobal'
   end)
 
   it('cannot access globals set in siblings', function()
     assert.equal(nil, notglobal)
+  end)
+
+  describe('can access parent globals', function()
+    it('from child', function()
+      assert.equal('global', global)
+      assert.equal('globalsetup', globalsetup)
+      assert.equal('globalbefore', globalbefore)
+      assert.equal('globalafter', globalafter)
+    end)
   end)
 
   describe('cannot access globals set in children', function()
@@ -247,6 +281,12 @@ describe('tests environment', function()
 
     assert.are.equal(notglobal, nil)
   end)
+end)
+
+describe 'tests syntactic sugar' (function()
+   it 'works' (function()
+      assert(true)
+   end)
 end)
 
 describe('tests aliases', function()

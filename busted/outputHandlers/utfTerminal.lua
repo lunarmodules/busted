@@ -129,7 +129,7 @@ return function(options, busted)
     return nil, true
   end
 
-  handler.suiteEnd = function(name, parent)
+  handler.suiteEnd = function()
     print('')
     print(statusString())
 
@@ -161,7 +161,9 @@ return function(options, busted)
   busted.subscribe({ 'test', 'end' }, handler.testEnd, { predicate = handler.cancelOnPending })
   busted.subscribe({ 'suite', 'end' }, handler.suiteEnd)
   busted.subscribe({ 'error', 'file' }, handler.error)
+  busted.subscribe({ 'failure', 'file' }, handler.error)
   busted.subscribe({ 'error', 'describe' }, handler.error)
+  busted.subscribe({ 'failure', 'describe' }, handler.error)
 
   return handler
 end

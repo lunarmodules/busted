@@ -9,7 +9,7 @@ return {
       name, value = debug.getupvalue(f, up)
     until name == '_ENV' or name == nil
 
-    return (name and value or _G)
+    return value
   end,
 
   setfenv = setfenv or function(f, t)
@@ -23,8 +23,11 @@ return {
     until name == '_ENV' or name == nil
 
     if name then
-      debug.upvaluejoin(f, up, function() return t end, 1)
+      debug.upvaluejoin(f, up, function() return name end, 1)
+      debug.setupvalue(f, up, t)
     end
+
+    if f ~= 0 then return f end
   end,
 
   unpack = table.unpack or unpack

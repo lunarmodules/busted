@@ -1,9 +1,34 @@
+local tablex = require 'pl.tablex'
+
+local function save()
+  local g = {}
+  for k,_ in next, _G, nil do
+    g[k] = rawget(_G, k)
+  end
+  return {
+    gmt = getmetatable(_G),
+    g = g,
+    loaded = tablex.copy(package.loaded)
+  }
+end
+
+local function restore(state)
+  setmetatable(_G, state.gmt)
+  for k,_ in next, _G, nil do
+    rawset(_G, k, state.g[k])
+  end
+  for k,_ in pairs(package.loaded) do
+    package.loaded[k] = state.loaded[k]
+  end
+end
+
 return function()
   local context = {}
 
   local data = {}
   local parents = {}
   local children = {}
+  local stack = {}
 
   function context.ref()
     local ref = {}
@@ -18,10 +43,18 @@ return function()
       ctx[key] = value
     end
 
+    function ref.clear()
+      data = {}
+      parents = {}
+      children = {}
+      stack = {}
+      ctx = data
+    end
+
     function ref.attach(child)
       if not children[ctx] then children[ctx] = {} end
       parents[child] = ctx
-      children[ctx][#children[ctx]+1] = child
+      table.insert(children[ctx], child)
     end
 
     function ref.children(parent)
@@ -32,13 +65,23 @@ return function()
       return parents[child]
     end
 
-    function ref.push(child)
-      if not parents[child] then error('Detached child. Cannot push.') end
-      ctx = child
+    function ref.push(current)
+      if not parents[current] then error('Detached child. Cannot push.') end
+      if ctx ~= current and current.descriptor == 'file' then
+        current.state = save()
+      end
+      table.insert(stack, ctx)
+      ctx = current
     end
 
     function ref.pop()
-      ctx = parents[ctx]
+      local current = ctx
+      ctx = table.remove(stack)
+      if ctx ~= current and current.state then
+        restore(current.state)
+        current.state = nil
+      end
+      if not ctx then error('Context stack empty. Cannot pop.') end
     end
 
     return ref

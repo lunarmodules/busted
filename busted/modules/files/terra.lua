@@ -24,12 +24,12 @@ ret.load = function(busted, filename)
     file, err = terralib.loadfile(filename)
 
     if not file then
-      busted.publish({ 'error', 'file' }, filename, nil, nil, err)
+      busted.publish({ 'error', 'file' }, { descriptor = 'file', name = filename }, nil, err, {})
     end
   end)
 
   if not success then
-    busted.publish({ 'error', 'file' }, filename, nil, nil, err)
+    busted.publish({ 'error', 'file' }, { descriptor = 'file', name = filename }, nil, err, {})
   end
 
   return file, getTrace

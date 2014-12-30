@@ -1,4 +1,4 @@
-local metatype = function(obj)
+local function metatype(obj)
   local otype = type(obj)
   if otype == 'table' then
     local mt = getmetatable(obj)
@@ -24,6 +24,7 @@ local pendingMt = {
 local getfenv = require 'busted.compatibility'.getfenv
 local setfenv = require 'busted.compatibility'.setfenv
 local unpack = require 'busted.compatibility'.unpack
+local pretty = require 'pl.pretty'
 local throw = error
 
 return function()
@@ -42,7 +43,7 @@ return function()
 
   busted.status = require 'busted.status'
 
-  busted.getTrace = function(element, level, msg)
+  function busted.getTrace(element, level, msg)
     level = level or  3
 
     local info = debug.getinfo(level, 'Sl')
@@ -59,7 +60,17 @@ return function()
     return file.getTrace(file.name, info)
   end
 
-  busted.rewriteMessage = function(element, message)
+  function busted.getErrorMessage(err)
+    if getmetatable(err) and getmetatable(err).__tostring then
+      return tostring(err)
+    elseif type(err) ~= 'string' then
+      return err and pretty.write(err) or 'Nil error'
+    end
+
+    return err
+  end
+
+  function busted.rewriteMessage(element, message, trace)
     local file = busted.getFile(element)
 
     return file.rewriteMessage and file.rewriteMessage(file.name, message) or message
@@ -101,7 +112,7 @@ return function()
   end
 
   function busted.fail(msg, level)
-    local _, emsg = pcall(error, msg, level+2)
+    local _, emsg = pcall(throw, msg, level+2)
     local e = { message = emsg }
     setmetatable(e, failureMt)
     throw(e, level+1)
@@ -133,11 +144,19 @@ return function()
     local trace, message
     local status = 'success'
 
+    if not element.env then element.env = {} end
+
+    element.env.error = function(msg, level)
+      local level = level or 1
+      _, message = pcall(throw, busted.getErrorMessage(msg), level+2)
+      error(msg, level+1)
+    end
+
     local ret = { xpcall(run, function(msg)
       local errType = metatype(msg)
-      status = (errType == 'string' and 'error' or errType)
-      message = busted.rewriteMessage(element, tostring(msg))
+      status = ((errType == 'pending' or errType == 'failure') and errType or 'error')
       trace = busted.getTrace(element, 3, msg)
+      message = busted.rewriteMessage(element, message or tostring(msg), trace)
     end) }
 
     if not ret[1] then
@@ -165,7 +184,11 @@ return function()
         trace = busted.getTrace(ctx, 3, name)
       end
 
-      busted.publish({ 'register', descriptor }, name, fn, trace)
+      local publish = function(f)
+        busted.publish({ 'register', descriptor }, name, f, trace)
+      end
+
+      if fn then publish(fn) else return publish end
     end
 
     busted.executors[descriptor] = publisher
@@ -197,7 +220,7 @@ return function()
     for _, v in pairs(busted.context.children(current)) do
       local executor = executors[v.descriptor]
       if executor then
-        busted.safe(v.descriptor, function() return executor(v) end, v)
+        busted.safe(v.descriptor, function() executor(v) end, v)
       end
     end
   end
