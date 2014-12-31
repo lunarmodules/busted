@@ -31,7 +31,7 @@ return function()
   local mediator = require 'mediator'()
 
   local busted = {}
-  busted.version = '2.0.rc3-0'
+  busted.version = '2.0.rc5-0'
 
   local root = require 'busted.context'()
   busted.context = root.ref()
