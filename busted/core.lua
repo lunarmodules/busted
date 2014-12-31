@@ -1,17 +1,17 @@
-local function metatype(obj)
-  local otype = type(obj)
-  if otype == 'table' then
-    local mt = getmetatable(obj)
-    if mt and mt.__type then
-      return mt.__type
-    end
-  end
-  return otype
-end
+local getfenv = require 'busted.compatibility'.getfenv
+local setfenv = require 'busted.compatibility'.setfenv
+local unpack = require 'busted.compatibility'.unpack
+local pretty = require 'pl.pretty'
+local throw = error
 
 local failureMt = {
   __index = {},
-  __tostring = function(e) return e.message end,
+  __tostring = function(e) return tostring(e.message) end,
+  __type = 'failure'
+}
+
+local failureMtNoString = {
+  __index = {},
   __type = 'failure'
 }
 
@@ -21,11 +21,14 @@ local pendingMt = {
   __type = 'pending'
 }
 
-local getfenv = require 'busted.compatibility'.getfenv
-local setfenv = require 'busted.compatibility'.setfenv
-local unpack = require 'busted.compatibility'.unpack
-local pretty = require 'pl.pretty'
-local throw = error
+local function metatype(obj)
+  local otype = type(obj)
+  return otype == 'table' and (getmetatable(obj) or {}).__type or otype
+end
+
+local function hasToString(obj)
+  return type(obj) == 'string' or (getmetatable(obj) or {}).__tostring
+end
 
 return function()
   local mediator = require 'mediator'()
@@ -60,20 +63,20 @@ return function()
     return file.getTrace(file.name, info)
   end
 
-  function busted.getErrorMessage(err)
-    if getmetatable(err) and getmetatable(err).__tostring then
-      return tostring(err)
-    elseif type(err) ~= 'string' then
-      return err and pretty.write(err) or 'Nil error'
-    end
-
-    return err
-  end
-
   function busted.rewriteMessage(element, message, trace)
     local file = busted.getFile(element)
+    local msg = hasToString(message) and tostring(message)
+    msg = msg or (message ~= nil and pretty.write(message) or 'Nil error')
+    msg = (file.rewriteMessage and file.rewriteMessage(file.name, msg) or msg)
 
-    return file.rewriteMessage and file.rewriteMessage(file.name, message) or message
+    local hasFileLine = msg:match('^[^\n]-:%d+: .*')
+    if not hasFileLine then
+      local trace = trace or busted.getTrace(element, 3, message)
+      local fileline = trace.short_src .. ':' .. trace.currentline .. ': '
+      msg = fileline .. msg
+    end
+
+    return msg
   end
 
   function busted.publish(...)
@@ -114,7 +117,7 @@ return function()
   function busted.fail(msg, level)
     local _, emsg = pcall(throw, msg, level+2)
     local e = { message = emsg }
-    setmetatable(e, failureMt)
+    setmetatable(e, hasToString(msg) and failureMt or failureMtNoString)
     throw(e, level+1)
   end
 
@@ -144,19 +147,11 @@ return function()
     local trace, message
     local status = 'success'
 
-    if not element.env then element.env = {} end
-
-    element.env.error = function(msg, level)
-      local level = level or 1
-      _, message = pcall(throw, busted.getErrorMessage(msg), level+2)
-      error(msg, level+1)
-    end
-
     local ret = { xpcall(run, function(msg)
       local errType = metatype(msg)
       status = ((errType == 'pending' or errType == 'failure') and errType or 'error')
       trace = busted.getTrace(element, 3, msg)
-      message = busted.rewriteMessage(element, message or tostring(msg), trace)
+      message = busted.rewriteMessage(element, msg, trace)
     end) }
 
     if not ret[1] then

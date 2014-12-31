@@ -12,4 +12,13 @@ describe('Test error messages show file and line for', function()
   it('string errors #string', function()
     error('error message')
   end)
+
+  it('table errors #tostring', function()
+    error(setmetatable({}, { __tostring = function() return '{}' end}))
+  end)
+
+  it('table errors #pcall', function()
+    pcall(error, 'error inside pcall')
+    error('error after pcall')
+  end)
 end)

@@ -81,7 +81,7 @@ local getTrace =  function(filename, info)
 end
 
 local rewriteMessage = function(filename, message)
-  local fname, line, msg = message:match('(.-):(%d+): (.*)')
+  local fname, line, msg = message:match('^([^\n]-):(%d+): (.*)')
   if not fname then
     return message
   end
