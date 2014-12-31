@@ -41,6 +41,16 @@ return function()
   busted.context = root.ref()
 
   local environment = require 'busted.environment'(busted.context)
+  busted.environment = {
+    set = environment.set,
+
+    wrap = function(callable)
+      if (type(callable) == 'function' or getmetatable(callable).__call) then
+        -- prioritize __call if it exists, like in files
+        environment.wrap((getmetatable(callable) or {}).__call or callable)
+      end
+    end
+  }
 
   busted.executors = {}
   local executors = {}
@@ -137,13 +147,6 @@ return function()
     setmetatable(env, { __index = getfenv(f) })
     env.error = busted.fail
     setfenv(f, env)
-  end
-
-  function busted.wrapEnv(callable)
-    if (type(callable) == 'function' or getmetatable(callable).__call) then
-      -- prioritize __call if it exists, like in files
-      environment.wrap((getmetatable(callable) or {}).__call or callable)
-    end
   end
 
   function busted.safe(descriptor, run, element)
