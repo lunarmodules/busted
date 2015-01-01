@@ -115,10 +115,12 @@ return function()
   end
 
   function busted.fail(msg, level)
-    local _, emsg = pcall(throw, msg, level+2)
+    local rawlevel = (type(level) ~= 'number' or level <= 0) and level
+    local level = level or 1
+    local _, emsg = pcall(throw, msg, rawlevel or level+2)
     local e = { message = emsg }
     setmetatable(e, hasToString(msg) and failureMt or failureMtNoString)
-    throw(e, level+1)
+    throw(e, rawlevel or level+1)
   end
 
   function busted.pending(msg)
