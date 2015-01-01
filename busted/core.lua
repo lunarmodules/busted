@@ -129,7 +129,7 @@ return function()
 
   function busted.replaceErrorWithFail(callable)
     local env = {}
-    local f = getmetatable(callable).__call or callable
+    local f = (getmetatable(callable) or {}).__call or callable
     setmetatable(env, { __index = getfenv(f) })
     env.error = busted.fail
     setfenv(f, env)
@@ -138,7 +138,7 @@ return function()
   function busted.wrapEnv(callable)
     if (type(callable) == 'function' or getmetatable(callable).__call) then
       -- prioritize __call if it exists, like in files
-      environment.wrap(getmetatable(callable).__call or callable)
+      environment.wrap((getmetatable(callable) or {}).__call or callable)
     end
   end
 
