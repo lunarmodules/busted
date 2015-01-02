@@ -1,6 +1,7 @@
 local getfenv = require 'busted.compatibility'.getfenv
 local setfenv = require 'busted.compatibility'.setfenv
 local unpack = require 'busted.compatibility'.unpack
+local path = require 'pl.path'
 local pretty = require 'pl.pretty'
 local throw = error
 
@@ -49,9 +50,10 @@ return function()
   function busted.getTrace(element, level, msg)
     level = level or  3
 
+    local thisdir = path.dirname(debug.getinfo(1, 'Sl').source)
     local info = debug.getinfo(level, 'Sl')
     while info.what == 'C' or info.short_src:match('luassert[/\\].*%.lua$') or
-          info.short_src:match('busted[/\\].*%.lua$') do
+          (info.source:sub(1,1) == '@' and thisdir == path.dirname(info.source)) do
       level = level + 1
       info = debug.getinfo(level, 'Sl')
     end
