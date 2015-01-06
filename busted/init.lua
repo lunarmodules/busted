@@ -209,6 +209,10 @@ return setmetatable({}, {
     return setmetatable(self, {
       __index = function(self, descriptor)
         return busted.executors[descriptor]
+      end,
+
+      __newindex = function(self, key, value)
+        error('Attempt to modify busted')
       end
     })
   end

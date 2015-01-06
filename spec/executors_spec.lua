@@ -37,4 +37,15 @@ describe('tests require "busted"', function()
     assert.is_equal(before_each, require 'busted'.before_each)
     assert.is_equal(after_each, require 'busted'.after_each)
   end)
+
+  it('functions cannot be overwritten', function()
+    local foo = function() assert(false) end
+    assert.has_error(function() require 'busted'.it = foo end)
+    assert.is_equal(it, require 'busted'.it)
+  end)
+
+  it('cannot add new fields', function()
+    local bar = function() assert(false) end
+    assert.has_error(function() require 'busted'.foo = bar end)
+  end)
 end)
