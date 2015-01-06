@@ -13,15 +13,15 @@ local function shuffle(t, seed)
   return t
 end
 
-return function(busted)
-  local function remove(descriptors, element)
-    for _, descriptor in ipairs(descriptors) do
-      element.env[descriptor] = function(...)
-        error("'" .. descriptor .. "' not supported inside current context block", 2)
-      end
+local function remove(descriptors, element)
+  for _, descriptor in ipairs(descriptors) do
+    element.env[descriptor] = function(...)
+      error("'" .. descriptor .. "' not supported inside current context block", 2)
     end
   end
+end
 
+local function init(busted)
   local function exec(descriptor, element)
     if not element.env then element.env = {} end
 
@@ -201,3 +201,15 @@ return function(busted)
 
   return busted
 end
+
+return setmetatable({}, {
+  __call = function(self, busted)
+    init(busted)
+
+    return setmetatable(self, {
+      __index = function(self, descriptor)
+        return busted.executors[descriptor]
+      end
+    })
+  end
+})
