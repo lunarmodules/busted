@@ -85,7 +85,7 @@ local function init(busted)
   local file = function(file)
     busted.publish({ 'file', 'start' }, file.name)
 
-    busted.wrapEnv(file.run)
+    busted.environment.wrap(file.run)
     if not file.env then file.env = {} end
 
     local randomize = busted.randomize
@@ -191,10 +191,15 @@ local function init(busted)
   busted.register('before_each')
   busted.register('after_each')
 
-  assert = require 'luassert'
-  spy    = require 'luassert.spy'
-  mock   = require 'luassert.mock'
-  stub   = require 'luassert.stub'
+  local assert = require 'luassert'
+  local spy    = require 'luassert.spy'
+  local mock   = require 'luassert.mock'
+  local stub   = require 'luassert.stub'
+
+  busted.environment.set('assert', assert)
+  busted.environment.set('spy', spy)
+  busted.environment.set('mock', mock)
+  busted.environment.set('stub', stub)
 
   busted.replaceErrorWithFail(assert)
   busted.replaceErrorWithFail(assert.True)
