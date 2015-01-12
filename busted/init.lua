@@ -178,11 +178,8 @@ local function init(busted)
   busted.register('file', file)
 
   busted.register('describe', describe)
-  busted.register('context', describe)
 
   busted.register('it', it)
-  busted.register('spec', it)
-  busted.register('test', it)
 
   busted.register('pending', pending)
 
@@ -190,6 +187,10 @@ local function init(busted)
   busted.register('teardown')
   busted.register('before_each')
   busted.register('after_each')
+
+  busted.alias('context', 'describe')
+  busted.alias('spec', 'it')
+  busted.alias('test', 'it')
 
   assert = require 'luassert'
   spy    = require 'luassert.spy'

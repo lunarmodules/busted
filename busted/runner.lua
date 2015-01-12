@@ -226,32 +226,65 @@ return function(options)
     require 'busted.outputHandlers.sound'(outputHandlerOptions, busted)
   end
 
+  local getFullName = function(name)
+    local parent = busted.context.get()
+    local names = { name }
+
+    while parent and (parent.name or parent.descriptor) and
+          parent.descriptor ~= 'file' do
+      table.insert(names, 1, parent.name or parent.descriptor)
+      parent = busted.context.parent(parent)
+    end
+
+    return table.concat(names, ' ')
+  end
+
   local hasTag = function(name, tag)
     local found = name:find('#' .. tag)
     return (found ~= nil)
   end
 
-  local checkTags = function(name)
+  local filterExcludeTags = function(name)
+    local fullname = getFullName(name)
     for i, tag in pairs(excludeTags) do
-      if hasTag(name, tag) then
+      if hasTag(fullname, tag) then
         return nil, false
       end
     end
+    return nil, true
+  end
 
+  local filterTags = function(name)
+    local fullname = getFullName(name)
     for i, tag in pairs(tags) do
-      if hasTag(name, tag) then
+      if hasTag(fullname, tag) then
         return nil, true
       end
     end
-
     return nil, (#tags == 0)
   end
 
-  if cliArgs.t ~= '' or cliArgs['exclude-tags'] ~= '' then
-    -- Watch for tags
-    busted.subscribe({ 'register', 'it' }, checkTags, { priority = 1 })
-    busted.subscribe({ 'register', 'pending' }, checkTags, { priority = 1 })
+  local filterOutNames = function(name)
+    local found = (getFullName(name):find(cliArgs['filter-out']) ~= nil)
+    return nil, not found
   end
+
+  local filterNames = function(name)
+    local found = (getFullName(name):find(cliArgs.filter) ~= nil)
+    return nil, found
+  end
+
+  local filterIf = function(descriptors, fn, cond)
+    if cond then
+      for _, descriptor in ipairs(descriptors) do
+        busted.subscribe({ 'register', descriptor }, fn, { priority = 1 })
+      end
+    end
+  end
+
+  -- Note: filters are applied in reverse order
+  filterIf({ 'it', 'pending' }, filterTags, cliArgs.t ~= '')
+  filterIf({ 'it', 'pending' }, filterExcludeTags, cliArgs['exclude-tags'] ~= '')
 
   -- Load test directory
   local rootFile = cliArgs.ROOT and normpath(path.join(fpath, cliArgs.ROOT)) or fileName

@@ -214,6 +214,12 @@ return function()
     end)
   end
 
+  function busted.alias(alias, descriptor)
+    local publisher = busted.executors[descriptor]
+    busted.executors[alias] = publisher
+    environment.set(alias, publisher)
+  end
+
   function busted.execute(current)
     if not current then current = busted.context.get() end
     for _, v in pairs(busted.context.children(current)) do
