@@ -52,7 +52,7 @@ return function(options)
 
   local luacov = require 'busted.modules.luacov'()
 
-  require 'busted.init'(busted)
+  require 'busted'(busted)
 
   -- Default cli arg values
   local defaultOutput = path.is_windows and 'plainTerminal' or 'utfTerminal'
