@@ -93,6 +93,10 @@ _busted() {
       # no completion available
       return 0
       ;;
+    --filter|--filter-out)
+      # no completion available
+      return 0
+      ;;
     -m|--lpath|--cpath)
       _filedir -d
       return 0
@@ -118,6 +122,7 @@ _busted() {
       -t --tags= --exclude-tags=
       -m --lpath= --cpath=
       -r --run=
+      --filter= --filter-out=
       --repeat=
       --seed=
       --lang=

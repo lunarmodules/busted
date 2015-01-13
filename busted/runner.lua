@@ -81,6 +81,8 @@ return function(options)
   cli:add_option('-d, --cwd=cwd', 'path to current working directory', './')
   cli:add_option('-t, --tags=TAGS', 'only run tests with these #tags')
   cli:add_option('--exclude-tags=TAGS', 'do not run tests with these #tags, takes precedence over --tags')
+  cli:add_option('--filter=PATTERN', 'only run test names matching the Lua pattern')
+  cli:add_option('--filter-out=PATTERN', 'do not run test names matching the Lua pattern, takes precedence over --filter')
   cli:add_option('-m, --lpath=PATH', 'optional path to be prefixed to the Lua module search path', lpathprefix)
   cli:add_option('--cpath=PATH', 'optional path to be prefixed to the Lua C module search path', cpathprefix)
   cli:add_option('-r, --run=RUN', 'config to run from .busted file')
@@ -283,6 +285,8 @@ return function(options)
   end
 
   -- Note: filters are applied in reverse order
+  filterIf({ 'it', 'pending' }, filterNames, cliArgs.filter ~= '')
+  filterIf({ 'it', 'pending' }, filterOutNames, cliArgs['filter-out'] ~= '')
   filterIf({ 'it', 'pending' }, filterTags, cliArgs.t ~= '')
   filterIf({ 'it', 'pending' }, filterExcludeTags, cliArgs['exclude-tags'] ~= '')
 
