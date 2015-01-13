@@ -95,6 +95,7 @@ return function(options)
   cli:add_flag('-c, --coverage', 'do code coverage analysis (requires `LuaCov` to be installed)')
   cli:add_flag('-v, --verbose', 'verbose output of errors')
   cli:add_flag('-s, --enable-sound', 'executes `say` command if available')
+  cli:add_flag('--list', 'list the names of all tests instead of running them')
   cli:add_flag('--randomize', 'force randomized test order')
   cli:add_flag('--shuffle', 'force randomized test order (alias for randomize)')
   cli:add_flag('--suppress-pending', 'suppress `pending` test output')
@@ -276,6 +277,20 @@ return function(options)
     return nil, found
   end
 
+  local printNameOnly = function(name, fn, trace)
+    local fullname = getFullName(name)
+    if trace and trace.what == 'Lua' then
+      print(trace.short_src .. ': ' .. fullname)
+    else
+      print(fullname)
+    end
+    return nil, false
+  end
+
+  local ignoreAll = function()
+    return nil, false
+  end
+
   local filterIf = function(descriptors, fn, cond)
     if cond then
       for _, descriptor in ipairs(descriptors) do
@@ -283,6 +298,9 @@ return function(options)
       end
     end
   end
+
+  filterIf({ 'it', 'pending' }, printNameOnly, cliArgs.list)
+  filterIf({ 'setup', 'teardown', 'before_each', 'after_each' }, ignoreAll, cliArgs.list)
 
   -- Note: filters are applied in reverse order
   filterIf({ 'it', 'pending' }, filterNames, cliArgs.filter ~= '')

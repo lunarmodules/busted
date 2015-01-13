@@ -14,6 +14,7 @@ _busted_args=(
 "(--randomize --shuffle)--shuffle[Force randomized test order (alias for --randomize)]"
 "--suppress-pending[Suppress 'pending' test output]"
 "--version[Prints the program version and exits]"
+"--list[List the names of all tests instead of running them]"
 "--helper[A helper script that is run before tests]:files:_files"
 "--loaders=[Test file loaders]:loaders:_values -s , loaders lua moonscript terra"
 "(-c --coverage)"{-c,--coverage}"[Do code coverage analysis (requires 'LuaCov' to be installed)]"

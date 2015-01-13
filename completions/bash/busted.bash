@@ -116,6 +116,7 @@ _busted() {
       -h --help
       -v --verbose
       --version
+      --list
       -o --output=
       -p --pattern=
       -d --cwd=
