@@ -291,8 +291,8 @@ return function(options)
     return nil, false
   end
 
-  local filterIf = function(descriptors, fn, cond)
-    if cond then
+  local applyFilter = function(descriptors, name, fn)
+    if cliArgs[name] and cliArgs[name] ~= '' then
       for _, descriptor in ipairs(descriptors) do
         busted.subscribe({ 'register', descriptor }, fn, { priority = 1 })
       end
@@ -302,15 +302,15 @@ return function(options)
   if cliArgs.list then
     busted.subscribe({ 'suite', 'start' }, ignoreAll, { priority = 1 })
     busted.subscribe({ 'suite', 'end' }, ignoreAll, { priority = 1 })
-    filterIf({ 'setup', 'teardown', 'before_each', 'after_each' }, ignoreAll, true)
-    filterIf({ 'it', 'pending' }, printNameOnly, true)
+    applyFilter({ 'setup', 'teardown', 'before_each', 'after_each' }, 'list', ignoreAll)
+    applyFilter({ 'it', 'pending' }, 'list', printNameOnly)
   end
 
-  -- Note: filters are applied in reverse order
-  filterIf({ 'it', 'pending' }, filterNames, cliArgs.filter ~= '')
-  filterIf({ 'it', 'pending' }, filterOutNames, cliArgs['filter-out'] ~= '')
-  filterIf({ 'it', 'pending' }, filterTags, cliArgs.t ~= '')
-  filterIf({ 'it', 'pending' }, filterExcludeTags, cliArgs['exclude-tags'] ~= '')
+  -- The following filters are applied in reverse order
+  applyFilter({ 'it', 'pending' }, 'filter'      , filterNames      )
+  applyFilter({ 'it', 'pending' }, 'filter-out'  , filterOutNames   )
+  applyFilter({ 'it', 'pending' }, 'tags'        , filterTags       )
+  applyFilter({ 'it', 'pending' }, 'exclude-tags', filterExcludeTags)
 
   -- Load test directory
   local rootFile = cliArgs.ROOT and normpath(path.join(fpath, cliArgs.ROOT)) or fileName
