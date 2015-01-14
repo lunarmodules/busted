@@ -299,8 +299,12 @@ return function(options)
     end
   end
 
-  filterIf({ 'it', 'pending' }, printNameOnly, cliArgs.list)
-  filterIf({ 'setup', 'teardown', 'before_each', 'after_each' }, ignoreAll, cliArgs.list)
+  if cliArgs.list then
+    busted.subscribe({ 'suite', 'start' }, ignoreAll, { priority = 1 })
+    busted.subscribe({ 'suite', 'end' }, ignoreAll, { priority = 1 })
+    filterIf({ 'setup', 'teardown', 'before_each', 'after_each' }, ignoreAll, true)
+    filterIf({ 'it', 'pending' }, printNameOnly, true)
+  end
 
   -- Note: filters are applied in reverse order
   filterIf({ 'it', 'pending' }, filterNames, cliArgs.filter ~= '')
