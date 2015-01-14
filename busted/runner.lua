@@ -280,7 +280,7 @@ return function(options)
   local printNameOnly = function(name, fn, trace)
     local fullname = getFullName(name)
     if trace and trace.what == 'Lua' then
-      print(trace.short_src .. ': ' .. fullname)
+      print(trace.short_src .. ':' .. trace.currentline .. ': ' .. fullname)
     else
       print(fullname)
     end

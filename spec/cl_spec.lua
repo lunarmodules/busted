@@ -161,9 +161,9 @@ describe('Tests the busted command-line options', function()
 
   it('tests running with --list specified', function()
     local result = run('bin/busted --list --pattern=cl_list.lua$')
-    local expected = './spec/cl_list.lua: Tests list test 1\n' ..
-                     './spec/cl_list.lua: Tests list test 2\n' ..
-                     './spec/cl_list.lua: Tests list test 3\n'
+    local expected = './spec/cl_list.lua:4: Tests list test 1\n' ..
+                     './spec/cl_list.lua:7: Tests list test 2\n' ..
+                     './spec/cl_list.lua:10: Tests list test 3\n'
     assert.is_equal(expected, result)
   end)
 
