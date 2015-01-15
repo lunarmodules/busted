@@ -248,9 +248,8 @@ return function(options)
   end
 
   local filterExcludeTags = function(name)
-    local fullname = getFullName(name)
     for i, tag in pairs(excludeTags) do
-      if hasTag(fullname, tag) then
+      if hasTag(name, tag) then
         return nil, false
       end
     end
@@ -307,10 +306,10 @@ return function(options)
   end
 
   -- The following filters are applied in reverse order
-  applyFilter({ 'it', 'pending' }, 'filter'      , filterNames      )
-  applyFilter({ 'it', 'pending' }, 'filter-out'  , filterOutNames   )
-  applyFilter({ 'it', 'pending' }, 'tags'        , filterTags       )
-  applyFilter({ 'it', 'pending' }, 'exclude-tags', filterExcludeTags)
+  applyFilter({ 'it', 'pending' }            , 'filter'      , filterNames      )
+  applyFilter({ 'describe', 'it', 'pending' }, 'filter-out'  , filterOutNames   )
+  applyFilter({ 'it', 'pending' }            , 'tags'        , filterTags       )
+  applyFilter({ 'describe', 'it', 'pending' }, 'exclude-tags', filterExcludeTags)
 
   -- Load test directory
   local rootFile = cliArgs.ROOT and normpath(path.join(fpath, cliArgs.ROOT)) or fileName
