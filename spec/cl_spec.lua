@@ -588,24 +588,30 @@ describe('Tests random seed through the commandline', function()
   end)
 end)
 
-describe('Tests randomize/shuffle commandline option', function()
-  it('forces test shuffling for non-randomized tests', function()
-    local success, exitcode
-    error_start()
-    success, exitcode = execute('bin/busted --shuffle --pattern=cl_randomize.lua$')
-    assert.is_true(success)
-    assert.is_equal(0, exitcode)
-    error_end()
-  end)
+describe('Tests shuffle commandline option', function()
+  for _, opt in ipairs({ '--shuffle', '--shuffle-tests' }) do
+    it('forces test shuffling for non-randomized tests, ' .. opt, function()
+      local success, exitcode
+      error_start()
+      success, exitcode = execute('bin/busted ' .. opt .. ' --pattern=cl_randomize.lua$')
+      assert.is_true(success)
+      assert.is_equal(0, exitcode)
+      error_end()
+    end)
+  end
+end)
 
-  it('forces test randomization for non-randomized tests', function()
-    local success, exitcode
-    error_start()
-    success, exitcode = execute('bin/busted --randomize --pattern=cl_randomize.lua$')
-    assert.is_true(success)
-    assert.is_equal(0, exitcode)
-    error_end()
-  end)
+describe('Tests sort commandline option', function()
+  for _, opt in ipairs({ '--sort', '--sort-tests' }) do
+    it('sorts tests by name, ' .. opt, function()
+      local success, exitcode
+      error_start()
+      success, exitcode = execute('bin/busted ' .. opt .. ' --pattern=cl_sort.lua$')
+      assert.is_true(success)
+      assert.is_equal(0, exitcode)
+      error_end()
+    end)
+  end
 end)
 
 describe('Tests repeat commandline option', function()

@@ -131,7 +131,8 @@ _busted() {
       --helper=
       -c --coverage
       -s --enable-sound
-      --randomize --shuffle
+      --shuffle --shuffle-tests --shuffle-files
+      --sort --sort-tests --sort-files
       --supress-pending
       --defer-print"
     compopt -o nospace

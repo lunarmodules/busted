@@ -1,6 +1,15 @@
 local unpack = require 'busted.compatibility'.unpack
 local shuffle = require 'busted.utils'.shuffle
 
+local function sort(elements)
+  table.sort(elements, function(t1, t2)
+    if t1.name and t2.name then
+      return t1.name < t2.name
+    end
+    return t2.name ~= nil
+  end)
+  return elements
+end
 
 local function remove(descriptors, element)
   for _, descriptor in ipairs(descriptors) do
@@ -84,6 +93,8 @@ local function init(busted)
       if randomize then
         file.randomseed = busted.randomseed
         shuffle(busted.context.children(file), busted.randomseed)
+      elseif busted.sort then
+        sort(busted.context.children(file))
       end
       if execAll('setup', file) then
         busted.execute(file)
@@ -108,6 +119,8 @@ local function init(busted)
       if randomize then
         describe.randomseed = busted.randomseed
         shuffle(busted.context.children(describe), busted.randomseed)
+      elseif busted.sort then
+        sort(busted.context.children(describe))
       end
       if execAll('setup', describe) then
         busted.execute(describe)

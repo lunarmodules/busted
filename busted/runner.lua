@@ -63,8 +63,12 @@ return function(options)
   cli:add_flag('-v, --verbose', 'verbose output of errors')
   cli:add_flag('-s, --enable-sound', 'executes `say` command if available')
   cli:add_flag('--list', 'list the names of all tests instead of running them')
-  cli:add_flag('--randomize', 'force randomized test order')
-  cli:add_flag('--shuffle', 'force randomized test order (alias for randomize)')
+  cli:add_flag('--shuffle', 'randomize file and test order, takes precedence over --sort (--shuffle-test and --shuffle-files)')
+  cli:add_flag('--shuffle-files', 'randomize file execution order, takes precedence over --sort-files')
+  cli:add_flag('--shuffle-tests', 'randomize test order within a file, takes precedence over --sort-tests')
+  cli:add_flag('--sort', 'sort file and test order (--sort-tests and --sort-files)')
+  cli:add_flag('--sort-files', 'sort file execution order')
+  cli:add_flag('--sort-tests', 'sort test order within a file')
   cli:add_flag('--suppress-pending', 'suppress `pending` test output')
   cli:add_flag('--defer-print', 'defer print to when test suite is complete')
 
@@ -174,7 +178,8 @@ return function(options)
   end)
 
   -- Set up randomization options
-  busted.randomize = cliArgs.randomize or cliArgs.shuffle
+  busted.sort = cliArgs['sort-tests'] or cliArgs.sort
+  busted.randomize = cliArgs['shuffle-tests'] or cliArgs.shuffle
   busted.randomseed = tonumber(cliArgs.seed) or os.time()
   if cliArgs.seed ~= defaultSeed and tonumber(cliArgs.seed) == nil then
     print('Argument to --seed must be a number')
@@ -278,10 +283,18 @@ return function(options)
   applyFilter({ 'it', 'pending' }            , 'tags'        , filterTags       )
   applyFilter({ 'describe', 'it', 'pending' }, 'exclude-tags', filterExcludeTags)
 
+  -- Set up test loader options
+  local testFileLoaderOptions = {
+    verbose = cliArgs.verbose,
+    sort = cliArgs['sort-files'] or cliArgs.sort,
+    shuffle = cliArgs['shuffle-files'] or cliArgs.shuffle,
+    seed = busted.randomseed
+  }
+
   -- Load test directory
   local rootFile = cliArgs.ROOT and utils.normpath(path.join(fpath, cliArgs.ROOT)) or fileName
   local pattern = cliArgs.pattern
-  local testFileLoader = require 'busted.modules.test_file_loader'(busted, loaders)
+  local testFileLoader = require 'busted.modules.test_file_loader'(busted, loaders, testFileLoaderOptions)
   local fileList = testFileLoader(rootFile, pattern)
   if #fileList == 0 then
     print('No test files found matching Lua pattern: ' .. pattern)
