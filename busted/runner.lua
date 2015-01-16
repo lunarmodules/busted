@@ -3,41 +3,8 @@
 local getfenv = require 'busted.compatibility'.getfenv
 local setfenv = require 'busted.compatibility'.setfenv
 local path = require 'pl.path'
-local utils = require 'pl.utils'
+local utils = require 'busted.utils'
 local loaded = false
-
--- Do not use pl.path.normpath
--- It is broken for paths with leading '../../'
-local function normpath(fpath)
-  if type(fpath) ~= 'string' then
-    error(fpath .. ' is not a string')
-  end
-  local sep = '/'
-  if path.is_windows then
-    sep = '\\'
-    if fpath:match '^\\\\' then -- UNC
-      return '\\\\' .. normpath(fpath:sub(3))
-    end
-    fpath = fpath:gsub('/','\\')
-  end
-  local np_gen1, np_gen2 = '([^SEP]+)SEP(%.%.SEP?)', 'SEP+%.?SEP'
-  local np_pat1 = np_gen1:gsub('SEP', sep)
-  local np_pat2 = np_gen2:gsub('SEP', sep)
-  local k
-  repeat -- /./ -> /
-    fpath, k = fpath:gsub(np_pat2, sep)
-  until k == 0
-  repeat -- A/../ -> (empty)
-    local oldpath = fpath
-    fpath, k = fpath:gsub(np_pat1, function(d, up)
-      if d == '..' then return nil end
-      if d == '.' then return up end
-      return ''
-    end)
-  until k == 0 or oldpath == fpath
-  if fpath == '' then fpath = '.' end
-  return fpath
-end
 
 return function(options)
   if loaded then return else loaded = true end
@@ -118,7 +85,7 @@ return function(options)
 
   -- Load busted config file if available
   local configFile = { }
-  local bustedConfigFilePath = normpath(path.join(fpath, '.busted'))
+  local bustedConfigFilePath = utils.normpath(path.join(fpath, '.busted'))
 
   local bustedConfigFile = pcall(function() configFile = loadfile(bustedConfigFilePath)() end)
 
@@ -312,7 +279,7 @@ return function(options)
   applyFilter({ 'describe', 'it', 'pending' }, 'exclude-tags', filterExcludeTags)
 
   -- Load test directory
-  local rootFile = cliArgs.ROOT and normpath(path.join(fpath, cliArgs.ROOT)) or fileName
+  local rootFile = cliArgs.ROOT and utils.normpath(path.join(fpath, cliArgs.ROOT)) or fileName
   local pattern = cliArgs.pattern
   local testFileLoader = require 'busted.modules.test_file_loader'(busted, loaders)
   local fileList = testFileLoader(rootFile, pattern)

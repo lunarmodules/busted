@@ -1,17 +1,6 @@
 local unpack = require 'busted.compatibility'.unpack
+local shuffle = require 'busted.utils'.shuffle
 
-math.randomseed(os.time())
-
-local function shuffle(t, seed)
-  if seed then math.randomseed(seed) end
-  local n = #t
-  while n >= 2 do
-    local k = math.random(n)
-    t[n], t[k] = t[k], t[n]
-    n = n - 1
-  end
-  return t
-end
 
 local function remove(descriptors, element)
   for _, descriptor in ipairs(descriptors) do
