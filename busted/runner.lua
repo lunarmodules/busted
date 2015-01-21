@@ -62,6 +62,7 @@ return function(options)
   cli:add_flag('-c, --coverage', 'do code coverage analysis (requires `LuaCov` to be installed)')
   cli:add_flag('-v, --verbose', 'verbose output of errors')
   cli:add_flag('-s, --enable-sound', 'executes `say` command if available')
+  cli:add_flag('--no-keep-going', 'quit after first error or failure')
   cli:add_flag('--list', 'list the names of all tests instead of running them')
   cli:add_flag('--shuffle', 'randomize file and test order, takes precedence over --sort (--shuffle-test and --shuffle-files)')
   cli:add_flag('--shuffle-files', 'randomize file execution order, takes precedence over --sort-files')
@@ -159,12 +160,14 @@ return function(options)
   -- watch for test errors
   local failures = 0
   local errors = 0
+  local quitOnError = cliArgs['no-keep-going']
 
   busted.subscribe({ 'error' }, function(element, parent, status)
     if element.descriptor == 'output' then
       print('Cannot load output library: ' .. element.name)
     end
     errors = errors + 1
+    busted.skipAll = quitOnError
     return nil, true
   end)
 
@@ -174,6 +177,7 @@ return function(options)
     else
       errors = errors + 1
     end
+    busted.skipAll = quitOnError
     return nil, true
   end)
 
@@ -262,6 +266,10 @@ return function(options)
     return nil, false
   end
 
+  local skipOnError = function()
+    return nil, (failures == 0 and errors == 0)
+  end
+
   local applyFilter = function(descriptors, name, fn)
     if cliArgs[name] and cliArgs[name] ~= '' then
       for _, descriptor in ipairs(descriptors) do
@@ -276,6 +284,9 @@ return function(options)
     applyFilter({ 'setup', 'teardown', 'before_each', 'after_each' }, 'list', ignoreAll)
     applyFilter({ 'it', 'pending' }, 'list', printNameOnly)
   end
+
+  applyFilter({ 'setup', 'teardown', 'before_each', 'after_each' }, 'no-keep-going', skipOnError)
+  applyFilter({ 'file', 'describe', 'it', 'pending' }, 'no-keep-going', skipOnError)
 
   -- The following filters are applied in reverse order
   applyFilter({ 'it', 'pending' }            , 'filter'      , filterNames      )
@@ -341,6 +352,10 @@ return function(options)
     busted.publish({ 'suite', 'start' })
     busted.execute()
     busted.publish({ 'suite', 'end' })
+
+    if quitOnError and (failures > 0 or errors > 0) then
+      break
+    end
   end
 
   local exit = 0

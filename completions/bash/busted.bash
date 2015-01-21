@@ -131,6 +131,7 @@ _busted() {
       --helper=
       -c --coverage
       -s --enable-sound
+      --no-keep-going
       --shuffle --shuffle-tests --shuffle-files
       --sort --sort-tests --sort-files
       --supress-pending

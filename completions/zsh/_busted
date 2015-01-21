@@ -19,6 +19,7 @@ _busted_args=(
 "--suppress-pending[Suppress 'pending' test output]"
 "--version[Prints the program version and exits]"
 "--list[List the names of all tests instead of running them]"
+"--no-keep-going[Quit after first error or failure]"
 "--helper[A helper script that is run before tests]:files:_files"
 "--loaders=[Test file loaders]:loaders:_values -s , loaders lua moonscript terra"
 "(-c --coverage)"{-c,--coverage}"[Do code coverage analysis (requires 'LuaCov' to be installed)]"

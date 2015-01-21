@@ -224,7 +224,7 @@ return function()
     if not current then current = busted.context.get() end
     for _, v in pairs(busted.context.children(current)) do
       local executor = executors[v.descriptor]
-      if executor then
+      if executor and not busted.skipAll then
         busted.safe(v.descriptor, function() executor(v) end, v)
       end
     end
