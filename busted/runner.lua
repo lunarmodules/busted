@@ -3,41 +3,8 @@
 local getfenv = require 'busted.compatibility'.getfenv
 local setfenv = require 'busted.compatibility'.setfenv
 local path = require 'pl.path'
-local utils = require 'pl.utils'
+local utils = require 'busted.utils'
 local loaded = false
-
--- Do not use pl.path.normpath
--- It is broken for paths with leading '../../'
-local function normpath(fpath)
-  if type(fpath) ~= 'string' then
-    error(fpath .. ' is not a string')
-  end
-  local sep = '/'
-  if path.is_windows then
-    sep = '\\'
-    if fpath:match '^\\\\' then -- UNC
-      return '\\\\' .. normpath(fpath:sub(3))
-    end
-    fpath = fpath:gsub('/','\\')
-  end
-  local np_gen1, np_gen2 = '([^SEP]+)SEP(%.%.SEP?)', 'SEP+%.?SEP'
-  local np_pat1 = np_gen1:gsub('SEP', sep)
-  local np_pat2 = np_gen2:gsub('SEP', sep)
-  local k
-  repeat -- /./ -> /
-    fpath, k = fpath:gsub(np_pat2, sep)
-  until k == 0
-  repeat -- A/../ -> (empty)
-    local oldpath = fpath
-    fpath, k = fpath:gsub(np_pat1, function(d, up)
-      if d == '..' then return nil end
-      if d == '.' then return up end
-      return ''
-    end)
-  until k == 0 or oldpath == fpath
-  if fpath == '' then fpath = '.' end
-  return fpath
-end
 
 return function(options)
   if loaded then return else loaded = true end
@@ -81,6 +48,8 @@ return function(options)
   cli:add_option('-d, --cwd=cwd', 'path to current working directory', './')
   cli:add_option('-t, --tags=TAGS', 'only run tests with these #tags')
   cli:add_option('--exclude-tags=TAGS', 'do not run tests with these #tags, takes precedence over --tags')
+  cli:add_option('--filter=PATTERN', 'only run test names matching the Lua pattern')
+  cli:add_option('--filter-out=PATTERN', 'do not run test names matching the Lua pattern, takes precedence over --filter')
   cli:add_option('-m, --lpath=PATH', 'optional path to be prefixed to the Lua module search path', lpathprefix)
   cli:add_option('--cpath=PATH', 'optional path to be prefixed to the Lua C module search path', cpathprefix)
   cli:add_option('-r, --run=RUN', 'config to run from .busted file')
@@ -93,8 +62,14 @@ return function(options)
   cli:add_flag('-c, --coverage', 'do code coverage analysis (requires `LuaCov` to be installed)')
   cli:add_flag('-v, --verbose', 'verbose output of errors')
   cli:add_flag('-s, --enable-sound', 'executes `say` command if available')
-  cli:add_flag('--randomize', 'force randomized test order')
-  cli:add_flag('--shuffle', 'force randomized test order (alias for randomize)')
+  cli:add_flag('--no-keep-going', 'quit after first error or failure')
+  cli:add_flag('--list', 'list the names of all tests instead of running them')
+  cli:add_flag('--shuffle', 'randomize file and test order, takes precedence over --sort (--shuffle-test and --shuffle-files)')
+  cli:add_flag('--shuffle-files', 'randomize file execution order, takes precedence over --sort-files')
+  cli:add_flag('--shuffle-tests', 'randomize test order within a file, takes precedence over --sort-tests')
+  cli:add_flag('--sort', 'sort file and test order (--sort-tests and --sort-files)')
+  cli:add_flag('--sort-files', 'sort file execution order')
+  cli:add_flag('--sort-tests', 'sort test order within a file')
   cli:add_flag('--suppress-pending', 'suppress `pending` test output')
   cli:add_flag('--defer-print', 'defer print to when test suite is complete')
 
@@ -115,7 +90,7 @@ return function(options)
 
   -- Load busted config file if available
   local configFile = { }
-  local bustedConfigFilePath = normpath(path.join(fpath, '.busted'))
+  local bustedConfigFilePath = utils.normpath(path.join(fpath, '.busted'))
 
   local bustedConfigFile = pcall(function() configFile = loadfile(bustedConfigFilePath)() end)
 
@@ -185,12 +160,14 @@ return function(options)
   -- watch for test errors
   local failures = 0
   local errors = 0
+  local quitOnError = cliArgs['no-keep-going']
 
   busted.subscribe({ 'error' }, function(element, parent, status)
     if element.descriptor == 'output' then
       print('Cannot load output library: ' .. element.name)
     end
     errors = errors + 1
+    busted.skipAll = quitOnError
     return nil, true
   end)
 
@@ -200,11 +177,13 @@ return function(options)
     else
       errors = errors + 1
     end
+    busted.skipAll = quitOnError
     return nil, true
   end)
 
   -- Set up randomization options
-  busted.randomize = cliArgs.randomize or cliArgs.shuffle
+  busted.sort = cliArgs['sort-tests'] or cliArgs.sort
+  busted.randomize = cliArgs['shuffle-tests'] or cliArgs.shuffle
   busted.randomseed = tonumber(cliArgs.seed) or os.time()
   if cliArgs.seed ~= defaultSeed and tonumber(cliArgs.seed) == nil then
     print('Argument to --seed must be a number')
@@ -226,37 +205,107 @@ return function(options)
     require 'busted.outputHandlers.sound'(outputHandlerOptions, busted)
   end
 
+  local getFullName = function(name)
+    local parent = busted.context.get()
+    local names = { name }
+
+    while parent and (parent.name or parent.descriptor) and
+          parent.descriptor ~= 'file' do
+      table.insert(names, 1, parent.name or parent.descriptor)
+      parent = busted.context.parent(parent)
+    end
+
+    return table.concat(names, ' ')
+  end
+
   local hasTag = function(name, tag)
     local found = name:find('#' .. tag)
     return (found ~= nil)
   end
 
-  local checkTags = function(name)
+  local filterExcludeTags = function(name)
     for i, tag in pairs(excludeTags) do
       if hasTag(name, tag) then
         return nil, false
       end
     end
+    return nil, true
+  end
 
+  local filterTags = function(name)
+    local fullname = getFullName(name)
     for i, tag in pairs(tags) do
-      if hasTag(name, tag) then
+      if hasTag(fullname, tag) then
         return nil, true
       end
     end
-
     return nil, (#tags == 0)
   end
 
-  if cliArgs.t ~= '' or cliArgs['exclude-tags'] ~= '' then
-    -- Watch for tags
-    busted.subscribe({ 'register', 'it' }, checkTags, { priority = 1 })
-    busted.subscribe({ 'register', 'pending' }, checkTags, { priority = 1 })
+  local filterOutNames = function(name)
+    local found = (getFullName(name):find(cliArgs['filter-out']) ~= nil)
+    return nil, not found
   end
 
+  local filterNames = function(name)
+    local found = (getFullName(name):find(cliArgs.filter) ~= nil)
+    return nil, found
+  end
+
+  local printNameOnly = function(name, fn, trace)
+    local fullname = getFullName(name)
+    if trace and trace.what == 'Lua' then
+      print(trace.short_src .. ':' .. trace.currentline .. ': ' .. fullname)
+    else
+      print(fullname)
+    end
+    return nil, false
+  end
+
+  local ignoreAll = function()
+    return nil, false
+  end
+
+  local skipOnError = function()
+    return nil, (failures == 0 and errors == 0)
+  end
+
+  local applyFilter = function(descriptors, name, fn)
+    if cliArgs[name] and cliArgs[name] ~= '' then
+      for _, descriptor in ipairs(descriptors) do
+        busted.subscribe({ 'register', descriptor }, fn, { priority = 1 })
+      end
+    end
+  end
+
+  if cliArgs.list then
+    busted.subscribe({ 'suite', 'start' }, ignoreAll, { priority = 1 })
+    busted.subscribe({ 'suite', 'end' }, ignoreAll, { priority = 1 })
+    applyFilter({ 'setup', 'teardown', 'before_each', 'after_each' }, 'list', ignoreAll)
+    applyFilter({ 'it', 'pending' }, 'list', printNameOnly)
+  end
+
+  applyFilter({ 'setup', 'teardown', 'before_each', 'after_each' }, 'no-keep-going', skipOnError)
+  applyFilter({ 'file', 'describe', 'it', 'pending' }, 'no-keep-going', skipOnError)
+
+  -- The following filters are applied in reverse order
+  applyFilter({ 'it', 'pending' }            , 'filter'      , filterNames      )
+  applyFilter({ 'describe', 'it', 'pending' }, 'filter-out'  , filterOutNames   )
+  applyFilter({ 'it', 'pending' }            , 'tags'        , filterTags       )
+  applyFilter({ 'describe', 'it', 'pending' }, 'exclude-tags', filterExcludeTags)
+
+  -- Set up test loader options
+  local testFileLoaderOptions = {
+    verbose = cliArgs.verbose,
+    sort = cliArgs['sort-files'] or cliArgs.sort,
+    shuffle = cliArgs['shuffle-files'] or cliArgs.shuffle,
+    seed = busted.randomseed
+  }
+
   -- Load test directory
-  local rootFile = cliArgs.ROOT and normpath(path.join(fpath, cliArgs.ROOT)) or fileName
+  local rootFile = cliArgs.ROOT and utils.normpath(path.join(fpath, cliArgs.ROOT)) or fileName
   local pattern = cliArgs.pattern
-  local testFileLoader = require 'busted.modules.test_file_loader'(busted, loaders)
+  local testFileLoader = require 'busted.modules.test_file_loader'(busted, loaders, testFileLoaderOptions)
   local fileList = testFileLoader(rootFile, pattern)
   if #fileList == 0 then
     print('No test files found matching Lua pattern: ' .. pattern)
@@ -303,6 +352,10 @@ return function(options)
     busted.publish({ 'suite', 'start' })
     busted.execute()
     busted.publish({ 'suite', 'end' })
+
+    if quitOnError and (failures > 0 or errors > 0) then
+      break
+    end
   end
 
   local exit = 0

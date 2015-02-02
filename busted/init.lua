@@ -1,16 +1,14 @@
 local unpack = require 'busted.compatibility'.unpack
+local shuffle = require 'busted.utils'.shuffle
 
-math.randomseed(os.time())
-
-local function shuffle(t, seed)
-  if seed then math.randomseed(seed) end
-  local n = #t
-  while n >= 2 do
-    local k = math.random(n)
-    t[n], t[k] = t[k], t[n]
-    n = n - 1
-  end
-  return t
+local function sort(elements)
+  table.sort(elements, function(t1, t2)
+    if t1.name and t2.name then
+      return t1.name < t2.name
+    end
+    return t2.name ~= nil
+  end)
+  return elements
 end
 
 local function remove(descriptors, element)
@@ -95,6 +93,8 @@ local function init(busted)
       if randomize then
         file.randomseed = busted.randomseed
         shuffle(busted.context.children(file), busted.randomseed)
+      elseif busted.sort then
+        sort(busted.context.children(file))
       end
       if execAll('setup', file) then
         busted.execute(file)
@@ -119,6 +119,8 @@ local function init(busted)
       if randomize then
         describe.randomseed = busted.randomseed
         shuffle(busted.context.children(describe), busted.randomseed)
+      elseif busted.sort then
+        sort(busted.context.children(describe))
       end
       if execAll('setup', describe) then
         busted.execute(describe)
@@ -178,11 +180,8 @@ local function init(busted)
   busted.register('file', file)
 
   busted.register('describe', describe)
-  busted.register('context', describe)
 
   busted.register('it', it)
-  busted.register('spec', it)
-  busted.register('test', it)
 
   busted.register('pending', pending)
 
@@ -190,6 +189,10 @@ local function init(busted)
   busted.register('teardown')
   busted.register('before_each')
   busted.register('after_each')
+
+  busted.alias('context', 'describe')
+  busted.alias('spec', 'it')
+  busted.alias('test', 'it')
 
   assert = require 'luassert'
   spy    = require 'luassert.spy'

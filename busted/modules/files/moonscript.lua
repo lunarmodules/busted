@@ -1,5 +1,3 @@
-local utils = require 'pl.utils'
-
 local ok, moonscript, line_tables, util = pcall(function()
   return require 'moonscript', require 'moonscript.line_tables', require 'moonscript.util'
 end)

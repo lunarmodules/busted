@@ -2,7 +2,7 @@
 local unexpected = {}
 local order = {}
 
-describe('Randomizing test order with --randomize flag', function()
+describe('Randomizing test order with --shuffle flag', function()
   for i = 1, 100 do
     table.insert(unexpected, i)
 

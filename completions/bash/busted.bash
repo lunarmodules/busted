@@ -93,6 +93,10 @@ _busted() {
       # no completion available
       return 0
       ;;
+    --filter|--filter-out)
+      # no completion available
+      return 0
+      ;;
     -m|--lpath|--cpath)
       _filedir -d
       return 0
@@ -112,12 +116,14 @@ _busted() {
       -h --help
       -v --verbose
       --version
+      --list
       -o --output=
       -p --pattern=
       -d --cwd=
       -t --tags= --exclude-tags=
       -m --lpath= --cpath=
       -r --run=
+      --filter= --filter-out=
       --repeat=
       --seed=
       --lang=
@@ -125,7 +131,9 @@ _busted() {
       --helper=
       -c --coverage
       -s --enable-sound
-      --randomize --shuffle
+      --no-keep-going
+      --shuffle --shuffle-tests --shuffle-files
+      --sort --sort-tests --sort-files
       --supress-pending
       --defer-print"
     compopt -o nospace
