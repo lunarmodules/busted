@@ -101,7 +101,6 @@ return function(busted)
 
     local isError
     local insertTable
-    local id = tostring(element)
 
     if status == 'success' then
       insertTable = handler.successes
@@ -118,15 +117,18 @@ return function(busted)
       isError = true
     end
 
-    insertTable[id] = handler.format(element, parent, element.message, debug, isError)
+    local formatted = handler.format(element, parent, element.message, debug, isError)
 
+    local id = tostring(element)
     if handler.inProgress[id] then
       for k, v in pairs(handler.inProgress[id]) do
-        insertTable[id][k] = v
+        formatted[k] = v
       end
 
       handler.inProgress[id] = nil
     end
+
+    table.insert(insertTable, formatted)
 
     return nil, true
   end
