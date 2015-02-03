@@ -8,13 +8,17 @@ return function()
       if output:match('.lua$') or output:match('.moon$') then
         handler = loadfile(path.normpath(opath))()
       else
-        handler = require('busted.outputHandlers.'..output)
+        handler = require('busted.outputHandlers.' .. output)
       end
     end)
 
     if not success then
+      success, err = pcall(function() handler = require(output) end)
+    end
+
+    if not success then
       busted.publish({ 'error', 'output' }, { descriptor = 'output', name = output }, nil, err, {})
-      handler = require('busted.outputHandlers.'..defaultOutput)
+      handler = require('busted.outputHandlers.' .. defaultOutput)
     end
 
     return handler(options, busted)

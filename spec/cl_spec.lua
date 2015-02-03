@@ -223,6 +223,15 @@ describe('Tests the busted command-line options', function()
     error_end()
   end)
 
+  it('tests running with --output specified with module in lua path', function()
+    local success, exitcode
+    error_start()
+    success, exitcode = execute('bin/busted --pattern=cl_success.lua$ --output=busted.outputHandlers.TAP')
+    assert.is_true(success)
+    assert.is_equal(0, exitcode)
+    error_end()
+  end)
+
   it('tests no tests to exit with a fail-exitcode', function()
     local success, exitcode
     error_start()
