@@ -14,8 +14,7 @@ return function()
       local runConfig = configFile[run]
 
       if type(runConfig) == 'table' then
-
-        config = tablex.merge(config, runConfig, true)
+        config = tablex.merge(runConfig, config, true)
         return config
       else
         return config, 'Task `' .. run .. '` not found, or not a table.'
@@ -23,7 +22,7 @@ return function()
     end
 
     if configFile and type(configFile.default) == 'table' then
-      config = tablex.merge(config, configFile.default, true)
+      config = tablex.merge(configFile.default, config, true)
     end
 
     return config
