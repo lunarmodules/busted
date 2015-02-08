@@ -60,6 +60,8 @@ return function(options)
   cli:add_option('--loaders=NAME', 'test file loaders', defaultLoaders)
   cli:add_option('--helper=PATH', 'A helper script that is run before tests')
 
+  cli:add_option('-Xoutput OPTION', 'pass `OPTION` as an option to the output handler. If `OPTION` contains commas, it is split into multiple options at the commas.')
+
   cli:add_flag('-c, --coverage', 'do code coverage analysis (requires `LuaCov` to be installed)')
   cli:add_flag('-v, --verbose', 'verbose output of errors')
   cli:add_flag('-s, --enable-sound', 'executes `say` command if available')
@@ -76,8 +78,8 @@ return function(options)
   cli:add_flag('--defer-print', 'defer print to when test suite is complete')
 
   -- Parse the cli arguments
-  local cliArgs, hasError = cli:parse()
-  if hasError then
+  local cliArgs = cli:parse(arg)
+  if not cliArgs then
     os.exit(1, true)
   end
 
@@ -197,7 +199,8 @@ return function(options)
     verbose = cliArgs.verbose,
     suppressPending = cliArgs['suppress-pending'],
     language = cliArgs.lang,
-    deferPrint = cliArgs['defer-print']
+    deferPrint = cliArgs['defer-print'],
+    arguments = utils.split(cliArgs.Xoutput, ',') or {}
   }
 
   local opath = utils.normpath(path.join(fpath, cliArgs.o))

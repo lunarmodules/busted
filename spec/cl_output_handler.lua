@@ -1,0 +1,25 @@
+-- supporting testfile; belongs to 'cl_spec.lua'
+
+return function(options, busted)
+  local handler = require 'busted.outputHandlers.base'(busted)
+  local cli = require 'cliargs'
+  local args = options.arguments
+
+  cli:set_name('cl_output_handler')
+  cli:add_flag('--time', 'show timestamps')
+  cli:add_option('--time-format=FORMAT', 'format string according to strftime', '!%c')
+
+  local cliArgs = cli:parse(args)
+
+  handler.testEnd = function(element, parent, status, debug)
+    local showTime = cliArgs.time
+    local timeFormat = cliArgs['time-format']
+    local timestamp = showTime and ('[' .. os.date(timeFormat, 123456) .. '] ') or ''
+
+    print(string.format("%s[%8s] %s", timestamp, status, handler.getFullName(element)))
+  end
+
+  busted.subscribe({ 'test', 'end' }, handler.testEnd, { predicate = handler.cancelOnPending })
+
+  return handler
+end
