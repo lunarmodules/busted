@@ -2,6 +2,8 @@
 # Sets up Lua and Luarocks. 
 # LUA must be "Lua 5.1", "Lua 5.2" or "LuaJIT 2.0". 
 
+set -e
+
 echo 'rocks_servers = {
   "http://rocks.moonscript.org/",
   "http://luarocks.org/repositories/rocks"
