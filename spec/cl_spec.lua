@@ -167,6 +167,13 @@ describe('Tests the busted command-line options', function()
     assert.is_equal(expected, result)
   end)
 
+  it('tests running with --lpath specified', function()
+    local success, exitcode
+    success, exitcode = execute('bin/busted --lpath="spec/?.lua" spec/cl_lua_path.lua')
+    assert.is_true(success)
+    assert.is_equal(0, exitcode)
+  end)
+
   it('tests running with --lang specified', function()
     local success, exitcode
     error_start()

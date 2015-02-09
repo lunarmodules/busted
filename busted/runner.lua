@@ -86,7 +86,7 @@ return function(options)
   end
 
   -- Load current working directory
-  local fpath = cliArgs.d
+  local fpath = utils.normpath(cliArgs.d)
 
   -- Load busted config file if available
   local configFile = { }
@@ -123,15 +123,15 @@ return function(options)
   -- Add additional package paths based on lpath and cpath cliArgs
   if #cliArgs.lpath > 0 then
     lpathprefix = cliArgs.lpath
-    lpathprefix = lpathprefix:gsub('^%.[/%\\]', fpath )
-    lpathprefix = lpathprefix:gsub(';%.[/%\\]', ';' .. fpath)
+    lpathprefix = lpathprefix:gsub('^%.([/%\\])', fpath .. '%1')
+    lpathprefix = lpathprefix:gsub(';%.([/%\\])', ';' .. fpath .. '%1')
     package.path = (lpathprefix .. ';' .. package.path):gsub(';;',';')
   end
 
   if #cliArgs.cpath > 0 then
     cpathprefix = cliArgs.cpath
-    cpathprefix = cpathprefix:gsub('^%.[/%\\]', fpath )
-    cpathprefix = cpathprefix:gsub(';%.[/%\\]', ';' .. fpath)
+    cpathprefix = cpathprefix:gsub('^%.([/%\\])', fpath .. '%1')
+    cpathprefix = cpathprefix:gsub(';%.([/%\\])', ';' .. fpath .. '%1')
     package.cpath = (cpathprefix .. ';' .. package.cpath):gsub(';;',';')
   end
 
