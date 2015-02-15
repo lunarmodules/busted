@@ -3,6 +3,7 @@
 local getfenv = require 'busted.compatibility'.getfenv
 local setfenv = require 'busted.compatibility'.setfenv
 local path = require 'pl.path'
+local term = require 'term'
 local utils = require 'busted.utils'
 local loaded = false
 
@@ -22,7 +23,7 @@ return function(options)
   require 'busted'(busted)
 
   -- Default cli arg values
-  local defaultOutput = path.is_windows and 'plainTerminal' or 'utfTerminal'
+  local defaultOutput = term.isatty(io.stdout) and 'utfTerminal' or 'plainTerminal'
   local defaultLoaders = 'lua,moonscript'
   local defaultPattern = '_spec'
   local defaultSeed = 'os.time()'
