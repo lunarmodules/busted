@@ -101,6 +101,10 @@ _busted() {
       _filedir -d
       return 0
       ;;
+    -Xoutput)
+      # no completion available
+      return 0
+      ;;
     --repeat)
       # no completion available
       return 0
@@ -131,6 +135,7 @@ _busted() {
       --helper=
       -c --coverage
       -s --enable-sound
+      -Xoutput
       --no-keep-going
       --no-recurse
       --shuffle --shuffle-tests --shuffle-files
