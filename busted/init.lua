@@ -212,11 +212,12 @@ end
 
 return setmetatable({}, {
   __call = function(self, busted)
+    local root = busted.context.get()
     init(busted)
 
     return setmetatable(self, {
-      __index = function(self, descriptor)
-        return busted.executors[descriptor]
+      __index = function(self, key)
+        return rawget(root.env, key) or busted.executors[key]
       end,
 
       __newindex = function(self, key, value)
