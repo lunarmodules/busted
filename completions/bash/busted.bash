@@ -132,6 +132,7 @@ _busted() {
       -c --coverage
       -s --enable-sound
       --no-keep-going
+      --no-recurse
       --shuffle --shuffle-tests --shuffle-files
       --sort --sort-tests --sort-files
       --supress-pending
