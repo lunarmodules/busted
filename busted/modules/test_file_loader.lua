@@ -17,7 +17,8 @@ return function(busted, loaders, options)
       fileList = { rootFile }
     elseif path.isdir(rootFile) then
       local pattern = pattern
-      fileList = dir.getallfiles(rootFile)
+      local getfiles = options.recurse and dir.getallfiles or dir.getfiles
+      fileList = getfiles(rootFile)
 
       fileList = tablex.filter(fileList, function(filename)
         return path.basename(filename):find(pattern)
