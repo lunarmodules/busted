@@ -78,13 +78,13 @@ return function(options)
   -- Parse the cli arguments
   local cliArgs, hasError = cli:parse()
   if hasError then
-    os.exit(1)
+    os.exit(1, true)
   end
 
   -- Return early if only asked for the version
   if cliArgs.version then
     print(busted.version)
-    os.exit(0)
+    os.exit(0, true)
   end
 
   -- Load current working directory
@@ -154,7 +154,7 @@ return function(options)
     for _, included in pairs(tags) do
       if excluded == included then
         print('Cannot use --tags and --exclude-tags for the same tags')
-        os.exit(1)
+        os.exit(1, true)
       end
     end
   end
@@ -368,5 +368,5 @@ return function(options)
       exit = 255
     end
   end
-  os.exit(exit)
+  os.exit(exit, true)
 end
