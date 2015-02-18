@@ -42,20 +42,50 @@ return function(options, busted)
     xml_doc:add_direct_child(testcase_node)
 
     if status == 'failure' then
+      local formatted = handler.inProgress[tostring(element)]
       xml_doc.attr.failures = xml_doc.attr.failures + 1
       testcase_node:addtag('failure')
-      testcase_node:text(element.trace.traceback)
+      if next(formatted) then
+        testcase_node:text(formatted.message)
+        if formatted.trace and formatted.trace.traceback then
+          testcase_node:text(formatted.trace.traceback)
+        end
+      end
+      testcase_node:up()
+    elseif status == 'pending' then
+      local formatted = handler.inProgress[tostring(element)]
+      xml_doc.attr.skip = xml_doc.attr.skip + 1
+      testcase_node:addtag('pending')
+      if next(formatted) then
+        testcase_node:text(formatted.message)
+        if formatted.trace and formatted.trace.traceback then
+          testcase_node:text(formatted.trace.traceback)
+        end
+      else
+        testcase_node:text(element.trace.traceback)
+      end
       testcase_node:up()
     end
 
     return nil, true
   end
 
-  handler.errorFile = function(element, parent, message, trace)
+  handler.error = function(element, parent, message, trace)
     xml_doc.attr.errors = xml_doc.attr.errors + 1
     xml_doc:addtag('error')
-    xml_doc:text(trace.traceback)
+    xml_doc:text(message)
+    if trace and trace.traceback then
+      xml_doc:text(trace.traceback)
+    end
     xml_doc:up()
+
+    return nil, true
+  end
+
+  handler.failure = function(element, parent, message, trace)
+    if element.descriptor ~= 'it' then
+      handler.error(element, parent, message, trace)
+    end
 
     return nil, true
   end
@@ -63,8 +93,8 @@ return function(options, busted)
   busted.subscribe({ 'suite', 'start' }, handler.suiteStart)
   busted.subscribe({ 'suite', 'end' }, handler.suiteEnd)
   busted.subscribe({ 'test', 'end' }, handler.testEnd, { predicate = handler.cancelOnPending })
-  busted.subscribe({ 'error', 'file' }, handler.errorFile)
-  busted.subscribe({ 'failure', 'file' }, handler.errorFile)
+  busted.subscribe({ 'error' }, handler.error)
+  busted.subscribe({ 'failure' }, handler.failure)
 
   return handler
 end
