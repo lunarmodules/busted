@@ -5,10 +5,10 @@ local pretty = require 'pl.pretty'
 return function(options, busted)
   local handler = require 'busted.outputHandlers.base'(busted)
 
-  local successDot =  ansicolors('%{green}●')
-  local failureDot =  ansicolors('%{red}●')
-  local errorDot =  ansicolors('%{magenta}●')
-  local pendingDot = ansicolors('%{yellow}●')
+  local successDot = ansicolors('%{green}●')
+  local failureDot = ansicolors('%{red}◼')
+  local errorDot   = ansicolors('%{magenta}✱')
+  local pendingDot = ansicolors('%{yellow}◌')
 
   local pendingDescription = function(pending)
     local name = pending.name
