@@ -100,21 +100,10 @@ end
 
 
 ret.load = function(busted, filename)
-  local file
-
-  local success, err = pcall(function()
-    local err
-    file, err = moonscript.loadfile(filename)
-
-    if not file then
-      busted.publish({ 'error', 'file' }, { descriptor = 'file', name = filename }, nil, err, {})
-    end
-  end)
-
-  if not success then
+  local file, err = moonscript.loadfile(filename)
+  if not file then
     busted.publish({ 'error', 'file' }, { descriptor = 'file', name = filename }, nil, err, {})
   end
-
   return file, getTrace, rewriteMessage
 end
 
