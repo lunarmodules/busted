@@ -155,7 +155,7 @@ local function init(busted)
     local pass, ancestor = execAll('before_each', parent, true)
 
     if pass then
-      status:update(busted.safe('element', element.run, element))
+      status:update(busted.safe('it', element.run, element))
     else
       updateErrorStatus('before_each')
     end
