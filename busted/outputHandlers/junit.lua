@@ -54,7 +54,10 @@ return function(options, busted)
   handler.errorFile = function(element, parent, message, trace)
     xml_doc.attr.errors = xml_doc.attr.errors + 1
     xml_doc:addtag('error')
-    xml_doc:text(trace.traceback)
+    xml_doc:text(message)
+    if trace then
+      xml_doc:text(trace.traceback)
+    end
     xml_doc:up()
 
     return nil, true
