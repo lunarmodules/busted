@@ -24,6 +24,7 @@ _busted_args=(
 "--helper[A helper script that is run before tests]:files:_files"
 "--loaders=[Test file loaders]:loaders:_values -s , loaders lua moonscript terra"
 "-Xoutput[Pass 'OPTION' as an option to the output handler. If 'OPTION' contains commas, it is split into multiple options at the commas.]: :"
+"-Xhelper[Pass 'OPTION' as an option to the helper script. If 'OPTION' contains commas, it is split into multiple options at the commas.]: :"
 "(-c --coverage)"{-c,--coverage}"[Do code coverage analysis (requires 'LuaCov' to be installed)]"
 "(-d --cwd)"{-d,--cwd=}"[Path to current working directory (default: ./)]:directory:_dirs"
 "(-h --help)"{-h,--help}"[Help]"
