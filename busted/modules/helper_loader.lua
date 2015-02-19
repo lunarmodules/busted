@@ -4,6 +4,7 @@ local hasMoon, moonscript = pcall(require, 'moonscript')
 return function()
   local loadHelper = function(helper, hpath, options, busted)
     local success, err = pcall(function()
+      arg = options.arguments
       if helper:match('%.lua$') then
         dofile(utils.normpath(hpath))
       elseif hasMoon and helper:match('%.moon$') then

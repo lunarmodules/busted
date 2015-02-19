@@ -60,6 +60,7 @@ return function(options)
   cli:add_option('--helper=PATH', 'A helper script that is run before tests')
 
   cli:add_option('-Xoutput OPTION', 'pass `OPTION` as an option to the output handler. If `OPTION` contains commas, it is split into multiple options at the commas.')
+  cli:add_option('-Xhelper OPTION', 'pass `OPTION` as an option to the helper script. If `OPTION` contains commas, it is split into multiple options at the commas.')
 
   cli:add_flag('-c, --coverage', 'do code coverage analysis (requires `LuaCov` to be installed)')
   cli:add_flag('-v, --verbose', 'verbose output of errors')
@@ -302,6 +303,7 @@ return function(options)
     local helperOptions = {
       verbose = cliArgs.verbose,
       language = cliArgs.lang,
+      arguments = utils.split(cliArgs.Xhelper, ',') or {}
     }
 
     local hpath = utils.normpath(path.join(fpath, cliArgs.helper))
