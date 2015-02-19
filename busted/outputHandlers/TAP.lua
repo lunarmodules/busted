@@ -16,7 +16,7 @@ return function(options, busted)
       print( success:format( counter, t.name ))
     end
 
-    showFailure = function(t)
+    local showFailure = function(t)
       counter = counter + 1
       local message = t.message
 

@@ -134,13 +134,13 @@ return function(busted)
     return nil, true
   end
 
-  function saveInProgress(element, message, debug)
+  local function saveInProgress(element, message, debug)
     local id = tostring(element)
     handler.inProgress[id].message = message
     handler.inProgress[id].trace = debug
   end
 
-  function saveError(element, parent, message, debug)
+  local function saveError(element, parent, message, debug)
     if parent.randomseed then
       message = 'Random Seed: ' .. parent.randomseed .. '\n' .. message
     end
