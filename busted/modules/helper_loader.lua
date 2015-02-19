@@ -1,7 +1,7 @@
 local utils = require 'busted.utils'
 
 return function()
-  local loadHelper = function(helper, hpath, options)
+  local loadHelper = function(helper, hpath, options, busted)
     local success, err = pcall(function()
       if helper:match('%.lua$') or helper:match('%.moon$') then
         dofile(utils.normpath(hpath))

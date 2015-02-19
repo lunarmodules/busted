@@ -14,6 +14,7 @@ return function(options)
   local busted = require 'busted.core'()
 
   local configLoader = require 'busted.modules.configuration_loader'()
+  local helperLoader = require 'busted.modules.helper_loader'()
   local outputHandlerLoader = require 'busted.modules.output_handler_loader'()
 
   local luacov = require 'busted.modules.luacov'()
@@ -138,7 +139,13 @@ return function(options)
   end
 
   if cliArgs.helper ~= '' then
-    dofile(cliArgs.helper)
+    local helperOptions = {
+      verbose = cliArgs.verbose,
+      language = cliArgs.lang,
+    }
+
+    local hpath = utils.normpath(path.join(fpath, cliArgs.helper))
+    helperLoader(cliArgs.helper, hpath, helperOptions, busted)
   end
 
   local loaders = {}
