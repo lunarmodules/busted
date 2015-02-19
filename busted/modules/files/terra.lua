@@ -1,3 +1,5 @@
+local path = require 'pl.path'
+
 local ret = {}
 local ok, terralib = pcall(function() return require 'terralib' end)
 
@@ -8,13 +10,7 @@ local getTrace =  function(filename, info)
 end
 
 ret.match = function(busted, filename)
-  if ok then
-    local path, name, ext = filename:match('(.-)([^\\/\\\\]-%.?([^%.\\/]*))$')
-    if ext == 't' then
-      return true
-    end
-  end
-  return false
+  return ok and path.extension(filename) == '.t'
 end
 
 ret.load = function(busted, filename)
