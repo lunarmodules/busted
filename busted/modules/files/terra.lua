@@ -18,20 +18,10 @@ ret.match = function(busted, filename)
 end
 
 ret.load = function(busted, filename)
-  local file
-
-  local success, err = pcall(function()
-    file, err = terralib.loadfile(filename)
-
-    if not file then
-      busted.publish({ 'error', 'file' }, { descriptor = 'file', name = filename }, nil, err, {})
-    end
-  end)
-
-  if not success then
+  local file, err = terralib.loadfile(filename)
+  if not file then
     busted.publish({ 'error', 'file' }, { descriptor = 'file', name = filename }, nil, err, {})
   end
-
   return file, getTrace
 end
 

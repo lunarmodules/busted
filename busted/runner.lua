@@ -200,7 +200,8 @@ return function(options)
     deferPrint = cliArgs['defer-print']
   }
 
-  local outputHandler = outputHandlerLoader(cliArgs.output, cliArgs.o, outputHandlerOptions, busted, defaultOutput)
+  local opath = utils.normpath(path.join(fpath, cliArgs.o))
+  local outputHandler = outputHandlerLoader(cliArgs.o, opath, outputHandlerOptions, busted, defaultOutput)
   outputHandler:subscribe(outputHandlerOptions)
 
   if cliArgs.s then
