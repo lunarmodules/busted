@@ -16,7 +16,6 @@ return function(busted, loaders, options)
     if path.isfile(rootFile) then
       fileList = { rootFile }
     elseif path.isdir(rootFile) then
-      local pattern = pattern
       local getfiles = options.recurse and dir.getallfiles or dir.getfiles
       fileList = getfiles(rootFile)
 

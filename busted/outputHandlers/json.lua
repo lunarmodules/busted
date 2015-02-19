@@ -1,4 +1,3 @@
-local pretty = require 'pl.pretty'
 local json = require 'dkjson'
 
 return function(options, busted)

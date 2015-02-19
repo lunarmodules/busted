@@ -100,7 +100,7 @@ return function()
   end
 
   function busted.getFile(element)
-    local current, parent = element, busted.context.parent(element)
+    local parent = busted.context.parent(element)
 
     while parent do
       if parent.file then

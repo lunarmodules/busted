@@ -1,5 +1,3 @@
-local pretty = require 'pl.pretty'
-
 return function(options, busted)
   local handler = require 'busted.outputHandlers.base'(busted)
   local language = require('busted.languages.' .. options.language)

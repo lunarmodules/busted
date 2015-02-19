@@ -5,7 +5,7 @@ local string = require("string")
 return function(options, busted)
   local handler = require 'busted.outputHandlers.base'(busted)
   local xml_doc
-  local suiteStartTime, suiteEndTime
+  local suiteStartTime
 
   handler.suiteStart = function()
     suiteStartTime = socket.gettime()
