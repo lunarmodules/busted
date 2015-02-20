@@ -39,12 +39,13 @@ local function init(busted)
       status:update(busted.safe('it', element.run, element))
     end
 
-    if not element.env.done then
+    if finally then
       busted.reject('pending', element)
-      if finally then status:update(busted.safe('finally', finally, element)) end
-      busted.dexecAll('after_each', ancestor, true, onError)
-      busted.publish({ 'test', 'end' }, element, parent, tostring(status))
+      status:update(busted.safe('finally', finally, element))
     end
+    busted.dexecAll('after_each', ancestor, true, onError)
+
+    busted.publish({ 'test', 'end' }, element, parent, tostring(status))
   end
 
   local pending = function(element)
