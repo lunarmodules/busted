@@ -40,6 +40,7 @@ build = {
     ['busted.runner']                         = 'busted/runner.lua',
     ['busted.status']                         = 'busted/status.lua',
     ['busted.utils']                          = 'busted/utils.lua',
+    ['busted.block']                          = 'busted/block.lua',
     ['busted.init']                           = 'busted/init.lua',
 
     ['busted.modules.configuration_loader']   = 'busted/modules/configuration_loader.lua',
