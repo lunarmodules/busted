@@ -14,6 +14,7 @@ return function(options, busted)
       errors = 0,
       failures = 0,
       skip = 0,
+      timestamp = os.date('!%Y-%m-%dT%T'),
     })
 
     return nil, true
