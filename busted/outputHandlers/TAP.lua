@@ -13,12 +13,13 @@ return function(options, busted)
 
     for i,t in pairs(handler.successes) do
       counter = counter + 1
-      print( success:format( counter, t.name ))
+      print(success:format(counter, t.name))
     end
 
     showFailure = function(t)
       counter = counter + 1
       local message = t.message
+      local trace = t.trace or {}
 
       if message == nil then
         message = 'Nil error'
@@ -26,9 +27,12 @@ return function(options, busted)
         message = pretty.write(message)
       end
 
-      print( failure:format( counter, t.name ))
+      print(failure:format(counter, t.name))
       print('# ' .. t.element.trace.short_src .. ' @ ' .. t.element.trace.currentline)
-      print('# Failure message: ' .. message:gsub('\n', '\n# ' ))
+      print('# Failure message: ' .. message:gsub('\n', '\n# '))
+      if options.verbose and trace.traceback then
+        print('# ' .. trace.traceback:gsub('^\n', '', 1):gsub('\n', '\n# '))
+      end
     end
 
     for i,t in pairs(handler.errors) do
