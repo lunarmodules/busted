@@ -481,6 +481,30 @@ describe('Tests error messages through the command line', function()
     error_end()
   end)
 
+  it('when helper script not found', function()
+    error_start()
+    local result = run(busted_cmd .. ' --output=plainTerminal --pattern=cl_two_failures.lua$ --helper=not_found_here')
+    local err = result:match('Error → .-:%d+: (.-)\n')
+    local errmsg = result:match('(.-)\n')
+    local expectedErr = "module 'not_found_here' not found:"
+    local expectedMsg = 'Cannot load helper script: not_found_here'
+    assert.is_equal(expectedErr, err)
+    assert.is_equal(expectedMsg, errmsg)
+    error_end()
+  end)
+
+  it('when helper lua script not found', function()
+    error_start()
+    local result = run(busted_cmd .. ' --output=plainTerminal --pattern=cl_two_failures.lua$ --helper=not_found_here.lua')
+    local err = result:match('Error → (.-)\n')
+    local errmsg = result:match('(.-)\n')
+    local expectedErr = 'cannot open ./not_found_here.lua: No such file or directory'
+    local expectedMsg = 'Cannot load helper script: not_found_here.lua'
+    assert.is_equal(normpath(expectedErr), err)
+    assert.is_equal(expectedMsg, errmsg)
+    error_end()
+  end)
+
   it('when no test files matching Lua pattern', function()
     error_start()
     local result = run(busted_cmd .. ' --output=plainTerminal --pattern=this_filename_does_simply_not_exist$')
