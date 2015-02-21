@@ -31,9 +31,7 @@ return function(options, busted)
     return nil, true
   end
 
-  handler.testEnd = function(element, parent, status)
-    xml_doc.attr.tests = xml_doc.attr.tests + 1
-
+  local function testStatus(element, parent, message, status, trace)
     local testcase_node = xml.new('testcase', {
       classname = element.trace.short_src .. ':' .. element.trace.currentline,
       name = handler.getFullName(element),
@@ -41,50 +39,49 @@ return function(options, busted)
     })
     xml_doc:add_direct_child(testcase_node)
 
-    if status == 'failure' then
-      local formatted = handler.inProgress[tostring(element)]
-      xml_doc.attr.failures = xml_doc.attr.failures + 1
-      testcase_node:addtag('failure')
-      if next(formatted) then
-        testcase_node:text(formatted.message)
-        if formatted.trace and formatted.trace.traceback then
-          testcase_node:text(formatted.trace.traceback)
-        end
-      end
-      testcase_node:up()
-    elseif status == 'pending' then
-      local formatted = handler.inProgress[tostring(element)]
-      xml_doc.attr.skip = xml_doc.attr.skip + 1
-      testcase_node:addtag('pending')
-      if next(formatted) then
-        testcase_node:text(formatted.message)
-        if formatted.trace and formatted.trace.traceback then
-          testcase_node:text(formatted.trace.traceback)
-        end
-      else
-        testcase_node:text(element.trace.traceback)
-      end
+    if status ~= 'success' then
+      testcase_node:addtag(status)
+      if message then testcase_node:text(message) end
+      if trace and trace.traceback then testcase_node:text(trace.traceback) end
       testcase_node:up()
     end
+  end
 
+  handler.testEnd = function(element, parent, status)
+    xml_doc.attr.tests = xml_doc.attr.tests + 1
+
+    if status == 'success' then
+      testStatus(element, parent, nil, 'success')
+    elseif status == 'pending' then
+      xml_doc.attr.skip = xml_doc.attr.skip + 1
+      local formatted = handler.inProgress[tostring(element)] or {}
+      testStatus(element, parent, formatted.message, 'skipped', formatted.trace)
+    end
+
+    return nil, true
+  end
+
+  handler.failureTest = function(element, parent, message, trace)
+    xml_doc.attr.failures = xml_doc.attr.failures + 1
+    testStatus(element, parent, message, 'failure', trace)
+    return nil, true
+  end
+
+  handler.errorTest = function(element, parent, message, trace)
+    xml_doc.attr.errors = xml_doc.attr.errors + 1
+    testStatus(element, parent, message, 'error', trace)
     return nil, true
   end
 
   handler.error = function(element, parent, message, trace)
-    xml_doc.attr.errors = xml_doc.attr.errors + 1
-    xml_doc:addtag('error')
-    xml_doc:text(message)
-    if trace and trace.traceback then
-      xml_doc:text(trace.traceback)
-    end
-    xml_doc:up()
-
-    return nil, true
-  end
-
-  handler.failure = function(element, parent, message, trace)
     if element.descriptor ~= 'it' then
-      handler.error(element, parent, message, trace)
+      xml_doc.attr.errors = xml_doc.attr.errors + 1
+      xml_doc:addtag('error')
+      xml_doc:text(message)
+      if trace and trace.traceback then
+        xml_doc:text(trace.traceback)
+      end
+      xml_doc:up()
     end
 
     return nil, true
@@ -93,8 +90,10 @@ return function(options, busted)
   busted.subscribe({ 'suite', 'start' }, handler.suiteStart)
   busted.subscribe({ 'suite', 'end' }, handler.suiteEnd)
   busted.subscribe({ 'test', 'end' }, handler.testEnd, { predicate = handler.cancelOnPending })
+  busted.subscribe({ 'error', 'it' }, handler.errorTest)
+  busted.subscribe({ 'failure', 'it' }, handler.failureTest)
   busted.subscribe({ 'error' }, handler.error)
-  busted.subscribe({ 'failure' }, handler.failure)
+  busted.subscribe({ 'failure' }, handler.error)
 
   return handler
 end
