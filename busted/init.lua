@@ -133,6 +133,7 @@ local function init(busted)
 
   local it = function(element)
     local finally
+    local parent = busted.context.parent(element)
 
     busted.publish({ 'test', 'start' }, element, parent)
 
@@ -151,9 +152,7 @@ local function init(busted)
       status:update('error')
     end
 
-    local parent = busted.context.parent(element)
     local pass, ancestor = execAll('before_each', parent, true)
-
     if pass then
       status:update(busted.safe('it', element.run, element))
     else
