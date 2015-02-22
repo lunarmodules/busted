@@ -86,8 +86,9 @@ return function(options, busted)
       testStatus(element, parent, nil, 'success')
     elseif status == 'pending' then
       top.xml_doc.attr.skip = top.xml_doc.attr.skip + 1
-      local formatted = handler.inProgress[tostring(element)] or {}
-      testStatus(element, parent, formatted.message, 'skipped', formatted.trace)
+      local formatted = handler.pendings[#handler.pendings]
+      local trace = element.trace ~= formatted.trace and formatted.trace
+      testStatus(element, parent, formatted.message, 'skipped', trace)
     end
 
     return nil, true
