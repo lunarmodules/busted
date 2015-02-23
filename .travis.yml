@@ -15,7 +15,7 @@ install:
   - sudo luarocks install lua-ev scm --server=http://luarocks.org/repositories/rocks-scm/
   - sudo luarocks install copas
   - sudo luarocks install moonscript
-  - sudo luarocks make
+  - sudo luarocks make busted-scm-0.rockspec
 
 script: busted
 
