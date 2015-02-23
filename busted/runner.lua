@@ -14,6 +14,7 @@ return function(options)
   local busted = require 'busted.core'()
 
   local configLoader = require 'busted.modules.configuration_loader'()
+  local helperLoader = require 'busted.modules.helper_loader'()
   local outputHandlerLoader = require 'busted.modules.output_handler_loader'()
 
   local luacov = require 'busted.modules.luacov'()
@@ -59,6 +60,7 @@ return function(options)
   cli:add_option('--helper=PATH', 'A helper script that is run before tests')
 
   cli:add_option('-Xoutput OPTION', 'pass `OPTION` as an option to the output handler. If `OPTION` contains commas, it is split into multiple options at the commas.')
+  cli:add_option('-Xhelper OPTION', 'pass `OPTION` as an option to the helper script. If `OPTION` contains commas, it is split into multiple options at the commas.')
 
   cli:add_flag('-c, --coverage', 'do code coverage analysis (requires `LuaCov` to be installed)')
   cli:add_flag('-v, --verbose', 'verbose output of errors')
@@ -137,10 +139,6 @@ return function(options)
     package.cpath = (cpathprefix .. ';' .. package.cpath):gsub(';;',';')
   end
 
-  if cliArgs.helper ~= '' then
-    dofile(cliArgs.helper)
-  end
-
   local loaders = {}
   if #cliArgs.loaders > 0 then
     string.gsub(cliArgs.loaders, '([^,]+)', function(c) loaders[#loaders+1] = c end)
@@ -164,16 +162,18 @@ return function(options)
   local errors = 0
   local quitOnError = cliArgs['no-keep-going']
 
-  busted.subscribe({ 'error' }, function(element, parent, status)
+  busted.subscribe({ 'error' }, function(element, parent, message)
     if element.descriptor == 'output' then
-      print('Cannot load output library: ' .. element.name)
+      print('Cannot load output library: ' .. element.name .. '\n' .. message)
+    elseif element.descriptor == 'helper' then
+      print('Cannot load helper script: ' .. element.name .. '\n' .. message)
     end
     errors = errors + 1
     busted.skipAll = quitOnError
     return nil, true
   end)
 
-  busted.subscribe({ 'failure' }, function(element, parent, status)
+  busted.subscribe({ 'failure' }, function(element, parent, message)
     if element.descriptor == 'it' then
       failures = failures + 1
     else
@@ -297,6 +297,18 @@ return function(options)
   applyFilter({ 'describe', 'it', 'pending' }, 'filter-out'  , filterOutNames   )
   applyFilter({ 'it', 'pending' }            , 'tags'        , filterTags       )
   applyFilter({ 'describe', 'it', 'pending' }, 'exclude-tags', filterExcludeTags)
+
+  -- Set up helper script
+  if cliArgs.helper ~= '' then
+    local helperOptions = {
+      verbose = cliArgs.verbose,
+      language = cliArgs.lang,
+      arguments = utils.split(cliArgs.Xhelper, ',') or {}
+    }
+
+    local hpath = utils.normpath(path.join(fpath, cliArgs.helper))
+    helperLoader(cliArgs.helper, hpath, helperOptions, busted)
+  end
 
   -- Set up test loader options
   local testFileLoaderOptions = {
