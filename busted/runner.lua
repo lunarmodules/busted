@@ -323,7 +323,7 @@ return function(options)
     getmetatable(file.run).__call = info.func
   end
 
-  busted.subscribe({'suite', 'repeat'}, function()
+  busted.subscribe({'suite', 'reinitialize'}, function()
     local oldctx = busted.context.get()
     local children = busted.context.children(oldctx)
 
@@ -346,22 +346,21 @@ return function(options)
   end)
 
   local runs = tonumber(cliArgs['repeat']) or 1
-  local runString = (runs > 1 and '\nRepeating all tests (run %d of %d) . . .\n\n' or '')
   for i = 1, runs do
-    io.write(runString:format(i, runs))
-    io.flush()
     if i > 1 then
-      busted.publish({ 'suite', 'repeat' })
+      busted.publish({ 'suite', 'reinitialize' })
     end
 
-    busted.publish({ 'suite', 'start' })
+    busted.publish({ 'suite', 'start' }, i, runs)
     busted.execute()
-    busted.publish({ 'suite', 'end' })
+    busted.publish({ 'suite', 'end' }, i, runs)
 
     if quitOnError and (failures > 0 or errors > 0) then
       break
     end
   end
+
+  busted.publish({ 'exit' })
 
   local exit = 0
   if failures > 0 or errors > 0 then
