@@ -132,6 +132,7 @@ local function init(busted)
   end
 
   local it = function(element)
+    local parent = busted.context.parent(element)
     local finally
     local parent = busted.context.parent(element)
 
