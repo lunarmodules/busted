@@ -19,6 +19,8 @@ return function(options)
 
   local luacov = require 'busted.modules.luacov'()
 
+  local osexit = require 'busted.compatibility'.osexit
+
   require 'busted'(busted)
 
   -- Default cli arg values
@@ -80,13 +82,13 @@ return function(options)
   -- Parse the cli arguments
   local cliArgs = cli:parse(arg)
   if not cliArgs then
-    os.exit(1, true)
+    osexit(1, true)
   end
 
   -- Return early if only asked for the version
   if cliArgs.version then
     print(busted.version)
-    os.exit(0, true)
+    osexit(0, true)
   end
 
   -- Load current working directory
@@ -152,7 +154,7 @@ return function(options)
     for _, included in pairs(tags) do
       if excluded == included then
         print('Cannot use --tags and --exclude-tags for the same tags')
-        os.exit(1, true)
+        osexit(1, true)
       end
     end
   end
@@ -381,5 +383,5 @@ return function(options)
       exit = 255
     end
   end
-  os.exit(exit, true)
+  osexit(exit, true)
 end
