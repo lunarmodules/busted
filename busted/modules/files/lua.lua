@@ -1,3 +1,5 @@
+local path = require 'pl.path'
+
 local ret = {}
 
 local getTrace =  function(filename, info)
@@ -7,11 +9,7 @@ local getTrace =  function(filename, info)
 end
 
 ret.match = function(busted, filename)
-  local path, name, ext = filename:match('(.-)([^\\/\\\\]-%.?([^%.\\/]*))$')
-  if ext == 'lua' then
-    return true
-  end
-  return false
+  return path.extension(filename) == '.lua'
 end
 
 

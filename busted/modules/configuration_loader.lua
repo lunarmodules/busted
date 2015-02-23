@@ -1,5 +1,4 @@
 return function()
-  local path = require 'pl.path'
   local tablex = require 'pl.tablex'
 
   -- Function to load the .busted configuration file if available

@@ -172,7 +172,7 @@ local function init(busted)
   end
 
   local pending = function(element)
-    local parent = busted.context.parent(pending)
+    local parent = busted.context.parent(element)
     busted.publish({ 'test', 'start' }, element, parent)
     busted.publish({ 'test', 'end' }, element, parent, 'pending')
   end

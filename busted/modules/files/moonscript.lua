@@ -1,3 +1,5 @@
+local path = require 'pl.path'
+
 local ok, moonscript, line_tables, util = pcall(function()
   return require 'moonscript', require 'moonscript.line_tables', require 'moonscript.util'
 end)
@@ -91,11 +93,7 @@ local rewriteMessage = function(filename, message)
 end
 
 ret.match = function(busted, filename)
-  local path, name, ext = filename:match('(.-)([^\\/\\\\]-%.?([^%.\\/]*))$')
-  if ok and ext == 'moon' then
-    return true
-  end
-  return false
+  return ok and path.extension(filename) == '.moon'
 end
 
 

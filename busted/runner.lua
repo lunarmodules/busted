@@ -1,7 +1,5 @@
 -- Busted command-line runner
 
-local getfenv = require 'busted.compatibility'.getfenv
-local setfenv = require 'busted.compatibility'.setfenv
 local path = require 'pl.path'
 local term = require 'term'
 local utils = require 'busted.utils'
