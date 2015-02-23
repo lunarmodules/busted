@@ -134,7 +134,6 @@ local function init(busted)
   local it = function(element)
     local parent = busted.context.parent(element)
     local finally
-    local parent = busted.context.parent(element)
 
     busted.publish({ 'test', 'start' }, element, parent)
 
