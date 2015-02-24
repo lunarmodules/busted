@@ -15,8 +15,8 @@ describe('tests require "busted"', function()
     assert.is_nil(require 'busted'.init)
   end)
 
-  it('imports file executor', function()
-    assert.is_function(require 'busted'.file)
+  it('does not import file executor', function()
+    assert.is_nil(require 'busted'.file)
   end)
 
   it('imports describe/it/pending', function()

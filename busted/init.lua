@@ -87,7 +87,7 @@ return setmetatable({}, {
 
     return setmetatable(self, {
       __index = function(self, key)
-        return rawget(root.env, key) or busted.executors[key]
+        return rawget(root.env, key)
       end,
 
       __newindex = function(self, key, value)
