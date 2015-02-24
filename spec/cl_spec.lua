@@ -476,7 +476,7 @@ describe('Tests error messages through the command line', function()
     error_start()
     local result = run(busted_cmd .. ' --pattern=cl_two_failures.lua$ --output=not_found_here')
     local errmsg = result:match('(.-)\n')
-    local expected = 'Cannot load output library: not_found_here'
+    local expected = 'Error: Cannot load output library: not_found_here'
     assert.is_equal(expected, errmsg)
     error_end()
   end)
@@ -487,7 +487,7 @@ describe('Tests error messages through the command line', function()
     local err = result:match('Error → .-:%d+: (.-)\n')
     local errmsg = result:match('(.-)\n')
     local expectedErr = "module 'not_found_here' not found:"
-    local expectedMsg = 'Cannot load helper script: not_found_here'
+    local expectedMsg = 'Error: Cannot load helper script: not_found_here'
     assert.is_equal(expectedErr, err)
     assert.is_equal(expectedMsg, errmsg)
     error_end()
@@ -499,7 +499,7 @@ describe('Tests error messages through the command line', function()
     local err = result:match('Error → (.-)\n')
     local errmsg = result:match('(.-)\n')
     local expectedErr = 'cannot open ./not_found_here.lua: No such file or directory'
-    local expectedMsg = 'Cannot load helper script: not_found_here.lua'
+    local expectedMsg = 'Error: Cannot load helper script: not_found_here.lua'
     assert.is_equal(normpath(expectedErr), err)
     assert.is_equal(expectedMsg, errmsg)
     error_end()

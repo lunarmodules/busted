@@ -108,7 +108,7 @@ return function(options)
   if bustedConfigFile then
     local config, err = configLoader(configFile, cliArgsParsed, cliArgs)
     if err then
-      print(err)
+      print('Error: ' .. err)
       osexit(1, true)
     else
       cliArgs = config
@@ -158,7 +158,7 @@ return function(options)
   for _, excluded in pairs(excludeTags) do
     for _, included in pairs(tags) do
       if excluded == included then
-        print('Cannot use --tags and --exclude-tags for the same tags')
+        print('Error: Cannot use --tags and --exclude-tags for the same tags')
         osexit(1, true)
       end
     end
@@ -171,9 +171,9 @@ return function(options)
 
   busted.subscribe({ 'error' }, function(element, parent, message)
     if element.descriptor == 'output' then
-      print('Cannot load output library: ' .. element.name .. '\n' .. message)
+      print('Error: Cannot load output library: ' .. element.name .. '\n' .. message)
     elseif element.descriptor == 'helper' then
-      print('Cannot load helper script: ' .. element.name .. '\n' .. message)
+      print('Error: Cannot load helper script: ' .. element.name .. '\n' .. message)
     end
     errors = errors + 1
     busted.skipAll = quitOnError
@@ -190,15 +190,6 @@ return function(options)
     return nil, true
   end)
 
-  -- Set up randomization options
-  busted.sort = cliArgs['sort-tests'] or cliArgs.sort
-  busted.randomize = cliArgs['shuffle-tests'] or cliArgs.shuffle
-  busted.randomseed = tonumber(cliArgs.seed) or os.time()
-  if cliArgs.seed ~= defaultSeed and tonumber(cliArgs.seed) == nil then
-    print('Argument to --seed must be a number')
-    errors = errors + 1
-  end
-
   -- Set up output handler to listen to events
   local outputHandlerOptions = {
     verbose = cliArgs.verbose,
@@ -214,6 +205,16 @@ return function(options)
 
   if cliArgs['enable-sound'] then
     require 'busted.outputHandlers.sound'(outputHandlerOptions, busted)
+  end
+
+  -- Set up randomization options
+  busted.sort = cliArgs['sort-tests'] or cliArgs.sort
+  busted.randomize = cliArgs['shuffle-tests'] or cliArgs.shuffle
+  busted.randomseed = tonumber(cliArgs.seed) or os.time()
+  if cliArgs.seed ~= defaultSeed and tonumber(cliArgs.seed) == nil then
+    local err = 'Argument to --seed must be a number'
+    print('Error: ' .. err)
+    busted.publish({ 'error' }, {}, nil, err, {})
   end
 
   local getFullName = function(name)
