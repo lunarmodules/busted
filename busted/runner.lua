@@ -36,48 +36,61 @@ return function(options)
   local source = info.source
   local fileName = source:sub(1,1) == '@' and source:sub(2) or source
 
+  local cliArgsParsed = {}
+  local function processOption(key, value, altkey, opt)
+    if altkey then cliArgsParsed[altkey] = value end
+    cliArgsParsed[key] = value
+    return true
+  end
+
+  local function processVersion()
+    -- Return early if asked for the version
+    print(busted.version)
+    osexit(0, true)
+  end
+
   -- Load up the command-line interface options
   cli:set_name(path.basename(fileName))
-  cli:add_flag('--version', 'prints the program version and exits')
+  cli:add_flag('--version', 'prints the program version and exits', processVersion)
 
   if isBatch then
     cli:optarg('ROOT', 'test script file/folder. Folders will be traversed for any file that matches the --pattern option.', 'spec', 1)
 
-    cli:add_option('-p, --pattern=PATTERN', 'only run test files matching the Lua pattern', defaultPattern)
+    cli:add_option('-p, --pattern=PATTERN', 'only run test files matching the Lua pattern', defaultPattern, processOption)
   end
 
-  cli:add_option('-o, --output=LIBRARY', 'output library to load', defaultOutput)
-  cli:add_option('-d, --cwd=cwd', 'path to current working directory', './')
-  cli:add_option('-t, --tags=TAGS', 'only run tests with these #tags')
-  cli:add_option('--exclude-tags=TAGS', 'do not run tests with these #tags, takes precedence over --tags')
-  cli:add_option('--filter=PATTERN', 'only run test names matching the Lua pattern')
-  cli:add_option('--filter-out=PATTERN', 'do not run test names matching the Lua pattern, takes precedence over --filter')
-  cli:add_option('-m, --lpath=PATH', 'optional path to be prefixed to the Lua module search path', lpathprefix)
-  cli:add_option('--cpath=PATH', 'optional path to be prefixed to the Lua C module search path', cpathprefix)
-  cli:add_option('-r, --run=RUN', 'config to run from .busted file')
-  cli:add_option('--repeat=COUNT', 'run the tests repeatedly', '1')
-  cli:add_option('--seed=SEED', 'random seed value to use for shuffling test order', defaultSeed)
-  cli:add_option('--lang=LANG', 'language for error messages', 'en')
-  cli:add_option('--loaders=NAME', 'test file loaders', defaultLoaders)
-  cli:add_option('--helper=PATH', 'A helper script that is run before tests')
+  cli:add_option('-o, --output=LIBRARY', 'output library to load', defaultOutput, processOption)
+  cli:add_option('-d, --cwd=cwd', 'path to current working directory', './', processOption)
+  cli:add_option('-t, --tags=TAGS', 'only run tests with these #tags', nil, processOption)
+  cli:add_option('--exclude-tags=TAGS', 'do not run tests with these #tags, takes precedence over --tags', nil, processOption)
+  cli:add_option('--filter=PATTERN', 'only run test names matching the Lua pattern', nil, processOption)
+  cli:add_option('--filter-out=PATTERN', 'do not run test names matching the Lua pattern, takes precedence over --filter', nil, processOption)
+  cli:add_option('-m, --lpath=PATH', 'optional path to be prefixed to the Lua module search path', lpathprefix, processOption)
+  cli:add_option('--cpath=PATH', 'optional path to be prefixed to the Lua C module search path', cpathprefix, processOption)
+  cli:add_option('-r, --run=RUN', 'config to run from .busted file', nil, processOption)
+  cli:add_option('--repeat=COUNT', 'run the tests repeatedly', '1', nil, processOption)
+  cli:add_option('--seed=SEED', 'random seed value to use for shuffling test order', defaultSeed, processOption)
+  cli:add_option('--lang=LANG', 'language for error messages', 'en', processOption)
+  cli:add_option('--loaders=NAME', 'test file loaders', defaultLoaders, processOption)
+  cli:add_option('--helper=PATH', 'A helper script that is run before tests', nil, processOption)
 
-  cli:add_option('-Xoutput OPTION', 'pass `OPTION` as an option to the output handler. If `OPTION` contains commas, it is split into multiple options at the commas.')
-  cli:add_option('-Xhelper OPTION', 'pass `OPTION` as an option to the helper script. If `OPTION` contains commas, it is split into multiple options at the commas.')
+  cli:add_option('-Xoutput OPTION', 'pass `OPTION` as an option to the output handler. If `OPTION` contains commas, it is split into multiple options at the commas.', nil, processOption)
+  cli:add_option('-Xhelper OPTION', 'pass `OPTION` as an option to the helper script. If `OPTION` contains commas, it is split into multiple options at the commas.', nil, processOption)
 
-  cli:add_flag('-c, --coverage', 'do code coverage analysis (requires `LuaCov` to be installed)')
-  cli:add_flag('-v, --verbose', 'verbose output of errors')
-  cli:add_flag('-s, --enable-sound', 'executes `say` command if available')
-  cli:add_flag('--no-keep-going', 'quit after first error or failure')
-  cli:add_flag('--no-recurse', 'do not recurse into subdirectories')
-  cli:add_flag('--list', 'list the names of all tests instead of running them')
-  cli:add_flag('--shuffle', 'randomize file and test order, takes precedence over --sort (--shuffle-test and --shuffle-files)')
-  cli:add_flag('--shuffle-files', 'randomize file execution order, takes precedence over --sort-files')
-  cli:add_flag('--shuffle-tests', 'randomize test order within a file, takes precedence over --sort-tests')
-  cli:add_flag('--sort', 'sort file and test order (--sort-tests and --sort-files)')
-  cli:add_flag('--sort-files', 'sort file execution order')
-  cli:add_flag('--sort-tests', 'sort test order within a file')
-  cli:add_flag('--suppress-pending', 'suppress `pending` test output')
-  cli:add_flag('--defer-print', 'defer print to when test suite is complete')
+  cli:add_flag('-c, --coverage', 'do code coverage analysis (requires `LuaCov` to be installed)', processOption)
+  cli:add_flag('-v, --verbose', 'verbose output of errors', processOption)
+  cli:add_flag('-s, --enable-sound', 'executes `say` command if available', processOption)
+  cli:add_flag('--no-keep-going', 'quit after first error or failure', processOption)
+  cli:add_flag('--no-recurse', 'do not recurse into subdirectories', processOption)
+  cli:add_flag('--list', 'list the names of all tests instead of running them', processOption)
+  cli:add_flag('--shuffle', 'randomize file and test order, takes precedence over --sort (--shuffle-test and --shuffle-files)', processOption)
+  cli:add_flag('--shuffle-files', 'randomize file execution order, takes precedence over --sort-files', processOption)
+  cli:add_flag('--shuffle-tests', 'randomize test order within a file, takes precedence over --sort-tests', processOption)
+  cli:add_flag('--sort', 'sort file and test order (--sort-tests and --sort-files)', processOption)
+  cli:add_flag('--sort-files', 'sort file execution order', processOption)
+  cli:add_flag('--sort-tests', 'sort test order within a file', processOption)
+  cli:add_flag('--suppress-pending', 'suppress `pending` test output', processOption)
+  cli:add_flag('--defer-print', 'defer print to when test suite is complete', processOption)
 
   -- Parse the cli arguments
   local cliArgs = cli:parse(arg)
@@ -85,14 +98,8 @@ return function(options)
     osexit(1, true)
   end
 
-  -- Return early if only asked for the version
-  if cliArgs.version then
-    print(busted.version)
-    osexit(0, true)
-  end
-
   -- Load current working directory
-  local fpath = utils.normpath(cliArgs.d)
+  local fpath = utils.normpath(cliArgs.cwd)
 
   -- Load busted config file if available
   local configFile = { }
@@ -101,7 +108,7 @@ return function(options)
   local bustedConfigFile = pcall(function() configFile = loadfile(bustedConfigFilePath)() end)
 
   if bustedConfigFile then
-    local config, err = configLoader(configFile, cliArgs)
+    local config, err = configLoader(configFile, cliArgsParsed, cliArgs)
 
     if err then
       print(err)
@@ -113,11 +120,11 @@ return function(options)
   local tags = {}
   local excludeTags = {}
 
-  if cliArgs.t ~= '' then
-    tags = utils.split(cliArgs.t, ',')
+  if cliArgs.tags and cliArgs.tags ~= '' then
+    tags = utils.split(cliArgs.tags, ',')
   end
 
-  if cliArgs['exclude-tags'] ~= '' then
+  if cliArgs['exclude-tags'] and cliArgs['exclude-tags'] ~= '' then
     excludeTags = utils.split(cliArgs['exclude-tags'], ',')
   end
 
@@ -203,11 +210,11 @@ return function(options)
     arguments = utils.split(cliArgs.Xoutput, ',') or {}
   }
 
-  local opath = utils.normpath(path.join(fpath, cliArgs.o))
-  local outputHandler = outputHandlerLoader(cliArgs.o, opath, outputHandlerOptions, busted, defaultOutput)
+  local opath = utils.normpath(path.join(fpath, cliArgs.output))
+  local outputHandler = outputHandlerLoader(cliArgs.output, opath, outputHandlerOptions, busted, defaultOutput)
   outputHandler:subscribe(outputHandlerOptions)
 
-  if cliArgs.s then
+  if cliArgs['enable-sound'] then
     require 'busted.outputHandlers.sound'(outputHandlerOptions, busted)
   end
 

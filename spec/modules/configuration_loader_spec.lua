@@ -1,18 +1,19 @@
 describe('Config Loader', function()
   local configLoader = require 'busted.modules.configuration_loader'()
-  local testConfig, cliArgs
+  local testConfig, cliArgs, defaults
 
   before_each(function()
     testConfig = {
       default = {
-        output = { 'utfTerminal' }
+        output = 'utfTerminal'
       },
       windows = {
-        output = { 'plainTerminal' }
+        output = 'plainTerminal'
       }
     }
 
     cliArgs = { }
+    defaults = { }
   end)
 
   it('returns a valid config with no config file', function()
@@ -38,8 +39,33 @@ describe('Config Loader', function()
     assert.are.equal(nil, err)
   end)
 
+  it('returns a valid config with specified config and defaults specified', function()
+    defaults = { output = 'TAP' }
+    cliArgs.run = 'windows'
+    local config, err = configLoader(testConfig, cliArgs, defaults)
+
+    assert.are.same(testConfig.windows.output, config.output)
+    assert.are.equal(nil, err)
+  end)
+
+  it('returns a valid config with cliArgs and defaults specified', function()
+    cliArgs = { output = 'TAP' }
+    local config, err = configLoader(testConfig, cliArgs, defaults)
+
+    assert.are.same(cliArgs, config)
+    assert.are.equal(nil, err)
+  end)
+
+  it('returns a valid config with defaults if no configs present', function()
+    defaults = { output = 'TAP' }
+    local config, err = configLoader({}, {}, defaults)
+
+    assert.are.same(defaults, config)
+    assert.are.equal(nil, err)
+  end)
+
   it('returns an error with an invalid config', function()
-    local config, err = configLoader('invalid', cliArgs, 'run')
+    local config, err = configLoader('invalid', cliArgs)
     assert.are_not.equal(nil, err)
   end)
 
