@@ -11,10 +11,10 @@ return function(options, busted)
       errors = 0,
       failures = 0,
       skip = 0,
-      timestamp = os.date('!%Y-%m-%dT%T'),
     })
   }
   local stack = {}
+  local testStartTime
 
   handler.suiteStart = function(count, total)
     local suite = {
@@ -25,6 +25,7 @@ return function(options, busted)
         errors = 0,
         failures = 0,
         skip = 0,
+        timestamp = os.date('!%Y-%m-%dT%T'),
       })
     }
     top.xml_doc:add_direct_child(suite.xml_doc)
