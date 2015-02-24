@@ -19,32 +19,26 @@ local function init(busted)
     local parent = busted.context.parent(element)
     local finally
 
-    busted.publish({ 'test', 'start' }, element, parent)
-
     if not element.env then element.env = {} end
 
     busted.rejectAll(element)
     element.env.finally = function(fn) finally = fn end
     element.env.pending = function(msg) busted.pending(msg) end
 
-    local status = busted.status('success')
-    local onError = function(descriptor)
-      if element.message then element.message = element.message .. '\n' end
-      element.message = (element.message or '') .. 'Error in ' .. descriptor
-      status:update('error')
-    end
+    local pass, ancestor = busted.execAll('before_each', parent, true)
 
-    local pass, ancestor = busted.execAll('before_each', parent, true, onError)
     if pass then
+      local status = busted.status('success')
+      busted.publish({ 'test', 'start' }, element, parent)
       status:update(busted.safe('it', element.run, element))
       if finally then
         busted.reject('pending', element)
         status:update(busted.safe('finally', finally, element))
       end
+      busted.publish({ 'test', 'end' }, element, parent, tostring(status))
     end
-    busted.dexecAll('after_each', ancestor, true, onError)
 
-    busted.publish({ 'test', 'end' }, element, parent, tostring(status))
+    busted.dexecAll('after_each', ancestor, true)
   end
 
   local pending = function(element)

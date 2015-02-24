@@ -29,6 +29,9 @@ describe('bad support functions should fail, sync test', function()
 
     it('Tests nothing, should always fail due to failing support functions', function()
     end)
+
+    it('Tests nothing, should always fail due to failing support functions', function()
+    end)
   end)
 
 
