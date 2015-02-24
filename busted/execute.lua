@@ -28,8 +28,12 @@ return function(busted)
         busted.publish({ 'suite', 'reinitialize' })
       end
 
+      local root = busted.context.get()
       busted.publish({ 'suite', 'start' }, i, runs)
-      busted.execute()
+      if busted.execAll('setup', root) then
+        busted.execute()
+      end
+      busted.dexecAll('teardown', root)
       busted.publish({ 'suite', 'end' }, i, runs)
 
       if busted.skipAll then
