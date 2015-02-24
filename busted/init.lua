@@ -37,11 +37,10 @@ local function init(busted)
     local pass, ancestor = busted.execAll('before_each', parent, true, onError)
     if pass then
       status:update(busted.safe('it', element.run, element))
-    end
-
-    if finally then
-      busted.reject('pending', element)
-      status:update(busted.safe('finally', finally, element))
+      if finally then
+        busted.reject('pending', element)
+        status:update(busted.safe('finally', finally, element))
+      end
     end
     busted.dexecAll('after_each', ancestor, true, onError)
 
