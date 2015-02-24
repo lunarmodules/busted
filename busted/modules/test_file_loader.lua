@@ -70,6 +70,11 @@ return function(busted, loaders, options)
       end
     end
 
+    if #fileList == 0 then
+      local err = 'No test files found matching Lua pattern: ' .. pattern
+      busted.publish({ 'error' }, {}, nil, err, {})
+    end
+
     return fileList
   end
 

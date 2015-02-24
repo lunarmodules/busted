@@ -331,10 +331,6 @@ return function(options)
   local pattern = cliArgs.pattern
   local testFileLoader = require 'busted.modules.test_file_loader'(busted, loaders, testFileLoaderOptions)
   local fileList = testFileLoader(rootFile, pattern)
-  if #fileList == 0 then
-    print('No test files found matching Lua pattern: ' .. pattern)
-    errors = errors + 1
-  end
 
   if not cliArgs.ROOT then
     local ctx = busted.context.get()

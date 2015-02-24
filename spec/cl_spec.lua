@@ -508,7 +508,7 @@ describe('Tests error messages through the command line', function()
   it('when no test files matching Lua pattern', function()
     error_start()
     local result = run(busted_cmd .. ' --output=plainTerminal --pattern=this_filename_does_simply_not_exist$')
-    local errmsg = result:match('(.-)\n')
+    local errmsg = result:match('Error → (.-)\n')
     local expected = 'No test files found matching Lua pattern: this_filename_does_simply_not_exist$'
     assert.is_equal(expected, errmsg)
     error_end()
