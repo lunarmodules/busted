@@ -350,42 +350,9 @@ return function(options)
     getmetatable(file.run).__call = info.func
   end
 
-  busted.subscribe({'suite', 'reinitialize'}, function()
-    local oldctx = busted.context.get()
-    local children = busted.context.children(oldctx)
-
-    busted.context.clear()
-    local ctx = busted.context.get()
-    for k, v in pairs(oldctx) do
-      ctx[k] = v
-    end
-
-    for _, child in pairs(children) do
-      for descriptor, _ in pairs(busted.executors) do
-        child[descriptor] = nil
-      end
-      busted.context.attach(child)
-    end
-
-    busted.randomseed = tonumber(cliArgs.seed) or os.time()
-
-    return nil, true
-  end)
-
   local runs = tonumber(cliArgs['repeat']) or 1
-  for i = 1, runs do
-    if i > 1 then
-      busted.publish({ 'suite', 'reinitialize' })
-    end
-
-    busted.publish({ 'suite', 'start' }, i, runs)
-    busted.execute()
-    busted.publish({ 'suite', 'end' }, i, runs)
-
-    if quitOnError and (failures > 0 or errors > 0) then
-      break
-    end
-  end
+  local execute = require 'busted.execute'(busted)
+  execute(runs, { seed = cliArgs.seed })
 
   busted.publish({ 'exit' })
 
