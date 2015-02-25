@@ -1,3 +1,5 @@
+local s = require 'say'
+
 return function(busted, loaders, options)
   local path = require 'pl.path'
   local dir = require 'pl.dir'
@@ -71,8 +73,7 @@ return function(busted, loaders, options)
     end
 
     if #fileList == 0 then
-      local err = 'No test files found matching Lua pattern: ' .. pattern
-      busted.publish({ 'error' }, {}, nil, err, {})
+      busted.publish({ 'error' }, {}, nil, s('output.no_test_files_match'):format(pattern), {})
     end
 
     return fileList
