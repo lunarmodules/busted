@@ -49,6 +49,7 @@ build = {
     ['busted.modules.test_file_loader']       = 'busted/modules/test_file_loader.lua',
     ['busted.modules.output_handler_loader']  = 'busted/modules/output_handler_loader.lua',
     ['busted.modules.helper_loader']          = 'busted/modules/helper_loader.lua',
+    ['busted.modules.filter_loader']          = 'busted/modules/filter_loader.lua',
 
     ['busted.modules.files.lua']              = 'busted/modules/files/lua.lua',
     ['busted.modules.files.moonscript']       = 'busted/modules/files/moonscript.lua',

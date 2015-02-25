@@ -14,6 +14,7 @@ return function(options)
   local busted = require 'busted.core'()
 
   local configLoader = require 'busted.modules.configuration_loader'()
+  local filterLoader = require 'busted.modules.filter_loader'()
   local helperLoader = require 'busted.modules.helper_loader'()
   local outputHandlerLoader = require 'busted.modules.output_handler_loader'()
 
@@ -126,17 +127,6 @@ return function(options)
     end
   end
 
-  local tags = {}
-  local excludeTags = {}
-
-  if cliArgs.tags and cliArgs.tags ~= '' then
-    tags = utils.split(cliArgs.tags, ',')
-  end
-
-  if cliArgs['exclude-tags'] and cliArgs['exclude-tags'] ~= '' then
-    excludeTags = utils.split(cliArgs['exclude-tags'], ',')
-  end
-
   -- If coverage arg is passed in, load LuaCovsupport
   if cliArgs.coverage then
     luacov()
@@ -162,6 +152,16 @@ return function(options)
     string.gsub(cliArgs.loaders, '([^,]+)', function(c) loaders[#loaders+1] = c end)
   end
 
+  local tags = {}
+  if cliArgs.tags and cliArgs.tags ~= '' then
+    tags = utils.split(cliArgs.tags, ',')
+  end
+
+  local excludeTags = {}
+  if cliArgs['exclude-tags'] and cliArgs['exclude-tags'] ~= '' then
+    excludeTags = utils.split(cliArgs['exclude-tags'], ',')
+  end
+
   -- We report an error if the same tag appears in both `options.tags`
   -- and `options.excluded_tags` because it does not make sense for the
   -- user to tell Busted to include and exclude the same tests at the
@@ -175,7 +175,7 @@ return function(options)
     end
   end
 
-  -- watch for test errors
+  -- watch for test errors and failures
   local failures = 0
   local errors = 0
   local quitOnError = cliArgs['no-keep-going']
@@ -228,94 +228,18 @@ return function(options)
   busted.randomize = cliArgs['shuffle-tests'] or cliArgs.shuffle
   busted.randomseed = tonumber(cliArgs.seed) or os.time()
 
-  local getFullName = function(name)
-    local parent = busted.context.get()
-    local names = { name }
+  -- Set up tag and test filter options
+  local filterLoaderOptions = {
+    tags = tags,
+    excludeTags = excludeTags,
+    filter = cliArgs.filter,
+    filterOut = cliArgs['filter-out'],
+    list = cliArgs.list,
+    nokeepgoing = cliArgs['no-keep-going'],
+  }
 
-    while parent and (parent.name or parent.descriptor) and
-          parent.descriptor ~= 'file' do
-      table.insert(names, 1, parent.name or parent.descriptor)
-      parent = busted.context.parent(parent)
-    end
-
-    return table.concat(names, ' ')
-  end
-
-  local hasTag = function(name, tag)
-    local found = name:find('#' .. tag)
-    return (found ~= nil)
-  end
-
-  local filterExcludeTags = function(name)
-    for i, tag in pairs(excludeTags) do
-      if hasTag(name, tag) then
-        return nil, false
-      end
-    end
-    return nil, true
-  end
-
-  local filterTags = function(name)
-    local fullname = getFullName(name)
-    for i, tag in pairs(tags) do
-      if hasTag(fullname, tag) then
-        return nil, true
-      end
-    end
-    return nil, (#tags == 0)
-  end
-
-  local filterOutNames = function(name)
-    local found = (getFullName(name):find(cliArgs['filter-out']) ~= nil)
-    return nil, not found
-  end
-
-  local filterNames = function(name)
-    local found = (getFullName(name):find(cliArgs.filter) ~= nil)
-    return nil, found
-  end
-
-  local printNameOnly = function(name, fn, trace)
-    local fullname = getFullName(name)
-    if trace and trace.what == 'Lua' then
-      print(trace.short_src .. ':' .. trace.currentline .. ': ' .. fullname)
-    else
-      print(fullname)
-    end
-    return nil, false
-  end
-
-  local ignoreAll = function()
-    return nil, false
-  end
-
-  local skipOnError = function()
-    return nil, (failures == 0 and errors == 0)
-  end
-
-  local applyFilter = function(descriptors, name, fn)
-    if cliArgs[name] and cliArgs[name] ~= '' then
-      for _, descriptor in ipairs(descriptors) do
-        busted.subscribe({ 'register', descriptor }, fn, { priority = 1 })
-      end
-    end
-  end
-
-  if cliArgs.list then
-    busted.subscribe({ 'suite', 'start' }, ignoreAll, { priority = 1 })
-    busted.subscribe({ 'suite', 'end' }, ignoreAll, { priority = 1 })
-    applyFilter({ 'setup', 'teardown', 'before_each', 'after_each' }, 'list', ignoreAll)
-    applyFilter({ 'it', 'pending' }, 'list', printNameOnly)
-  end
-
-  applyFilter({ 'setup', 'teardown', 'before_each', 'after_each' }, 'no-keep-going', skipOnError)
-  applyFilter({ 'file', 'describe', 'it', 'pending' }, 'no-keep-going', skipOnError)
-
-  -- The following filters are applied in reverse order
-  applyFilter({ 'it', 'pending' }            , 'filter'      , filterNames      )
-  applyFilter({ 'describe', 'it', 'pending' }, 'filter-out'  , filterOutNames   )
-  applyFilter({ 'it', 'pending' }            , 'tags'        , filterTags       )
-  applyFilter({ 'describe', 'it', 'pending' }, 'exclude-tags', filterExcludeTags)
+  -- Load tag and test filters
+  filterLoader(filterLoaderOptions, busted)
 
   -- Set up helper script
   if cliArgs.helper and cliArgs.helper ~= '' then
