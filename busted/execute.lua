@@ -1,7 +1,7 @@
 
 return function(busted)
   local function execute(runs, options)
-    busted.subscribe({'suite', 'reinitialize'}, function()
+    busted.subscribe({'suite', 'reset'}, function()
       local oldctx = busted.context.get()
       local children = busted.context.children(oldctx)
 
@@ -25,7 +25,7 @@ return function(busted)
 
     for i = 1, runs do
       if i > 1 then
-        busted.publish({ 'suite', 'reinitialize' })
+        busted.publish({ 'suite', 'reset' })
       end
 
       local root = busted.context.get()
