@@ -37,9 +37,20 @@ return function(options)
   local fileName = source:sub(1,1) == '@' and source:sub(2) or source
 
   local cliArgsParsed = {}
+
   local function processOption(key, value, altkey, opt)
     if altkey then cliArgsParsed[altkey] = value end
     cliArgsParsed[key] = value
+    return true
+  end
+
+  local function processNumber(key, value, altkey, opt)
+    local number = tonumber(value)
+    if not number then
+      return nil, 'argument to ' .. opt:gsub('=.*', '') .. ' must be a number'
+    end
+    if altkey then cliArgsParsed[altkey] = number end
+    cliArgsParsed[key] = number
     return true
   end
 
@@ -68,8 +79,8 @@ return function(options)
   cli:add_option('-m, --lpath=PATH', 'optional path to be prefixed to the Lua module search path', lpathprefix, processOption)
   cli:add_option('--cpath=PATH', 'optional path to be prefixed to the Lua C module search path', cpathprefix, processOption)
   cli:add_option('-r, --run=RUN', 'config to run from .busted file', nil, processOption)
-  cli:add_option('--repeat=COUNT', 'run the tests repeatedly', '1', nil, processOption)
-  cli:add_option('--seed=SEED', 'random seed value to use for shuffling test order', defaultSeed, processOption)
+  cli:add_option('--repeat=COUNT', 'run the tests repeatedly', '1', processNumber)
+  cli:add_option('--seed=SEED', 'random seed value to use for shuffling test order', defaultSeed, processNumber)
   cli:add_option('--lang=LANG', 'language for error messages', 'en', processOption)
   cli:add_option('--loaders=NAME', 'test file loaders', defaultLoaders, processOption)
   cli:add_option('--helper=PATH', 'A helper script that is run before tests', nil, processOption)
@@ -211,11 +222,6 @@ return function(options)
   busted.sort = cliArgs['sort-tests'] or cliArgs.sort
   busted.randomize = cliArgs['shuffle-tests'] or cliArgs.shuffle
   busted.randomseed = tonumber(cliArgs.seed) or os.time()
-  if cliArgs.seed ~= defaultSeed and tonumber(cliArgs.seed) == nil then
-    local err = 'Argument to --seed must be a number'
-    print('Error: ' .. err)
-    busted.publish({ 'error' }, {}, nil, err, {})
-  end
 
   local getFullName = function(name)
     local parent = busted.context.get()

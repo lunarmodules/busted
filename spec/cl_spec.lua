@@ -602,12 +602,12 @@ describe('Tests random seed through the commandline', function()
     error_end()
   end)
 
-  it('test invalid seed value defaults to a valid seed value', function()
+  it('test invalid seed value exits with error', function()
     local success, exitcode
     error_start()
     success, exitcode = execute(busted_cmd .. ' --seed=abcd --pattern=cl_random_seed.lua$')
     assert.is_false(success)
-    assert.is_equal(2, exitcode) -- fails cl_random_seed test +1 error
+    assert.is_equal(1, exitcode)
     error_end()
   end)
 
@@ -661,6 +661,15 @@ describe('Tests repeat commandline option', function()
     success, exitcode = execute(busted_cmd .. ' --repeat=2 --pattern=cl_two_failures.lua$')
     assert.is_false(success)
     assert.is_equal(4, exitcode)
+    error_end()
+  end)
+
+  it('exits with error when repeat is invalid', function()
+    local success, exitcode
+    error_start()
+    success, exitcode = execute(busted_cmd .. ' --repeat=abc --pattern=cl_success.lua$')
+    assert.is_false(success)
+    assert.is_equal(1, exitcode)
     error_end()
   end)
 end)
