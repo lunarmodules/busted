@@ -180,12 +180,17 @@ return function(options)
   local errors = 0
   local quitOnError = cliArgs['no-keep-going']
 
+  busted.subscribe({ 'error', 'output' }, function(element, parent, message)
+    print('Error: Cannot load output library: ' .. element.name .. '\n' .. message)
+    return nil, true
+  end)
+
+  busted.subscribe({ 'error', 'helper' }, function(element, parent, message)
+    print('Error: Cannot load helper script: ' .. element.name .. '\n' .. message)
+    return nil, true
+  end)
+
   busted.subscribe({ 'error' }, function(element, parent, message)
-    if element.descriptor == 'output' then
-      print('Error: Cannot load output library: ' .. element.name .. '\n' .. message)
-    elseif element.descriptor == 'helper' then
-      print('Error: Cannot load helper script: ' .. element.name .. '\n' .. message)
-    end
     errors = errors + 1
     busted.skipAll = quitOnError
     return nil, true
