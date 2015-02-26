@@ -16,7 +16,7 @@ return function(busted, loaders, options)
     if path.isfile(rootFile) then
       fileList = { rootFile }
     elseif path.isdir(rootFile) then
-      local getfiles = options.recurse and dir.getallfiles or dir.getfiles
+      local getfiles = options.recursive and dir.getallfiles or dir.getfiles
       fileList = getfiles(rootFile)
 
       fileList = tablex.filter(fileList, function(filename)

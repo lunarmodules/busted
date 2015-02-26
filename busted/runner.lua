@@ -81,7 +81,7 @@ return function(options)
   cli:add_flag('-v, --verbose', 'verbose output of errors', processOption)
   cli:add_flag('-s, --enable-sound', 'executes `say` command if available', processOption)
   cli:add_flag('--no-keep-going', 'quit after first error or failure', processOption)
-  cli:add_flag('--no-recurse', 'do not recurse into subdirectories', processOption)
+  cli:add_flag('--no-recursive', 'do not recurse into subdirectories', processOption)
   cli:add_flag('--list', 'list the names of all tests instead of running them', processOption)
   cli:add_flag('--shuffle', 'randomize file and test order, takes precedence over --sort (--shuffle-test and --shuffle-files)', processOption)
   cli:add_flag('--shuffle-files', 'randomize file execution order, takes precedence over --sort-files', processOption)
@@ -322,7 +322,7 @@ return function(options)
     verbose = cliArgs.verbose,
     sort = cliArgs['sort-files'] or cliArgs.sort,
     shuffle = cliArgs['shuffle-files'] or cliArgs.shuffle,
-    recurse = not cliArgs['no-recurse'],
+    recursive = not cliArgs['no-recursive'],
     seed = busted.randomseed
   }
 

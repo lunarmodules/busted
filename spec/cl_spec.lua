@@ -676,11 +676,11 @@ describe('Tests no-keep-going commandline option', function()
   end)
 end)
 
-describe('Tests no-recurse commandline option', function()
+describe('Tests no-recursive commandline option', function()
   it('does not run any tests in subdirectories', function()
     local success, exitcode
     error_start()
-    success, exitcode = execute(busted_cmd .. ' --no-recurse --pattern=cl_two_failures.lua$ .')
+    success, exitcode = execute(busted_cmd .. ' --no-recursive --pattern=cl_two_failures.lua$ .')
     assert.is_false(success)
     assert.is_equal(1, exitcode)
     error_end()

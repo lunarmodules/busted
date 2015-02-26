@@ -138,7 +138,7 @@ _busted() {
       -Xoutput
       -Xhelper
       --no-keep-going
-      --no-recurse
+      --no-recursive
       --shuffle --shuffle-tests --shuffle-files
       --sort --sort-tests --sort-files
       --supress-pending
