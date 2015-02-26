@@ -159,6 +159,14 @@ describe('Tests the busted command-line options', function()
     error_end()
   end)
 
+  it('tests running with -l specified', function()
+    local result = run(busted_cmd .. ' -l --pattern=cl_list.lua$')
+    local expected = './spec/cl_list.lua:4: Tests list test 1\n' ..
+                     './spec/cl_list.lua:7: Tests list test 2\n' ..
+                     './spec/cl_list.lua:10: Tests list test 3\n'
+    assert.is_equal(normpath(expected), result)
+  end)
+
   it('tests running with --list specified', function()
     local result = run(busted_cmd .. ' --list --pattern=cl_list.lua$')
     local expected = './spec/cl_list.lua:4: Tests list test 1\n' ..
@@ -676,11 +684,11 @@ describe('Tests no-keep-going commandline option', function()
   end)
 end)
 
-describe('Tests no-recurse commandline option', function()
+describe('Tests no-recursive commandline option', function()
   it('does not run any tests in subdirectories', function()
     local success, exitcode
     error_start()
-    success, exitcode = execute(busted_cmd .. ' --no-recurse --pattern=cl_two_failures.lua$ .')
+    success, exitcode = execute(busted_cmd .. ' --no-recursive --pattern=cl_two_failures.lua$ .')
     assert.is_false(success)
     assert.is_equal(1, exitcode)
     error_end()

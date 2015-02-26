@@ -120,7 +120,7 @@ _busted() {
       -h --help
       -v --verbose
       --version
-      --list
+      -l --list
       -o --output=
       -p --pattern=
       -d --cwd=
@@ -138,7 +138,7 @@ _busted() {
       -Xoutput
       -Xhelper
       --no-keep-going
-      --no-recurse
+      --no-recursive
       --shuffle --shuffle-tests --shuffle-files
       --sort --sort-tests --sort-files
       --supress-pending
