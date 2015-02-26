@@ -37,9 +37,20 @@ return function(options)
   local fileName = source:sub(1,1) == '@' and source:sub(2) or source
 
   local cliArgsParsed = {}
+
   local function processOption(key, value, altkey, opt)
     if altkey then cliArgsParsed[altkey] = value end
     cliArgsParsed[key] = value
+    return true
+  end
+
+  local function processNumber(key, value, altkey, opt)
+    local number = tonumber(value)
+    if not number then
+      return nil, 'argument to ' .. opt:gsub('=.*', '') .. ' must be a number'
+    end
+    if altkey then cliArgsParsed[altkey] = number end
+    cliArgsParsed[key] = number
     return true
   end
 
@@ -68,8 +79,8 @@ return function(options)
   cli:add_option('-m, --lpath=PATH', 'optional path to be prefixed to the Lua module search path', lpathprefix, processOption)
   cli:add_option('--cpath=PATH', 'optional path to be prefixed to the Lua C module search path', cpathprefix, processOption)
   cli:add_option('-r, --run=RUN', 'config to run from .busted file', nil, processOption)
-  cli:add_option('--repeat=COUNT', 'run the tests repeatedly', '1', nil, processOption)
-  cli:add_option('--seed=SEED', 'random seed value to use for shuffling test order', defaultSeed, processOption)
+  cli:add_option('--repeat=COUNT', 'run the tests repeatedly', '1', processNumber)
+  cli:add_option('--seed=SEED', 'random seed value to use for shuffling test order', defaultSeed, processNumber)
   cli:add_option('--lang=LANG', 'language for error messages', 'en', processOption)
   cli:add_option('--loaders=NAME', 'test file loaders', defaultLoaders, processOption)
   cli:add_option('--helper=PATH', 'A helper script that is run before tests', nil, processOption)
@@ -108,7 +119,7 @@ return function(options)
   if bustedConfigFile then
     local config, err = configLoader(configFile, cliArgsParsed, cliArgs)
     if err then
-      print(err)
+      print('Error: ' .. err)
       osexit(1, true)
     else
       cliArgs = config
@@ -158,7 +169,7 @@ return function(options)
   for _, excluded in pairs(excludeTags) do
     for _, included in pairs(tags) do
       if excluded == included then
-        print('Cannot use --tags and --exclude-tags for the same tags')
+        print('Error: Cannot use --tags and --exclude-tags for the same tags')
         osexit(1, true)
       end
     end
@@ -169,12 +180,17 @@ return function(options)
   local errors = 0
   local quitOnError = cliArgs['no-keep-going']
 
+  busted.subscribe({ 'error', 'output' }, function(element, parent, message)
+    print('Error: Cannot load output library: ' .. element.name .. '\n' .. message)
+    return nil, true
+  end)
+
+  busted.subscribe({ 'error', 'helper' }, function(element, parent, message)
+    print('Error: Cannot load helper script: ' .. element.name .. '\n' .. message)
+    return nil, true
+  end)
+
   busted.subscribe({ 'error' }, function(element, parent, message)
-    if element.descriptor == 'output' then
-      print('Cannot load output library: ' .. element.name .. '\n' .. message)
-    elseif element.descriptor == 'helper' then
-      print('Cannot load helper script: ' .. element.name .. '\n' .. message)
-    end
     errors = errors + 1
     busted.skipAll = quitOnError
     return nil, true
@@ -189,15 +205,6 @@ return function(options)
     busted.skipAll = quitOnError
     return nil, true
   end)
-
-  -- Set up randomization options
-  busted.sort = cliArgs['sort-tests'] or cliArgs.sort
-  busted.randomize = cliArgs['shuffle-tests'] or cliArgs.shuffle
-  busted.randomseed = tonumber(cliArgs.seed) or os.time()
-  if cliArgs.seed ~= defaultSeed and tonumber(cliArgs.seed) == nil then
-    print('Argument to --seed must be a number')
-    errors = errors + 1
-  end
 
   -- Set up output handler to listen to events
   local outputHandlerOptions = {
@@ -215,6 +222,11 @@ return function(options)
   if cliArgs['enable-sound'] then
     require 'busted.outputHandlers.sound'(outputHandlerOptions, busted)
   end
+
+  -- Set up randomization options
+  busted.sort = cliArgs['sort-tests'] or cliArgs.sort
+  busted.randomize = cliArgs['shuffle-tests'] or cliArgs.shuffle
+  busted.randomseed = tonumber(cliArgs.seed) or os.time()
 
   local getFullName = function(name)
     local parent = busted.context.get()
@@ -331,10 +343,6 @@ return function(options)
   local pattern = cliArgs.pattern
   local testFileLoader = require 'busted.modules.test_file_loader'(busted, loaders, testFileLoaderOptions)
   local fileList = testFileLoader(rootFile, pattern)
-  if #fileList == 0 then
-    print('No test files found matching Lua pattern: ' .. pattern)
-    errors = errors + 1
-  end
 
   if not cliArgs.ROOT then
     local ctx = busted.context.get()

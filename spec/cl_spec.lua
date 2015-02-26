@@ -484,7 +484,7 @@ describe('Tests error messages through the command line', function()
     error_start()
     local result = run(busted_cmd .. ' --pattern=cl_two_failures.lua$ --output=not_found_here')
     local errmsg = result:match('(.-)\n')
-    local expected = 'Cannot load output library: not_found_here'
+    local expected = 'Error: Cannot load output library: not_found_here'
     assert.is_equal(expected, errmsg)
     error_end()
   end)
@@ -495,7 +495,7 @@ describe('Tests error messages through the command line', function()
     local err = result:match('Error → .-:%d+: (.-)\n')
     local errmsg = result:match('(.-)\n')
     local expectedErr = "module 'not_found_here' not found:"
-    local expectedMsg = 'Cannot load helper script: not_found_here'
+    local expectedMsg = 'Error: Cannot load helper script: not_found_here'
     assert.is_equal(expectedErr, err)
     assert.is_equal(expectedMsg, errmsg)
     error_end()
@@ -507,7 +507,7 @@ describe('Tests error messages through the command line', function()
     local err = result:match('Error → (.-)\n')
     local errmsg = result:match('(.-)\n')
     local expectedErr = 'cannot open ./not_found_here.lua: No such file or directory'
-    local expectedMsg = 'Cannot load helper script: not_found_here.lua'
+    local expectedMsg = 'Error: Cannot load helper script: not_found_here.lua'
     assert.is_equal(normpath(expectedErr), err)
     assert.is_equal(expectedMsg, errmsg)
     error_end()
@@ -516,7 +516,7 @@ describe('Tests error messages through the command line', function()
   it('when no test files matching Lua pattern', function()
     error_start()
     local result = run(busted_cmd .. ' --output=plainTerminal --pattern=this_filename_does_simply_not_exist$')
-    local errmsg = result:match('(.-)\n')
+    local errmsg = result:match('Error → (.-)\n')
     local expected = 'No test files found matching Lua pattern: this_filename_does_simply_not_exist$'
     assert.is_equal(expected, errmsg)
     error_end()
@@ -610,12 +610,12 @@ describe('Tests random seed through the commandline', function()
     error_end()
   end)
 
-  it('test invalid seed value defaults to a valid seed value', function()
+  it('test invalid seed value exits with error', function()
     local success, exitcode
     error_start()
     success, exitcode = execute(busted_cmd .. ' --seed=abcd --pattern=cl_random_seed.lua$')
     assert.is_false(success)
-    assert.is_equal(2, exitcode) -- fails cl_random_seed test +1 error
+    assert.is_equal(1, exitcode)
     error_end()
   end)
 
@@ -669,6 +669,15 @@ describe('Tests repeat commandline option', function()
     success, exitcode = execute(busted_cmd .. ' --repeat=2 --pattern=cl_two_failures.lua$')
     assert.is_false(success)
     assert.is_equal(4, exitcode)
+    error_end()
+  end)
+
+  it('exits with error when repeat is invalid', function()
+    local success, exitcode
+    error_start()
+    success, exitcode = execute(busted_cmd .. ' --repeat=abc --pattern=cl_success.lua$')
+    assert.is_false(success)
+    assert.is_equal(1, exitcode)
     error_end()
   end)
 end)
