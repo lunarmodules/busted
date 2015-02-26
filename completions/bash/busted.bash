@@ -120,7 +120,7 @@ _busted() {
       -h --help
       -v --verbose
       --version
-      --list
+      -l --list
       -o --output=
       -p --pattern=
       -d --cwd=

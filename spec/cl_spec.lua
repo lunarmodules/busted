@@ -159,6 +159,14 @@ describe('Tests the busted command-line options', function()
     error_end()
   end)
 
+  it('tests running with -l specified', function()
+    local result = run(busted_cmd .. ' -l --pattern=cl_list.lua$')
+    local expected = './spec/cl_list.lua:4: Tests list test 1\n' ..
+                     './spec/cl_list.lua:7: Tests list test 2\n' ..
+                     './spec/cl_list.lua:10: Tests list test 3\n'
+    assert.is_equal(normpath(expected), result)
+  end)
+
   it('tests running with --list specified', function()
     local result = run(busted_cmd .. ' --list --pattern=cl_list.lua$')
     local expected = './spec/cl_list.lua:4: Tests list test 1\n' ..
