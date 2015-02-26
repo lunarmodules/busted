@@ -1,6 +1,7 @@
 -- Busted command-line runner
 
 local path = require 'pl.path'
+local tablex = require 'pl.tablex'
 local term = require 'term'
 local utils = require 'busted.utils'
 local loaded = false
@@ -61,6 +62,31 @@ return function(options)
     osexit(0, true)
   end
 
+  local function processList(key, value, altkey, opt)
+    local list = cliArgsParsed[key] or {}
+    tablex.insertvalues(list, utils.split(value, ','))
+    processOption(key, list, altkey, opt)
+    return true
+  end
+
+  local function append(s1, s2, sep)
+    local sep = sep or ''
+    if not s1 then return s2 end
+    return s1 .. sep .. s2
+  end
+
+  local function processLoaders(key, value, altkey, opt)
+    local loaders = append(cliArgsParsed[key], value, ',')
+    processOption(key, loaders, altkey, opt)
+    return true
+  end
+
+  local function processPath(key, value, altkey, opt)
+    local lpath = append(cliArgsParsed[key], value, ';')
+    processOption(key, lpath, altkey, opt)
+    return true
+  end
+
   -- Load up the command-line interface options
   cli:set_name(path.basename(fileName))
   cli:add_flag('--version', 'prints the program version and exits', processVersion)
@@ -73,21 +99,21 @@ return function(options)
 
   cli:add_option('-o, --output=LIBRARY', 'output library to load', defaultOutput, processOption)
   cli:add_option('-d, --cwd=cwd', 'path to current working directory', './', processOption)
-  cli:add_option('-t, --tags=TAGS', 'only run tests with these #tags', nil, processOption)
-  cli:add_option('--exclude-tags=TAGS', 'do not run tests with these #tags, takes precedence over --tags', nil, processOption)
+  cli:add_option('-t, --tags=TAGS', 'only run tests with these #tags', {}, processList)
+  cli:add_option('--exclude-tags=TAGS', 'do not run tests with these #tags, takes precedence over --tags', {}, processList)
   cli:add_option('--filter=PATTERN', 'only run test names matching the Lua pattern', nil, processOption)
   cli:add_option('--filter-out=PATTERN', 'do not run test names matching the Lua pattern, takes precedence over --filter', nil, processOption)
-  cli:add_option('-m, --lpath=PATH', 'optional path to be prefixed to the Lua module search path', lpathprefix, processOption)
-  cli:add_option('--cpath=PATH', 'optional path to be prefixed to the Lua C module search path', cpathprefix, processOption)
+  cli:add_option('-m, --lpath=PATH', 'optional path to be prefixed to the Lua module search path', lpathprefix, processPath)
+  cli:add_option('--cpath=PATH', 'optional path to be prefixed to the Lua C module search path', cpathprefix, processPath)
   cli:add_option('-r, --run=RUN', 'config to run from .busted file', nil, processOption)
   cli:add_option('--repeat=COUNT', 'run the tests repeatedly', '1', processNumber)
   cli:add_option('--seed=SEED', 'random seed value to use for shuffling test order', defaultSeed, processNumber)
   cli:add_option('--lang=LANG', 'language for error messages', 'en', processOption)
-  cli:add_option('--loaders=NAME', 'test file loaders', defaultLoaders, processOption)
+  cli:add_option('--loaders=NAME', 'test file loaders', defaultLoaders, processLoaders)
   cli:add_option('--helper=PATH', 'A helper script that is run before tests', nil, processOption)
 
-  cli:add_option('-Xoutput OPTION', 'pass `OPTION` as an option to the output handler. If `OPTION` contains commas, it is split into multiple options at the commas.', nil, processOption)
-  cli:add_option('-Xhelper OPTION', 'pass `OPTION` as an option to the helper script. If `OPTION` contains commas, it is split into multiple options at the commas.', nil, processOption)
+  cli:add_option('-Xoutput OPTION', 'pass `OPTION` as an option to the output handler. If `OPTION` contains commas, it is split into multiple options at the commas.', {}, processList)
+  cli:add_option('-Xhelper OPTION', 'pass `OPTION` as an option to the helper script. If `OPTION` contains commas, it is split into multiple options at the commas.', {}, processList)
 
   cli:add_flag('-c, --coverage', 'do code coverage analysis (requires `LuaCov` to be installed)', processOption)
   cli:add_flag('-v, --verbose', 'verbose output of errors', processOption)
@@ -125,6 +151,8 @@ return function(options)
     else
       cliArgs = config
     end
+  else
+    cliArgs = tablex.merge(cliArgs, cliArgsParsed, true)
   end
 
   -- If coverage arg is passed in, load LuaCovsupport
@@ -152,22 +180,12 @@ return function(options)
     string.gsub(cliArgs.loaders, '([^,]+)', function(c) loaders[#loaders+1] = c end)
   end
 
-  local tags = {}
-  if cliArgs.tags and cliArgs.tags ~= '' then
-    tags = utils.split(cliArgs.tags, ',')
-  end
-
-  local excludeTags = {}
-  if cliArgs['exclude-tags'] and cliArgs['exclude-tags'] ~= '' then
-    excludeTags = utils.split(cliArgs['exclude-tags'], ',')
-  end
-
   -- We report an error if the same tag appears in both `options.tags`
   -- and `options.excluded_tags` because it does not make sense for the
   -- user to tell Busted to include and exclude the same tests at the
   -- same time.
-  for _, excluded in pairs(excludeTags) do
-    for _, included in pairs(tags) do
+  for _, excluded in pairs(cliArgs['exclude-tags']) do
+    for _, included in pairs(cliArgs.tags) do
       if excluded == included then
         print('Error: Cannot use --tags and --exclude-tags for the same tags')
         osexit(1, true)
@@ -212,7 +230,7 @@ return function(options)
     suppressPending = cliArgs['suppress-pending'],
     language = cliArgs.lang,
     deferPrint = cliArgs['defer-print'],
-    arguments = cliArgs.Xoutput and utils.split(cliArgs.Xoutput, ',') or {}
+    arguments = cliArgs.Xoutput
   }
 
   local opath = utils.normpath(path.join(fpath, cliArgs.output))
@@ -230,8 +248,8 @@ return function(options)
 
   -- Set up tag and test filter options
   local filterLoaderOptions = {
-    tags = tags,
-    excludeTags = excludeTags,
+    tags = cliArgs.tags,
+    excludeTags = cliArgs['exclude-tags'],
     filter = cliArgs.filter,
     filterOut = cliArgs['filter-out'],
     list = cliArgs.list,
@@ -246,7 +264,7 @@ return function(options)
     local helperOptions = {
       verbose = cliArgs.verbose,
       language = cliArgs.lang,
-      arguments = cliArgs.Xhelper and utils.split(cliArgs.Xhelper, ',') or {}
+      arguments = cliArgs.Xhelper
     }
 
     local hpath = utils.normpath(path.join(fpath, cliArgs.helper))
