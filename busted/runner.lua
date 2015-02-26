@@ -212,7 +212,7 @@ return function(options)
     suppressPending = cliArgs['suppress-pending'],
     language = cliArgs.lang,
     deferPrint = cliArgs['defer-print'],
-    arguments = utils.split(cliArgs.Xoutput, ',') or {}
+    arguments = utils.split(cliArgs.Xoutput or '', ',') or {}
   }
 
   local opath = utils.normpath(path.join(fpath, cliArgs.output))
@@ -318,11 +318,11 @@ return function(options)
   applyFilter({ 'describe', 'it', 'pending' }, 'exclude-tags', filterExcludeTags)
 
   -- Set up helper script
-  if cliArgs.helper ~= '' then
+  if cliArgs.helper and cliArgs.helper ~= '' then
     local helperOptions = {
       verbose = cliArgs.verbose,
       language = cliArgs.lang,
-      arguments = utils.split(cliArgs.Xhelper, ',') or {}
+      arguments = utils.split(cliArgs.Xhelper or '', ',') or {}
     }
 
     local hpath = utils.normpath(path.join(fpath, cliArgs.helper))
