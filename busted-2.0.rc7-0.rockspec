@@ -1,8 +1,8 @@
 package = 'busted'
-version = '2.0.rc6-0'
+version = '2.0.rc7-0'
 source = {
-  url = 'https://github.com/Olivine-Labs/busted/archive/v2.0.rc6.tar.gz',
-  dir = 'busted-2.0.rc6'
+  url = 'https://github.com/Olivine-Labs/busted/archive/v2.0.rc7-0.tar.gz',
+  dir = 'busted-2.0.rc7-0'
 }
 description = {
   summary = 'Elegant Lua unit testing.',
@@ -22,7 +22,7 @@ dependencies = {
   'lua_cliargs >= 2.3-3',
   'luafilesystem >= 1.5.0',
   'dkjson >= 2.1.0',
-  'say >= 1.2-1',
+  'say >= 1.3-0',
   'luassert >= 1.7.4-0',
   'ansicolors >= 1.0-1',
   'lua-term >= 0.1-1',
