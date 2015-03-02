@@ -27,13 +27,13 @@ return function(options, busted)
   end
 
   local failureMessage = function(failure)
-    local string
+    local string = failure.randomseed and ('Random seed: ' .. failure.randomseed .. '\n') or ''
     if type(failure.message) == 'string' then
-      string = failure.message
+      string = string .. failure.message
     elseif failure.message == nil then
-      string = 'Nil error'
+      string = string .. 'Nil error'
     else
-      string = pretty.write(failure.message)
+      string = string .. pretty.write(failure.message)
     end
 
     return string
