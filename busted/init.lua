@@ -2,7 +2,7 @@ local function init(busted)
   local block = require 'busted.block'(busted)
 
   local file = function(file)
-    busted.environment.wrap(file.run)
+    busted.wrap(file.run)
     busted.publish({ 'file', 'start' }, file.name)
     block.execute('file', file)
     busted.publish({ 'file', 'end' }, file.name)
@@ -69,25 +69,28 @@ local function init(busted)
   local mock   = require 'luassert.mock'
   local stub   = require 'luassert.stub'
 
-  busted.environment.set('assert', assert)
-  busted.environment.set('spy', spy)
-  busted.environment.set('mock', mock)
-  busted.environment.set('stub', stub)
+  busted.export('assert', assert)
+  busted.export('spy', spy)
+  busted.export('mock', mock)
+  busted.export('stub', stub)
+
+  busted.exportApi('publish', busted.publish)
+  busted.exportApi('subscribe', busted.subscribe)
+  busted.exportApi('unsubscribe', busted.unsubscribe)
 
   busted.replaceErrorWithFail(assert)
-  busted.replaceErrorWithFail(assert.True)
+  busted.replaceErrorWithFail(assert.is_true)
 
   return busted
 end
 
 return setmetatable({}, {
   __call = function(self, busted)
-    local root = busted.context.get()
     init(busted)
 
     return setmetatable(self, {
       __index = function(self, key)
-        return rawget(root.env, key)
+        return busted.modules[key]
       end,
 
       __newindex = function(self, key, value)

@@ -41,17 +41,8 @@ return function()
   busted.context = root.ref()
 
   local environment = require 'busted.environment'(busted.context)
-  busted.environment = {
-    set = environment.set,
 
-    wrap = function(callable)
-      if (type(callable) == 'function' or getmetatable(callable).__call) then
-        -- prioritize __call if it exists, like in files
-        environment.wrap((getmetatable(callable) or {}).__call or callable)
-      end
-    end
-  }
-
+  busted.modules = {}
   busted.executors = {}
   local executors = {}
 
@@ -97,6 +88,10 @@ return function()
 
   function busted.subscribe(...)
     return mediator:subscribe(...)
+  end
+
+  function busted.unsubscribe(...)
+    return mediator:removeSubscriber(...)
   end
 
   function busted.getFile(element)
@@ -149,6 +144,13 @@ return function()
     setfenv(f, env)
   end
 
+  function busted.wrap(callable)
+    if (type(callable) == 'function' or getmetatable(callable).__call) then
+      -- prioritize __call if it exists, like in files
+      environment.wrap((getmetatable(callable) or {}).__call or callable)
+    end
+  end
+
   function busted.safe(descriptor, run, element)
     busted.context.push(element)
     local trace, message
@@ -168,6 +170,15 @@ return function()
 
     busted.context.pop()
     return unpack(ret)
+  end
+
+  function busted.exportApi(key, value)
+    busted.modules[key] = value
+  end
+
+  function busted.export(key, value)
+    busted.exportApi(key, value)
+    environment.set(key, value)
   end
 
   function busted.register(descriptor, executor)
@@ -195,7 +206,7 @@ return function()
 
     busted.executors[descriptor] = publisher
     if descriptor ~= 'file' then
-      environment.set(descriptor, publisher)
+      busted.export(descriptor, publisher)
     end
 
     busted.subscribe({ 'register', descriptor }, function(name, fn, trace)
@@ -220,7 +231,7 @@ return function()
   function busted.alias(alias, descriptor)
     local publisher = busted.executors[descriptor]
     busted.executors[alias] = publisher
-    environment.set(alias, publisher)
+    busted.export(alias, publisher)
   end
 
   function busted.reject(descriptor, element)
