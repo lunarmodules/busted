@@ -1,5 +1,7 @@
 
 return function(busted)
+  local block = require 'busted.block'(busted)
+
   local function execute(runs, options)
     busted.subscribe({'suite', 'reset'}, function()
       local oldctx = busted.context.get()
@@ -30,10 +32,10 @@ return function(busted)
 
       local root = busted.context.get()
       busted.publish({ 'suite', 'start' }, i, runs)
-      if busted.execAll('setup', root) then
+      if block.execAll('setup', root) then
         busted.execute()
       end
-      busted.dexecAll('teardown', root)
+      block.dexecAll('teardown', root)
       busted.publish({ 'suite', 'end' }, i, runs)
 
       if busted.skipAll then

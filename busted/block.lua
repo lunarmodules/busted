@@ -1,3 +1,5 @@
+local getfenv = require 'busted.compatibility'.getfenv
+local unpack = require 'busted.compatibility'.unpack
 local shuffle = require 'busted.utils'.shuffle
 
 local function sort(elements)
@@ -13,6 +15,81 @@ end
 return function(busted)
   local block = {}
 
+  function block.reject(descriptor, element)
+    local env = getfenv(element.run)
+    if env[descriptor] then
+      element.env[descriptor] = function(...)
+        error("'" .. descriptor .. "' not supported inside current context block", 2)
+      end
+    end
+  end
+
+  function block.rejectAll(element)
+    block.reject('randomize', element)
+    for descriptor, _ in pairs(busted.executors) do
+      block.reject(descriptor, element)
+    end
+  end
+
+  local function exec(descriptor, element)
+    if not element.env then element.env = {} end
+
+    block.rejectAll(element)
+
+    local parent = busted.context.parent(element)
+    setmetatable(element.env, {
+      __newindex = function(self, key, value)
+        if not parent.env then parent.env = {} end
+        parent.env[key] = value
+      end
+    })
+
+    local ret = { busted.safe(descriptor, element.run, element) }
+    return unpack(ret)
+  end
+
+  function block.execAll(descriptor, current, propagate, err)
+    local parent = busted.context.parent(current)
+
+    if propagate and parent then
+      local success, ancestor = block.execAll(descriptor, parent, propagate)
+      if not success then
+        return success, ancestor
+      end
+    end
+
+    local list = current[descriptor] or {}
+
+    local success = true
+    for _, v in pairs(list) do
+      if not exec(descriptor, v):success() then
+        if err then err(descriptor) end
+        success = nil
+      end
+    end
+    return success, current
+  end
+
+  function block.dexecAll(descriptor, current, propagate, err)
+    local parent = busted.context.parent(current)
+    local list = current[descriptor] or {}
+
+    local success = true
+    for _, v in pairs(list) do
+      if not exec(descriptor, v):success() then
+        if err then err(descriptor) end
+        success = nil
+      end
+    end
+
+    if propagate and parent then
+      if not block.dexecAll(descriptor, parent, propagate) then
+        success = nil
+      end
+    end
+    return success
+  end
+
   function block.execute(descriptor, element)
     if not element.env then element.env = {} end
 
@@ -26,10 +103,10 @@ return function(busted)
       elseif busted.sort then
         sort(busted.context.children(element))
       end
-      if busted.execAll('setup', element) then
+      if block.execAll('setup', element) then
         busted.execute(element)
       end
-      busted.dexecAll('teardown', element)
+      block.dexecAll('teardown', element)
     end
   end
 

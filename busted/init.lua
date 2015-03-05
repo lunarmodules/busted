@@ -21,24 +21,24 @@ local function init(busted)
 
     if not element.env then element.env = {} end
 
-    busted.rejectAll(element)
+    block.rejectAll(element)
     element.env.finally = function(fn) finally = fn end
     element.env.pending = function(msg) busted.pending(msg) end
 
-    local pass, ancestor = busted.execAll('before_each', parent, true)
+    local pass, ancestor = block.execAll('before_each', parent, true)
 
     if pass then
       local status = busted.status('success')
       busted.publish({ 'test', 'start' }, element, parent)
       status:update(busted.safe('it', element.run, element))
       if finally then
-        busted.reject('pending', element)
+        block.reject('pending', element)
         status:update(busted.safe('finally', finally, element))
       end
       busted.publish({ 'test', 'end' }, element, parent, tostring(status))
     end
 
-    busted.dexecAll('after_each', ancestor, true)
+    block.dexecAll('after_each', ancestor, true)
   end
 
   local pending = function(element)
