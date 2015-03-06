@@ -1,22 +1,22 @@
-local ansicolors = require 'ansicolors'
+local colors = require 'term.colors'
 local s = require 'say'
 local pretty = require 'pl.pretty'
 
 return function(options, busted)
   local handler = require 'busted.outputHandlers.base'(busted)
 
-  local successDot = ansicolors('%{green}●')
-  local failureDot = ansicolors('%{red}◼')
-  local errorDot   = ansicolors('%{magenta}✱')
-  local pendingDot = ansicolors('%{yellow}◌')
+  local successDot = colors.green('●')
+  local failureDot = colors.red('◼')
+  local errorDot   = colors.magenta('✱')
+  local pendingDot = colors.yellow('◌')
 
   local pendingDescription = function(pending)
     local name = pending.name
 
-    local string = ansicolors('%{yellow}' .. s('output.pending')) .. ' → ' ..
-      ansicolors('%{cyan}' .. pending.trace.short_src) .. ' @ ' ..
-      ansicolors('%{cyan}' .. pending.trace.currentline)  ..
-      '\n' .. ansicolors('%{bright}' .. name)
+    local string = colors.yellow(s('output.pending')) .. ' → ' ..
+      colors.cyan(pending.trace.short_src) .. ' @ ' ..
+      colors.cyan(pending.trace.currentline)  ..
+      '\n' .. colors.bright(name)
 
     if type(pending.message) == 'string' then
       string = string .. '\n' .. pending.message
@@ -41,20 +41,20 @@ return function(options, busted)
   end
 
   local failureDescription = function(failure, isError)
-    local string = ansicolors('%{red}' .. s('output.failure')) .. ' → '
+    local string = colors.red(s('output.failure')) .. ' → '
     if isError then
-      string = ansicolors('%{magenta}' .. s('output.error')) .. ' → '
+      string = colors.magenta(s('output.error')) .. ' → '
     end
 
     if not failure.element.trace or not failure.element.trace.short_src then
       string = string ..
-        ansicolors('%{cyan}' .. failureMessage(failure)) .. '\n' ..
-        ansicolors('%{bright}' .. failure.name)
+        colors.cyan(failureMessage(failure)) .. '\n' ..
+        colors.bright(failure.name)
     else
       string = string ..
-        ansicolors('%{cyan}' .. failure.element.trace.short_src) .. ' @ ' ..
-        ansicolors('%{cyan}' .. failure.element.trace.currentline) .. '\n' ..
-        ansicolors('%{bright}' .. failure.name) .. '\n' ..
+        colors.cyan(failure.element.trace.short_src) .. ' @ ' ..
+        colors.cyan(failure.element.trace.currentline) .. '\n' ..
+        colors.bright(failure.name) .. '\n' ..
         failureMessage(failure)
     end
 
@@ -103,11 +103,11 @@ return function(options, busted)
 
     local formattedTime = ('%.6f'):format(ms):gsub('([0-9])0+$', '%1')
 
-    return ansicolors('%{green}' .. successes) .. ' ' .. successString .. ' / ' ..
-      ansicolors('%{red}' .. failures) .. ' ' .. failureString .. ' / ' ..
-      ansicolors('%{magenta}' .. errors) .. ' ' .. errorString .. ' / ' ..
-      ansicolors('%{yellow}' .. pendings) .. ' ' .. pendingString .. ' : ' ..
-      ansicolors('%{bright}' .. formattedTime) .. ' ' .. s('output.seconds')
+    return colors.green(successes) .. ' ' .. successString .. ' / ' ..
+      colors.red(failures) .. ' ' .. failureString .. ' / ' ..
+      colors.magenta(errors) .. ' ' .. errorString .. ' / ' ..
+      colors.yellow(pendings) .. ' ' .. pendingString .. ' : ' ..
+      colors.bright(formattedTime) .. ' ' .. s('output.seconds')
   end
 
   handler.testEnd = function(element, parent, status, debug)
