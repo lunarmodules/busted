@@ -212,7 +212,7 @@ return function(options)
     suppressPending = cliArgs['suppress-pending'],
     language = cliArgs.lang,
     deferPrint = cliArgs['defer-print'],
-    arguments = utils.split(cliArgs.Xoutput or '', ',') or {}
+    arguments = cliArgs.Xoutput and utils.split(cliArgs.Xoutput, ',') or {}
   }
 
   local opath = utils.normpath(path.join(fpath, cliArgs.output))
@@ -322,7 +322,7 @@ return function(options)
     local helperOptions = {
       verbose = cliArgs.verbose,
       language = cliArgs.lang,
-      arguments = utils.split(cliArgs.Xhelper or '', ',') or {}
+      arguments = cliArgs.Xhelper and utils.split(cliArgs.Xhelper, ',') or {}
     }
 
     local hpath = utils.normpath(path.join(fpath, cliArgs.helper))
