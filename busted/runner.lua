@@ -147,10 +147,10 @@ return function(options)
   }
 
   -- Load test directory
-  local rootFile = cliArgs.ROOT and utils.normpath(path.join(fpath, cliArgs.ROOT)) or fileName
+  local rootFiles = cliArgs.ROOT or { fileName }
   local pattern = cliArgs.pattern
   local testFileLoader = require 'busted.modules.test_file_loader'(busted, cliArgs.loaders, testFileLoaderOptions)
-  local fileList = testFileLoader(rootFile, pattern)
+  local fileList = testFileLoader(rootFiles, pattern)
 
   if not cliArgs.ROOT then
     local ctx = busted.context.get()

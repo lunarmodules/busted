@@ -40,6 +40,13 @@ return function(options)
     return true
   end
 
+  local function processArgList(key, value)
+    local list = cliArgsParsed[key] or {}
+    tablex.insertvalues(list, utils.split(value, ','))
+    processArg(key, list)
+    return true
+  end
+
   local function processNumber(key, value, altkey, opt)
     local number = tonumber(value)
     if not number then
@@ -79,7 +86,7 @@ return function(options)
   cli:add_flag('--version', 'prints the program version and exits', processOption)
 
   if options.batch then
-    cli:optarg('ROOT', 'test script file/folder. Folders will be traversed for any file that matches the --pattern option.', 'spec', 1, processArg)
+    cli:optarg('ROOT', 'test script file/folder. Folders will be traversed for any file that matches the --pattern option.', 'spec', 999, processArgList)
 
     cli:add_option('-p, --pattern=PATTERN', 'only run test files matching the Lua pattern', defaultPattern, processOption)
   end
@@ -164,6 +171,13 @@ return function(options)
     cliArgs.loaders = fixupList(cliArgs.loaders)
     cliArgs.Xoutput = fixupList(cliArgs.Xoutput)
     cliArgs.Xhelper = fixupList(cliArgs.Xhelper)
+
+    -- Fix root file paths
+    if cliArgs.ROOT then
+      for i, rootFile in ipairs(cliArgs.ROOT) do
+        cliArgs.ROOT[i] = utils.normpath(path.join(fpath, rootFile))
+      end
+    end
 
     -- We report an error if the same tag appears in both `options.tags`
     -- and `options.excluded_tags` because it does not make sense for the
