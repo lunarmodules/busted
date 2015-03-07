@@ -82,6 +82,12 @@ return function(options)
     return true
   end
 
+  local function processDir(key, value, altkey, opt)
+    local dpath = path.join(cliArgsParsed[key] or '', value)
+    processOption(key, dpath, altkey, opt)
+    return true
+  end
+
   -- Load up the command-line interface options
   cli:add_flag('--version', 'prints the program version and exits', processOption)
 
@@ -92,7 +98,7 @@ return function(options)
   end
 
   cli:add_option('-o, --output=LIBRARY', 'output library to load', defaultOutput, processOption)
-  cli:add_option('-d, --cwd=cwd', 'path to current working directory', './', processOption)
+  cli:add_option('-d, --cwd=cwd', 'path to current working directory. If multiple options are specified, each is interpreted relative to the previous one.', './', processDir)
   cli:add_option('-t, --tags=TAGS', 'only run tests with these #tags', {}, processList)
   cli:add_option('--exclude-tags=TAGS', 'do not run tests with these #tags, takes precedence over --tags', {}, processList)
   cli:add_option('--filter=PATTERN', 'only run test names matching the Lua pattern', nil, processOption)

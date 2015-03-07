@@ -26,7 +26,7 @@ _busted_args=(
 "-Xoutput[Pass 'OPTION' as an option to the output handler. If 'OPTION' contains commas, it is split into multiple options at the commas.]: :"
 "-Xhelper[Pass 'OPTION' as an option to the helper script. If 'OPTION' contains commas, it is split into multiple options at the commas.]: :"
 "(-c --coverage)"{-c,--coverage}"[Do code coverage analysis (requires 'LuaCov' to be installed)]"
-"(-d --cwd)"{-d,--cwd=}"[Path to current working directory (default: ./)]:directory:_dirs"
+"(-d --cwd)"{-d,--cwd=}"[Path to current working directory. If multiple options are specified, each is interpreted relative to the previous one. (default: ./)]:directory:_dirs"
 "(-h --help)"{-h,--help}"[Help]"
 "(-m --lpath)"{-m,--lpath=}"[Optional path to be prefixed to the Lua module search path (default: ./src/?.lua;./src/?/?.lua;./src/?/init.lua)]:directory:_dirs"
 "(-o --output)"{-o,--output=}"[Output library to load (default: utfTerminal)]:output handlers:->output"
@@ -50,10 +50,24 @@ case "${state}" in
   run)
     local d="."
     local i
-    for (( i=1; i < ${#words}-1; i++ )); do
+    local word
+    for (( i=1; i < ${#words}; i++ )); do
       case "${words[i]}" in
         -d|--cwd)
-          d="${words[i+1]}"
+          word="${words[i+1]}"
+          if [[ "${word[1,1]}" == "/" ]]; then
+            d="${word}"
+          else
+            d="${d}/${word}"
+          fi
+          ;;
+        --cwd=*)
+          word="${words[i][7,-1]}"
+          if [[ "${word[1,1]}" == "/" ]]; then
+            d="${word}"
+          else
+            d="${d}/${word}"
+          fi
           ;;
       esac
     done
