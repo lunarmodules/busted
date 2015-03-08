@@ -64,6 +64,13 @@ return function(options)
     return true
   end
 
+  local function processMultiOption(key, value, altkey, opt)
+    local list = cliArgsParsed[key] or {}
+    table.insert(list, value)
+    processOption(key, list, altkey, opt)
+    return true
+  end
+
   local function append(s1, s2, sep)
     local sep = sep or ''
     if not s1 then return s2 end
@@ -101,8 +108,8 @@ return function(options)
   cli:add_option('-d, --cwd=cwd', 'path to current working directory. If multiple options are specified, each is interpreted relative to the previous one.', './', processDir)
   cli:add_option('-t, --tags=TAGS', 'only run tests with these #tags', {}, processList)
   cli:add_option('--exclude-tags=TAGS', 'do not run tests with these #tags, takes precedence over --tags', {}, processList)
-  cli:add_option('--filter=PATTERN', 'only run test names matching the Lua pattern', nil, processOption)
-  cli:add_option('--filter-out=PATTERN', 'do not run test names matching the Lua pattern, takes precedence over --filter', nil, processOption)
+  cli:add_option('--filter=PATTERN', 'only run test names matching the Lua pattern', {}, processMultiOption)
+  cli:add_option('--filter-out=PATTERN', 'do not run test names matching the Lua pattern, takes precedence over --filter', {}, processMultiOption)
   cli:add_option('-m, --lpath=PATH', 'optional path to be prefixed to the Lua module search path', lpathprefix, processPath)
   cli:add_option('--cpath=PATH', 'optional path to be prefixed to the Lua C module search path', cpathprefix, processPath)
   cli:add_option('-r, --run=RUN', 'config to run from .busted file', nil, processOption)

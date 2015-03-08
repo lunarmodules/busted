@@ -38,13 +38,21 @@ return function()
     end
 
     local filterOutNames = function(name)
-      local found = (getFullName(name):find(options.filterOut) ~= nil)
-      return nil, not found
+      for _, filter in pairs(options.filterOut) do
+        if getFullName(name):find(filter) ~= nil then
+          return nil, false
+        end
+      end
+      return nil, true
     end
 
     local filterNames = function(name)
-      local found = (getFullName(name):find(options.filter) ~= nil)
-      return nil, found
+      for _, filter in pairs(options.filter) do
+        if getFullName(name):find(filter) ~= nil then
+          return nil, true
+        end
+      end
+      return nil, (#options.filter == 0)
     end
 
     local printNameOnly = function(name, fn, trace)
