@@ -9,7 +9,7 @@ return {
       name, value = debug.getupvalue(f, up)
     until name == '_ENV' or name == nil
 
-    return value
+    return name and value or _G
   end,
 
   setfenv = setfenv or function(f, t)

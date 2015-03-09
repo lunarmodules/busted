@@ -19,7 +19,7 @@ description = {
 }
 dependencies = {
   'lua >= 5.1',
-  'lua_cliargs >= 2.3-3',
+  'lua_cliargs >= 2.4-1',
   'luafilesystem >= 1.5.0',
   'dkjson >= 2.1.0',
   'say >= 1.3-0',
@@ -39,6 +39,8 @@ build = {
     ['busted.runner']                         = 'busted/runner.lua',
     ['busted.status']                         = 'busted/status.lua',
     ['busted.utils']                          = 'busted/utils.lua',
+    ['busted.block']                          = 'busted/block.lua',
+    ['busted.execute']                        = 'busted/execute.lua',
     ['busted.init']                           = 'busted/init.lua',
 
     ['busted.modules.configuration_loader']   = 'busted/modules/configuration_loader.lua',
@@ -46,6 +48,8 @@ build = {
     ['busted.modules.test_file_loader']       = 'busted/modules/test_file_loader.lua',
     ['busted.modules.output_handler_loader']  = 'busted/modules/output_handler_loader.lua',
     ['busted.modules.helper_loader']          = 'busted/modules/helper_loader.lua',
+    ['busted.modules.filter_loader']          = 'busted/modules/filter_loader.lua',
+    ['busted.modules.cli']                    = 'busted/modules/cli.lua',
 
     ['busted.modules.files.lua']              = 'busted/modules/files/lua.lua',
     ['busted.modules.files.moonscript']       = 'busted/modules/files/moonscript.lua',

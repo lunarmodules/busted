@@ -324,6 +324,10 @@ describe('tests aliases', function()
 end)
 
 describe('tests unsupported functions', function()
+  it('it block does not have file executor', function()
+    assert.is_nil(file)
+  end)
+
   it('it block throws error on describe/context', function()
     assert.has_error(describe, "'describe' not supported inside current context block")
     assert.has_error(context, "'context' not supported inside current context block")
@@ -355,6 +359,8 @@ end)
 
 describe('tests unsupported functions in setup/before_each/after_each/teardown', function()
   local function testUnsupported()
+    assert.is_nil(file)
+    assert.is_nil(finally)
     assert.has_error(randomize, "'randomize' not supported inside current context block")
 
     assert.has_error(describe, "'describe' not supported inside current context block")
