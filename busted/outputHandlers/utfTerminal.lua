@@ -1,6 +1,14 @@
-local colors = require 'term.colors'
 local s = require 'say'
 local pretty = require 'pl.pretty'
+
+local colors
+
+if package.config:sub(1,1) == '\\' and not os.getenv("ANSICON") then
+  -- Disable colors on Windows.
+  colors = setmetatable({}, {__index = function() return function(s) return s end end})
+else
+  colors = require 'term.colors'
+end
 
 return function(options, busted)
   local handler = require 'busted.outputHandlers.base'(busted)
