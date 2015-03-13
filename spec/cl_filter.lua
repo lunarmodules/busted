@@ -46,4 +46,14 @@ context('Tests context with patt2', function()
   setup(function()
     error('error in setup on patt2')
   end)
+
+  -- some empty tests to ensure the setup hook is executed
+  it('is a test inside context', function()
+  end)
+
+  it('is another test inside context', function()
+  end)
+
+  it('is another test inside context', function()
+  end)
 end)

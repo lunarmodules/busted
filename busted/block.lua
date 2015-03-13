@@ -103,10 +103,10 @@ return function(busted)
       elseif busted.sort then
         sort(busted.context.children(element))
       end
-      if block.execAll('setup', element) then
-        busted.execute(element)
+      busted.execute(element)
+      if busted.context.had_tests() then
+        block.dexecAll('teardown', element)
       end
-      block.dexecAll('teardown', element)
     end
   end
 

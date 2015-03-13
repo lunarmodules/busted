@@ -46,4 +46,11 @@ context('Tests context with a tag #dtag2', function()
   setup(function()
     error('error in setup on dtag2')
   end)
+
+  -- some empty tests to ensure the setup hook is executed
+  it('is a test inside context', function()
+  end)
+
+  it('is another test inside context', function()
+  end)
 end)

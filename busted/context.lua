@@ -65,6 +65,18 @@ return function()
       return parents[child]
     end
 
+    function ref.test_executed()
+      local current = ctx
+      while current do
+        current.test_count = (current.test_count or 0) + 1
+        current = parents[current]
+      end
+    end
+
+    function ref.had_tests()
+      return (ctx.test_count or 0) > 0
+    end
+
     function ref.push(current)
       if not parents[current] then error('Detached child. Cannot push.') end
       if ctx ~= current and current.descriptor == 'file' then
