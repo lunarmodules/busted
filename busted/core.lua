@@ -22,15 +22,6 @@ local pendingMt = {
   __type = 'pending'
 }
 
-local function once(fn)
-  return function()
-    if not fn then return end
-    local f = fn
-    fn = nil
-    f()
-  end
-end
-
 local function metatype(obj)
   local otype = type(obj)
   return otype == 'table' and (getmetatable(obj) or {}).__type or otype
@@ -219,8 +210,6 @@ return function()
     end
 
     busted.subscribe({ 'register', descriptor }, function(name, fn, trace)
-      if descriptor == 'setup' then fn = once(fn) end
-
       local ctx = busted.context.get()
       local plugin = {
         descriptor = descriptor,
