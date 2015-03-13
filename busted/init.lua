@@ -19,6 +19,15 @@ local function init(busted)
     local parent = busted.context.parent(element)
     local finally
 
+    if parent.setup_failed then
+      -- skip all tests in a suite when the setup hook failed
+      return
+    end
+    parent.setup_failed = not block.execAll('setup', parent, true)
+    if parent.setup_failed then
+      return
+    end
+
     if not element.env then element.env = {} end
 
     block.rejectAll(element)
@@ -39,6 +48,7 @@ local function init(busted)
     end
 
     block.dexecAll('after_each', ancestor, true)
+    busted.context.test_executed()
   end
 
   local pending = function(element)
