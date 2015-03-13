@@ -23,6 +23,10 @@ local function init(busted)
       -- skip all tests in a suite when the setup hook failed
       return
     end
+    parent.setup_failed = not block.execAll('setup', parent, true)
+    if parent.setup_failed then
+      return
+    end
 
     if not element.env then element.env = {} end
 
@@ -30,13 +34,7 @@ local function init(busted)
     element.env.finally = function(fn) finally = fn end
     element.env.pending = function(msg) busted.pending(msg) end
 
-    local pass, ancestor = block.execAll('setup', parent, true)
-    if not pass then
-      parent.setup_failed = true
-      return
-    end
-
-    pass, ancestor = block.execAll('before_each', parent, true)
+    local pass, ancestor = block.execAll('before_each', parent, true)
 
     if pass then
       local status = busted.status('success')
