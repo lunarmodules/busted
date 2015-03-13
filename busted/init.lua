@@ -24,21 +24,19 @@ local function init(busted)
       return
     end
 
-    do
-      local pass, _ = block.execAllOnce('setup', parent, true)
-      if not pass then
-        parent.setup_failed = true
-        return
-      end
-    end
-
     if not element.env then element.env = {} end
 
     block.rejectAll(element)
     element.env.finally = function(fn) finally = fn end
     element.env.pending = function(msg) busted.pending(msg) end
 
-    local pass, ancestor = block.execAll('before_each', parent, true)
+    local pass, ancestor = block.execAll('setup', parent, true)
+    if not pass then
+      parent.setup_failed = true
+      return
+    end
+
+    pass, ancestor = block.execAll('before_each', parent, true)
 
     if pass then
       local status = busted.status('success')
@@ -52,7 +50,7 @@ local function init(busted)
     end
 
     block.dexecAll('after_each', ancestor, true)
-    busted.context.set_parents('run_teardown', true)
+    busted.context.test_executed()
   end
 
   local pending = function(element)

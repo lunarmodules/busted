@@ -70,16 +70,6 @@ return function(busted)
     return success, current
   end
 
-  function block.execAllOnce(descriptor, current, propagate, err)
-    local key = descriptor .. '_result'
-    local result = busted.context.get(key)
-    if not result then
-      result = {block.execAll(descriptor, current, propagate, err)}
-      busted.context.set_parents(key, result)
-    end
-    return unpack(result)
-  end
-
   function block.dexecAll(descriptor, current, propagate, err)
     local parent = busted.context.parent(current)
     local list = current[descriptor] or {}
@@ -114,7 +104,7 @@ return function(busted)
         sort(busted.context.children(element))
       end
       busted.execute(element)
-      if busted.context.get('run_teardown') then
+      if busted.context.had_tests() then
         block.dexecAll('teardown', element)
       end
     end

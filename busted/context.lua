@@ -43,14 +43,6 @@ return function()
       ctx[key] = value
     end
 
-    function ref.set_parents(key, value)
-      local current = ctx
-      while current do
-        current[key] = value
-        current = parents[current]
-      end
-    end
-
     function ref.clear()
       data = {}
       parents = {}
@@ -71,6 +63,18 @@ return function()
 
     function ref.parent(child)
       return parents[child]
+    end
+
+    function ref.test_executed()
+      local current = ctx
+      while current do
+        current.test_count = (current.test_count or 0) + 1
+        current = parents[current]
+      end
+    end
+
+    function ref.had_tests()
+      return (ctx.test_count or 0) > 0
     end
 
     function ref.push(current)
