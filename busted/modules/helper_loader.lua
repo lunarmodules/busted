@@ -3,6 +3,7 @@ local hasMoon, moonscript = pcall(require, 'moonscript')
 
 return function()
   local loadHelper = function(helper, hpath, options, busted)
+    local old_arg = arg
     local success, err = pcall(function()
       arg = options.arguments
       if helper:match('%.lua$') then
@@ -13,6 +14,8 @@ return function()
         require(helper)
       end
     end)
+
+    arg = old_arg
 
     if not success then
       busted.publish({ 'error', 'helper' }, { descriptor = 'helper', name = helper }, nil, err, {})
