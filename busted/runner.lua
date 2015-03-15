@@ -50,6 +50,12 @@ return function(options)
     luacov()
   end
 
+  -- If lazy is enabled, make lazy setup/teardown the default
+  if cliArgs.lazy then
+    busted.register('setup', 'lazy_setup')
+    busted.register('teardown', 'lazy_teardown')
+  end
+
   -- Add additional package paths based on lpath and cpath cliArgs
   if #cliArgs.lpath > 0 then
     package.path = (cliArgs.lpath .. ';' .. package.path):gsub(';;',';')

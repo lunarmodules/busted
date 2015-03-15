@@ -19,6 +19,7 @@ _busted_args=(
 "--suppress-pending[Suppress 'pending' test output]"
 "--version[Prints the program version and exits]"
 "(-l --list)"{-l,--list}"[List the names of all tests instead of running them]"
+"--lazy[Use lazy setup/teardown as the default]"
 "--no-keep-going[Quit after first error or failure]"
 "--no-recursive[Do not recurse into subdirectories]"
 "--helper[A helper script that is run before tests]:files:_files"
