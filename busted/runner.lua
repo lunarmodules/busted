@@ -43,7 +43,11 @@ return function(options)
   end
 
   -- Load current working directory
-  local fpath = utils.normpath(cliArgs.cwd)
+  local _, err = path.chdir(utils.normpath(cliArgs.directory))
+  if err then
+    print('Error: ' .. err)
+    osexit(1, true)
+  end
 
   -- If coverage arg is passed in, load LuaCovsupport
   if cliArgs.coverage then
@@ -99,8 +103,7 @@ return function(options)
     arguments = cliArgs.Xoutput
   }
 
-  local opath = utils.normpath(path.join(fpath, cliArgs.output))
-  local outputHandler = outputHandlerLoader(cliArgs.output, opath, outputHandlerOptions, busted, options.defaultOutput)
+  local outputHandler = outputHandlerLoader(cliArgs.output, outputHandlerOptions, busted, options.defaultOutput)
   outputHandler:subscribe(outputHandlerOptions)
 
   if cliArgs['enable-sound'] then
@@ -133,8 +136,7 @@ return function(options)
       arguments = cliArgs.Xhelper
     }
 
-    local hpath = utils.normpath(path.join(fpath, cliArgs.helper))
-    helperLoader(cliArgs.helper, hpath, helperOptions, busted)
+    helperLoader(cliArgs.helper, helperOptions, busted)
   end
 
   -- Set up test loader options
