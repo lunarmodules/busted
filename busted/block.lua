@@ -48,6 +48,37 @@ return function(busted)
     return unpack(ret)
   end
 
+  function block.execAllOnce(descriptor, current, err)
+    local parent = busted.context.parent(current)
+
+    if parent then
+      local success = block.execAllOnce(descriptor, parent)
+      if not success then
+        return success
+      end
+    end
+
+    if not current[descriptor] then
+      current[descriptor] = {}
+    end
+    local list = current[descriptor]
+    if list.success ~= nil then
+      return list.success
+    end
+
+    local success = true
+    for _, v in ipairs(list) do
+      if not exec(descriptor, v):success() then
+        if err then err(descriptor) end
+        success = false
+      end
+    end
+
+    list.success = success
+
+    return success
+  end
+
   function block.execAll(descriptor, current, propagate, err)
     local parent = busted.context.parent(current)
 
@@ -61,7 +92,7 @@ return function(busted)
     local list = current[descriptor] or {}
 
     local success = true
-    for _, v in pairs(list) do
+    for _, v in ipairs(list) do
       if not exec(descriptor, v):success() then
         if err then err(descriptor) end
         success = nil
@@ -75,7 +106,7 @@ return function(busted)
     local list = current[descriptor] or {}
 
     local success = true
-    for _, v in pairs(list) do
+    for _, v in ipairs(list) do
       if not exec(descriptor, v):success() then
         if err then err(descriptor) end
         success = nil
@@ -88,6 +119,25 @@ return function(busted)
       end
     end
     return success
+  end
+
+  function block.lazySetup(element, err)
+    return block.execAllOnce('lazy_setup', element, err)
+  end
+
+  function block.lazyTeardown(element, err)
+    if element.lazy_setup and element.lazy_setup.success ~= nil then
+      block.dexecAll('lazy_teardown', element, nil, err)
+      element.lazy_setup.success = nil
+    end
+  end
+
+  function block.setup(element, err)
+      return block.execAll('strict_setup', element, nil, err)
+  end
+
+  function block.teardown(element, err)
+      return block.dexecAll('strict_teardown', element, nil, err)
   end
 
   function block.execute(descriptor, element)
@@ -103,10 +153,13 @@ return function(busted)
       elseif busted.sort then
         sort(busted.context.children(element))
       end
-      if block.execAll('setup', element) then
+
+      if block.setup(element) then
         busted.execute(element)
       end
-      block.dexecAll('teardown', element)
+
+      block.lazyTeardown(element)
+      block.teardown(element)
     end
   end
 

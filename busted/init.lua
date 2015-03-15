@@ -19,6 +19,11 @@ local function init(busted)
     local parent = busted.context.parent(element)
     local finally
 
+    if not block.lazySetup(parent) then
+      -- skip test if any setup failed
+      return
+    end
+
     if not element.env then element.env = {} end
 
     block.rejectAll(element)
@@ -55,11 +60,15 @@ local function init(busted)
 
   busted.register('pending', pending)
 
-  busted.register('setup')
-  busted.register('teardown')
+  busted.register('lazy_setup')
+  busted.register('lazy_teardown')
+  busted.register('strict_setup')
+  busted.register('strict_teardown')
   busted.register('before_each')
   busted.register('after_each')
 
+  busted.alias('setup', 'strict_setup')
+  busted.alias('teardown', 'strict_teardown')
   busted.alias('context', 'describe')
   busted.alias('spec', 'it')
   busted.alias('test', 'it')

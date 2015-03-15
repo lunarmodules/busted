@@ -32,10 +32,11 @@ return function(busted)
 
       local root = busted.context.get()
       busted.publish({ 'suite', 'start' }, i, runs)
-      if block.execAll('setup', root) then
+      if block.setup(root) then
         busted.execute()
       end
-      block.dexecAll('teardown', root)
+      block.lazyTeardown(root)
+      block.teardown(root)
       busted.publish({ 'suite', 'end' }, i, runs)
 
       if busted.skipAll then
