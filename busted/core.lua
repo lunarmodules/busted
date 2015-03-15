@@ -182,12 +182,19 @@ return function()
   end
 
   function busted.register(descriptor, executor)
-    executors[descriptor] = executor
+    local alias = nil
+    if type(executor) == 'string' then
+      alias = descriptor
+      descriptor = executor
+      executor = executors[descriptor]
+    else
+      executors[descriptor] = executor
+    end
 
     local publisher = function(name, fn)
       if not fn and type(name) == 'function' then
         fn = name
-        name = nil
+        name = alias
       end
 
       local trace
@@ -204,9 +211,10 @@ return function()
       if fn then publish(fn) else return publish end
     end
 
-    busted.executors[descriptor] = publisher
+    local edescriptor = alias or descriptor
+    busted.executors[edescriptor] = publisher
     if descriptor ~= 'file' then
-      busted.export(descriptor, publisher)
+      busted.export(edescriptor, publisher)
     end
 
     busted.subscribe({ 'register', descriptor }, function(name, fn, trace)
@@ -226,12 +234,6 @@ return function()
         ctx[descriptor][#ctx[descriptor]+1] = plugin
       end
     end)
-  end
-
-  function busted.alias(alias, descriptor)
-    local publisher = busted.executors[descriptor]
-    busted.executors[alias] = publisher
-    busted.export(alias, publisher)
   end
 
   function busted.execute(current)

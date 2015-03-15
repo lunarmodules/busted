@@ -60,18 +60,20 @@ local function init(busted)
 
   busted.register('pending', pending)
 
+  busted.register('before_each')
+  busted.register('after_each')
+
   busted.register('lazy_setup')
   busted.register('lazy_teardown')
   busted.register('strict_setup')
   busted.register('strict_teardown')
-  busted.register('before_each')
-  busted.register('after_each')
 
-  busted.alias('setup', 'strict_setup')
-  busted.alias('teardown', 'strict_teardown')
-  busted.alias('context', 'describe')
-  busted.alias('spec', 'it')
-  busted.alias('test', 'it')
+  busted.register('setup', 'strict_setup')
+  busted.register('teardown', 'strict_teardown')
+
+  busted.register('context', 'describe')
+  busted.register('spec', 'it')
+  busted.register('test', 'it')
 
   local assert = require 'luassert'
   local spy    = require 'luassert.spy'
