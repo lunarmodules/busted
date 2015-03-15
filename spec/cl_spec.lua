@@ -494,20 +494,20 @@ describe('Tests error messages through the command line', function()
 
   it('when output library not found', function()
     error_start()
-    local result = run(busted_cmd .. ' --pattern=cl_two_failures.lua$ --output=not_found_here')
+    local result = run(busted_cmd .. ' --pattern=cl_two_failures.lua$ --output=not_found_here 2>&1')
     local errmsg = result:match('(.-)\n')
-    local expected = 'Error: Cannot load output library: not_found_here'
+    local expected = 'busted: error: Cannot load output library: not_found_here'
     assert.is_equal(expected, errmsg)
     error_end()
   end)
 
   it('when helper script not found', function()
     error_start()
-    local result = run(busted_cmd .. ' --output=plainTerminal --pattern=cl_two_failures.lua$ --helper=not_found_here')
+    local result = run(busted_cmd .. ' --output=plainTerminal --pattern=cl_two_failures.lua$ --helper=not_found_here 2>&1')
     local err = result:match('Error %-> .-:%d+: (.-)\n')
     local errmsg = result:match('(.-)\n')
     local expectedErr = "module 'not_found_here' not found:"
-    local expectedMsg = 'Error: Cannot load helper script: not_found_here'
+    local expectedMsg = 'busted: error: Cannot load helper script: not_found_here'
     assert.is_equal(expectedErr, err)
     assert.is_equal(expectedMsg, errmsg)
     error_end()
@@ -515,11 +515,11 @@ describe('Tests error messages through the command line', function()
 
   it('when helper lua script not found', function()
     error_start()
-    local result = run(busted_cmd .. ' --output=plainTerminal --pattern=cl_two_failures.lua$ --helper=not_found_here.lua')
+    local result = run(busted_cmd .. ' --output=plainTerminal --pattern=cl_two_failures.lua$ --helper=not_found_here.lua 2>&1')
     local err = result:match('Error %-> (.-)\n')
     local errmsg = result:match('(.-)\n')
     local expectedErr = 'cannot open not_found_here.lua: No such file or directory'
-    local expectedMsg = 'Error: Cannot load helper script: not_found_here.lua'
+    local expectedMsg = 'busted: error: Cannot load helper script: not_found_here.lua'
     assert.is_equal(normpath(expectedErr), err)
     assert.is_equal(expectedMsg, errmsg)
     error_end()

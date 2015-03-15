@@ -29,10 +29,11 @@ return function(options)
   local fileName = source:sub(1,1) == '@' and source:sub(2) or source
 
   -- Parse the cli arguments
-  cli:set_name(path.basename(fileName))
+  local appName = path.basename(fileName)
+  cli:set_name(appName)
   local cliArgs, err = cli:parse(arg)
   if not cliArgs then
-    print(err)
+    io.stderr:write(err .. '\n')
     osexit(1, true)
   end
 
@@ -45,7 +46,7 @@ return function(options)
   -- Load current working directory
   local _, err = path.chdir(utils.normpath(cliArgs.directory))
   if err then
-    print('Error: ' .. err)
+    io.stderr:write(appName .. ': error: ' .. err .. '\n')
     osexit(1, true)
   end
 
@@ -69,12 +70,12 @@ return function(options)
   local quitOnError = cliArgs['no-keep-going']
 
   busted.subscribe({ 'error', 'output' }, function(element, parent, message)
-    print('Error: Cannot load output library: ' .. element.name .. '\n' .. message)
+    io.stderr:write(appName .. ': error: Cannot load output library: ' .. element.name .. '\n' .. message .. '\n')
     return nil, true
   end)
 
   busted.subscribe({ 'error', 'helper' }, function(element, parent, message)
-    print('Error: Cannot load helper script: ' .. element.name .. '\n' .. message)
+    io.stderr:write(appName .. ': error: Cannot load helper script: ' .. element.name .. '\n' .. message .. '\n')
     return nil, true
   end)
 
