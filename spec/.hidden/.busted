@@ -1,0 +1,18 @@
+return {
+  default = {
+    ['tags'] = {'tag11','tag22','tag33'},
+    ['exclude-tags'] = {'etag11','etag22','etag33'},
+    ['pattern'] = '_spec%.lua$',
+    ['loaders'] = 'terra,moonscript',
+    ['Xoutput'] = '-f,--flag',
+    ['Xhelper'] = '-v,--verbose',
+  },
+  test = {
+    ['tags'] = 'test1,test2,test3',
+    ['exclude-tags'] = 'etest1,etest2,etest3',
+    ['pattern'] = '_test%.lua$',
+    ['loaders'] = {'lua','terra'},
+    ['Xoutput'] = {'-s','--sound'},
+    ['Xhelper'] = {'-t','--print'},
+  }
+}

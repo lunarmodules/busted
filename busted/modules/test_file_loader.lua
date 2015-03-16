@@ -1,3 +1,5 @@
+local s = require 'say'
+
 return function(busted, loaders, options)
   local path = require 'pl.path'
   local dir = require 'pl.dir'
@@ -16,8 +18,7 @@ return function(busted, loaders, options)
     if path.isfile(rootFile) then
       fileList = { rootFile }
     elseif path.isdir(rootFile) then
-      local pattern = pattern
-      local getfiles = options.recurse and dir.getallfiles or dir.getfiles
+      local getfiles = options.recursive and dir.getallfiles or dir.getfiles
       fileList = getfiles(rootFile)
 
       fileList = tablex.filter(fileList, function(filename)
@@ -38,6 +39,14 @@ return function(busted, loaders, options)
     return fileList
   end
 
+  local getAllTestFiles = function(rootFiles, pattern)
+    local fileList = {}
+    for _, root in ipairs(rootFiles) do
+      tablex.insertvalues(fileList, getTestFiles(root, pattern))
+    end
+    return fileList
+  end
+
   -- runs a testfile, loading its tests
   local loadTestFile = function(busted, filename)
     for _, v in pairs(fileLoaders) do
@@ -47,8 +56,8 @@ return function(busted, loaders, options)
     end
   end
 
-  local loadTestFiles = function(rootFile, pattern, loaders)
-    local fileList = getTestFiles(rootFile, pattern)
+  local loadTestFiles = function(rootFiles, pattern, loaders)
+    local fileList = getAllTestFiles(rootFiles, pattern)
 
     if options.shuffle then
       shuffle(fileList, options.seed)
@@ -71,9 +80,13 @@ return function(busted, loaders, options)
       end
     end
 
+    if #fileList == 0 then
+      busted.publish({ 'error' }, {}, nil, s('output.no_test_files_match'):format(pattern), {})
+    end
+
     return fileList
   end
 
-  return loadTestFiles, loadTestFile, getTestFiles
+  return loadTestFiles, loadTestFile, getAllTestFiles
 end
 

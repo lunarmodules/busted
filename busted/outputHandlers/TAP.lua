@@ -16,7 +16,7 @@ return function(options, busted)
       print(success:format(counter, t.name))
     end
 
-    showFailure = function(t)
+    local showFailure = function(t)
       counter = counter + 1
       local message = t.message
       local trace = t.trace or {}
@@ -29,6 +29,7 @@ return function(options, busted)
 
       print(failure:format(counter, t.name))
       print('# ' .. t.element.trace.short_src .. ' @ ' .. t.element.trace.currentline)
+      if t.randomseed then print('# Random seed: ' .. t.randomseed) end
       print('# Failure message: ' .. message:gsub('\n', '\n# '))
       if options.verbose and trace.traceback then
         print('# ' .. trace.traceback:gsub('^\n', '', 1):gsub('\n', '\n# '))

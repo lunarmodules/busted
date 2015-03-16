@@ -1,9 +1,9 @@
-local pretty = require 'pl.pretty'
 local json = require 'dkjson'
 
 return function(options, busted)
   local handler = require 'busted.outputHandlers.base'(busted)
-  handler.suiteEnd = function(element, parent, status)
+
+  handler.suiteEnd = function()
     print(json.encode({
       pendings = handler.pendings,
       successes = handler.successes,

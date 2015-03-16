@@ -25,6 +25,8 @@ s:set('output.success_single', 'success')
 
 s:set('output.seconds', 'seconds')
 
+s:set('output.no_test_files_match', 'No test files found matching Lua pattern: %s')
+
 -- definitions following are not used within the 'say' namespace
 return {
   failure_messages = {

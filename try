@@ -1,4 +1,4 @@
 #!/bin/sh
 sudo luarocks remove busted --force
-sudo luarocks make
+sudo luarocks make busted-scm-0.rockspec
 busted

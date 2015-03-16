@@ -21,6 +21,8 @@ s:set('output.success_single', 'reussite')
 
 s:set('output.seconds', 'secondes')
 
+s:set('output.no_test_files_match', 'Aucun test n\'est pourrait trouvé qui corresponde au motif de Lua: %s')
+
 -- definitions following are not used within the 'say' namespace
 return {
   failure_messages = {

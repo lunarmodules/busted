@@ -45,10 +45,27 @@ _busted() {
     -r|--run)
       local d="."
       local i
+      local word
       for (( i=1; i < ${#COMP_WORDS[@]}-1; i++ )); do
         case "${COMP_WORDS[i]}" in
-          -d|--cwd)
-            d="${COMP_WORDS[i+1]}"
+          -d)
+            word="${COMP_WORDS[i+1]}"
+            if [ "${word:0:1}" == "/" ]; then
+              d="${word}"
+            else
+              d="${d}/${word}"
+            fi
+            ;;
+          --cwd)
+            word="${COMP_WORDS[i+1]}"
+            if  [ "${word}" == "=" ]; then
+              word="${COMP_WORDS[i+2]}"
+            fi
+            if [ "${word:0:1}" == "/" ]; then
+              d="${word}"
+            else
+              d="${d}/${word}"
+            fi
             ;;
         esac
       done
@@ -101,6 +118,10 @@ _busted() {
       _filedir -d
       return 0
       ;;
+    -Xoutput|--Xhelper)
+      # no completion available
+      return 0
+      ;;
     --repeat)
       # no completion available
       return 0
@@ -116,7 +137,7 @@ _busted() {
       -h --help
       -v --verbose
       --version
-      --list
+      -l --list
       -o --output=
       -p --pattern=
       -d --cwd=
@@ -131,8 +152,10 @@ _busted() {
       --helper=
       -c --coverage
       -s --enable-sound
+      -Xoutput
+      -Xhelper
       --no-keep-going
-      --no-recurse
+      --no-recursive
       --shuffle --shuffle-tests --shuffle-files
       --sort --sort-tests --sort-files
       --supress-pending
