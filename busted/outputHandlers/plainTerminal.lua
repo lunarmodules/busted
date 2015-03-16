@@ -12,7 +12,7 @@ return function(options, busted)
   local pendingDescription = function(pending)
     local name = pending.name
 
-    local string = s('output.pending') .. ' → ' ..
+    local string = s('output.pending') .. ' => ' ..
       pending.trace.short_src .. ' @ ' ..
       pending.trace.currentline  ..
       '\n' .. name
@@ -40,9 +40,9 @@ return function(options, busted)
   end
 
   local failureDescription = function(failure, isError)
-    local string = s('output.failure') .. ' → '
+    local string = s('output.failure') .. ' => '
     if isError then
-      string = s('output.error') .. ' → '
+      string = s('output.error') .. ' => '
     end
 
     if not failure.element.trace or not failure.element.trace.short_src then
