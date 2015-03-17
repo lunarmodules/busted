@@ -428,7 +428,7 @@ describe('Tests error messages through the command line', function()
     local result = run(busted_cmd .. ' --output=plainTerminal --pattern=cl_errors.lua$ --tags=testerr')
     local err = result:match('(Error %-> .-)\n')
     local errmsg = result:match('\n(%.[/\\]spec[/\\].-)\n')
-    local expectedErr = "Error %-> ./spec/cl_errors.lua @ 5"
+    local expectedErr = "Error -> ./spec/cl_errors.lua @ 5"
     local expectedMsg = "./spec/cl_errors.lua:6: force an error"
     assert.is_equal(normpath(expectedErr), err)
     assert.is_equal(normpath(expectedMsg), errmsg)
@@ -475,7 +475,7 @@ describe('Tests error messages through the command line', function()
     error_start()
     local result = run(busted_cmd .. ' --output=plainTerminal --pattern=cl_compile_fail.lua$')
     local errmsg = result:match('(Error %-> .-:%d+:) ')
-    local expected = "Error %-> ./spec/cl_compile_fail.lua:3:"
+    local expected = "Error -> ./spec/cl_compile_fail.lua:3:"
     assert.is_equal(normpath(expected), errmsg)
     error_end()
   end)
@@ -485,7 +485,7 @@ describe('Tests error messages through the command line', function()
     local result = run(busted_cmd .. ' --output=plainTerminal --pattern=cl_execute_fail.lua$')
     local err = result:match('(Error %-> .-)\n')
     local errmsg = result:match('\n(%.[/\\]spec[/\\]cl_execute_fail%.lua:%d+:.-)\n')
-    local expectedErr = 'Error %-> ./spec/cl_execute_fail.lua @ 4'
+    local expectedErr = 'Error -> ./spec/cl_execute_fail.lua @ 4'
     local expectedMsg = './spec/cl_execute_fail.lua:4: This compiles fine, but throws an error when being run'
     assert.is_equal(normpath(expectedErr), err)
     assert.is_equal(normpath(expectedMsg), errmsg)
@@ -541,7 +541,7 @@ describe('Tests moonscript error messages through the command line', function()
     local result = run(busted_cmd .. ' --output=plainTerminal --pattern=cl_moonscript_error_messages.moon$ --tags=fail')
     local err = result:match('(Failure %-> .-)\n')
     local errmsg = result:match('\n(%.[/\\]spec[/\\].-)\n')
-    local expectedErr = "Failure %-> ./spec/cl_moonscript_error_messages.moon @ 4"
+    local expectedErr = "Failure -> ./spec/cl_moonscript_error_messages.moon @ 4"
     local expectedMsg = "./spec/cl_moonscript_error_messages.moon:5: Expected objects to be equal."
     assert.is_equal(normpath(expectedErr), err)
     assert.is_equal(normpath(expectedMsg), errmsg)
@@ -553,7 +553,7 @@ describe('Tests moonscript error messages through the command line', function()
     local result = run(busted_cmd .. ' --output=plainTerminal --pattern=cl_moonscript_error_messages.moon$ --tags=string')
     local err = result:match('(Error %-> .-)\n')
     local errmsg = result:match('\n(%.[/\\]spec[/\\].-)\n')
-    local expectedErr = "Error %-> ./spec/cl_moonscript_error_messages.moon @ 16"
+    local expectedErr = "Error -> ./spec/cl_moonscript_error_messages.moon @ 16"
     local expectedMsg = "./spec/cl_moonscript_error_messages.moon:17: error message"
     assert.is_equal(normpath(expectedErr), err)
     assert.is_equal(normpath(expectedMsg), errmsg)
