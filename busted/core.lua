@@ -31,6 +31,10 @@ local function hasToString(obj)
   return type(obj) == 'string' or (getmetatable(obj) or {}).__tostring
 end
 
+local function isCallable(obj)
+    return (type(obj) == 'function' or (getmetatable(obj) or {}).__call)
+end
+
 return function()
   local mediator = require 'mediator'()
 
@@ -45,6 +49,7 @@ return function()
   busted.modules = {}
   busted.executors = {}
   local executors = {}
+  local eattributes = {}
 
   busted.status = require 'busted.status'
 
@@ -145,7 +150,7 @@ return function()
   end
 
   function busted.wrap(callable)
-    if (type(callable) == 'function' or getmetatable(callable).__call) then
+    if isCallable(callable) then
       -- prioritize __call if it exists, like in files
       environment.wrap((getmetatable(callable) or {}).__call or callable)
     end
@@ -181,14 +186,22 @@ return function()
     environment.set(key, value)
   end
 
-  function busted.register(descriptor, executor)
+  function busted.register(descriptor, executor, attributes)
     local alias = nil
     if type(executor) == 'string' then
       alias = descriptor
       descriptor = executor
       executor = executors[descriptor]
+      attributes = attributes or eattributes[descriptor]
+      executors[alias] = executor
+      eattributes[alias] = attributes
     else
+      if executor ~= nil and not isCallable(executor) then
+        attributes = executor
+        executor = nil
+      end
       executors[descriptor] = executor
+      eattributes[descriptor] = attributes
     end
 
     local publisher = function(name, fn)
@@ -205,7 +218,7 @@ return function()
       end
 
       local publish = function(f)
-        busted.publish({ 'register', descriptor }, name, f, trace)
+        busted.publish({ 'register', descriptor }, name, f, trace, attributes)
       end
 
       if fn then publish(fn) else return publish end
@@ -217,10 +230,11 @@ return function()
       busted.export(edescriptor, publisher)
     end
 
-    busted.subscribe({ 'register', descriptor }, function(name, fn, trace)
+    busted.subscribe({ 'register', descriptor }, function(name, fn, trace, attributes)
       local ctx = busted.context.get()
       local plugin = {
         descriptor = descriptor,
+        attributes = attributes or {},
         name = name,
         run = fn,
         trace = trace

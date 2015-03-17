@@ -283,6 +283,16 @@ describe('tests environment', function()
   end)
 end)
 
+describe('tests clean environment', function()
+  it('globals in previous describe are not available', function()
+    assert.is_nil(global)
+    assert.is_nil(globalsetup)
+    assert.is_nil(globalbefore)
+    assert.is_nil(globalafter)
+    assert.is_nil(globalteardown)
+  end)
+end)
+
 describe 'tests syntactic sugar' (function()
    it 'works' (function()
       assert(true)
@@ -333,6 +343,11 @@ describe('tests unsupported functions', function()
     assert.has_error(context, "'context' not supported inside current context block")
   end)
 
+  it('it block throws error on insulate/expose', function()
+    assert.has_error(insulate, "'insulate' not supported inside current context block")
+    assert.has_error(expose, "'expose' not supported inside current context block")
+  end)
+
   it('it block throws error on it/spec/test', function()
     assert.has_error(it, "'it' not supported inside current context block")
     assert.has_error(spec, "'spec' not supported inside current context block")
@@ -372,6 +387,9 @@ describe('tests unsupported functions in setup/before_each/after_each/teardown',
 
     assert.has_error(describe, "'describe' not supported inside current context block")
     assert.has_error(context, "'context' not supported inside current context block")
+
+    assert.has_error(insulate, "'insulate' not supported inside current context block")
+    assert.has_error(expose, "'expose' not supported inside current context block")
 
     assert.has_error(pending, "'pending' not supported inside current context block")
 

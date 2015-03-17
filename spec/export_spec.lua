@@ -2,6 +2,8 @@
 describe('tests require "busted"', function()
   local describe = describe
   local context = context
+  local insulate = insulate
+  local expose = expose
   local it = it
   local pending = pending
   local spec = spec
@@ -31,6 +33,8 @@ describe('tests require "busted"', function()
 
   it('exports aliases', function()
     assert.is_equal(context, require 'busted'.context)
+    assert.is_equal(insulate, require 'busted'.insulate)
+    assert.is_equal(expose, require 'busted'.expose)
     assert.is_equal(spec, require 'busted'.spec)
     assert.is_equal(test, require 'busted'.test)
   end)
