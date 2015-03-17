@@ -29,10 +29,11 @@ return function(options)
   local fileName = source:sub(1,1) == '@' and source:sub(2) or source
 
   -- Parse the cli arguments
-  cli:set_name(path.basename(fileName))
+  local appName = path.basename(fileName)
+  cli:set_name(appName)
   local cliArgs, err = cli:parse(arg)
   if not cliArgs then
-    print(err)
+    io.stderr:write(err .. '\n')
     osexit(1, true)
   end
 
@@ -43,7 +44,11 @@ return function(options)
   end
 
   -- Load current working directory
-  local fpath = utils.normpath(cliArgs.cwd)
+  local _, err = path.chdir(utils.normpath(cliArgs.directory))
+  if err then
+    io.stderr:write(appName .. ': error: ' .. err .. '\n')
+    osexit(1, true)
+  end
 
   -- If coverage arg is passed in, load LuaCovsupport
   if cliArgs.coverage then
@@ -65,12 +70,12 @@ return function(options)
   local quitOnError = cliArgs['no-keep-going']
 
   busted.subscribe({ 'error', 'output' }, function(element, parent, message)
-    print('Error: Cannot load output library: ' .. element.name .. '\n' .. message)
+    io.stderr:write(appName .. ': error: Cannot load output library: ' .. element.name .. '\n' .. message .. '\n')
     return nil, true
   end)
 
   busted.subscribe({ 'error', 'helper' }, function(element, parent, message)
-    print('Error: Cannot load helper script: ' .. element.name .. '\n' .. message)
+    io.stderr:write(appName .. ': error: Cannot load helper script: ' .. element.name .. '\n' .. message .. '\n')
     return nil, true
   end)
 
@@ -99,8 +104,7 @@ return function(options)
     arguments = cliArgs.Xoutput
   }
 
-  local opath = utils.normpath(path.join(fpath, cliArgs.output))
-  local outputHandler = outputHandlerLoader(cliArgs.output, opath, outputHandlerOptions, busted, options.defaultOutput)
+  local outputHandler = outputHandlerLoader(cliArgs.output, outputHandlerOptions, busted, options.defaultOutput)
   outputHandler:subscribe(outputHandlerOptions)
 
   if cliArgs['enable-sound'] then
@@ -133,8 +137,7 @@ return function(options)
       arguments = cliArgs.Xhelper
     }
 
-    local hpath = utils.normpath(path.join(fpath, cliArgs.helper))
-    helperLoader(cliArgs.helper, hpath, helperOptions, busted)
+    helperLoader(cliArgs.helper, helperOptions, busted)
   end
 
   -- Set up test loader options

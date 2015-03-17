@@ -105,7 +105,7 @@ return function(options)
   end
 
   cli:add_option('-o, --output=LIBRARY', 'output library to load', defaultOutput, processOption)
-  cli:add_option('-d, --cwd=cwd', 'path to current working directory. If multiple options are specified, each is interpreted relative to the previous one.', './', processDir)
+  cli:add_option('-C, --directory=DIR', 'change to directory DIR before running tests. If multiple options are specified, each is interpreted relative to the previous one.', './', processDir)
   cli:add_option('-t, --tags=TAGS', 'only run tests with these #tags', {}, processList)
   cli:add_option('--exclude-tags=TAGS', 'do not run tests with these #tags, takes precedence over --tags', {}, processList)
   cli:add_option('--filter=PATTERN', 'only run test names matching the Lua pattern', {}, processMultiOption)
@@ -146,7 +146,7 @@ return function(options)
 
     -- Load busted config file if available
     local configFile = { }
-    local bustedConfigFilePath = utils.normpath(path.join(cliArgs.cwd, '.busted'))
+    local bustedConfigFilePath = utils.normpath(path.join(cliArgs.directory, '.busted'))
     local bustedConfigFile = pcall(function() configFile = loadfile(bustedConfigFilePath)() end)
     if bustedConfigFile then
       local config, err = configLoader(configFile, cliArgsParsed, cliArgs)
@@ -159,24 +159,6 @@ return function(options)
       cliArgs = tablex.merge(cliArgs, cliArgsParsed, true)
     end
 
-    local fpath = utils.normpath(cliArgs.cwd):gsub('[/%\\]$', '')
-
-    -- Add additional package paths based on lpath and cpath cliArgs
-    if #cliArgs.lpath > 0 then
-      local lpath = cliArgs.lpath
-      lpath = lpath:gsub('^%.([/%\\])', fpath .. '%1')
-      lpath = lpath:gsub(';%.([/%\\])', ';' .. fpath .. '%1')
-      cliArgs.lpath = lpath
-      cliArgs.m = lpath
-    end
-
-    if #cliArgs.cpath > 0 then
-      local cpath = cliArgs.cpath
-      cpath = cpath:gsub('^%.([/%\\])', fpath .. '%1')
-      cpath = cpath:gsub(';%.([/%\\])', ';' .. fpath .. '%1')
-      cliArgs.cpath = cpath
-    end
-
     -- Fixup options in case options from config file are not of the right form
     cliArgs.tags = fixupList(cliArgs.tags)
     cliArgs.t = cliArgs.tags
@@ -184,13 +166,6 @@ return function(options)
     cliArgs.loaders = fixupList(cliArgs.loaders)
     cliArgs.Xoutput = fixupList(cliArgs.Xoutput)
     cliArgs.Xhelper = fixupList(cliArgs.Xhelper)
-
-    -- Fix root file paths
-    if cliArgs.ROOT then
-      for i, rootFile in ipairs(cliArgs.ROOT) do
-        cliArgs.ROOT[i] = utils.normpath(path.join(fpath, rootFile))
-      end
-    end
 
     -- We report an error if the same tag appears in both `options.tags`
     -- and `options.excluded_tags` because it does not make sense for the

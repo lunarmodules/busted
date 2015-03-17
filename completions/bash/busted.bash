@@ -48,7 +48,7 @@ _busted() {
       local word
       for (( i=1; i < ${#COMP_WORDS[@]}-1; i++ )); do
         case "${COMP_WORDS[i]}" in
-          -d)
+          -C)
             word="${COMP_WORDS[i+1]}"
             if [ "${word:0:1}" == "/" ]; then
               d="${word}"
@@ -56,7 +56,7 @@ _busted() {
               d="${d}/${word}"
             fi
             ;;
-          --cwd)
+          --directory)
             word="${COMP_WORDS[i+1]}"
             if  [ "${word}" == "=" ]; then
               word="${COMP_WORDS[i+2]}"
@@ -94,7 +94,7 @@ _busted() {
       COMPREPLY=( "${COMPREPLY[@]}" "${toks[@]}" )
       return 0
       ;;
-    -d|--cwd)
+    -C|--directory)
       _filedir -d
       return 0
       ;;
@@ -140,7 +140,7 @@ _busted() {
       -l --list
       -o --output=
       -p --pattern=
-      -d --cwd=
+      -C --Cwd=
       -t --tags= --exclude-tags=
       -m --lpath= --cpath=
       -r --run=
