@@ -10,6 +10,10 @@ describe('tests require "busted"', function()
   local teardown = teardown
   local before_each = before_each
   local after_each = after_each
+  local lazy_setup = lazy_setup
+  local lazy_teardown = lazy_teardown
+  local strict_setup = strict_setup
+  local strict_teardown = strict_teardown
 
   it('does not export init', function()
     assert.is_nil(require 'busted'.init)
@@ -34,6 +38,10 @@ describe('tests require "busted"', function()
   it('exports support functions', function()
     assert.is_equal(setup, require 'busted'.setup)
     assert.is_equal(teardown, require 'busted'.teardown)
+    assert.is_equal(lazy_setup, require 'busted'.lazy_setup)
+    assert.is_equal(lazy_teardown, require 'busted'.lazy_teardown)
+    assert.is_equal(strict_setup, require 'busted'.strict_setup)
+    assert.is_equal(strict_teardown, require 'busted'.strict_teardown)
     assert.is_equal(before_each, require 'busted'.before_each)
     assert.is_equal(after_each, require 'busted'.after_each)
   end)

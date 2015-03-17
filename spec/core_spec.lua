@@ -386,3 +386,122 @@ describe('tests unsupported functions in setup/before_each/after_each/teardown',
   it('tests nothing, all tests performed by support functions', function()
   end)
 end)
+
+describe('tests strict setup/teardown', function()
+  local setup_count = 0
+  local teardown_count = 0
+
+  describe('in describe with no tests', function()
+    strict_setup(function()
+      setup_count = setup_count + 1
+    end)
+
+    strict_teardown(function()
+      teardown_count = teardown_count + 1
+    end)
+  end)
+
+  it('executes setup/teardown in previous block with no tests', function()
+    assert.is_equal(1, setup_count)
+    assert.is_equal(1, teardown_count)
+  end)
+end)
+
+describe('tests lazy setup/teardown not run if no tests found in block', function()
+  lazy_setup(function()
+    assert(false, 'setup should not execute since no tests')
+  end)
+
+  lazy_teardown(function()
+    assert(false, 'teardown should not execute since no tests')
+  end)
+end)
+
+describe('tests lazy setup/teardown in describe with no tests', function()
+  local setup_count = 0
+  local teardown_count = 0
+
+  describe('with nested describe with no tests', function()
+    lazy_setup(function()
+      setup_count = setup_count + 1
+    end)
+
+    lazy_teardown(function()
+      teardown_count = teardown_count + 1
+    end)
+
+    describe('with inner nested describe with no tests', function()
+      lazy_setup(function()
+        setup_count = setup_count + 1
+      end)
+
+      lazy_teardown(function()
+        teardown_count = teardown_count + 1
+      end)
+    end)
+  end)
+
+  it('does not run setup/teardown', function()
+    assert.is_equal(0, setup_count)
+    assert.is_equal(0, teardown_count)
+  end)
+end)
+
+describe('tests lazy setup/teardown with nested tests', function()
+  local setup_count = 0
+  local teardown_count = 0
+
+  lazy_setup(function()
+    setup_count = setup_count + 1
+  end)
+
+  lazy_teardown(function()
+    teardown_count = teardown_count + 1
+  end)
+
+  describe('nested describe with tests', function()
+    lazy_setup(function()
+      setup_count = setup_count + 1
+    end)
+
+    lazy_teardown(function()
+      teardown_count = teardown_count + 1
+    end)
+
+    it('runs all setups', function()
+      assert.is_equal(2, setup_count)
+    end)
+
+    it('runs setups only once', function()
+      assert.is_equal(2, setup_count)
+    end)
+
+    it('runs teardown after all tests complete', function()
+      assert.is_equal(0, teardown_count)
+    end)
+  end)
+
+  describe('second nested describe', function()
+    lazy_teardown(function()
+      teardown_count = teardown_count + 1
+    end)
+
+    it('verify teardown ran after previous describe completes', function()
+      assert.is_equal(1, teardown_count)
+    end)
+  end)
+
+  describe('another nested describe with tests', function()
+    lazy_setup(function()
+      setup_count = setup_count + 1
+    end)
+
+    it('runs setup for new describe', function()
+      assert.is_equal(3, setup_count)
+    end)
+
+    it('verify teardown ran after previous describe completes', function()
+      assert.is_equal(2, teardown_count)
+    end)
+  end)
+end)

@@ -85,9 +85,13 @@ return function()
       busted.subscribe({ 'suite', 'start' }, ignoreAll, { priority = 1 })
       busted.subscribe({ 'suite', 'end' }, ignoreAll, { priority = 1 })
       applyFilter({ 'setup', 'teardown', 'before_each', 'after_each' }, 'list', ignoreAll)
+      applyFilter({ 'lazy_setup', 'lazy_teardown' }, 'list', ignoreAll)
+      applyFilter({ 'strict_setup', 'strict_teardown' }, 'list', ignoreAll)
       applyFilter({ 'it', 'pending' }, 'list', printNameOnly)
     end
 
+    applyFilter({ 'lazy_setup', 'lazy_teardown' }, 'nokeepgoing', skipOnError)
+    applyFilter({ 'strict_setup', 'strict_teardown' }, 'nokeepgoing', skipOnError)
     applyFilter({ 'setup', 'teardown', 'before_each', 'after_each' }, 'nokeepgoing', skipOnError)
     applyFilter({ 'file', 'describe', 'it', 'pending' }, 'nokeepgoing', skipOnError)
 

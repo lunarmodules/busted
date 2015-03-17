@@ -154,6 +154,7 @@ _busted() {
       -s --enable-sound
       -Xoutput
       -Xhelper
+      --lazy
       --no-keep-going
       --no-recursive
       --shuffle --shuffle-tests --shuffle-files
