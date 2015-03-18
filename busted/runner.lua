@@ -55,6 +55,11 @@ return function(options)
     luacov()
   end
 
+  -- If auto-insulate is disabled, re-register file without insulation
+  if cliArgs['no-auto-insulate'] then
+    busted.register('file', 'file', {})
+  end
+
   -- If lazy is enabled, make lazy setup/teardown the default
   if cliArgs.lazy then
     busted.register('setup', 'lazy_setup')
