@@ -346,6 +346,13 @@ describe('tests unsupported functions', function()
     assert.has_error(teardown, "'teardown' not supported inside current context block")
   end)
 
+  it('it block throws error on lazy/strict setup/teardown', function()
+    assert.has_error(lazy_setup, "'lazy_setup' not supported inside current context block")
+    assert.has_error(lazy_teardown, "'lazy_teardown' not supported inside current context block")
+    assert.has_error(strict_setup, "'strict_setup' not supported inside current context block")
+    assert.has_error(strict_teardown, "'strict_teardown' not supported inside current context block")
+  end)
+
   it('it block throws error on randomize', function()
     assert.has_error(randomize, "'randomize' not supported inside current context block")
   end)
@@ -376,6 +383,11 @@ describe('tests unsupported functions in setup/before_each/after_each/teardown',
     assert.has_error(before_each, "'before_each' not supported inside current context block")
     assert.has_error(after_each, "'after_each' not supported inside current context block")
     assert.has_error(teardown, "'teardown' not supported inside current context block")
+
+    assert.has_error(lazy_setup, "'lazy_setup' not supported inside current context block")
+    assert.has_error(lazy_teardown, "'lazy_teardown' not supported inside current context block")
+    assert.has_error(strict_setup, "'strict_setup' not supported inside current context block")
+    assert.has_error(strict_teardown, "'strict_teardown' not supported inside current context block")
   end
 
   setup(testUnsupported)
