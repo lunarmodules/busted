@@ -155,6 +155,7 @@ _busted() {
       -Xoutput
       -Xhelper
       --lazy
+      --no-auto-insulate
       --no-keep-going
       --no-recursive
       --shuffle --shuffle-tests --shuffle-files

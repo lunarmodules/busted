@@ -52,21 +52,23 @@ local function init(busted)
     busted.publish({ 'test', 'end' }, element, parent, 'pending')
   end
 
-  busted.register('file', file)
+  busted.register('file', file, { envmode = 'insulate' })
 
   busted.register('describe', describe)
+  busted.register('insulate', 'describe', { envmode = 'insulate' })
+  busted.register('expose', 'describe', { envmode = 'expose' })
 
   busted.register('it', it)
 
   busted.register('pending', pending)
 
-  busted.register('before_each')
-  busted.register('after_each')
+  busted.register('before_each', { envmode = 'unwrap' })
+  busted.register('after_each', { envmode = 'unwrap' })
 
-  busted.register('lazy_setup')
-  busted.register('lazy_teardown')
-  busted.register('strict_setup')
-  busted.register('strict_teardown')
+  busted.register('lazy_setup', { envmode = 'unwrap' })
+  busted.register('lazy_teardown', { envmode = 'unwrap' })
+  busted.register('strict_setup', { envmode = 'unwrap' })
+  busted.register('strict_teardown', { envmode = 'unwrap' })
 
   busted.register('setup', 'strict_setup')
   busted.register('teardown', 'strict_teardown')

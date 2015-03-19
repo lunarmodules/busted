@@ -734,6 +734,17 @@ describe('Tests no-recursive commandline option', function()
   end)
 end)
 
+describe('Tests no-auto-insulate commandline option', function()
+  it('does not insulate test files', function()
+    local success, exitcode
+    error_start()
+    success, exitcode = execute(busted_cmd .. ' --no-auto-insulate --pattern=insulate_file.*.lua$')
+    assert.is_false(success)
+    assert.is_equal(1, exitcode)
+    error_end()
+  end)
+end)
+
 describe('Tests Xoutput commandline option', function()
   it('forwards no options to output handler when no options specified', function()
     local result = run(busted_cmd .. ' --output=spec/cl_output_handler.lua --pattern=cl_success.lua$')

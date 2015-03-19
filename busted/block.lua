@@ -33,17 +33,7 @@ return function(busted)
 
   local function exec(descriptor, element)
     if not element.env then element.env = {} end
-
     block.rejectAll(element)
-
-    local parent = busted.context.parent(element)
-    setmetatable(element.env, {
-      __newindex = function(self, key, value)
-        if not parent.env then parent.env = {} end
-        parent.env[key] = value
-      end
-    })
-
     local ret = { busted.safe(descriptor, element.run, element) }
     return unpack(ret)
   end
