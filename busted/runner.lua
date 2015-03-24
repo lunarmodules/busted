@@ -56,7 +56,7 @@ return function(options)
   end
 
   -- If auto-insulate is disabled, re-register file without insulation
-  if cliArgs['no-auto-insulate'] then
+  if not cliArgs['auto-insulate'] then
     busted.register('file', 'file', {})
   end
 
@@ -78,7 +78,7 @@ return function(options)
   -- watch for test errors and failures
   local failures = 0
   local errors = 0
-  local quitOnError = cliArgs['no-keep-going']
+  local quitOnError = not cliArgs['keep-going']
 
   busted.subscribe({ 'error', 'output' }, function(element, parent, message)
     io.stderr:write(appName .. ': error: Cannot load output library: ' .. element.name .. '\n' .. message .. '\n')
@@ -134,7 +134,7 @@ return function(options)
     filter = cliArgs.filter,
     filterOut = cliArgs['filter-out'],
     list = cliArgs.list,
-    nokeepgoing = cliArgs['no-keep-going'],
+    nokeepgoing = not cliArgs['keep-going'],
   }
 
   -- Load tag and test filters
@@ -156,7 +156,7 @@ return function(options)
     verbose = cliArgs.verbose,
     sort = cliArgs['sort-files'] or cliArgs.sort,
     shuffle = cliArgs['shuffle-files'] or cliArgs.shuffle,
-    recursive = not cliArgs['no-recursive'],
+    recursive = cliArgs['recursive'],
     seed = busted.randomseed
   }
 

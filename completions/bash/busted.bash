@@ -135,7 +135,7 @@ _busted() {
   if [[ "${cur}" == -* ]] ; then
     local opts="
       -h --help
-      -v --verbose
+      -v --verbose --no-verbose
       --version
       -l --list
       -o --output=
@@ -150,18 +150,20 @@ _busted() {
       --lang=
       --loaders=
       --helper=
-      -c --coverage
-      -s --enable-sound
+      -c --coverage --no-coverage
+      -s --enable-sound --no-enable-sound
       -Xoutput
       -Xhelper
-      --lazy
-      --no-auto-insulate
-      --no-keep-going
-      --no-recursive
+      --lazy --no-lazy
+      --auto-insulate --no-auto-insulate
+      -k --keep-going --no-keep-going
+      -R --recursive --no-recursive
       --shuffle --shuffle-tests --shuffle-files
+      --no-shuffle --no-shuffle-tests --no-shuffle-files
       --sort --sort-tests --sort-files
-      --supress-pending
-      --defer-print"
+      --no-sort --no-sort-tests --no-sort-files
+      --supress-pending --no-supress-pending
+      --defer-print --no-defer-print"
     compopt -o nospace
 
     local IFS=$'\n'
