@@ -123,8 +123,8 @@ return function(options)
   end
 
   -- Set up randomization options
-  busted.sort = cliArgs['sort-tests'] or cliArgs.sort
-  busted.randomize = cliArgs['shuffle-tests'] or cliArgs.shuffle
+  busted.sort = cliArgs['sort-tests']
+  busted.randomize = cliArgs['shuffle-tests']
   busted.randomseed = tonumber(cliArgs.seed) or os.time()
 
   -- Set up tag and test filter options
@@ -154,8 +154,8 @@ return function(options)
   -- Set up test loader options
   local testFileLoaderOptions = {
     verbose = cliArgs.verbose,
-    sort = cliArgs['sort-files'] or cliArgs.sort,
-    shuffle = cliArgs['shuffle-files'] or cliArgs.shuffle,
+    sort = cliArgs['sort-files'],
+    shuffle = cliArgs['shuffle-files'],
     recursive = cliArgs['recursive'],
     seed = busted.randomseed
   }

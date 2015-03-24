@@ -95,6 +95,16 @@ return function(options)
     return true
   end
 
+  local function processShuffle(key, value, altkey, opt)
+    processOption('shuffle-files', value, nil, opt)
+    processOption('shuffle-tests', value, nil, opt)
+  end
+
+  local function processSort(key, value, altkey, opt)
+    processOption('sort-files', value, nil, opt)
+    processOption('sort-tests', value, nil, opt)
+  end
+
   -- Load up the command-line interface options
   cli:add_flag('--version', 'prints the program version and exits', false, processOption)
 
@@ -130,12 +140,12 @@ return function(options)
   cli:add_flag('--[no-]auto-insulate', 'enable file insulation', true, processOption)
   cli:add_flag('-k, --[no-]keep-going', 'continue as much as possible after an error or failure', true, processOption)
   cli:add_flag('-R, --[no-]recursive', 'recurse into subdirectories', true, processOption)
-  cli:add_flag('--[no-]shuffle', 'randomize file and test order, takes precedence over --sort (--shuffle-test and --shuffle-files)', false, processOption)
-  cli:add_flag('--[no-]shuffle-files', 'randomize file execution order, takes precedence over --sort-files', false, processOption)
-  cli:add_flag('--[no-]shuffle-tests', 'randomize test order within a file, takes precedence over --sort-tests', false, processOption)
-  cli:add_flag('--[no-]sort', 'sort file and test order (--sort-tests and --sort-files)', false, processOption)
-  cli:add_flag('--[no-]sort-files', 'sort file execution order', false, processOption)
-  cli:add_flag('--[no-]sort-tests', 'sort test order within a file', false, processOption)
+  cli:add_flag('--[no-]shuffle', 'randomize file and test order, takes precedence over --sort (--shuffle-test and --shuffle-files)', processShuffle)
+  cli:add_flag('--[no-]shuffle-files', 'randomize file execution order, takes precedence over --sort-files', processOption)
+  cli:add_flag('--[no-]shuffle-tests', 'randomize test order within a file, takes precedence over --sort-tests', processOption)
+  cli:add_flag('--[no-]sort', 'sort file and test order (--sort-tests and --sort-files)', processSort)
+  cli:add_flag('--[no-]sort-files', 'sort file execution order', processOption)
+  cli:add_flag('--[no-]sort-tests', 'sort test order within a file', processOption)
   cli:add_flag('--[no-]suppress-pending', 'suppress `pending` test output', false, processOption)
   cli:add_flag('--[no-]defer-print', 'defer print to when test suite is complete', false, processOption)
 
