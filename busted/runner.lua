@@ -115,11 +115,11 @@ return function(options)
     arguments = cliArgs.Xoutput
   }
 
-  local outputHandler = outputHandlerLoader(cliArgs.output, outputHandlerOptions, busted, options.defaultOutput)
+  local outputHandler = outputHandlerLoader(busted, cliArgs.output, outputHandlerOptions, options.defaultOutput)
   outputHandler:subscribe(outputHandlerOptions)
 
   if cliArgs['enable-sound'] then
-    require 'busted.outputHandlers.sound'(outputHandlerOptions, busted)
+    require 'busted.outputHandlers.sound'(outputHandlerOptions)
   end
 
   -- Set up randomization options
@@ -138,7 +138,7 @@ return function(options)
   }
 
   -- Load tag and test filters
-  filterLoader(filterLoaderOptions, busted)
+  filterLoader(busted, filterLoaderOptions)
 
   -- Set up helper script
   if cliArgs.helper and cliArgs.helper ~= '' then
@@ -148,7 +148,7 @@ return function(options)
       arguments = cliArgs.Xhelper
     }
 
-    helperLoader(cliArgs.helper, helperOptions, busted)
+    helperLoader(busted, cliArgs.helper, helperOptions)
   end
 
   -- Set up test loader options

@@ -1,7 +1,8 @@
 local json = require 'dkjson'
 
-return function(options, busted)
-  local handler = require 'busted.outputHandlers.base'(busted)
+return function(options)
+  local busted = require 'busted'
+  local handler = require 'busted.outputHandlers.base'()
 
   handler.suiteEnd = function()
     print(json.encode({

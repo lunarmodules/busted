@@ -10,8 +10,9 @@ else
   colors = require 'term.colors'
 end
 
-return function(options, busted)
-  local handler = require 'busted.outputHandlers.base'(busted)
+return function(options)
+  local busted = require 'busted'
+  local handler = require 'busted.outputHandlers.base'()
 
   local successDot = colors.green('●')
   local failureDot = colors.red('◼')
@@ -141,6 +142,8 @@ return function(options, busted)
     local runString = (total > 1 and '\nRepeating all tests (run %d of %d) . . .\n\n' or '')
     io.write(runString:format(count, total))
     io.flush()
+
+    return nil, true
   end
 
   handler.suiteEnd = function(count, total)

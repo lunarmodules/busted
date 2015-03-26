@@ -1,7 +1,8 @@
 local pretty = require 'pl.pretty'
 
-return function(options, busted)
-  local handler = require 'busted.outputHandlers.base'(busted)
+return function(options)
+  local busted = require 'busted'
+  local handler = require 'busted.outputHandlers.base'()
 
   handler.suiteEnd = function()
     local total = handler.successesCount + handler.errorsCount + handler.failuresCount
