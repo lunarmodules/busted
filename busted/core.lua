@@ -141,11 +141,11 @@ return function()
     throw(p)
   end
 
-  function busted.replaceErrorWithFail(callable)
+  function busted.bindfenv(callable, var, value)
     local env = {}
     local f = (getmetatable(callable) or {}).__call or callable
     setmetatable(env, { __index = getfenv(f) })
-    env.error = busted.fail
+    env[var] = value
     setfenv(f, env)
   end
 

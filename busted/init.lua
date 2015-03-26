@@ -91,8 +91,8 @@ local function init(busted)
   busted.exportApi('subscribe', busted.subscribe)
   busted.exportApi('unsubscribe', busted.unsubscribe)
 
-  busted.replaceErrorWithFail(assert)
-  busted.replaceErrorWithFail(assert.is_true)
+  busted.bindfenv(assert, 'error', busted.fail)
+  busted.bindfenv(assert.is_true, 'error', busted.fail)
 
   return busted
 end
