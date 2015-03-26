@@ -13,7 +13,7 @@ return function(busted)
         ctx[k] = v
       end
 
-      for _, child in pairs(children) do
+      for _, child in ipairs(children) do
         for descriptor, _ in pairs(busted.executors) do
           child[descriptor] = nil
         end
