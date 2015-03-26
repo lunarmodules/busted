@@ -46,7 +46,7 @@ return function()
 
   local environment = require 'busted.environment'(busted.context)
 
-  busted.modules = {}
+  busted.api = {}
   busted.executors = {}
   local executors = {}
   local eattributes = {}
@@ -178,7 +178,7 @@ return function()
   end
 
   function busted.exportApi(key, value)
-    busted.modules[key] = value
+    busted.api[key] = value
   end
 
   function busted.export(key, value)

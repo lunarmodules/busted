@@ -91,6 +91,11 @@ local function init(busted)
   busted.exportApi('subscribe', busted.subscribe)
   busted.exportApi('unsubscribe', busted.unsubscribe)
 
+  busted.exportApi('bindfenv', busted.bindfenv)
+  busted.exportApi('fail', busted.fail)
+  busted.exportApi('parent', busted.context.parent)
+  busted.exportApi('version', busted.version)
+
   busted.bindfenv(assert, 'error', busted.fail)
   busted.bindfenv(assert.is_true, 'error', busted.fail)
 
@@ -103,7 +108,7 @@ return setmetatable({}, {
 
     return setmetatable(self, {
       __index = function(self, key)
-        return busted.modules[key]
+        return busted.api[key]
       end,
 
       __newindex = function(self, key, value)
