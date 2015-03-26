@@ -22,6 +22,10 @@ return function()
       config = tablex.merge(configFile.default, config, true)
     end
 
+    if type(configFile._all) == 'table' then
+      config = tablex.merge(configFile._all, config, true)
+    end
+
     config = tablex.merge(defaults, config, true)
 
     return config
