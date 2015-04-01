@@ -42,6 +42,7 @@ _busted_args=(
 "(-c --coverage --no-coverage)"{-c,--coverage}"[Do code coverage analysis (requires 'LuaCov' to be installed)]"
 "(-c --coverage --no-coverage)--no-coverage[Disable code coverage analysis]"
 "(-C --directory)"{-C,--directory=}"[Change to directory DIR before running tests. If multiple options are specified, each is interpreted relative to the previous one. (default: ./)]:directory:_dirs"
+"(-f --config-file)"{-f,--config-file=}"[Load configuration options from FILE]:files:_files"
 "(-h --help)"{-h,--help}"[Help]"
 "(-m --lpath)"{-m,--lpath=}"[Optional path to be prefixed to the Lua module search path (default: ./src/?.lua;./src/?/?.lua;./src/?/init.lua)]:directory:_dirs"
 "(-o --output)"{-o,--output=}"[Output library to load (default: utfTerminal)]:output handlers:->output"
@@ -65,31 +66,40 @@ _arguments -s $_busted_args
 case "${state}" in
   run)
     local d="."
+    local f
     local i
     local word
     for (( i=1; i < ${#words}; i++ )); do
       case "${words[i]}" in
-        -C|--directory)
+        -C|--directory|-f|--config-file)
           word="${words[i+1]}"
-          if [[ "${word[1,1]}" == "/" ]]; then
-            d="${word}"
+          if [[ "${words[i]}" == "-f" ]]; then
+            f="${word}"
           else
-            d="${d}/${word}"
+            if [[ "${word[1,1]}" == "/" ]]; then
+              d="${word}"
+            else
+              d="${d}/${word}"
+            fi
           fi
           ;;
-        --directory=*)
-          word="${words[i][7,-1]}"
-          if [[ "${word[1,1]}" == "/" ]]; then
-            d="${word}"
+        --directory=*|--config-file=*)
+          if [[ "${words[i][1,14]}" == "--config-file=" ]]; then
+            f="${words[i][15,-1]}"
           else
-            d="${d}/${word}"
+            word="${words[i][13,-1]}"
+            if [[ "${word[1,1]}" == "/" ]]; then
+              d="${word}"
+            else
+              d="${d}/${word}"
+            fi
           fi
           ;;
       esac
     done
     local cfgs
-    cfgs=$(lua -e "cfgs=dofile('${d}/.busted')" \
-                     -e "for k,_ in pairs(cfgs) do print(k) end" 2> /dev/null)
+    cfgs=$(lua -e "cfgs=dofile('${f:-${d}/.busted}')" \
+               -e "for k,_ in pairs(cfgs) do print(k) end" 2> /dev/null)
     _arguments -s "*:run configurations:(${cfgs})"
     ;;
   output)

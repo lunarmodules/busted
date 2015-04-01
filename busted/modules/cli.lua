@@ -116,6 +116,7 @@ return function(options)
 
   cli:add_option('-o, --output=LIBRARY', 'output library to load', defaultOutput, processOption)
   cli:add_option('-C, --directory=DIR', 'change to directory DIR before running tests. If multiple options are specified, each is interpreted relative to the previous one.', './', processDir)
+  cli:add_option('-f, --config-file=FILE', 'load configuration options from FILE', nil, processOptions)
   cli:add_option('-t, --tags=TAGS', 'only run tests with these #tags', {}, processList)
   cli:add_option('--exclude-tags=TAGS', 'do not run tests with these #tags, takes precedence over --tags', {}, processList)
   cli:add_option('--filter=PATTERN', 'only run test names matching the Lua pattern', {}, processMultiOption)
@@ -158,7 +159,7 @@ return function(options)
 
     -- Load busted config file if available
     local configFile = { }
-    local bustedConfigFilePath = utils.normpath(path.join(cliArgs.directory, '.busted'))
+    local bustedConfigFilePath = cliArgs.f or utils.normpath(path.join(cliArgs.directory, '.busted'))
     local bustedConfigFile = pcall(function() configFile = loadfile(bustedConfigFilePath)() end)
     if bustedConfigFile then
       local config, err = configLoader(configFile, cliArgsParsed, cliArgs)
