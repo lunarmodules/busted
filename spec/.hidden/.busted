@@ -1,5 +1,9 @@
 return {
+  _all = {
+    ['ROOT'] = {'tests'},
+  },
   default = {
+    ['ROOT'] = {'specs'},
     ['tags'] = {'tag11','tag22','tag33'},
     ['exclude-tags'] = {'etag11','etag22','etag33'},
     ['pattern'] = '_spec%.lua$',

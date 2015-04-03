@@ -4,6 +4,9 @@ describe('Config Loader', function()
 
   before_each(function()
     testConfig = {
+      _all = {
+        other = 'stuff',
+      },
       default = {
         output = 'utfTerminal'
       },
@@ -27,7 +30,8 @@ describe('Config Loader', function()
   it('returns a valid config with default config', function()
     local config, err = configLoader(testConfig, cliArgs)
 
-    assert.are.same(testConfig.default, config)
+    assert.are.same(testConfig.default.output, config.output)
+    assert.are.same(testConfig._all.other, config.other)
     assert.are.equal(nil, err)
   end)
 
@@ -36,6 +40,7 @@ describe('Config Loader', function()
     local config, err = configLoader(testConfig, cliArgs)
 
     assert.are.same(testConfig.windows.output, config.output)
+    assert.are.same(testConfig._all.other, config.other)
     assert.are.equal(nil, err)
   end)
 
@@ -45,6 +50,7 @@ describe('Config Loader', function()
     local config, err = configLoader(testConfig, cliArgs, defaults)
 
     assert.are.same(testConfig.windows.output, config.output)
+    assert.are.same(testConfig._all.other, config.other)
     assert.are.equal(nil, err)
   end)
 
@@ -52,7 +58,8 @@ describe('Config Loader', function()
     cliArgs = { output = 'TAP' }
     local config, err = configLoader(testConfig, cliArgs, defaults)
 
-    assert.are.same(cliArgs, config)
+    assert.are.same(cliArgs.output, config.output)
+    assert.are.same(testConfig._all.other, config.other)
     assert.are.equal(nil, err)
   end)
 

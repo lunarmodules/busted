@@ -95,8 +95,18 @@ return function(options)
     return true
   end
 
+  local function processShuffle(key, value, altkey, opt)
+    processOption('shuffle-files', value, nil, opt)
+    processOption('shuffle-tests', value, nil, opt)
+  end
+
+  local function processSort(key, value, altkey, opt)
+    processOption('sort-files', value, nil, opt)
+    processOption('sort-tests', value, nil, opt)
+  end
+
   -- Load up the command-line interface options
-  cli:add_flag('--version', 'prints the program version and exits', processOption)
+  cli:add_flag('--version', 'prints the program version and exits', false, processOption)
 
   if options.batch then
     cli:optarg('ROOT', 'test script file/folder. Folders will be traversed for any file that matches the --pattern option.', 'spec', 999, processArgList)
@@ -106,6 +116,7 @@ return function(options)
 
   cli:add_option('-o, --output=LIBRARY', 'output library to load', defaultOutput, processOption)
   cli:add_option('-C, --directory=DIR', 'change to directory DIR before running tests. If multiple options are specified, each is interpreted relative to the previous one.', './', processDir)
+  cli:add_option('-f, --config-file=FILE', 'load configuration options from FILE', nil, processOptions)
   cli:add_option('-t, --tags=TAGS', 'only run tests with these #tags', {}, processList)
   cli:add_option('--exclude-tags=TAGS', 'do not run tests with these #tags, takes precedence over --tags', {}, processList)
   cli:add_option('--filter=PATTERN', 'only run test names matching the Lua pattern', {}, processMultiOption)
@@ -122,22 +133,22 @@ return function(options)
   cli:add_option('-Xoutput OPTION', 'pass `OPTION` as an option to the output handler. If `OPTION` contains commas, it is split into multiple options at the commas.', {}, processList)
   cli:add_option('-Xhelper OPTION', 'pass `OPTION` as an option to the helper script. If `OPTION` contains commas, it is split into multiple options at the commas.', {}, processList)
 
-  cli:add_flag('-c, --coverage', 'do code coverage analysis (requires `LuaCov` to be installed)', processOption)
-  cli:add_flag('-v, --verbose', 'verbose output of errors', processOption)
-  cli:add_flag('-s, --enable-sound', 'executes `say` command if available', processOption)
-  cli:add_flag('-l, --list', 'list the names of all tests instead of running them', processOption)
-  cli:add_flag('--lazy', 'use lazy setup/teardown as the default', processOption)
-  cli:add_flag('--no-auto-insulate', 'disable file insulation', processOption)
-  cli:add_flag('--no-keep-going', 'quit after first error or failure', processOption)
-  cli:add_flag('--no-recursive', 'do not recurse into subdirectories', processOption)
-  cli:add_flag('--shuffle', 'randomize file and test order, takes precedence over --sort (--shuffle-test and --shuffle-files)', processOption)
-  cli:add_flag('--shuffle-files', 'randomize file execution order, takes precedence over --sort-files', processOption)
-  cli:add_flag('--shuffle-tests', 'randomize test order within a file, takes precedence over --sort-tests', processOption)
-  cli:add_flag('--sort', 'sort file and test order (--sort-tests and --sort-files)', processOption)
-  cli:add_flag('--sort-files', 'sort file execution order', processOption)
-  cli:add_flag('--sort-tests', 'sort test order within a file', processOption)
-  cli:add_flag('--suppress-pending', 'suppress `pending` test output', processOption)
-  cli:add_flag('--defer-print', 'defer print to when test suite is complete', processOption)
+  cli:add_flag('-c, --[no-]coverage', 'do code coverage analysis (requires `LuaCov` to be installed)', false, processOption)
+  cli:add_flag('-v, --[no-]verbose', 'verbose output of errors', false, processOption)
+  cli:add_flag('-s, --[no-]enable-sound', 'executes `say` command if available', false, processOption)
+  cli:add_flag('-l, --list', 'list the names of all tests instead of running them', false, processOption)
+  cli:add_flag('--[no-]lazy', 'use lazy setup/teardown as the default', false, processOption)
+  cli:add_flag('--[no-]auto-insulate', 'enable file insulation', true, processOption)
+  cli:add_flag('-k, --[no-]keep-going', 'continue as much as possible after an error or failure', true, processOption)
+  cli:add_flag('-R, --[no-]recursive', 'recurse into subdirectories', true, processOption)
+  cli:add_flag('--[no-]shuffle', 'randomize file and test order, takes precedence over --sort (--shuffle-test and --shuffle-files)', processShuffle)
+  cli:add_flag('--[no-]shuffle-files', 'randomize file execution order, takes precedence over --sort-files', processOption)
+  cli:add_flag('--[no-]shuffle-tests', 'randomize test order within a file, takes precedence over --sort-tests', processOption)
+  cli:add_flag('--[no-]sort', 'sort file and test order (--sort-tests and --sort-files)', processSort)
+  cli:add_flag('--[no-]sort-files', 'sort file execution order', processOption)
+  cli:add_flag('--[no-]sort-tests', 'sort test order within a file', processOption)
+  cli:add_flag('--[no-]suppress-pending', 'suppress `pending` test output', false, processOption)
+  cli:add_flag('--[no-]defer-print', 'defer print to when test suite is complete', false, processOption)
 
   local function parse(args)
     -- Parse the cli arguments
@@ -148,7 +159,7 @@ return function(options)
 
     -- Load busted config file if available
     local configFile = { }
-    local bustedConfigFilePath = utils.normpath(path.join(cliArgs.directory, '.busted'))
+    local bustedConfigFilePath = cliArgs.f or utils.normpath(path.join(cliArgs.directory, '.busted'))
     local bustedConfigFile = pcall(function() configFile = loadfile(bustedConfigFilePath)() end)
     if bustedConfigFile then
       local config, err = configLoader(configFile, cliArgsParsed, cliArgs)

@@ -44,32 +44,41 @@ _busted() {
       ;;
     -r|--run)
       local d="."
+      local f
       local i
       local word
       for (( i=1; i < ${#COMP_WORDS[@]}-1; i++ )); do
         case "${COMP_WORDS[i]}" in
-          -C)
+          -C|-f)
             word="${COMP_WORDS[i+1]}"
-            if [ "${word:0:1}" == "/" ]; then
-              d="${word}"
+            if [ "${COMP_WORDS[i]}" == "-f" ]; then
+              f="${word}"
             else
-              d="${d}/${word}"
+              if [ "${word:0:1}" == "/" ]; then
+                d="${word}"
+              else
+                d="${d}/${word}"
+              fi
             fi
             ;;
-          --directory)
+          --directory|--config-file)
             word="${COMP_WORDS[i+1]}"
             if  [ "${word}" == "=" ]; then
               word="${COMP_WORDS[i+2]}"
             fi
-            if [ "${word:0:1}" == "/" ]; then
-              d="${word}"
+            if [ "${COMP_WORDS[i]}" == "--config-file" ]; then
+              f="${word}"
             else
-              d="${d}/${word}"
+              if [ "${word:0:1}" == "/" ]; then
+                d="${word}"
+              else
+                d="${d}/${word}"
+              fi
             fi
             ;;
         esac
       done
-      local cfgs=$(lua -e "cfgs=dofile('${d}/.busted')" \
+      local cfgs=$(lua -e "cfgs=dofile('${f:-${d}/.busted}')" \
                        -e "for k,_ in pairs(cfgs) do print(k) end" 2> /dev/null)
       COMPREPLY=( $(compgen -W "${cfgs}" -- ${cur}) )
       return 0
@@ -96,6 +105,10 @@ _busted() {
       ;;
     -C|--directory)
       _filedir -d
+      return 0
+      ;;
+    -f|--config-file)
+      _filedir
       return 0
       ;;
     --helper)
@@ -135,12 +148,13 @@ _busted() {
   if [[ "${cur}" == -* ]] ; then
     local opts="
       -h --help
-      -v --verbose
+      -v --verbose --no-verbose
       --version
       -l --list
       -o --output=
       -p --pattern=
-      -C --Cwd=
+      -C --directory=
+      -f --config-file=
       -t --tags= --exclude-tags=
       -m --lpath= --cpath=
       -r --run=
@@ -150,18 +164,20 @@ _busted() {
       --lang=
       --loaders=
       --helper=
-      -c --coverage
-      -s --enable-sound
+      -c --coverage --no-coverage
+      -s --enable-sound --no-enable-sound
       -Xoutput
       -Xhelper
-      --lazy
-      --no-auto-insulate
-      --no-keep-going
-      --no-recursive
+      --lazy --no-lazy
+      --auto-insulate --no-auto-insulate
+      -k --keep-going --no-keep-going
+      -R --recursive --no-recursive
       --shuffle --shuffle-tests --shuffle-files
+      --no-shuffle --no-shuffle-tests --no-shuffle-files
       --sort --sort-tests --sort-files
-      --supress-pending
-      --defer-print"
+      --no-sort --no-sort-tests --no-sort-files
+      --supress-pending --no-supress-pending
+      --defer-print --no-defer-print"
     compopt -o nospace
 
     local IFS=$'\n'

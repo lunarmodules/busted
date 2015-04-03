@@ -6,29 +6,43 @@
 local _busted_args
 _busted_args=(
 "--cpath=[Optional path to be prefixed to the Lua C module search path (default: ./csrc/?.so;./csrc/?/?.so;)]:directory:_dirs"
-"--defer-print[Defer print to when test suite is complete]"
+"(--defer-print --no-defer-print)--defer-print[Defer print to when test suite is complete]"
+"(--defer-print --no-defer-print)--no-defer-print[Do not defer print to when test suite is complete]"
 "--lang=[Language for error messages (default: en)]:languages:(ar de en fr ja nl ru th ua zh)"
 "--repeat=[Run the tests repeatedly (default: 1)]: :"
 "--seed=[Random seed value to use for shuffing test order (default: os.time())]: :"
-"(--sort --shuffle)--shuffle[Randomize file and test order, takes precedence over --sort (--shuffle-test and --shuffle-files)]"
-"(--sort-files --shuffle-files)--shuffle-files[Randomize file execution order, takes precedence over --sort-files]"
-"(--sort-tests --shuffle-tests)--shuffle-tests[Randomize test order within a file, takes precedence over --sort-tests]"
-"(--sort --shuffle)--sort[Sort file and test order (--sort-tests and --sort-files)]"
-"(--sort-files --shuffle-files)--sort-files[Sort file execution order]"
-"(--sort-tests --shuffle-tests)--sort-tests[Sort test order within a file]"
-"--suppress-pending[Suppress 'pending' test output]"
+"(--sort --shuffle --no-shuffle --no-sort)--shuffle[Randomize file and test order, takes precedence over --sort (--shuffle-test and --shuffle-files)]"
+"(--sort --shuffle --no-shuffle --no-sort)--no-shuffle[Do not randomize file and test order (--no-shuffle-test and --no-shuffle-files)]"
+"(--sort-files --shuffle-files --no-sort-files --no-shuffle-files)--shuffle-files[Randomize file execution order, takes precedence over --sort-files]"
+"(--sort-files --shuffle-files --no-sort-files --no-shuffle-files)--no-shuffle-files[Do not randomize file execution order]"
+"(--sort-tests --shuffle-tests --no-sort-tests --no-shuffle-tests)--shuffle-tests[Randomize test order within a file, takes precedence over --sort-tests]"
+"(--sort-tests --shuffle-tests --no-sort-tests --no-shuffle-tests)--no-shuffle-tests[Do not randomize test order within a file]"
+"(--sort --shuffle --no-shuffle --no-sort)--sort[Sort file and test order (--sort-tests and --sort-files)]"
+"(--sort --shuffle --no-shuffle --no-sort)--no-sort[Do not sort file and test order (--no-sort-tests and --no-sort-files)]"
+"(--sort-files --shuffle-files --no-sort-files --no-shuffle-files)--sort-files[Sort file execution order]"
+"(--sort-files --shuffle-files --no-sort-files --no-shuffle-files)--no-sort-files[Do not sort file execution order]"
+"(--sort-tests --shuffle-tests --no-sort-tests --no-shuffle-tests)--sort-tests[Sort test order within a file]"
+"(--sort-tests --shuffle-tests --no-sort-tests --no-shuffle-tests)--no-sort-tests[Do not sort test order within a file]"
+"(--suppress-pending --no-suppress-pending)--suppress-pending[Suppress 'pending' test output]"
+"(--suppress-pending --no-suppress-pending)--no-suppress-pending[Do not suppress 'pending' test output]"
 "--version[Prints the program version and exits]"
 "(-l --list)"{-l,--list}"[List the names of all tests instead of running them]"
-"--lazy[Use lazy setup/teardown as the default]"
-"--no-auto-insulate[Disable file insulation]"
-"--no-keep-going[Quit after first error or failure]"
-"--no-recursive[Do not recurse into subdirectories]"
+"(--lazy --no-lazy)--lazy[Use lazy setup/teardown as the default]"
+"(--lazy --no-lazy)--no-lazy[Use strict setup/teardown as the default]"
+"(--auto-insulate --no-auto-insulate)--auto-insulate[Enable file insulation]"
+"(--auto-insulate --no-auto-insulate)--no-auto-insulate[Disable file insulation]"
+"(-k --keep-going --no-keep-going)--keep-going[Continue as much as possible after an error or failure]"
+"(-k --keep-going --no-keep-going)--no-keep-going[Quit after first error or failure]"
+"(-R --recursive --no-recursive)--recursive[Recurse into subdirectories]"
+"(-R --recursive --no-recursive)--no-recursive[Do not recurse into subdirectories]"
 "--helper[A helper script that is run before tests]:files:_files"
 "--loaders=[Test file loaders]:loaders:_values -s , loaders lua moonscript terra"
 "-Xoutput[Pass 'OPTION' as an option to the output handler. If 'OPTION' contains commas, it is split into multiple options at the commas.]: :"
 "-Xhelper[Pass 'OPTION' as an option to the helper script. If 'OPTION' contains commas, it is split into multiple options at the commas.]: :"
-"(-c --coverage)"{-c,--coverage}"[Do code coverage analysis (requires 'LuaCov' to be installed)]"
+"(-c --coverage --no-coverage)"{-c,--coverage}"[Do code coverage analysis (requires 'LuaCov' to be installed)]"
+"(-c --coverage --no-coverage)--no-coverage[Disable code coverage analysis]"
 "(-C --directory)"{-C,--directory=}"[Change to directory DIR before running tests. If multiple options are specified, each is interpreted relative to the previous one. (default: ./)]:directory:_dirs"
+"(-f --config-file)"{-f,--config-file=}"[Load configuration options from FILE]:files:_files"
 "(-h --help)"{-h,--help}"[Help]"
 "(-m --lpath)"{-m,--lpath=}"[Optional path to be prefixed to the Lua module search path (default: ./src/?.lua;./src/?/?.lua;./src/?/init.lua)]:directory:_dirs"
 "(-o --output)"{-o,--output=}"[Output library to load (default: utfTerminal)]:output handlers:->output"
@@ -39,7 +53,8 @@ _busted_args=(
 "--exclude-tags=[Do not run tests with these #tags, takes precedence over --tags]: :"
 "--filter=[Only run test names matching the Lua pattern]: :"
 "--filter-out=[Do not run test names matching the Lua pattern, takes precedence over --filter]: :"
-"(-v --verbose)"{-v,--verbose}"[Verbose output of errors]"
+"(-v --verbose --no-verbose)"{-v,--verbose}"[Verbose output of errors]"
+"(-v --verbose --no-verbose)--no-verbose[Disable verbose output of errors]"
 "*:files:_files"
 )
 
@@ -51,31 +66,40 @@ _arguments -s $_busted_args
 case "${state}" in
   run)
     local d="."
+    local f
     local i
     local word
     for (( i=1; i < ${#words}; i++ )); do
       case "${words[i]}" in
-        -C|--directory)
+        -C|--directory|-f|--config-file)
           word="${words[i+1]}"
-          if [[ "${word[1,1]}" == "/" ]]; then
-            d="${word}"
+          if [[ "${words[i]}" == "-f" ]]; then
+            f="${word}"
           else
-            d="${d}/${word}"
+            if [[ "${word[1,1]}" == "/" ]]; then
+              d="${word}"
+            else
+              d="${d}/${word}"
+            fi
           fi
           ;;
-        --directory=*)
-          word="${words[i][7,-1]}"
-          if [[ "${word[1,1]}" == "/" ]]; then
-            d="${word}"
+        --directory=*|--config-file=*)
+          if [[ "${words[i][1,14]}" == "--config-file=" ]]; then
+            f="${words[i][15,-1]}"
           else
-            d="${d}/${word}"
+            word="${words[i][13,-1]}"
+            if [[ "${word[1,1]}" == "/" ]]; then
+              d="${word}"
+            else
+              d="${d}/${word}"
+            fi
           fi
           ;;
       esac
     done
     local cfgs
-    cfgs=$(lua -e "cfgs=dofile('${d}/.busted')" \
-                     -e "for k,_ in pairs(cfgs) do print(k) end" 2> /dev/null)
+    cfgs=$(lua -e "cfgs=dofile('${f:-${d}/.busted}')" \
+               -e "for k,_ in pairs(cfgs) do print(k) end" 2> /dev/null)
     _arguments -s "*:run configurations:(${cfgs})"
     ;;
   output)
