@@ -26,6 +26,7 @@ return function(busted)
 
   function block.rejectAll(element)
     block.reject('randomize', element)
+    block.reject('norandomize', element)
     for descriptor, _ in pairs(busted.executors) do
       block.reject(descriptor, element)
     end
@@ -135,6 +136,7 @@ return function(busted)
 
     local randomize = busted.randomize
     element.env.randomize = function() randomize = true end
+    element.env.norandomize = function() randomize = false end
 
     if busted.safe(descriptor, element.run, element):success() then
       if randomize then
