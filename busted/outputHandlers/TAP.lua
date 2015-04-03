@@ -3,50 +3,82 @@ local pretty = require 'pl.pretty'
 return function(options, busted)
   local handler = require 'busted.outputHandlers.base'(busted)
 
+  local success = 'ok %u - %s'
+  local failure = 'not ' .. success
+  local skip = 'ok %u - # SKIP %s'
+  local counter = 0
+
+  handler.suiteReset = function()
+    counter = 0
+    return nil, true
+  end
+
   handler.suiteEnd = function()
-    local total = handler.successesCount + handler.errorsCount + handler.failuresCount
-    print('1..' .. total)
+    print('1..' .. counter)
+    return nil, true
+  end
 
-    local success = 'ok %u - %s'
-    local failure = 'not ' .. success
-    local counter = 0
+  local function showFailure(t)
+    local message = t.message
+    local trace = t.trace or {}
 
-    for i,t in pairs(handler.successes) do
-      counter = counter + 1
-      print(success:format(counter, t.name))
+    if message == nil then
+      message = 'Nil error'
+    elseif type(message) ~= 'string' then
+      message = pretty.write(message)
     end
 
-    local showFailure = function(t)
-      counter = counter + 1
-      local message = t.message
-      local trace = t.trace or {}
-
-      if message == nil then
-        message = 'Nil error'
-      elseif type(message) ~= 'string' then
-        message = pretty.write(message)
-      end
-
-      print(failure:format(counter, t.name))
-      print('# ' .. t.element.trace.short_src .. ' @ ' .. t.element.trace.currentline)
-      if t.randomseed then print('# Random seed: ' .. t.randomseed) end
-      print('# Failure message: ' .. message:gsub('\n', '\n# '))
-      if options.verbose and trace.traceback then
-        print('# ' .. trace.traceback:gsub('^\n', '', 1):gsub('\n', '\n# '))
-      end
+    print(failure:format(counter, t.name))
+    print('# ' .. t.element.trace.short_src .. ' @ ' .. t.element.trace.currentline)
+    if t.randomseed then print('# Random seed: ' .. t.randomseed) end
+    print('# Failure message: ' .. message:gsub('\n', '\n# '))
+    if options.verbose and trace.traceback then
+      print('# ' .. trace.traceback:gsub('^\n', '', 1):gsub('\n', '\n# '))
     end
+  end
 
-    for i,t in pairs(handler.errors) do
-      showFailure(t)
-    end
-    for i,t in pairs(handler.failures) do
-      showFailure(t)
+  handler.testStart = function(element, parent)
+    local trace = element.trace
+    if options.verbose and trace and trace.short_src then
+      local fileline = trace.short_src .. ' @ ' ..  trace.currentline .. ': '
+      local testName = fileline .. handler.getFullName(element)
+      print('# ' .. testName)
     end
 
     return nil, true
   end
 
+  handler.testEnd = function(element, parent, status, trace)
+    counter = counter + 1
+    if status == 'success' then
+      local t = handler.successes[#handler.successes]
+      print(success:format(counter, t.name))
+    elseif status == 'pending' then
+      local t = handler.pendings[#handler.pendings]
+      print(skip:format(counter, (t.message or t.name)))
+    elseif status == 'failure' then
+      showFailure(handler.failures[#handler.failures])
+    elseif status == 'error' then
+      showFailure(handler.errors[#handler.errors])
+    end
+
+    return nil, true
+  end
+
+  handler.error = function(element, parent, message, debug)
+    if element.descriptor ~= 'it' then
+      counter = counter + 1
+      showFailure(handler.errors[#handler.errors])
+    end
+
+    return nil, true
+  end
+
+  busted.subscribe({ 'suite', 'reset' }, handler.suiteReset)
   busted.subscribe({ 'suite', 'end' }, handler.suiteEnd)
+  busted.subscribe({ 'test', 'start' }, handler.testStart)
+  busted.subscribe({ 'test', 'end' }, handler.testEnd)
+  busted.subscribe({ 'error' }, handler.error)
 
   return handler
 end
