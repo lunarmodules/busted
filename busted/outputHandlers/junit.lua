@@ -2,8 +2,9 @@ local xml = require 'pl.xml'
 local socket = require("socket")
 local string = require("string")
 
-return function(options, busted)
-  local handler = require 'busted.outputHandlers.base'(busted)
+return function(options)
+  local busted = require 'busted'
+  local handler = require 'busted.outputHandlers.base'()
   local top = {
     start_time = socket.gettime(),
     xml_doc = xml.new('testsuites', {

@@ -70,6 +70,13 @@ describe('tests require "busted"', function()
     assert.is_equal(sub, unsub)
   end)
 
+  it('exports other functions/variables', function()
+    assert.is_function(require 'busted'.bindfenv)
+    assert.is_function(require 'busted'.fail)
+    assert.is_function(require 'busted'.parent)
+    assert.is_string(require 'busted'.version)
+  end)
+
   it('functions cannot be overwritten', function()
     local foo = function() assert(false) end
     assert.has_error(function() require 'busted'.it = foo end)

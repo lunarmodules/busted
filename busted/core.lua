@@ -46,7 +46,7 @@ return function()
 
   local environment = require 'busted.environment'(busted.context)
 
-  busted.modules = {}
+  busted.api = {}
   busted.executors = {}
   local executors = {}
   local eattributes = {}
@@ -141,11 +141,11 @@ return function()
     throw(p)
   end
 
-  function busted.replaceErrorWithFail(callable)
+  function busted.bindfenv(callable, var, value)
     local env = {}
     local f = (getmetatable(callable) or {}).__call or callable
     setmetatable(env, { __index = getfenv(f) })
-    env.error = busted.fail
+    env[var] = value
     setfenv(f, env)
   end
 
@@ -178,7 +178,7 @@ return function()
   end
 
   function busted.exportApi(key, value)
-    busted.modules[key] = value
+    busted.api[key] = value
   end
 
   function busted.export(key, value)

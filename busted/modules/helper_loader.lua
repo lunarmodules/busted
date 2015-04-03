@@ -2,7 +2,7 @@ local utils = require 'busted.utils'
 local hasMoon, moonscript = pcall(require, 'moonscript')
 
 return function()
-  local loadHelper = function(helper, options, busted)
+  local loadHelper = function(busted, helper, options)
     local old_arg = arg
     local success, err = pcall(function()
       arg = options.arguments

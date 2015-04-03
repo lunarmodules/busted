@@ -1,5 +1,5 @@
 return function()
-  local function filter(options, busted)
+  local function filter(busted, options)
     local getFullName = function(name)
       local parent = busted.context.get()
       local names = { name }
@@ -70,7 +70,7 @@ return function()
     end
 
     local skipOnError = function()
-      return nil, not busted.skippAll
+      return nil, not busted.skipAll
     end
 
     local applyFilter = function(descriptors, name, fn)

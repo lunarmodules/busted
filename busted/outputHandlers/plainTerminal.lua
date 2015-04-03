@@ -1,8 +1,9 @@
 local s = require 'say'
 local pretty = require 'pl.pretty'
 
-return function(options, busted)
-  local handler = require 'busted.outputHandlers.base'(busted)
+return function(options)
+  local busted = require 'busted'
+  local handler = require 'busted.outputHandlers.base'()
 
   local successDot =  '+'
   local failureDot =  '-'
@@ -132,6 +133,8 @@ return function(options, busted)
     local runString = (total > 1 and '\nRepeating all tests (run %d of %d) . . .\n\n' or '')
     io.write(runString:format(count, total))
     io.flush()
+
+    return nil, true
   end
 
   handler.suiteEnd = function()

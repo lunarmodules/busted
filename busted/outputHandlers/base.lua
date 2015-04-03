@@ -1,4 +1,5 @@
-return function(busted)
+return function()
+  local busted = require 'busted'
   local handler = {
     successes = {},
     successesCount = 0,
@@ -36,14 +37,14 @@ return function(busted)
   end
 
   handler.getFullName = function(context)
-    local parent = busted.context.parent(context)
+    local parent = busted.parent(context)
     local names = { (context.name or context.descriptor) }
 
     while parent and (parent.name or parent.descriptor) and
           parent.descriptor ~= 'file' do
 
       table.insert(names, 1, parent.name or parent.descriptor)
-      parent = busted.context.parent(parent)
+      parent = busted.parent(parent)
     end
 
     return table.concat(names, ' ')

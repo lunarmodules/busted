@@ -1,7 +1,8 @@
 -- supporting testfile; belongs to 'cl_spec.lua'
 
-return function(options, busted)
-  local handler = require 'busted.outputHandlers.base'(busted)
+return function(options)
+  local busted = require 'busted'
+  local handler = require 'busted.outputHandlers.base'()
   local cli = require 'cliargs'
   local args = options.arguments
 

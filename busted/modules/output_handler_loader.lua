@@ -2,7 +2,7 @@ local utils = require 'busted.utils'
 local hasMoon, moonscript = pcall(require, 'moonscript')
 
 return function()
-  local loadOutputHandler = function(output, options, busted, defaultOutput)
+  local loadOutputHandler = function(busted, output, options, defaultOutput)
     local handler
 
     local success, err = pcall(function()
@@ -24,7 +24,7 @@ return function()
       handler = require('busted.outputHandlers.' .. defaultOutput)
     end
 
-    return handler(options, busted)
+    return handler(options)
   end
 
   return loadOutputHandler
