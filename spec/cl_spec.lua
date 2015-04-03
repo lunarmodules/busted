@@ -347,6 +347,15 @@ describe('Test busted running standalone', function()
     error_end()
   end)
 
+  it('tests running with --helper specified', function ()
+    local success, exitcode
+    error_start()
+    success, exitcode = execute('lua spec/cl_standalone.lua --helper=spec/cl_helper_script.lua -Xhelper "--fail-teardown,--fail-after-each"')
+    assert.is_false(success)
+    assert.is_equal(9, exitcode)
+    error_end()
+  end)
+
   it('tests running with --version specified', function()
     local success, exitcode
     success, exitcode = execute('lua spec/cl_standalone.lua --version')

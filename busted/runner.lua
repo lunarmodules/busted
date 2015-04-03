@@ -163,12 +163,14 @@ return function(options)
   -- Load test directory
   local rootFiles = cliArgs.ROOT or { fileName }
   local pattern = cliArgs.pattern
-  local testFileLoader = require 'busted.modules.test_file_loader'(busted, cliArgs.loaders, testFileLoaderOptions)
-  local fileList = testFileLoader(rootFiles, pattern)
+  local testFileLoader = require 'busted.modules.test_file_loader'(busted, cliArgs.loaders)
+  local fileList = testFileLoader(rootFiles, pattern, testFileLoaderOptions)
 
+  -- If running standalone, setup test file to be compatible with live coding
   if not cliArgs.ROOT then
     local ctx = busted.context.get()
-    local file = busted.context.children(ctx)[1]
+    local children = busted.context.children(ctx)
+    local file = children[#children]
     getmetatable(file.run).__call = info.func
   end
 
