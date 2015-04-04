@@ -61,6 +61,7 @@ build = {
     ['busted.outputHandlers.TAP']             = 'busted/outputHandlers/TAP.lua',
     ['busted.outputHandlers.json']            = 'busted/outputHandlers/json.lua',
     ['busted.outputHandlers.junit']           = 'busted/outputHandlers/junit.lua',
+    ['busted.outputHandlers.gtest']           = 'busted/outputHandlers/gtest.lua',
     ['busted.outputHandlers.sound']           = 'busted/outputHandlers/sound.lua',
 
     ['busted.languages.en']                   = 'busted/languages/en.lua',

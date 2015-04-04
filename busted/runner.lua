@@ -164,7 +164,7 @@ return function(options)
   local rootFiles = cliArgs.ROOT or { fileName }
   local pattern = cliArgs.pattern
   local testFileLoader = require 'busted.modules.test_file_loader'(busted, cliArgs.loaders)
-  local fileList = testFileLoader(rootFiles, pattern, testFileLoaderOptions)
+  testFileLoader(rootFiles, pattern, testFileLoaderOptions)
 
   -- If running standalone, setup test file to be compatible with live coding
   if not cliArgs.ROOT then

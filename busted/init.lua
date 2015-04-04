@@ -3,9 +3,9 @@ local function init(busted)
 
   local file = function(file)
     busted.wrap(file.run)
-    busted.publish({ 'file', 'start' }, file.name)
+    busted.publish({ 'file', 'start' }, file)
     block.execute('file', file)
-    busted.publish({ 'file', 'end' }, file.name)
+    busted.publish({ 'file', 'end' }, file)
   end
 
   local describe = function(describe)
