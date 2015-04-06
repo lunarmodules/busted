@@ -1,6 +1,6 @@
 local utils = require 'pl.utils'
 local path = require 'pl.path'
-local normpath = require 'busted.utils'.normpath
+local normpath = path.normpath
 local busted_cmd = path.is_windows and 'lua bin/busted' or 'bin/busted'
 local ditch = path.is_windows and ' 1> NUL 2>NUL' or ' > /dev/null 2>&1'
 

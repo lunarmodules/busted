@@ -44,7 +44,7 @@ return function(options)
   end
 
   -- Load current working directory
-  local _, err = path.chdir(utils.normpath(cliArgs.directory))
+  local _, err = path.chdir(path.normpath(cliArgs.directory))
   if err then
     io.stderr:write(appName .. ': error: ' .. err .. '\n')
     osexit(1, true)

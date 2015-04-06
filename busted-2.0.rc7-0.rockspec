@@ -26,7 +26,7 @@ dependencies = {
   'luassert >= 1.7.4-0',
   'ansicolors >= 1.0-1',
   'lua-term >= 0.1-1',
-  'penlight >= 1.0.0-1',
+  'penlight >= 1.3.2-2',
   'mediator_lua >= 1.1-3',
 }
 build = {

@@ -159,7 +159,7 @@ return function(options)
 
     -- Load busted config file if available
     local configFile = { }
-    local bustedConfigFilePath = cliArgs.f or utils.normpath(path.join(cliArgs.directory, '.busted'))
+    local bustedConfigFilePath = cliArgs.f or path.normpath(path.join(cliArgs.directory, '.busted'))
     local bustedConfigFile = pcall(function() configFile = loadfile(bustedConfigFilePath)() end)
     if bustedConfigFile then
       local config, err = configLoader(configFile, cliArgsParsed, cliArgs)
