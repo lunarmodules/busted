@@ -27,6 +27,7 @@ dependencies = {
   'lua-term >= 0.1-1',
   'penlight >= 1.0.0-1',
   'mediator_lua >= 1.1-3',
+  'luasocket >= 2.0.1'
 }
 build = {
   type = 'builtin',
