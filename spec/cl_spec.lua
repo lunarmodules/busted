@@ -562,7 +562,10 @@ describe('Tests error messages through the command line', function()
   end)
 end)
 
-describe('Tests moonscript error messages through the command line', function()
+local has_moon = pcall(require, 'moonscript')
+local describe_moon = (has_moon and describe or pending)
+
+describe_moon('Tests moonscript error messages through the command line', function()
   it('when assertion fails', function()
     error_start()
     local result = run(busted_cmd .. ' --output=plainTerminal --pattern=cl_moonscript_error_messages.moon$ --tags=fail')
