@@ -3,6 +3,7 @@ language: c
 env:
   - LUA='Lua 5.1'
   - LUA='Lua 5.2'
+  - LUA='Lua 5.3'
   - LUA='LuaJIT 2.0'
 
 before_install:
