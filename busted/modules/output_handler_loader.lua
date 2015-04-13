@@ -1,4 +1,4 @@
-local utils = require 'busted.utils'
+local path = require 'pl.path'
 local hasMoon, moonscript = pcall(require, 'moonscript')
 
 return function()
@@ -7,9 +7,9 @@ return function()
 
     local success, err = pcall(function()
       if output:match('%.lua$') then
-        handler = dofile(utils.normpath(output))
+        handler = dofile(path.normpath(output))
       elseif hasMoon and output:match('%.moon$') then
-        handler = moonscript.dofile(utils.normpath(output))
+        handler = moonscript.dofile(path.normpath(output))
       else
         handler = require('busted.outputHandlers.' .. output)
       end
