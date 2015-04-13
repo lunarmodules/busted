@@ -368,9 +368,8 @@ describe('tests unsupported functions', function()
     assert.has_error(strict_teardown, "'strict_teardown' not supported inside current context block")
   end)
 
-  it('it block throws error on randomize/norandomize', function()
+  it('it block throws error on randomize', function()
     assert.has_error(randomize, "'randomize' not supported inside current context block")
-    assert.has_error(norandomize, "'norandomize' not supported inside current context block")
   end)
 
   it('finaly block throws error on pending', function()
@@ -385,7 +384,6 @@ describe('tests unsupported functions in setup/before_each/after_each/teardown',
     assert.is_nil(file)
     assert.is_nil(finally)
     assert.has_error(randomize, "'randomize' not supported inside current context block")
-    assert.has_error(norandomize, "'norandomize' not supported inside current context block")
 
     assert.has_error(describe, "'describe' not supported inside current context block")
     assert.has_error(context, "'context' not supported inside current context block")
