@@ -1,7 +1,7 @@
 package = 'busted'
 version = 'scm-0'
 source = {
-  url = "https://github.com/Olivine-Labs/busted.git",
+  url = "git://github.com/Olivine-Labs/busted",
   branch = "master"
 }
 description = {
