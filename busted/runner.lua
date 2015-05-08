@@ -171,7 +171,7 @@ return function(options)
     local ctx = busted.context.get()
     local children = busted.context.children(ctx)
     local file = children[#children]
-    getmetatable(file.run).__call = info.func
+    debug.getmetatable(file.run).__call = info.func
   end
 
   local runs = cliArgs['repeat']

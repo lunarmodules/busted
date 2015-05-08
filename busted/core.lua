@@ -24,15 +24,15 @@ local pendingMt = {
 
 local function metatype(obj)
   local otype = type(obj)
-  return otype == 'table' and (getmetatable(obj) or {}).__type or otype
+  return otype == 'table' and (debug.getmetatable(obj) or {}).__type or otype
 end
 
 local function hasToString(obj)
-  return type(obj) == 'string' or (getmetatable(obj) or {}).__tostring
+  return type(obj) == 'string' or (debug.getmetatable(obj) or {}).__tostring
 end
 
 local function isCallable(obj)
-    return (type(obj) == 'function' or (getmetatable(obj) or {}).__call)
+  return type(obj) == 'function' or (debug.getmetatable(obj) or {}).__call
 end
 
 return function()
@@ -143,7 +143,7 @@ return function()
 
   function busted.bindfenv(callable, var, value)
     local env = {}
-    local f = (getmetatable(callable) or {}).__call or callable
+    local f = (debug.getmetatable(callable) or {}).__call or callable
     setmetatable(env, { __index = getfenv(f) })
     env[var] = value
     setfenv(f, env)
@@ -152,7 +152,7 @@ return function()
   function busted.wrap(callable)
     if isCallable(callable) then
       -- prioritize __call if it exists, like in files
-      environment.wrap((getmetatable(callable) or {}).__call or callable)
+      environment.wrap((debug.getmetatable(callable) or {}).__call or callable)
     end
   end
 
