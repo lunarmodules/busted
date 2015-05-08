@@ -6,7 +6,7 @@ local function save()
     g[k] = rawget(_G, k)
   end
   return {
-    gmt = getmetatable(_G),
+    gmt = debug.getmetatable(_G),
     g = g,
     loaded = tablex.copy(package.loaded)
   }
