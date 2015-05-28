@@ -767,8 +767,10 @@ end)
         <section class="division" id="private">
           <h2>Private</h2>
           <p>
-            Before Busted executes any tests it will define a global <code>describe</code> that
-            can be used to expose private elements only in case of testing.
+            Busted does not define any global variables for testing internal/private helper
+            functions . We believe the correct way to address this is to refactor your code
+            to make it more externally testable. However, if you wish to expose private
+            elements for testing purposes only you can do the following:
           </p>
 <pre><code data-language="lua">-- a new module with private elements to be tested
 local mymodule = {}
@@ -779,7 +781,7 @@ function mymodule:display()
 end
 
 -- export locals for test
-if describe then
+if _TEST then
   -- setup test alias for private elements using a modified name
   mymodule._private_element = private_element
 end
@@ -792,6 +794,14 @@ return mymodule
 <pre><code data-language="lua">local mymodule = require("mymodule")
 
 describe("Going to test a private element", function()
+
+  setup(function()
+    _G._TEST = true
+  end)
+
+  teardown(function()
+    _G._TEST = nil
+  end)
 
   it("tests the length of the table", function()
     assert.is.equal(#mymodule._private_element, 3)
