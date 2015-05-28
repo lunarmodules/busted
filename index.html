@@ -664,6 +664,9 @@ end)
     t.greet("Hey!") -- prints 'Hey!'
     assert.spy(t.greet).was_called_with("Hey!")
 
+    t.greet:clear()   -- clears the call history
+    assert.spy(s).was_not_called_with("Hey!")
+
     t.greet:revert()  -- reverts the stub
     t.greet("Hello!") -- prints 'Hello!', will not pass through the spy
     assert.spy(s).was_not_called_with("Hello!")
@@ -724,6 +727,8 @@ end)
 
     m.thing("Coffee")
     assert.stub(m.thing).was.called_with("Coffee")
+    mock.revert(m) -- reverts all stubs/spies in m
+    m.thing("Tea") -- DOES print 'Tea'
   end)
 end)
 
