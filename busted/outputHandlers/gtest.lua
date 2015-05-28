@@ -14,7 +14,7 @@ else
   colors = require 'term.colors'
 end
 
-return function(options, busted)
+return function(options)
   local busted = require 'busted'
   local handler = require 'busted.outputHandlers.base'()
 
