@@ -36,7 +36,7 @@
             <span class="icon-bar"></span>
           </button>
 
-          <a class="navbar-brand" href="http://olivinelabs.com/busted">Busted <span class="version">2.0.rc4-0</span></a>
+          <a class="navbar-brand" href="http://olivinelabs.com/busted">Busted <span class="version">2.0.rc8-0</span></a>
         </div>
 
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
@@ -61,7 +61,7 @@
             <li><a href="#spies-mocks-stubs"><i class="icon-chevron-right"></i>Spies, Stubs & Mocks</a></li>
             <li><a href="#async-tests"><i class="icon-chevron-right"></i>Async Tests</a></li>
             <li><a href="#private"><i class="icon-chevron-right"></i>Private</a></li>
-            <li><a href="#output-types"><i class="icon-chevron-right"></i>Output Types</a></li>
+            <li><a href="#output-handlers"><i class="icon-chevron-right"></i>Output Handlers</a></li>
             <li><a href="#moonscript"><i class="icon-chevron-right"></i>Moonscript</a></li>
             <li><a href="#language-packs"><i class="icon-chevron-right"></i>i18n</a></li>
             <li><a href="#shell-completion"><i class="icon-chevron-right"></i>Shell Completion</a></li>
@@ -169,34 +169,77 @@ end)
             </p>
 
             <h4>CLI: Running Busted</h4>
-<pre><code>Usage: busted [OPTIONS]  [ROOT]
-  ROOT                  test script file/folder. Folders will be
-                        traversed for any file that matches the
-                        --pattern option. (optional, default: spec)
+<pre><code>Usage: busted [OPTIONS] [--] [ROOT-1 [ROOT-2 [...]]]
+  ROOT                    test script file/folder. Folders will be
+                          traversed for any file that matches the
+                          --pattern option. (optional, default: spec)
 
 OPTIONS:
-  --version             prints the program's version and exits
-  -o, --output=LIBRARY  output library to load (default: utf_terminal)
-  -d, --cwd=cwd         path to current working directory (default: ./)
-  -p, --pattern=pattern only run test files matching the Lua pattern
-                        (default: _spec)
-  -t, --tags=tags       only run tests with these #tags
-  --exclude-tags=tags   do not run tests with these #tags, takes
-                        precedence over --tags
-  -m, --lpath=path      optional path to be prefixed to the Lua module
-                        search path (default:
-                        ./src/?.lua;./src/?/?.lua;./src/?/init.lua)
-  --cpath=path          optional path to be prefixed to the Lua C module
-                        search path (default:
-                        ./csrc/?.so;./csrc/?/?.so;)
-  -r, --run=run         config to run from .busted file
-  --lang=LANG           language for error messages (default: en)
-  -c, --coverage        do code coverage analysis (requires 'LuaCov' to
-                        be installed)
-  -v, --verbose         verbose output of errors
-  -s, --enable-sound    executes 'say' command if available
-  --suppress-pending    suppress 'pending' test output
-  --defer-print         defer print to when test suite is complete
+  --version               prints the program version and exits
+  -p, --pattern=PATTERN   only run test files matching the Lua pattern
+                          (default: _spec)
+  -o, --output=LIBRARY    output library to load (default: utfTerminal)
+  -C, --directory=DIR     change to directory DIR before running tests.
+                          If multiple options are specified, each is
+                          interpreted relative to the previous one.
+                          (default: ./)
+  -f, --config-file=FILE  load configuration options from FILE
+  -t, --tags=TAGS         only run tests with these #tags (default: [])
+  --exclude-tags=TAGS     do not run tests with these #tags, takes
+                          precedence over --tags (default: [])
+  --filter=PATTERN        only run test names matching the Lua pattern
+                          (default: [])
+  --filter-out=PATTERN    do not run test names matching the Lua
+                          pattern, takes precedence over --filter
+                          (default: [])
+  -m, --lpath=PATH        optional path to be prefixed to the Lua module
+                          search path (default:
+                          ./src/?.lua;./src/?/?.lua;./src/?/init.lua)
+  --cpath=PATH            optional path to be prefixed to the Lua C
+                          module search path (default:
+                          ./csrc/?.so;./csrc/?/?.so;)
+  -r, --run=RUN           config to run from .busted file
+  --repeat=COUNT          run the tests repeatedly (default: 1)
+  --seed=SEED             random seed value to use for shuffling test
+                          order (default: os.time())
+  --lang=LANG             language for error messages (default: en)
+  --loaders=NAME          test file loaders (default: lua,moonscript)
+  --helper=PATH           A helper script that is run before tests
+  -Xoutput OPTION         pass `OPTION` as an option to the output
+                          handler. If `OPTION` contains commas, it is
+                          split into multiple options at the commas.
+                          (default: [])
+  -Xhelper OPTION         pass `OPTION` as an option to the helper
+                          script. If `OPTION` contains commas, it is
+                          split into multiple options at the commas.
+                          (default: [])
+  -c, --[no-]coverage     do code coverage analysis (requires `LuaCov`
+                          to be installed) (default: off)
+  -v, --[no-]verbose      verbose output of errors (default: off)
+  -s, --[no-]enable-sound executes `say` command if available (default:
+                          off)
+  -l, --list              list the names of all tests instead of running
+                          them
+  --[no-]lazy             use lazy setup/teardown as the default
+                          (default: off)
+  --[no-]auto-insulate    enable file insulation (default: on)
+  -k, --[no-]keep-going   continue as much as possible after an error or
+                          failure (default: on)
+  -R, --[no-]recursive    recurse into subdirectories (default: on)
+  --[no-]shuffle          randomize file and test order, takes
+                          precedence over --sort (--shuffle-test and
+                          --shuffle-files) (default: off)
+  --[no-]shuffle-files    randomize file execution order, takes
+                          precedence over --sort-files (default: off)
+  --[no-]shuffle-tests    randomize test order within a file, takes
+                          precedence over --sort-tests (default: off)
+  --[no-]sort             sort file and test order (--sort-tests and
+                          --sort-files) (default: off)
+  --[no-]sort-files       sort file execution order (default: off)
+  --[no-]sort-tests       sort test order within a file (default: off)
+  --[no-]suppress-pending suppress `pending` test output (default: off)
+  --[no-]defer-print      defer print to when test suite is complete
+                          (default: off)
 </code></pre>
 
             <h4>Predefined Busted Tasks</h4>
@@ -205,14 +248,19 @@ OPTIONS:
               Busted 1.6 added a concept of "tasks", or predefined busted
               configuration options. You can create a <code>.busted</code> file in the root,
               which is automatically loaded if it exists. Default options are
-              run if no task is specified. You can add any argument available
-              in the CLI (listed above), using the long name. (Use
-              <code>verbose = true</code>, not <code>v = true</code>.) Any arguments you specify will
-              override those set in the task. An example <code>.busted</code> file might 
-              look like:
+              run if no task is specified. The <code>_all</code> key is inherited by all tasks.
+              You can add any argument available in the CLI (listed above), using the long name (use
+              <code>verbose = true</code>, not <code>v = true</code>). Any arguments you specify will
+              override those set in the task. You can also explicitly specify the configuration file
+              to load using the <code>--config-file=FILE</code> option, which will load configuration
+              options from <code>FILE</code> insted of the <code>.busted</code> file. An example
+              <code>.busted</code> file might look like:
             </p>
 
 <pre><code data-language="lua">return {
+  _all = {
+    coverage = true
+  },
   default = {
     verbose = true
   },
@@ -226,9 +274,9 @@ OPTIONS:
             <p>
               This allows you to run <code>busted --run=apiUnit</code>, which
               will run the equivalent of
-              <code>busted --tags=api --verbose spec/unit</code>. If you only
+              <code>busted --coverage --tags=api --verbose spec/unit</code>. If you only
               run <code>busted</code>, it will run the equivalent of
-              <code>busted --verbose</code>.
+              <code>busted --coverage --verbose</code>.
             </p>
           </section>
 
@@ -291,9 +339,9 @@ describe("a nested block #another", function()
   -- more tests pertaining to the top level
 end)
 </code></pre>
-          <pre><code>busted ./test.lua -t="tag"</code></pre>
+          <pre><code>busted -t "tag" ./test.lua</code></pre>
           <p>This runs the first group of tests, but not the second.</p>
-          <pre><code>busted ./test.lua -t="tag,another"</code></pre>
+          <pre><code>busted -t "tag,another" ./test.lua</code></pre>
           <p>This runs both groups.</p>
 
           <p>You can also exclude tests that use tags with
@@ -301,7 +349,7 @@ end)
             for example, if tests using a certain tag take a long time
             to run and you want busted to skip them.  This would run
             all tests except the second group in the example above.</p>
-          <pre><code>busted ./test.lua --exclude-tags="another"</code></pre>
+          <pre><code>busted --exclude-tags="another" ./test.lua</code></pre>
           
           <p>If you use <code>-t, --tags</code> and <code>--exclude-tags</code>
             together then <code>--exclude-tags</code> always takes precedence.</p>
@@ -311,10 +359,10 @@ end)
 end)
 </code></pre>
 
-          <pre><code>busted ./test.lua --tags="one" --exclude-tags="two"</code></pre>
+          <pre><code>busted --tags="one" --exclude-tags="two" ./test.lua</code></pre>
           <p>Both tags refer to the same test but busted will not run it since
             <code>--exclude-tags</code> takes precedence.</p>
-          <pre><code>busted ./test.lua --tags="one" --exclude-tags="one"</code></pre>
+          <pre><code>busted --tags="one" --exclude-tags="one" ./test.lua</code></pre>
           <p>It is ok for different tags to refer to the same tests, but using the
             exact same tag name with <code>--tags</code> and <code>--exclude-tags</code>
             at the same time is an error.</p>
@@ -336,7 +384,8 @@ end)
           <p>
             An <code>it</code> block takes a title and a callback. Tests fail if an
             uncaptured error is thrown (assert functions throw errors for
-            failed tests).
+            failed tests). You can also use <code>spec</code> or <code>test</code>
+            as aliases if you like.
           </p>
 <pre><code data-language="lua">describe("busted", function()
   it("has tests", function()
@@ -615,6 +664,9 @@ end)
     t.greet("Hey!") -- prints 'Hey!'
     assert.spy(t.greet).was_called_with("Hey!")
 
+    t.greet:clear()   -- clears the call history
+    assert.spy(s).was_not_called_with("Hey!")
+
     t.greet:revert()  -- reverts the stub
     t.greet("Hello!") -- prints 'Hello!', will not pass through the spy
     assert.spy(s).was_not_called_with("Hello!")
@@ -675,6 +727,8 @@ end)
 
     m.thing("Coffee")
     assert.stub(m.thing).was.called_with("Coffee")
+    mock.revert(m) -- reverts all stubs/spies in m
+    m.thing("Tea") -- DOES print 'Tea'
   end)
 end)
 
@@ -713,8 +767,10 @@ end)
         <section class="division" id="private">
           <h2>Private</h2>
           <p>
-            Before Busted executes any tests it will define a global <code>describe</code> that
-            can be used to expose private elements only in case of testing.
+            Busted does not define any global variables for testing internal/private helper
+            functions . We believe the correct way to address this is to refactor your code
+            to make it more externally testable. However, if you wish to expose private
+            elements for testing purposes only you can do the following:
           </p>
 <pre><code data-language="lua">-- a new module with private elements to be tested
 local mymodule = {}
@@ -725,7 +781,7 @@ function mymodule:display()
 end
 
 -- export locals for test
-if describe then
+if _TEST then
   -- setup test alias for private elements using a modified name
   mymodule._private_element = private_element
 end
@@ -739,6 +795,14 @@ return mymodule
 
 describe("Going to test a private element", function()
 
+  setup(function()
+    _G._TEST = true
+  end)
+
+  teardown(function()
+    _G._TEST = nil
+  end)
+
   it("tests the length of the table", function()
     assert.is.equal(#mymodule._private_element, 3)
   end)
@@ -747,19 +811,19 @@ end)
 </code></pre>
         </section>
 
-        <section class="division" id="output-types">
-          <h2>Output Types</h2>
+        <section class="division" id="output-handlers">
+          <h2>Output Handlers</h2>
           <p>
-            Busted supports several output types by default, and it's easy to
-            extend busted to include your own output types.
+            Busted supports several output handlers by default, and it's easy to
+            extend busted to include your own output handlers.
           </p>
 
-          <h4 id="output-utf_terminal">UTF and Coloring: Pretty Terminal Output with utf_terminal</h4>
+          <h4 id="output-utfTerminal">UTF and Coloring: Pretty Terminal Output with utfTerminal</h4>
           <p>Uses ansicolors and utf to display a concise but informative output.</p>
 
           <img src="img/run.png" alt="run" />
 
-          <h4 id="output-plain_terminal">Clean output with plain_terminal</h4>
+          <h4 id="output-plainTerminal">Clean output with plainTerminal</h4>
           <p>Uses safe characters and no coloring.</p>
 
           <img src="img/plain.png" alt="plain"/>
@@ -774,40 +838,36 @@ end)
 
           <img src="img/tap.png" alt="tap" />
 
-          <h4>Registering Your Own Output Type</h4>
+          <h4>Registering Your Own Output Handler</h4>
 
           <p>
             If you pass the <code>-o</code> flag a path instead of a name (such as in <code>busted spec -o thing.lua</code>, it will look 
             in that path to load the output file. Check out the 
-            <a href="https://github.com/Olivine-Labs/busted/tree/master/src/output" targt="_blank">existing output files</a>
+            <a href="https://github.com/Olivine-Labs/busted/tree/master/busted/outputHandlers" targt="_blank">existing output files</a>
             for examples. It should have a signature like:
           </p>
 
 <pre><code data-language="lua">
 -- custom_output.lua
 
-local output = function()
-  return {
-    header = function(context_tree)
-      -- return if you want to write something specific at the top of the output
-    end,
+local output = function(options)
+  local busted = require 'busted'
+  local handler = require 'busted.outputHandler.base'()
 
-    footer = function(context_tree)
-      --  return if you want to write something specific at the bottom of the output
-    end
+  handler.testStart = function(element, parent)
+    -- this function is called before a test is started
+    -- you can display a test started message from here
+  end
 
-    formatted_status = function(statuses, options, ms)
-      -- displays at the end of the test. options contains options passed
-      -- into the busted CLI, and ms is the ms spent running the tests.
-      -- statuses is a list of test statuses after being run. You usually
-      -- only return if options.defer_print.
-    end
+  handler.testEnd = function(element, parent, status, trace)
+    -- this function is called after a test has completed
+    -- outupt the pass/fail/error status of the test
+  end
 
-    currently_executing = function(test_status, options)
-      -- Fired off if options.defer_print is not true. You probably want to
-      -- io.write() a status and then io.flush() to write it to output.
-    end
-  }
+  busted.subscribe({'test', 'start'}, handler.testStart)
+  busted.subscribe({'test', 'end'}, handler.testEnd)
+
+  return handler
 end
 
 return output
@@ -850,7 +910,7 @@ describe "async moonscript tests", ->
           <p>
             Busted supports English (en), Arabic (ar), French (fr), Dutch (nl),
             Russian (ru), German (de), Japanese (ja), Chinese (zh), and Ukranian (ua) by default.
-            Check out the <a href="https://github.com/Olivine-Labs/busted/tree/master/src/languages" target="_blank">existing language packs</a>
+            Check out the <a href="https://github.com/Olivine-Labs/busted/tree/master/busted/languages" target="_blank">existing language packs</a>
             and send in a pull request.
           </p>
 
@@ -860,14 +920,14 @@ describe "async moonscript tests", ->
             parameter to choose one of the built-in languages, or a path
             to a lua file to run containing your own language. Don't forget
             to submit languages in pull requests as you make them!
-            Check out the <a href="https://github.com/Olivine-Labs/busted/tree/master/src/languages" target="_blank">existing language packs</a>
+            Check out the <a href="https://github.com/Olivine-Labs/busted/tree/master/busted/languages" target="_blank">existing language packs</a>
             to see a template for what you should replace. Copy any of the
             existing files. It uses the <a href="https://github.com/Olivine-Labs/say">say</a>
             string key/value store for registration.
           </p>
           <p>
-            Examples: <code>busted spec --lang=ar</code> or
-            <code>busted spec --lang=se.lua</code>
+            Examples: <code>busted --lang=ar spec</code> or
+            <code>busted --lang=se.lua spec</code>
           </p>
         </section>
 
@@ -886,7 +946,7 @@ describe "async moonscript tests", ->
             You can help! It's as easy as submitting a <a href="https://github.com/Olivine-Labs/busted/issues">suggestion or issue</a>,
             or <a href="https://github.com/Olivine-Labs/busted">check out the code for yourself</a>
             and submit your changes in a pull request. We could especially use help with
-            translations - check out the src/languages folder in <a href="https://github.com/Olivine-Labs/busted/tree/master/src/languages">busted</a>
+            translations - check out the src/languages folder in <a href="https://github.com/Olivine-Labs/busted/tree/master/busted/languages">busted</a>
             and <a href="https://github.com/Olivine-Labs/luassert/tree/master/src/languages">luassert</a>
             to see if you can help.
           </p>
