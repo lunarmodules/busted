@@ -61,7 +61,7 @@
             <li><a href="#spies-mocks-stubs"><i class="icon-chevron-right"></i>Spies, Stubs & Mocks</a></li>
             <li><a href="#async-tests"><i class="icon-chevron-right"></i>Async Tests</a></li>
             <li><a href="#private"><i class="icon-chevron-right"></i>Private</a></li>
-            <li><a href="#output-types"><i class="icon-chevron-right"></i>Output Types</a></li>
+            <li><a href="#output-handlers"><i class="icon-chevron-right"></i>Output Handlers</a></li>
             <li><a href="#moonscript"><i class="icon-chevron-right"></i>Moonscript</a></li>
             <li><a href="#language-packs"><i class="icon-chevron-right"></i>i18n</a></li>
             <li><a href="#shell-completion"><i class="icon-chevron-right"></i>Shell Completion</a></li>
@@ -811,19 +811,19 @@ end)
 </code></pre>
         </section>
 
-        <section class="division" id="output-types">
-          <h2>Output Types</h2>
+        <section class="division" id="output-handlers">
+          <h2>Output Handlers</h2>
           <p>
-            Busted supports several output types by default, and it's easy to
-            extend busted to include your own output types.
+            Busted supports several output handlers by default, and it's easy to
+            extend busted to include your own output handlers.
           </p>
 
-          <h4 id="output-utf_terminal">UTF and Coloring: Pretty Terminal Output with utf_terminal</h4>
+          <h4 id="output-utfTerminal">UTF and Coloring: Pretty Terminal Output with utfTerminal</h4>
           <p>Uses ansicolors and utf to display a concise but informative output.</p>
 
           <img src="img/run.png" alt="run" />
 
-          <h4 id="output-plain_terminal">Clean output with plain_terminal</h4>
+          <h4 id="output-plainTerminal">Clean output with plainTerminal</h4>
           <p>Uses safe characters and no coloring.</p>
 
           <img src="img/plain.png" alt="plain"/>
@@ -838,40 +838,36 @@ end)
 
           <img src="img/tap.png" alt="tap" />
 
-          <h4>Registering Your Own Output Type</h4>
+          <h4>Registering Your Own Output Handler</h4>
 
           <p>
             If you pass the <code>-o</code> flag a path instead of a name (such as in <code>busted spec -o thing.lua</code>, it will look 
             in that path to load the output file. Check out the 
-            <a href="https://github.com/Olivine-Labs/busted/tree/master/src/output" targt="_blank">existing output files</a>
+            <a href="https://github.com/Olivine-Labs/busted/tree/master/busted/outputHandlers" targt="_blank">existing output files</a>
             for examples. It should have a signature like:
           </p>
 
 <pre><code data-language="lua">
 -- custom_output.lua
 
-local output = function()
-  return {
-    header = function(context_tree)
-      -- return if you want to write something specific at the top of the output
-    end,
+local output = function(options)
+  local busted = require 'busted'
+  local handler = require 'busted.outputHandler.base'()
 
-    footer = function(context_tree)
-      --  return if you want to write something specific at the bottom of the output
-    end
+  handler.testStart = function(element, parent)
+    -- this function is called before a test is started
+    -- you can display a test started message from here
+  end
 
-    formatted_status = function(statuses, options, ms)
-      -- displays at the end of the test. options contains options passed
-      -- into the busted CLI, and ms is the ms spent running the tests.
-      -- statuses is a list of test statuses after being run. You usually
-      -- only return if options.defer_print.
-    end
+  handler.testEnd = function(element, parent, status, trace)
+    -- this function is called after a test has completed
+    -- outupt the pass/fail/error status of the test
+  end
 
-    currently_executing = function(test_status, options)
-      -- Fired off if options.defer_print is not true. You probably want to
-      -- io.write() a status and then io.flush() to write it to output.
-    end
-  }
+  busted.subscribe({'test', 'start'}, handler.testStart)
+  busted.subscribe({'test', 'end'}, handler.testEnd)
+
+  return handler
 end
 
 return output
