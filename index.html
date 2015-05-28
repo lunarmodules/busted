@@ -248,14 +248,19 @@ OPTIONS:
               Busted 1.6 added a concept of "tasks", or predefined busted
               configuration options. You can create a <code>.busted</code> file in the root,
               which is automatically loaded if it exists. Default options are
-              run if no task is specified. You can add any argument available
-              in the CLI (listed above), using the long name. (Use
-              <code>verbose = true</code>, not <code>v = true</code>.) Any arguments you specify will
-              override those set in the task. An example <code>.busted</code> file might 
-              look like:
+              run if no task is specified. The <code>_all</code> key is inherited by all tasks.
+              You can add any argument available in the CLI (listed above), using the long name (use
+              <code>verbose = true</code>, not <code>v = true</code>). Any arguments you specify will
+              override those set in the task. You can also explicitly specify the configuration file
+              to load using the <code>--config-file=FILE</code> option, which will load configuration
+              options from <code>FILE</code> insted of the <code>.busted</code> file. An example
+              <code>.busted</code> file might look like:
             </p>
 
 <pre><code data-language="lua">return {
+  _all = {
+    coverage = true
+  },
   default = {
     verbose = true
   },
@@ -269,9 +274,9 @@ OPTIONS:
             <p>
               This allows you to run <code>busted --run=apiUnit</code>, which
               will run the equivalent of
-              <code>busted --tags=api --verbose spec/unit</code>. If you only
+              <code>busted --coverage --tags=api --verbose spec/unit</code>. If you only
               run <code>busted</code>, it will run the equivalent of
-              <code>busted --verbose</code>.
+              <code>busted --coverage --verbose</code>.
             </p>
           </section>
 
