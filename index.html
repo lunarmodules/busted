@@ -291,9 +291,9 @@ describe("a nested block #another", function()
   -- more tests pertaining to the top level
 end)
 </code></pre>
-          <pre><code>busted ./test.lua -t="tag"</code></pre>
+          <pre><code>busted -t "tag" ./test.lua</code></pre>
           <p>This runs the first group of tests, but not the second.</p>
-          <pre><code>busted ./test.lua -t="tag,another"</code></pre>
+          <pre><code>busted -t "tag,another" ./test.lua</code></pre>
           <p>This runs both groups.</p>
 
           <p>You can also exclude tests that use tags with
@@ -301,7 +301,7 @@ end)
             for example, if tests using a certain tag take a long time
             to run and you want busted to skip them.  This would run
             all tests except the second group in the example above.</p>
-          <pre><code>busted ./test.lua --exclude-tags="another"</code></pre>
+          <pre><code>busted --exclude-tags="another" ./test.lua</code></pre>
           
           <p>If you use <code>-t, --tags</code> and <code>--exclude-tags</code>
             together then <code>--exclude-tags</code> always takes precedence.</p>
@@ -311,10 +311,10 @@ end)
 end)
 </code></pre>
 
-          <pre><code>busted ./test.lua --tags="one" --exclude-tags="two"</code></pre>
+          <pre><code>busted --tags="one" --exclude-tags="two" ./test.lua</code></pre>
           <p>Both tags refer to the same test but busted will not run it since
             <code>--exclude-tags</code> takes precedence.</p>
-          <pre><code>busted ./test.lua --tags="one" --exclude-tags="one"</code></pre>
+          <pre><code>busted --tags="one" --exclude-tags="one" ./test.lua</code></pre>
           <p>It is ok for different tags to refer to the same tests, but using the
             exact same tag name with <code>--tags</code> and <code>--exclude-tags</code>
             at the same time is an error.</p>
