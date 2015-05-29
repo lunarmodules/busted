@@ -372,8 +372,21 @@ end)
             You can cause nested tests and describes to be randomized by calling
             <code>randomize()</code>.
           </p>
-<pre><code data-language="lua">describe("a test #tag", function()
+<pre><code data-language="lua">describe("a ramdomized test", function()
   randomize()
+
+  it("runs a test", function() end)
+  it("runs another test", function() end)
+end)
+</code></pre>
+
+          <p>
+            If randomization has been enabled for all tests with the
+            <code>--shuffle</code> flag, you can turn off randomization for
+            nested tests and describes by calling <code>randomize(false)</code>.
+          </p>
+<pre><code data-language="lua">describe("a non-randomized test", function()
+  randomize(false)
 
   it("runs a test", function() end)
   it("runs another test", function() end)
