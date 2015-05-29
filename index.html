@@ -511,6 +511,16 @@ end)
             runs first in a <code>describe</code> block, and <code>teardown</code>
             runs last in a <code>describe</code> block.
           </p>
+          <p>
+            <code>setup</code> and <code>teardown</code> blocks can be made lazy
+            or strict. <code>lazy_setup</code> and <code>lazy_teardown</code>
+            will only run if there is at least one child test present in the
+            current or any nested <code>describe</code> blocks. Conversely,
+            <code>strict_setup</code> and <code>strict_teardown</code> will
+            always run in a <code>describe</code> block, even if no child tests
+            are present. By default <code>setup</code> and <code>teardown</code>
+            are strict, but can be made lazy with the <code>--lazy</code> flag.
+          </p>
 <pre><code data-language="lua">describe("busted", function()
   local obj1, obj2
   local util
