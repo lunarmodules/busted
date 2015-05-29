@@ -59,6 +59,7 @@
             <li><a href="#defining-tests"><i class="icon-chevron-right"></i>Defining Tests</a></li>
             <li><a href="#asserts"><i class="icon-chevron-right"></i>Asserts</a></li>
             <li><a href="#spies-mocks-stubs"><i class="icon-chevron-right"></i>Spies, Stubs & Mocks</a></li>
+            <li><a href="#matchers"><i class="icon-chevron-right"></i>Matchers</a></li>
             <li><a href="#async-tests"><i class="icon-chevron-right"></i>Async Tests</a></li>
             <li><a href="#private"><i class="icon-chevron-right"></i>Private</a></li>
             <li><a href="#output-handlers"><i class="icon-chevron-right"></i>Output Handlers</a></li>
@@ -294,7 +295,7 @@ OPTIONS:
             </p>
             <p>
               You can also use the <code>pending</code>
-              method to leave a placerholder for a test you plan on writing
+              method to leave a placeholder for a test you plan on writing
               later.
             </p>
             <p>
@@ -305,21 +306,115 @@ OPTIONS:
 
             <h4 id="describe-blocks">Describe: Context blocks</h4>
             <p>
-              Describe takes a title and a callback, and can be nested. You can
-              also use <code>context</code> as an alias if you like.
+              <code>describe</code> takes a title and a callback, and can be
+              nested. You can also use <code>context</code> as an alias if you
+              like.
             </p>
 <pre><code data-language="lua">describe("a test", function()
   -- tests go here
-end)
 
-describe("a nested block", function()
-  describe("can have many describes", function()
-    -- tests
+  describe("a nested block", function()
+    describe("can have many describes", function()
+      -- tests
+    end)
+  end)
+
+  -- more tests pertaining to the top level
+end)
+</code></pre>
+
+            <h4 id="describe-blocks">Describe: Insulate &amp; Expose blocks</h4>
+            <p>
+              <code>insulate</code> and <code>expose</code> blocks are
+              <code>describe</code> aliases that control the level of sandboxing
+              performed by busted for that context block. Like their names
+              suggest, an <code>insulate</code> block insulates the test
+              environment, while an <code>expose</code> block exposes the test
+              environment to outer context blocks. By default each test file runs
+              in a separate <code>insulate</code> block, which can be disabled
+              with the <code>--no-auto-insulate</code> flag.
+            </p>
+
+            <p>
+              Test environment insulation saves the global table <code>_G</code> and any currently loaded packages <code>package.loaded</code>,
+              restoring them to their original state at the completion of the
+              <code>insulate</code> block.
+            </p>
+
+<pre><code data-language="lua">insulate("an insulated test", function()
+  require("mymodule")
+  _G.myglobal = true
+
+  -- tests go here
+
+  describe("a nested block", function()
+    describe("can have many describes", function()
+      -- tests
+    end)
   end)
 
   -- more tests pertaining to the top level
 end)
 
+describe("a test", function()
+  it("tests insulate block does not update environment", function()
+    assert.is_nil(package.loaded.mymodule)  -- mymodule is not loaded
+    assert.is_nil(_G.myglobal)  -- _G.myglobal is not set
+    assert.is_nil(myglobal)
+  end)
+
+  -- tests go here
+end)
+</code></pre>
+
+            <p>
+              Exposing a test environment exports any changes made to
+              <code>_G</code> and <code>package.loaded</code> to subsequent
+              context blocks. In addition, any global variables created inside
+              an <code>expose</code> block are created in the environment
+              of the context block 2 levels out. Using <code>expose</code> at
+              the root of a file will promote any <code>require</code>'s and
+              globals to the root environment, which will spillover into
+              subsequent test files.
+            </p>
+
+<pre><code data-language="lua">-- test1_spec.lua
+expose("an exposed test", function()
+  require("mymodule")
+  _G.myglobal = true
+
+  -- tests can go here
+
+  describe("a nested block", function()
+    describe("can have many describes", function()
+      -- tests
+    end)
+  end)
+
+  -- more tests pertaining to the top level
+end)
+
+describe("a test in same file", function()
+  it("tests expose block updates environment", function()
+    assert.is_truthy(package.loaded.mymodule) -- mymodule is still loaded
+    assert.is_true(_G.myglobal) -- _G.myglobal is still set
+    assert.is_equal(myglobal)
+  end)
+
+  -- tests go here
+end)
+</code></pre>
+
+<pre><code data-language="lua">-- test2_spec.lua
+describe("a test in separate file", function()
+  it("tests expose block updates environment", function()
+    assert.is_truthy(package.loaded.mymodule) -- mymodule is still loaded
+    assert.is_true(_G.myglobal)               -- _G.myglobal is still set
+    assert.is_equal(_G.myglobal, myglobal)
+  end)
+
+  -- tests go here
+end)
 </code></pre>
 
           <h4 id="describe-tags">Describe: Tagging Tests</h4>
@@ -372,8 +467,21 @@ end)
             You can cause nested tests and describes to be randomized by calling
             <code>randomize()</code>.
           </p>
-<pre><code data-language="lua">describe("a test #tag", function()
+<pre><code data-language="lua">describe("a ramdomized test", function()
   randomize()
+
+  it("runs a test", function() end)
+  it("runs another test", function() end)
+end)
+</code></pre>
+
+          <p>
+            If randomization has been enabled for all tests with the
+            <code>--shuffle</code> flag, you can turn off randomization for
+            nested tests and describes by calling <code>randomize(false)</code>.
+          </p>
+<pre><code data-language="lua">describe("a non-randomized test", function()
+  randomize(false)
 
   it("runs a test", function() end)
   it("runs another test", function() end)
@@ -402,6 +510,16 @@ end)
             <code>after_each</code> (you guessed it) runs after. <code>setup</code>
             runs first in a <code>describe</code> block, and <code>teardown</code>
             runs last in a <code>describe</code> block.
+          </p>
+          <p>
+            <code>setup</code> and <code>teardown</code> blocks can be made lazy
+            or strict. <code>lazy_setup</code> and <code>lazy_teardown</code>
+            will only run if there is at least one child test present in the
+            current or any nested <code>describe</code> blocks. Conversely,
+            <code>strict_setup</code> and <code>strict_teardown</code> will
+            always run in a <code>describe</code> block, even if no child tests
+            are present. By default <code>setup</code> and <code>teardown</code>
+            are strict, but can be made lazy with the <code>--lazy</code> flag.
           </p>
 <pre><code data-language="lua">describe("busted", function()
   local obj1, obj2
@@ -469,8 +587,8 @@ end)
         <section class="division" id="asserts">
           <h2>Asserts</h2>
           <p>
-            Asserts are the core of busted- they're what you use to actually
-            write your tests. Asserts in busted work by chaining a mod value
+            Asserts are the core of busted; they're what you use to actually
+            write your tests. Asserts in busted work by chaining a modifier value
             by using <code>is</code> or <code>is_not</code>, followed by the assert you wish to use.
             It's easy to extend busted and add your own asserts by building an
             assert with a commmon signature and <a href="#assert-extend">registering it</a>.
@@ -734,6 +852,121 @@ end)
 
         </section>
 
+        <section class="division" id="matchers">
+          <h2>Matchers</h2>
+          <p>
+            Matchers are used to provide flexible argument matching for
+            <code>called_with</code> and <code>returned_with</code> asserts.
+            Just like with asserts, you can chain a modifier value using
+            <code>is</code> or <code>is_not</code>, followed by the matcher you
+            wish to use. Extending busted with your own matchers is done similar
+            to asserts as well; just build a matcher with a common signature and
+            <a href="#matcher-extend">register it</a>. Furthermore, matchers can
+            be combined using <a href="#matcher-composite">composite matchers</a>.
+          </p>
+
+<pre><code data-language="lua">
+describe("match arguments", function()
+  local match = require("luassert.match")
+
+  it("tests wildcard matcher", function()
+    local s = spy.new(function() end)
+    local _ = match._
+
+    s("foo")
+
+    assert.spy(s).was_called_with(_)        -- matches any argument
+    assert.spy(s).was_not_called_with(_, _) -- does not match two arguments
+  end)
+
+  it("tests type matchers", function()
+    local s = spy.new(function() end)
+
+    s("foo")
+
+    assert.spy(s).was_called_with(match.is_string())
+    assert.spy(s).was_called_with(match.is_truthy())
+    assert.spy(s).was_called_with(match.is_not_nil())
+    assert.spy(s).was_called_with(match.is_not_false())
+    assert.spy(s).was_called_with(match.is_not_number())
+    assert.spy(s).was_called_with(match.is_not_table())
+  end)
+
+  it("tests more matchers", function()
+    local s = spy.new(function() end)
+
+    s(1)
+
+    assert.spy(s).was_called_with(match.is_equal(1))
+    assert.spy(s).was_called_with(match.is_same(1))
+  end)
+end)
+</code></pre>
+
+          <h4 id="matcher-composite">Composite Matchers</h4>
+          <p>
+            Combine matchers using composite matchers.
+          </p>
+
+<pre><code data-language="lua">
+describe("combine matchers", function()
+  local match = require("luassert.match")
+
+  it("tests composite matchers", function()
+    local s = spy.new(function() end)
+
+    s("foo")
+
+    assert.spy(s).was_called_with(match.is_all_of(match.is_not_nil(), match.is_not_number()))
+    assert.spy(s).was_called_with(match.is_any_of(match.is_number(), match.is_string(), match.is_boolean())))
+    assert.spy(s).was_called_with(match.is_none_of(match.is_number(), match.is_table(), match.is_boolean())))
+  end)
+end)
+</code></pre>
+
+          <h4 id="matcher-extend">Extending Your Own Matchers</h4>
+          <p>
+            Add in your own matchers to reuse commonly written code.
+          </p>
+
+<pre><code data-language="lua">
+local function is_even(state, arguments)
+  return function(value)
+    return (value %2) == 0
+  end
+end
+
+local function is_gt(state, arguments)
+  local expected = arguments[1]
+  return function(value)
+    return value > expected
+  end
+end
+
+assert:register("matcher", "even", is_even)
+assert:register("matcher", "gt", is_gt)
+
+describe("custom matchers", function()
+  it("match even", function()
+    local s = spy.new(function() end)
+
+    s(2)
+
+    assert.spy(s).was_called_with(match.is_even())
+  end)
+
+  it("match greater than", function()
+    local s = spy.new(function() end)
+
+    s(10)
+
+    assert.spy(s).was_called_with(match.is_gt(5))
+  end)
+end)
+</code></pre>
+
+        </section>
+
         <section class="division" id="async-tests">
           <h2>Async Tests</h2>
           <p>
@@ -787,7 +1020,7 @@ end
 return mymodule
 </code></pre>
           <p>
-          In the test specs it can be tested;
+          In the test specs it can be tested:
           </p>
 <pre><code data-language="lua">local mymodule = require("mymodule")
 
@@ -845,12 +1078,11 @@ end)
             for examples. It should have a signature like:
           </p>
 
-<pre><code data-language="lua">
--- custom_output.lua
+<pre><code data-language="lua">-- custom_output.lua
 
 local output = function(options)
-  local busted = require 'busted'
-  local handler = require 'busted.outputHandler.base'()
+  local busted = require("busted")
+  local handler = require("busted.outputHandler.base")()
 
   handler.testStart = function(element, parent)
     -- this function is called before a test is started
@@ -906,8 +1138,9 @@ describe "async moonscript tests", ->
         <section class="division" id="language-packs">
           <h2>I18n</h2>
           <p>
-            Busted supports English (en), Arabic (ar), French (fr), Dutch (nl),
-            Russian (ru), German (de), Japanese (ja), Chinese (zh), and Ukranian (ua) by default.
+            Busted supports English (en), Arabic (ar), French (fr), Spanish (es), Dutch (nl),
+            Russian (ru), German (de), Japanese (ja), Chinese (zh), Thai (th), and Ukranian (ua)
+            by default.
             Check out the <a href="https://github.com/Olivine-Labs/busted/tree/master/busted/languages" target="_blank">existing language packs</a>
             and send in a pull request.
           </p>
