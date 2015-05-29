@@ -295,7 +295,7 @@ OPTIONS:
             </p>
             <p>
               You can also use the <code>pending</code>
-              method to leave a placerholder for a test you plan on writing
+              method to leave a placeholder for a test you plan on writing
               later.
             </p>
             <p>
@@ -306,21 +306,115 @@ OPTIONS:
 
             <h4 id="describe-blocks">Describe: Context blocks</h4>
             <p>
-              Describe takes a title and a callback, and can be nested. You can
-              also use <code>context</code> as an alias if you like.
+              <code>describe</code> takes a title and a callback, and can be
+              nested. You can also use <code>context</code> as an alias if you
+              like.
             </p>
 <pre><code data-language="lua">describe("a test", function()
   -- tests go here
-end)
 
-describe("a nested block", function()
-  describe("can have many describes", function()
-    -- tests
+  describe("a nested block", function()
+    describe("can have many describes", function()
+      -- tests
+    end)
+  end)
+
+  -- more tests pertaining to the top level
+end)
+</code></pre>
+
+            <h4 id="describe-blocks">Describe: Insulate &amp; Expose blocks</h4>
+            <p>
+              <code>insulate</code> and <code>expose</code> blocks are
+              <code>describe</code> aliases that control the level of sandboxing
+              performed by busted for that context block. Like their names
+              suggest, an <code>insulate</code> block insulates the test
+              environment, while an <code>expose</code> block exposes the test
+              environment to outer context blocks. By default each test file runs
+              in a separate <code>insulate</code> block, which can be disabled
+              with the <code>--no-auto-insulate</code> flag.
+            </p>
+
+            <p>
+              Test environment insulation saves the global table <code>_G</code> and any currently loaded packages <code>package.loaded</code>,
+              restoring them to their original state at the completion of the
+              <code>insulate</code> block.
+            </p>
+
+<pre><code data-language="lua">insulate("an insulated test", function()
+  require("mymodule")
+  _G.myglobal = true
+
+  -- tests go here
+
+  describe("a nested block", function()
+    describe("can have many describes", function()
+      -- tests
+    end)
   end)
 
   -- more tests pertaining to the top level
 end)
 
+describe("a test", function()
+  it("tests insulate block does not update environment", function()
+    assert.is_nil(package.loaded.mymodule)  -- mymodule is not loaded
+    assert.is_nil(_G.myglobal)  -- _G.myglobal is not set
+    assert.is_nil(myglobal)
+  end)
+
+  -- tests go here
+end)
+</code></pre>
+
+            <p>
+              Exposing a test environment exports any changes made to
+              <code>_G</code> and <code>package.loaded</code> to subsequent
+              context blocks. In addition, any global variables created inside
+              an <code>expose</code> block are created in the environment
+              of the context block 2 levels out. Using <code>expose</code> at
+              the root of a file will promote any <code>require</code>'s and
+              globals to the root environment, which will spillover into
+              subsequent test files.
+            </p>
+
+<pre><code data-language="lua">-- test1_spec.lua
+expose("an exposed test", function()
+  require("mymodule")
+  _G.myglobal = true
+
+  -- tests can go here
+
+  describe("a nested block", function()
+    describe("can have many describes", function()
+      -- tests
+    end)
+  end)
+
+  -- more tests pertaining to the top level
+end)
+
+describe("a test in same file", function()
+  it("tests expose block updates environment", function()
+    assert.is_truthy(package.loaded.mymodule) -- mymodule is still loaded
+    assert.is_true(_G.myglobal) -- _G.myglobal is still set
+    assert.is_equal(myglobal)
+  end)
+
+  -- tests go here
+end)
+</code></pre>
+
+<pre><code data-language="lua">-- test2_spec.lua
+describe("a test in separate file", function()
+  it("tests expose block updates environment", function()
+    assert.is_truthy(package.loaded.mymodule) -- mymodule is still loaded
+    assert.is_true(_G.myglobal)               -- _G.myglobal is still set
+    assert.is_equal(_G.myglobal, myglobal)
+  end)
+
+  -- tests go here
+end)
 </code></pre>
 
           <h4 id="describe-tags">Describe: Tagging Tests</h4>
