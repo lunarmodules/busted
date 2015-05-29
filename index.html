@@ -59,6 +59,7 @@
             <li><a href="#defining-tests"><i class="icon-chevron-right"></i>Defining Tests</a></li>
             <li><a href="#asserts"><i class="icon-chevron-right"></i>Asserts</a></li>
             <li><a href="#spies-mocks-stubs"><i class="icon-chevron-right"></i>Spies, Stubs & Mocks</a></li>
+            <li><a href="#matchers"><i class="icon-chevron-right"></i>Matchers</a></li>
             <li><a href="#async-tests"><i class="icon-chevron-right"></i>Async Tests</a></li>
             <li><a href="#private"><i class="icon-chevron-right"></i>Private</a></li>
             <li><a href="#output-handlers"><i class="icon-chevron-right"></i>Output Handlers</a></li>
@@ -482,8 +483,8 @@ end)
         <section class="division" id="asserts">
           <h2>Asserts</h2>
           <p>
-            Asserts are the core of busted- they're what you use to actually
-            write your tests. Asserts in busted work by chaining a mod value
+            Asserts are the core of busted; they're what you use to actually
+            write your tests. Asserts in busted work by chaining a modifier value
             by using <code>is</code> or <code>is_not</code>, followed by the assert you wish to use.
             It's easy to extend busted and add your own asserts by building an
             assert with a commmon signature and <a href="#assert-extend">registering it</a>.
@@ -747,6 +748,121 @@ end)
 
         </section>
 
+        <section class="division" id="matchers">
+          <h2>Matchers</h2>
+          <p>
+            Matchers are used to provide flexible argument matching for
+            <code>called_with</code> and <code>returned_with</code> asserts.
+            Just like with asserts, you can chain a modifier value using
+            <code>is</code> or <code>is_not</code>, followed by the matcher you
+            wish to use. Extending busted with your own matchers is done similar
+            to asserts as well; just build a matcher with a common signature and
+            <a href="#matcher-extend">register it</a>. Furthermore, matchers can
+            be combined using <a href="#matcher-composite">composite matchers</a>.
+          </p>
+
+<pre><code data-language="lua">
+describe("match arguments", function()
+  local match = require("luassert.match")
+
+  it("tests wildcard matcher", function()
+    local s = spy.new(function() end)
+    local _ = match._
+
+    s("foo")
+
+    assert.spy(s).was_called_with(_)        -- matches any argument
+    assert.spy(s).was_not_called_with(_, _) -- does not match two arguments
+  end)
+
+  it("tests type matchers", function()
+    local s = spy.new(function() end)
+
+    s("foo")
+
+    assert.spy(s).was_called_with(match.is_string())
+    assert.spy(s).was_called_with(match.is_truthy())
+    assert.spy(s).was_called_with(match.is_not_nil())
+    assert.spy(s).was_called_with(match.is_not_false())
+    assert.spy(s).was_called_with(match.is_not_number())
+    assert.spy(s).was_called_with(match.is_not_table())
+  end)
+
+  it("tests more matchers", function()
+    local s = spy.new(function() end)
+
+    s(1)
+
+    assert.spy(s).was_called_with(match.is_equal(1))
+    assert.spy(s).was_called_with(match.is_same(1))
+  end)
+end)
+</code></pre>
+
+          <h4 id="matcher-composite">Composite Matchers</h4>
+          <p>
+            Combine matchers using composite matchers.
+          </p>
+
+<pre><code data-language="lua">
+describe("combine matchers", function()
+  local match = require("luassert.match")
+
+  it("tests composite matchers", function()
+    local s = spy.new(function() end)
+
+    s("foo")
+
+    assert.spy(s).was_called_with(match.is_all_of(match.is_not_nil(), match.is_not_number()))
+    assert.spy(s).was_called_with(match.is_any_of(match.is_number(), match.is_string(), match.is_boolean())))
+    assert.spy(s).was_called_with(match.is_none_of(match.is_number(), match.is_table(), match.is_boolean())))
+  end)
+end)
+</code></pre>
+
+          <h4 id="matcher-extend">Extending Your Own Matchers</h4>
+          <p>
+            Add in your own matchers to reuse commonly written code.
+          </p>
+
+<pre><code data-language="lua">
+local function is_even(state, arguments)
+  return function(value)
+    return (value %2) == 0
+  end
+end
+
+local function is_gt(state, arguments)
+  local expected = arguments[1]
+  return function(value)
+    return value > expected
+  end
+end
+
+assert:register("matcher", "even", is_even)
+assert:register("matcher", "gt", is_gt)
+
+describe("custom matchers", function()
+  it("match even", function()
+    local s = spy.new(function() end)
+
+    s(2)
+
+    assert.spy(s).was_called_with(match.is_even())
+  end)
+
+  it("match greater than", function()
+    local s = spy.new(function() end)
+
+    s(10)
+
+    assert.spy(s).was_called_with(match.is_gt(5))
+  end)
+end)
+</code></pre>
+
+        </section>
+
         <section class="division" id="async-tests">
           <h2>Async Tests</h2>
           <p>
@@ -800,7 +916,7 @@ end
 return mymodule
 </code></pre>
           <p>
-          In the test specs it can be tested;
+          In the test specs it can be tested:
           </p>
 <pre><code data-language="lua">local mymodule = require("mymodule")
 
@@ -858,12 +974,11 @@ end)
             for examples. It should have a signature like:
           </p>
 
-<pre><code data-language="lua">
--- custom_output.lua
+<pre><code data-language="lua">-- custom_output.lua
 
 local output = function(options)
-  local busted = require 'busted'
-  local handler = require 'busted.outputHandler.base'()
+  local busted = require("busted")
+  local handler = require("busted.outputHandler.base")()
 
   handler.testStart = function(element, parent)
     -- this function is called before a test is started
