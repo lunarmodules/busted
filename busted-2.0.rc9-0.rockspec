@@ -24,7 +24,6 @@ dependencies = {
   'dkjson >= 2.1.0',
   'say >= 1.3-0',
   'luassert >= 1.7.7-0',
-  'ansicolors >= 1.0-1',
   'lua-term >= 0.1-1',
   'penlight >= 1.3.2-2',
   'mediator_lua >= 1.1.1-0',
