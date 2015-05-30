@@ -177,6 +177,15 @@ return function()
     return unpack(ret)
   end
 
+  function busted.safe_publish(descriptor, channel, element, ...)
+    local args = {...}
+    local n = select('#', ...)
+    local status = busted.safe(descriptor, function()
+      busted.publish(channel, element, unpack(args, 1, n))
+    end, element)
+    return status:success()
+  end
+
   function busted.exportApi(key, value)
     busted.api[key] = value
   end

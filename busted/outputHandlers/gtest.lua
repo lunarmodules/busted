@@ -169,7 +169,7 @@ return function(options)
     return nil, true
   end
 
-  handler.suiteStart = function(count, total, randomseed)
+  handler.suiteStart = function(suite, count, total, randomseed)
     suiteStartTime = socket.gettime()
     if total > 1 then
       io.write(repeatSuiteString:format(count, total))
@@ -184,7 +184,7 @@ return function(options)
     return nil, true
   end
 
-  handler.suiteEnd = function(count, total)
+  handler.suiteEnd = function(suite, count, total)
     local elapsedTime_ms = (socket.gettime() - suiteStartTime) * 1000
     local tests = (testCount == 1 and 'test' or 'tests')
     local files = (fileCount == 1 and 'file' or 'files')

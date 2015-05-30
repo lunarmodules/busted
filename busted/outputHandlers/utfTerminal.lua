@@ -138,7 +138,7 @@ return function(options)
     return nil, true
   end
 
-  handler.suiteStart = function(count, total)
+  handler.suiteStart = function(suite, count, total)
     local runString = (total > 1 and '\nRepeating all tests (run %d of %d) . . .\n\n' or '')
     io.write(runString:format(count, total))
     io.flush()
@@ -146,7 +146,7 @@ return function(options)
     return nil, true
   end
 
-  handler.suiteEnd = function(count, total)
+  handler.suiteEnd = function(suite, count, total)
     print('')
     print(statusString())
 

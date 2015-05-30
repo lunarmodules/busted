@@ -31,13 +31,15 @@ return function(busted)
       end
 
       local root = busted.context.get()
-      busted.publish({ 'suite', 'start' }, i, runs, busted.randomize and busted.randomseed or nil)
-      if block.setup(root) then
-        busted.execute()
+      local seed = (busted.randomize and busted.randomseed or nil)
+      if busted.safe_publish('suite', { 'suite', 'start' }, root, i, runs, seed) then
+        if block.setup(root) then
+          busted.execute()
+        end
+        block.lazyTeardown(root)
+        block.teardown(root)
       end
-      block.lazyTeardown(root)
-      block.teardown(root)
-      busted.publish({ 'suite', 'end' }, i, runs)
+      busted.safe_publish('suite', { 'suite', 'end' }, root, i, runs)
 
       if busted.skipAll then
         break
