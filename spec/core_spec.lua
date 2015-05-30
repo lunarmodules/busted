@@ -9,7 +9,7 @@ assert(type(before_each) == 'function')
 assert(type(after_each) == 'function')
 assert(type(spy) == 'table')
 assert(type(stub) == 'table')
-assert(type(mock) == 'function')
+assert(type(mock) == 'table')
 assert(type(assert) == 'table')
 
 describe('Before each', function()
