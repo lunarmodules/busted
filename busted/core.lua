@@ -22,9 +22,14 @@ local pendingMt = {
   __type = 'pending'
 }
 
-local function metatype(obj)
-  local otype = type(obj)
-  return otype == 'table' and (debug.getmetatable(obj) or {}).__type or otype
+local function errortype(obj)
+  local mt = debug.getmetatable(obj)
+  if mt == failureMt or mt == failureMtNoString then
+    return 'failure'
+  elseif mt == pendingMt then
+    return 'pending'
+  end
+  return 'error'
 end
 
 local function hasToString(obj)
@@ -162,8 +167,7 @@ return function()
     local status = 'success'
 
     local ret = { xpcall(run, function(msg)
-      local errType = metatype(msg)
-      status = ((errType == 'pending' or errType == 'failure') and errType or 'error')
+      status = errortype(msg)
       trace = busted.getTrace(element, 3, msg)
       message = busted.rewriteMessage(element, msg, trace)
     end) }
