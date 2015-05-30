@@ -12,9 +12,6 @@ before_install:
 install:
   - sudo apt-get update -qq
   - sudo luarocks install luasec
-  - sudo apt-get install -qq libev-dev
-  - sudo luarocks install lua-ev
-  - sudo luarocks install copas
   - sudo luarocks install moonscript
   - sudo luarocks make busted-scm-0.rockspec
 
