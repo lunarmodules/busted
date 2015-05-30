@@ -3,16 +3,18 @@ local function init(busted)
 
   local file = function(file)
     busted.wrap(file.run)
-    busted.publish({ 'file', 'start' }, file)
-    block.execute('file', file)
-    busted.publish({ 'file', 'end' }, file)
+    if busted.safe_publish('file', { 'file', 'start' }, file) then
+      block.execute('file', file)
+    end
+    busted.safe_publish('file', { 'file', 'end' }, file)
   end
 
   local describe = function(describe)
     local parent = busted.context.parent(describe)
-    busted.publish({ 'describe', 'start' }, describe, parent)
-    block.execute('describe', describe)
-    busted.publish({ 'describe', 'end' }, describe, parent)
+    if busted.safe_publish('describe', { 'describe', 'start' }, describe, parent) then
+      block.execute('describe', describe)
+    end
+    busted.safe_publish('describe', { 'describe', 'end' }, describe, parent)
   end
 
   local it = function(element)
@@ -34,13 +36,16 @@ local function init(busted)
 
     if pass then
       local status = busted.status('success')
-      busted.publish({ 'test', 'start' }, element, parent)
-      status:update(busted.safe('it', element.run, element))
-      if finally then
-        block.reject('pending', element)
-        status:update(busted.safe('finally', finally, element))
+      if busted.safe_publish('it', { 'test', 'start' }, element, parent) then
+        status:update(busted.safe('it', element.run, element))
+        if finally then
+          block.reject('pending', element)
+          status:update(busted.safe('finally', finally, element))
+        end
+      else
+        status = busted.status('error')
       end
-      busted.publish({ 'test', 'end' }, element, parent, tostring(status))
+      busted.safe_publish('it', { 'test', 'end' }, element, parent, tostring(status))
     end
 
     block.dexecAll('after_each', ancestor, true)
@@ -48,8 +53,11 @@ local function init(busted)
 
   local pending = function(element)
     local parent = busted.context.parent(element)
-    busted.publish({ 'test', 'start' }, element, parent)
-    busted.publish({ 'test', 'end' }, element, parent, 'pending')
+    local status = 'pending'
+    if not busted.safe_publish('it', { 'test', 'start' }, element, parent) then
+      status = 'error'
+    end
+    busted.safe_publish('it', { 'test', 'end' }, element, parent, status)
   end
 
   busted.register('file', file, { envmode = 'insulate' })

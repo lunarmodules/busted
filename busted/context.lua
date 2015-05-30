@@ -25,7 +25,7 @@ end
 return function()
   local context = {}
 
-  local data = {}
+  local data = { descriptor = 'suite', attributes = {} }
   local parents = {}
   local children = {}
   local stack = {}
@@ -87,7 +87,7 @@ return function()
     end
 
     function ref.clear()
-      data = {}
+      data = { descriptor = 'suite', attributes = {} }
       parents = {}
       children = {}
       stack = {}
@@ -110,7 +110,7 @@ return function()
     end
 
     function ref.push(current)
-      if not parents[current] then error('Detached child. Cannot push.') end
+      if not parents[current] and current ~= data then error('Detached child. Cannot push.') end
       if ctx ~= current then push_state(current) end
       table.insert(stack, ctx)
       ctx = current

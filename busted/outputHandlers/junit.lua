@@ -18,7 +18,7 @@ return function(options)
   local testcase_node
   local testStartTime
 
-  handler.suiteStart = function(count, total)
+  handler.suiteStart = function(suite, count, total)
     local suite = {
       start_time = socket.gettime(),
       xml_doc = xml.new('testsuite', {
@@ -41,7 +41,7 @@ return function(options)
     return string.format("%.2f", (socket.gettime() - start_time))
   end
 
-  handler.suiteEnd = function(count, total)
+  handler.suiteEnd = function(suite, count, total)
     local suite = top
     suite.xml_doc.attr.time = elapsed(suite.start_time)
 
