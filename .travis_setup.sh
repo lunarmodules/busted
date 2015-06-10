@@ -40,5 +40,5 @@ else
   ./configure;
 fi
 
-make && sudo make install
+make build && sudo make install
 cd ..
