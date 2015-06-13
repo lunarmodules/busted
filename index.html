@@ -279,6 +279,36 @@ OPTIONS:
               run <code>busted</code>, it will run the equivalent of
               <code>busted --coverage --verbose</code>.
             </p>
+
+            <h4>Standalone</h4>
+
+            <p>
+              You can also run busted tests standalone without invoking the
+              busted executor. By adding <code>require 'busted.runner'()</code>
+              to the beginning of your test file, it becomes a standalone
+              executable test.
+            </p>
+
+<pre><code data-language="lua">require 'busted.runner'()
+
+describe("a test", function()
+  -- tests to here
+end)
+</code></pre>
+
+          <pre><code>lua test.lua</code></pre>
+          <p>
+            This runs the test as a standalone Lua script. Of course you can
+            still run the test using busted explicitly.
+          </p>
+          <pre><code>busted test.lua</code></pre>
+
+          <p>
+            Additionally, you can still use all of the same busted command-line
+            options when running in standalone mode.
+          </p>
+          <pre><code>lua test.lua -t "tag" --verbose</code></pre>
+
           </section>
 
           <section class="division" id="defining-tests">
