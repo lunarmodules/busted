@@ -5,6 +5,7 @@
 set -e
 
 echo 'rocks_servers = {
+  "http://luarocks.org/manifests/olivine-labs",
   "http://rocks.moonscript.org/",
   "http://luarocks.org/repositories/rocks",
   "http://luarocks.logiceditor.com/rocks",
