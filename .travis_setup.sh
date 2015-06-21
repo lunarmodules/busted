@@ -18,7 +18,7 @@ else
 fi
 
 cd ..
-curl http://luarocks.org/releases/luarocks-2.1.2.tar.gz | tar xz
+curl -L http://luarocks.org/releases/luarocks-2.1.2.tar.gz | tar xz
 cd luarocks-2.1.2
 
 if [ "$LUA" == "LuaJIT 2.0" ]; then
