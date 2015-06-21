@@ -260,6 +260,25 @@ teardown A
 
 end)
 
+it "Nested tests are described correctly" (function()
+  local statuses = busted.run_internal_test(function()
+    describe "Outermost description" (function()
+      describe "Outer description" (function()
+        describe "Inner description" (function()
+          describe "Innermost description" (function()
+            it "Inner assertion" (function()
+              assert(true)
+            end)
+          end)
+        end)
+      end)
+    end)
+  end)
+  
+  local status = statuses[1]
+  assert.is_equal('Outermost description / Outer description / Inner description / Innermost description / Inner assertion', status.description)
+end)
+
 it "Malformated Lua code gets reported correctly" (function()
   local filename = ".malformed_test.lua"
   local f = io.open(filename,"w")

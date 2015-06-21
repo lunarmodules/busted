@@ -569,11 +569,7 @@ end
 
 busted.raw_describe = function(desc, more)
   local context = create_context(desc)
-
-  for _, parent in ipairs(current_context.parents) do
-    context:add_parent(parent)
-  end
-
+  
   context:add_parent(current_context)
 
   local old_context = current_context
