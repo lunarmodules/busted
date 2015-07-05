@@ -80,7 +80,7 @@ return function(options)
     local pendingString = s('output.pending_plural')
     local errorString = s('output.error_plural')
 
-    local ms = handler.getDuration()
+    local sec = handler.getDuration()
     local successes = handler.successesCount
     local pendings = handler.pendingsCount
     local failures = handler.failuresCount
@@ -110,7 +110,7 @@ return function(options)
       errorString = s('output.error_single')
     end
 
-    local formattedTime = ('%.6f'):format(ms):gsub('([0-9])0+$', '%1')
+    local formattedTime = ('%.6f'):format(sec):gsub('([0-9])0+$', '%1')
 
     return colors.green(successes) .. ' ' .. successString .. ' / ' ..
       colors.red(failures) .. ' ' .. failureString .. ' / ' ..
