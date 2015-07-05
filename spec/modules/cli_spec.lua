@@ -5,7 +5,7 @@ describe('Tests command-line interface', function()
     local defaultOutput = 'default_output_handler'
     local lpath = './src/?.lua;./src/?/?.lua;./src/?/init.lua'
     local cpath = path.is_windows and './csrc/?.dll;./csrc/?/?.dll;' or './csrc/?.so;./csrc/?/?.so;'
-    local cli = require 'busted.modules.cli'({ batch = true, defaultOutput = defaultOutput })
+    local cli = require 'busted.modules.cli'({ standalone = false, defaultOutput = defaultOutput })
     local args = cli:parse({})
     assert.is_equal(defaultOutput, args.o)
     assert.is_equal(defaultOutput, args.output)
@@ -59,7 +59,7 @@ describe('Tests command-line interface', function()
   end)
 
   it('standalone options disables ROOT and --pattern', function()
-    local cli = require 'busted.modules.cli'()
+    local cli = require 'busted.modules.cli'({ standalone = true })
     local args = cli:parse({})
     assert.is_nil(args.ROOT)
     assert.is_nil(args.p)
@@ -197,7 +197,7 @@ describe('Tests command-line interface', function()
   end)
 
   it('specify ROOT arg and --pattern', function()
-    local cli = require 'busted.modules.cli'({ batch = true })
+    local cli = require 'busted.modules.cli'({ standalone = false })
     local args = cli:parse({ '-p', 'match_files', 'root_is_here' })
     assert.is_same({'root_is_here'}, args.ROOT)
     assert.is_equal('match_files', args.p)
@@ -205,7 +205,7 @@ describe('Tests command-line interface', function()
   end)
 
   it('specify multiple root paths', function()
-    local cli = require 'busted.modules.cli'({ batch = true })
+    local cli = require 'busted.modules.cli'({ standalone = false })
     local args = cli:parse({'root1_path', 'root2_path', 'root3_path'})
     assert.is_same({'root1_path', 'root2_path', 'root3_path'}, args.ROOT)
   end)
@@ -313,7 +313,7 @@ describe('Tests using .busted tasks', function()
     local defaultOutput = 'default_output_handler'
     local lpath = './src/?.lua;./src/?/?.lua;./src/?/init.lua'
     local cpath = path.is_windows and './csrc/?.dll;./csrc/?/?.dll;' or './csrc/?.so;./csrc/?/?.so;'
-    local cli = require 'busted.modules.cli'({ batch = true, defaultOutput = defaultOutput })
+    local cli = require 'busted.modules.cli'({ standalone = false, defaultOutput = defaultOutput })
     local args = cli:parse({ '--directory=spec/.hidden' })
     assert.is_equal(defaultOutput, args.o)
     assert.is_equal(defaultOutput, args.output)
@@ -370,7 +370,7 @@ describe('Tests using .busted tasks', function()
     local defaultOutput = 'default_output_handler'
     local lpath = './src/?.lua;./src/?/?.lua;./src/?/init.lua'
     local cpath = path.is_windows and './csrc/?.dll;./csrc/?/?.dll;' or './csrc/?.so;./csrc/?/?.so;'
-    local cli = require 'busted.modules.cli'({ batch = true, defaultOutput = defaultOutput })
+    local cli = require 'busted.modules.cli'({ standalone = false, defaultOutput = defaultOutput })
     local args = cli:parse({ '--config-file', 'spec/.hidden/.busted' })
     assert.is_equal(defaultOutput, args.o)
     assert.is_equal(defaultOutput, args.output)
@@ -424,7 +424,7 @@ describe('Tests using .busted tasks', function()
   end)
 
   it('load configuration options', function()
-    local cli = require 'busted.modules.cli'({ batch = true, defaultOutput = defaultOutput })
+    local cli = require 'busted.modules.cli'({ standalone = false, defaultOutput = defaultOutput })
     local args = cli:parse({ '--directory=spec/.hidden', '--run=test' })
     assert.is_equal('_test%.lua$', args.pattern)
     assert.is_same({'tests'}, args.ROOT)
@@ -436,7 +436,7 @@ describe('Tests using .busted tasks', function()
   end)
 
   it('load configuration options and override with command-line', function()
-    local cli = require 'busted.modules.cli'({ batch = true, defaultOutput = defaultOutput })
+    local cli = require 'busted.modules.cli'({ standalone = false, defaultOutput = defaultOutput })
     local args = cli:parse({ '--directory=spec/.hidden', '--run=test', '-t', 'tag1', '-p', 'patt', '--loaders=moonscript' })
     assert.is_equal('patt', args.pattern)
     assert.is_same({'tag1'}, args.tags)

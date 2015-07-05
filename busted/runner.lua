@@ -1,6 +1,7 @@
 -- Busted command-line runner
 
 local path = require 'pl.path'
+local tablex = require 'pl.tablex'
 local term = require 'term'
 local utils = require 'busted.utils'
 local osexit = require 'busted.compatibility'.osexit
@@ -9,7 +10,7 @@ local loaded = false
 return function(options)
   if loaded then return else loaded = true end
 
-  local options = options or {}
+  options = tablex.update(require 'busted.options', options or {})
   options.defaultOutput = term.isatty(io.stdout) and 'utfTerminal' or 'plainTerminal'
 
   local busted = require 'busted.core'()

@@ -108,7 +108,7 @@ return function(options)
   -- Load up the command-line interface options
   cli:add_flag('--version', 'prints the program version and exits', false, processOption)
 
-  if options.batch then
+  if not options.standalone then
     cli:optarg('ROOT', 'test script file/folder. Folders will be traversed for any file that matches the --pattern option.', 'spec', 999, processArgList)
 
     cli:add_option('-p, --pattern=PATTERN', 'only run test files matching the Lua pattern', defaultPattern, processOption)
