@@ -1,15 +1,16 @@
 -- Busted command-line runner
 
 local path = require 'pl.path'
+local tablex = require 'pl.tablex'
 local term = require 'term'
 local utils = require 'busted.utils'
-local osexit = require 'busted.compatibility'.osexit
+local exit = require 'busted.compatibility'.exit
 local loaded = false
 
 return function(options)
   if loaded then return else loaded = true end
 
-  local options = options or {}
+  options = tablex.update(require 'busted.options', options or {})
   options.defaultOutput = term.isatty(io.stdout) and 'utfTerminal' or 'plainTerminal'
 
   local busted = require 'busted.core'()
@@ -34,20 +35,20 @@ return function(options)
   local cliArgs, err = cli:parse(arg)
   if not cliArgs then
     io.stderr:write(err .. '\n')
-    osexit(1, true)
+    exit(1)
   end
 
   if cliArgs.version then
     -- Return early if asked for the version
     print(busted.version)
-    osexit(0, true)
+    exit(0)
   end
 
   -- Load current working directory
   local _, err = path.chdir(path.normpath(cliArgs.directory))
   if err then
     io.stderr:write(appName .. ': error: ' .. err .. '\n')
-    osexit(1, true)
+    exit(1)
   end
 
   -- If coverage arg is passed in, load LuaCovsupport
@@ -180,12 +181,12 @@ return function(options)
 
   busted.publish({ 'exit' })
 
-  local exit = 0
+  local code = 0
   if failures > 0 or errors > 0 then
-    exit = failures + errors
-    if exit > 255 then
-      exit = 255
+    code = failures + errors
+    if code > 255 then
+      code = 255
     end
   end
-  osexit(exit, true)
+  exit(code)
 end

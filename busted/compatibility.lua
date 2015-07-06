@@ -32,8 +32,8 @@ return {
 
   unpack = table.unpack or unpack,
 
-  osexit = function(code, close)
-    if close and _VERSION == 'Lua 5.1' and
+  exit = function(code)
+    if _VERSION == 'Lua 5.1' and
       (type(jit) ~= 'table' or not jit.version or jit.version_num < 20000) then
       -- From Lua 5.1 manual:
       -- > The userdata itself is freed only in the next
@@ -56,6 +56,6 @@ return {
         end
       end
     end
-    os.exit(code, close)
+    os.exit(code, true)
   end,
 }

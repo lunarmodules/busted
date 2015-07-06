@@ -1,3 +1,5 @@
+local socket = require 'socket'
+
 return function()
   local busted = require 'busted'
   local handler = {
@@ -73,7 +75,7 @@ return function()
   end
 
   handler.baseSuiteStart = function()
-    handler.startTime = os.clock()
+    handler.startTime = socket.gettime()
     return nil, true
   end
 
@@ -92,7 +94,7 @@ return function()
   end
 
   handler.baseSuiteEnd = function()
-    handler.endTime = os.clock()
+    handler.endTime = socket.gettime()
     return nil, true
   end
 
