@@ -1,3 +1,5 @@
+local done = require 'busted.done'
+
 local function init(busted)
   local block = require 'busted.block'(busted)
 
@@ -19,7 +21,7 @@ local function init(busted)
 
   local it = function(element)
     local parent = busted.context.parent(element)
-    local finally
+    local finally, async
 
     if not block.lazySetup(parent) then
       -- skip test if any setup failed
@@ -28,24 +30,36 @@ local function init(busted)
 
     if not element.env then element.env = {} end
 
+    local status = busted.status('success')
+
+    local function cleanup()
+      if finally then
+        block.reject('pending', element)
+        status:update(busted.safe('finally', finally, element))
+      end
+      busted.safe_publish('it', { 'test', 'end' }, element, parent, tostring(status))
+    end
+
     block.rejectAll(element)
     element.env.finally = function(fn) finally = fn end
     element.env.pending = function(msg) busted.pending(msg) end
+    element.env.async = function()
+      async = true
+      element.env.done = done.new(cleanup)
+    end
 
     local pass, ancestor = block.execAll('before_each', parent, true)
 
     if pass then
-      local status = busted.status('success')
       if busted.safe_publish('it', { 'test', 'start' }, element, parent) then
         status:update(busted.safe('it', element.run, element))
-        if finally then
-          block.reject('pending', element)
-          status:update(busted.safe('finally', finally, element))
+        if not async then
+          cleanup()
         end
       else
         status = busted.status('error')
+        busted.safe_publish('it', { 'test', 'end' }, element, parent, tostring(status))
       end
-      busted.safe_publish('it', { 'test', 'end' }, element, parent, tostring(status))
     end
 
     block.dexecAll('after_each', ancestor, true)

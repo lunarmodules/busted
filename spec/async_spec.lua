@@ -1,4 +1,4 @@
-pending('testing the done callback with tokens', function()
+describe('testing the done callback with tokens', function()
 
   it('Tests done call back ordered', function()
     async()
@@ -49,7 +49,7 @@ pending('testing the done callback with tokens', function()
   end)
 end)
 
-pending('testing done callbacks being provided for async tests', function()
+describe('testing done callbacks being provided for async tests', function()
   setup(function()
     async()
     assert.is_table(done)
