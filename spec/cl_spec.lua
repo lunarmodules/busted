@@ -18,18 +18,27 @@ local execute = function(cmd)
 end
 
 local executeBusted = function(args)
-  return execute(busted_cmd .. ' ' .. args)
+  local success, exitcode, out, err = execute(busted_cmd .. ' ' .. args)
+  local count = 0
+  for failures, errors in out:gmatch('(%d+) failures? / (%d+) errors?') do
+    count = count + failures + errors
+  end
+  return success, count, out, err
 end
 
 local executeLua = function(args)
-  return execute('lua ' .. args)
+  local success, exitcode, out, err = execute('lua ' .. args)
+  local count = 0
+  for failures, errors in out:gmatch('(%d+) failures? / (%d+) errors?') do
+    count = count + failures + errors
+  end
+  return success, count, out, err
 end
 
 
 describe('Tests the busted command-line options', function()
   it('tests running with --tags specified', function()
-    local success, exitcode
-    success, exitcode = executeBusted('--pattern=_tags.lua$')
+    local success, exitcode = executeBusted('--pattern=_tags.lua$')
     assert.is_false(success)
     assert.is_equal(8, exitcode)
     success, exitcode = executeBusted('--pattern=_tags.lua$ --tags=tag1')
@@ -44,8 +53,7 @@ describe('Tests the busted command-line options', function()
   end)
 
   it('tests running with --exclude-tags specified', function()
-    local success, exitcode
-    success, exitcode = executeBusted('--pattern=_tags.lua$ --exclude-tags=tag1,tag2,dtag1,dtag2')
+    local success, exitcode = executeBusted('--pattern=_tags.lua$ --exclude-tags=tag1,tag2,dtag1,dtag2')
     assert.is_true(success)
     assert.is_equal(0, exitcode)
     success, exitcode = executeBusted('--pattern=_tags.lua$ --exclude-tags=tag2,dtag1,dtag2')
@@ -57,18 +65,14 @@ describe('Tests the busted command-line options', function()
   end)
 
   it('tests running with --tags and --exclude-tags specified', function ()
-    local success, exitcode
-    success, exitcode = executeBusted('--pattern=_tags.lua$ --tags=tag1 --exclude-tags=tag1')
+    local success, exitcode = executeBusted('--pattern=_tags.lua$ --tags=tag1 --exclude-tags=tag1')
     assert.is_false(success)
-    assert.is_equal(1, exitcode)
     success, exitcode = executeBusted('--pattern=_tags.lua$ --tags=tag3 --exclude-tags=tag4')
     assert.is_false(success)
-    assert.is_equal(1, exitcode)
   end)
 
   it('tests running with --tags specified in describe', function ()
-    local success, exitcode
-    success, exitcode = executeBusted('--pattern=_tags.lua$ --tags=dtag1')
+    local success, exitcode = executeBusted('--pattern=_tags.lua$ --tags=dtag1')
     assert.is_false(success)
     assert.is_equal(5, exitcode)
     success, exitcode = executeBusted('--pattern=_tags.lua$ --tags=dtag2')
@@ -77,8 +81,7 @@ describe('Tests the busted command-line options', function()
   end)
 
   it('tests running with --filter specified', function ()
-    local success, exitcode
-    success, exitcode = executeBusted('--pattern=_filter.lua$')
+    local success, exitcode = executeBusted('--pattern=_filter.lua$')
     assert.is_false(success)
     assert.is_equal(8, exitcode)
     success, exitcode = executeBusted('--pattern=_filter.lua$ --filter="pattern1"')
@@ -93,8 +96,7 @@ describe('Tests the busted command-line options', function()
   end)
 
   it('tests running with --filter-out specified', function ()
-    local success, exitcode
-    success, exitcode = executeBusted('--pattern=_filter.lua$ --filter-out="pattern1"')
+    local success, exitcode = executeBusted('--pattern=_filter.lua$ --filter-out="pattern1"')
     assert.is_false(success)
     assert.is_equal(6, exitcode)
     success, exitcode = executeBusted('--pattern=_filter.lua$ --filter-out="pattern%d"')
@@ -108,14 +110,12 @@ describe('Tests the busted command-line options', function()
   end)
 
   it('tests running with --filter and --filter-out specified', function ()
-    local success, exitcode
-    success, exitcode = executeBusted('--pattern=_filter.lua$ --filter="pattern3" --filter-out="patt.*[12]"')
+    local success, exitcode = executeBusted('--pattern=_filter.lua$ --filter="pattern3" --filter-out="patt.*[12]"')
     assert.is_true(success)
   end)
 
   it('tests running with --filter specified in describe', function ()
-    local success, exitcode
-    success, exitcode = executeBusted('--pattern=_filter.lua$ --filter="patt1"')
+    local success, exitcode = executeBusted('--pattern=_filter.lua$ --filter="patt1"')
     assert.is_false(success)
     assert.is_equal(5, exitcode)
     success, exitcode = executeBusted('--pattern=_filter.lua$ --filter="patt2"')
@@ -124,8 +124,7 @@ describe('Tests the busted command-line options', function()
   end)
 
   it('tests running with --lazy specified', function()
-    local success, exitcode
-    success, exitcode = executeBusted('--lazy --pattern=_tags.lua$')
+    local success, exitcode = executeBusted('--lazy --pattern=_tags.lua$')
     assert.is_false(success)
     assert.is_equal(7, exitcode)
     success, exitcode = executeBusted('--lazy --pattern=_tags.lua$ --tags=tag1')
@@ -156,70 +155,59 @@ describe('Tests the busted command-line options', function()
   end)
 
   it('tests running with --lpath specified', function()
-    local success, exitcode
-    success, exitcode = executeBusted('--lpath="spec/?.lua" spec/cl_lua_path.lua')
+    local success, exitcode = executeBusted('--lpath="spec/?.lua" spec/cl_lua_path.lua')
     assert.is_true(success)
     assert.is_equal(0, exitcode)
   end)
 
   it('tests running with --lang specified', function()
-    local success, exitcode
-    success, exitcode = executeBusted('--pattern=cl_success.lua$ --lang=en')
+    local success, exitcode = executeBusted('--pattern=cl_success.lua$ --lang=en')
     assert.is_true(success)
     assert.is_equal(0, exitcode)
     success, exitcode = executeBusted('--pattern=cl_success --lang=not_found_here')
     assert.is_false(success)
-    assert.is_equal(1, exitcode)  -- busted errors out on non-available language
   end)
 
   it('tests running with --version specified', function()
-    local success, exitcode
-    success, exitcode = executeBusted('--version')
+    local success, exitcode = executeBusted('--version')
     assert.is_true(success)
     assert.is_equal(0, exitcode)
   end)
 
   it('tests running with --help specified', function()
-    local success, exitcode
-    success, exitcode = executeBusted('--help')
+    local success, exitcode = executeBusted('--help')
     assert.is_false(success)
-    assert.is_equal(1, exitcode)
   end)
 
   it('tests running a non-compiling testfile', function()
-    local success, exitcode
-    success, exitcode = executeBusted('--pattern=cl_compile_fail.lua$')
+    local success, exitcode = executeBusted('--pattern=cl_compile_fail.lua$')
     assert.is_false(success)
     assert.is_equal(1, exitcode)
   end)
 
   it('tests running a testfile throwing errors when being run', function()
-    local success, exitcode
-    success, exitcode = executeBusted('--pattern=cl_execute_fail.lua$')
+    local success, exitcode = executeBusted('--pattern=cl_execute_fail.lua$')
     assert.is_false(success)
     assert.is_equal(1, exitcode)
   end)
 
   it('tests running with --output specified', function()
-    local success, exitcode
-    success, exitcode = executeBusted('--pattern=cl_success.lua$ --output=TAP')
+    local success, exitcode = executeBusted('--pattern=cl_success.lua$ --output=TAP')
     assert.is_true(success)
     assert.is_equal(0, exitcode)
     success, exitcode = executeBusted('--pattern=cl_two_failures.lua$ --output=not_found_here')
     assert.is_false(success)
-    assert.is_equal(3, exitcode)  -- outputter missing, defaults to default outputter +1 error
+    assert.is_equal(2, exitcode)
   end)
 
   it('tests running with --output specified with module in lua path', function()
-    local success, exitcode
-    success, exitcode = executeBusted('--pattern=cl_success.lua$ --output=busted.outputHandlers.TAP')
+    local success, exitcode = executeBusted('--pattern=cl_success.lua$ --output=busted.outputHandlers.TAP')
     assert.is_true(success)
     assert.is_equal(0, exitcode)
   end)
 
   it('tests no tests to exit with a fail-exitcode', function()
-    local success, exitcode
-    success, exitcode = executeBusted('--pattern=this_filename_does_simply_not_exist$')
+    local success, exitcode = executeBusted('--pattern=this_filename_does_simply_not_exist$')
     assert.is_false(success)
     assert.is_equal(1, exitcode)
   end)
@@ -228,8 +216,7 @@ end)
 
 describe('Tests failing tests through the commandline', function()
   it('tests failing setup/before_each/after_each/teardown functions', function()
-    local success, exitcode
-    success, exitcode = executeBusted('--pattern=cl_failing_support.lua$')
+    local success, exitcode = executeBusted('--pattern=cl_failing_support.lua$')
     assert.is_false(success)
     assert.is_equal(16, exitcode)
   end)
@@ -243,8 +230,7 @@ end)
 
 describe('Test busted running standalone', function()
   it('tests running with --tags specified', function()
-    local success, exitcode
-    success, exitcode = executeLua('spec/cl_standalone.lua')
+    local success, exitcode = executeLua('spec/cl_standalone.lua')
     assert.is_false(success)
     assert.is_equal(3, exitcode)
     success, exitcode = executeLua('spec/cl_standalone.lua --tags=tag1')
@@ -256,8 +242,7 @@ describe('Test busted running standalone', function()
   end)
 
   it('tests running with --exclude-tags specified', function()
-    local success, exitcode
-    success, exitcode = executeLua('spec/cl_standalone.lua --exclude-tags=tag1,tag2')
+    local success, exitcode = executeLua('spec/cl_standalone.lua --exclude-tags=tag1,tag2')
     assert.is_true(success)
     assert.is_equal(0, exitcode)
     success, exitcode = executeLua('spec/cl_standalone.lua --exclude-tags=tag2')
@@ -266,41 +251,33 @@ describe('Test busted running standalone', function()
   end)
 
   it('tests running with --tags and --exclude-tags specified', function ()
-    local success, exitcode
-    success, exitcode = executeLua('spec/cl_standalone.lua --tags=tag1 --exclude-tags=tag1')
+    local success, exitcode = executeLua('spec/cl_standalone.lua --tags=tag1 --exclude-tags=tag1')
     assert.is_false(success)
-    assert.is_equal(1, exitcode)
     success, exitcode = executeLua('spec/cl_standalone.lua --tags=tag3 --exclude-tags=tag4')
     assert.is_true(success)
-    assert.is_equal(0, exitcode)
   end)
 
   it('tests running with --helper specified', function ()
-    local success, exitcode
-    success, exitcode = executeLua('spec/cl_standalone.lua --helper=spec/cl_helper_script.lua -Xhelper "--fail-teardown,--fail-after-each"')
+    local success, exitcode = executeLua('spec/cl_standalone.lua --helper=spec/cl_helper_script.lua -Xhelper "--fail-teardown,--fail-after-each"')
     assert.is_false(success)
     assert.is_equal(9, exitcode)
   end)
 
   it('tests running with --version specified', function()
-    local success, exitcode
-    success, exitcode = executeLua('spec/cl_standalone.lua --version')
+    local success, exitcode = executeLua('spec/cl_standalone.lua --version')
     assert.is_true(success)
     assert.is_equal(0, exitcode)
   end)
 
   it('tests running with --help specified', function()
-    local success, exitcode
-    success, exitcode = executeLua('spec/cl_standalone.lua --help')
+    local success, exitcode = executeLua('spec/cl_standalone.lua --help')
     assert.is_false(success)
-    assert.is_equal(1, exitcode)
   end)
 end)
 
 describe('Test busted command-line runner', function()
   it('runs standalone spec', function()
-    local success, exitcode
-    success, exitcode = executeBusted('spec/cl_standalone.lua')
+    local success, exitcode = executeBusted('spec/cl_standalone.lua')
     assert.is_false(success)
     assert.is_equal(3, exitcode)
     success, exitcode = executeBusted('--tags=tag1 spec/cl_standalone.lua')
@@ -530,7 +507,6 @@ describe('Tests random seed through the commandline', function()
     local success, exitcode
     success, exitcode = executeBusted('--seed=abcd --pattern=cl_random_seed.lua$')
     assert.is_false(success)
-    assert.is_equal(1, exitcode)
   end)
 
   it('test failure outputs random seed value', function()
@@ -559,8 +535,7 @@ end)
 describe('Tests sort commandline option', function()
   for _, opt in ipairs({ '--sort', '--sort-tests' }) do
     it('sorts tests by name, ' .. opt, function()
-      local success, exitcode
-      success, exitcode = executeBusted(opt .. ' --pattern=cl_sort.lua$')
+      local success, exitcode = executeBusted(opt .. ' --pattern=cl_sort.lua$')
       assert.is_true(success)
       assert.is_equal(0, exitcode)
     end)
@@ -569,8 +544,7 @@ end)
 
 describe('Tests repeat commandline option', function()
   it('forces tests to repeat n times', function()
-    local success, exitcode
-    success, exitcode = executeBusted('--repeat=2 --pattern=cl_two_failures.lua$')
+    local success, exitcode = executeBusted('--repeat=2 --pattern=cl_two_failures.lua$')
     assert.is_false(success)
     assert.is_equal(4, exitcode)
   end)
@@ -579,14 +553,12 @@ describe('Tests repeat commandline option', function()
     local success, exitcode
     success, exitcode = executeBusted('--repeat=abc --pattern=cl_success.lua$')
     assert.is_false(success)
-    assert.is_equal(1, exitcode)
   end)
 end)
 
 describe('Tests no-keep-going commandline option', function()
   it('skips all tests after first error', function()
-    local success, exitcode
-    success, exitcode = executeBusted('--no-keep-going --pattern=cl_two_failures.lua$')
+    local success, exitcode = executeBusted('--no-keep-going --pattern=cl_two_failures.lua$')
     assert.is_false(success)
     assert.is_equal(1, exitcode)
   end)
@@ -594,8 +566,7 @@ end)
 
 describe('Tests no-recursive commandline option', function()
   it('does not run any tests in subdirectories', function()
-    local success, exitcode
-    success, exitcode = executeBusted('--no-recursive --pattern=cl_two_failures.lua$ .')
+    local success, exitcode = executeBusted('--no-recursive --pattern=cl_two_failures.lua$ .')
     assert.is_false(success)
     assert.is_equal(1, exitcode)
   end)
@@ -603,8 +574,7 @@ end)
 
 describe('Tests no-auto-insulate commandline option', function()
   it('does not insulate test files', function()
-    local success, exitcode
-    success, exitcode = executeBusted('--no-auto-insulate --pattern=insulate_file.*.lua$')
+    local success, exitcode = executeBusted('--no-auto-insulate --pattern=insulate_file.*.lua$')
     assert.is_false(success)
     assert.is_equal(1, exitcode)
   end)
