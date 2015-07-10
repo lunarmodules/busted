@@ -117,25 +117,24 @@ describe('Tests insulate/expose', function()
   local path = require 'pl.path'
   local utils = require 'pl.utils'
   local busted_cmd = path.is_windows and 'lua bin/busted' or 'bin/busted'
-  local ditch = path.is_windows and ' 1> NUL 2>NUL' or ' > /dev/null 2>&1'
 
-  local execute = function(cmd)
-    local success, exitcode = utils.execute(cmd..ditch)
+  local executeBusted = function(args)
+    local success, exitcode, out, err = utils.executeex(busted_cmd .. ' ' .. args)
     if exitcode > 255 then
       exitcode = math.floor(exitcode/256), exitcode - math.floor(exitcode/256)*256
     end
-    return not not success, exitcode
+    return not not success, exitcode, out, err
   end
 
   describe('file insulation', function()
     it('works between files', function()
-      local success, exitcode = execute(busted_cmd .. ' spec/insulate_file1.lua spec/insulate_file2.lua')
+      local success, exitcode = executeBusted('spec/insulate_file1.lua spec/insulate_file2.lua')
       assert.is_true(success)
       assert.is_equal(0, exitcode)
     end)
 
     it('works between files independent of order', function()
-      local success, exitcode = execute(busted_cmd .. ' spec/insulate_file2.lua spec/insulate_file1.lua')
+      local success, exitcode = executeBusted('spec/insulate_file2.lua spec/insulate_file1.lua')
       assert.is_true(success)
       assert.is_equal(0, exitcode)
     end)
@@ -143,7 +142,7 @@ describe('Tests insulate/expose', function()
 
   describe('expose from file context', function()
     it('works between files', function()
-      local success, exitcode = execute(busted_cmd .. ' spec/expose_file1.lua spec/expose_file2.lua')
+      local success, exitcode = executeBusted('spec/expose_file1.lua spec/expose_file2.lua')
       assert.is_true(success)
       assert.is_equal(0, exitcode)
     end)
