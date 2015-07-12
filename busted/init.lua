@@ -1,3 +1,22 @@
+after_each = false
+before_each = false
+context = false
+describe = false
+expose = false
+file = false
+insulate = false
+it = false
+lazy_setup = false
+lazy_teardown = false
+pending = false
+randomize = false
+setup = false
+spec = false
+strict_setup = false
+strict_teardown = false
+teardown = false
+test = false
+
 local function init(busted)
   local block = require 'busted.block'(busted)
 
