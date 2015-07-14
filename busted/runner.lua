@@ -168,7 +168,7 @@ return function(options)
   testFileLoader(rootFiles, pattern, testFileLoaderOptions)
 
   -- If running standalone, setup test file to be compatible with live coding
-  if not cliArgs.ROOT then
+  if options.standalone then
     local ctx = busted.context.get()
     local children = busted.context.children(ctx)
     local file = children[#children]
@@ -181,12 +181,7 @@ return function(options)
 
   busted.publish({ 'exit' })
 
-  local code = 0
-  if failures > 0 or errors > 0 then
-    code = failures + errors
-    if code > 255 then
-      code = 255
-    end
+  if options.standalone or failures > 0 or errors > 0 then
+    exit(failures + errors)
   end
-  exit(code)
 end

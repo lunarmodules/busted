@@ -33,6 +33,7 @@ return {
   unpack = table.unpack or unpack,
 
   exit = function(code)
+    if code ~= 0 then error() end
     if _VERSION == 'Lua 5.1' and
       (type(jit) ~= 'table' or not jit.version or jit.version_num < 20000) then
       -- From Lua 5.1 manual:
@@ -56,6 +57,6 @@ return {
         end
       end
     end
-    os.exit(code, true)
+    os.exit(0, true)
   end,
 }
