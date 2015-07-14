@@ -17,7 +17,7 @@ return function(busted)
 
   function block.reject(descriptor, element)
     local env = getfenv(element.run)
-    if env[descriptor] then
+    if env ~= _G and env[descriptor] or rawget(_G, descriptor) then
       element.env[descriptor] = function(...)
         error("'" .. descriptor .. "' not supported inside current context block", 2)
       end
