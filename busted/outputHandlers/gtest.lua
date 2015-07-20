@@ -54,6 +54,7 @@ return function(options)
   }
 
   local fileCount = 0
+  local fileTestCount = 0
   local testCount = 0
   local successCount = 0
   local skippedCount = 0
@@ -160,6 +161,7 @@ return function(options)
 
   handler.suiteReset = function()
     fileCount = 0
+    fileTestCount = 0
     testCount = 0
     successCount = 0
     skippedCount = 0
@@ -198,6 +200,7 @@ return function(options)
 
   handler.fileStart = function(file)
     fileStartTime = socket.gettime()
+    fileTestCount = 0
     io.write(fileStartString:format(file.name))
     io.flush()
     return nil, true
@@ -205,9 +208,9 @@ return function(options)
 
   handler.fileEnd = function(file)
     local elapsedTime_ms = (socket.gettime() - fileStartTime) * 1000
-    local tests = (testCount == 1 and 'test' or 'tests')
+    local tests = (fileTestCount == 1 and 'test' or 'tests')
     fileCount = fileCount + 1
-    io.write(fileEndString:format(testCount, tests, file.name, elapsedTime_ms))
+    io.write(fileEndString:format(fileTestCount, tests, file.name, elapsedTime_ms))
     io.flush()
     return nil, true
   end
@@ -224,6 +227,7 @@ return function(options)
     local elapsedTime_ms = (socket.gettime() - testStartTime) * 1000
     local string
 
+    fileTestCount = fileTestCount + 1
     testCount = testCount + 1
     if status == 'success' then
       successCount = successCount + 1
