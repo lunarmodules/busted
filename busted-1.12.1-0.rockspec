@@ -1,8 +1,8 @@
 package = "busted"
-version = "1.11.1-0"
+version = "1.12.1-0"
 source = {
-  url = "https://github.com/Olivine-Labs/busted/archive/v1.11.1.tar.gz",
-  dir = "busted-1.11.1"
+  url = "https://github.com/Olivine-Labs/busted/archive/v1.12.1.tar.gz",
+  dir = "busted-1.12.1"
 }
 description = {
   summary = "Elegant Lua unit testing.",
@@ -54,9 +54,7 @@ build = {
   },
   install = {
     bin = {
-      ["busted"] = "bin/busted",
-      ["busted.bat"] = "bin/busted.bat",
-      ["busted_bootstrap"] = "bin/busted_bootstrap"
+      ["busted"] = "bin/busted"
     }
   }
 }
