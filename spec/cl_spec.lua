@@ -427,6 +427,24 @@ describe('Tests error messages through the command line', function()
     local expected = 'No test files found matching Lua pattern: this_filename_does_simply_not_exist$'
     assert.is_equal(expected, errmsg)
   end)
+
+  it('when __gc metamethod throws error', function()
+    local noGC = xpcall(function()
+      setmetatable({}, { __gc = function() error('gc error') end})
+      collectgarbage()
+      collectgarbage()
+    end, function() end)
+    if noGC then pending('no __gc metamethod support') end
+
+    local success, exitcode, result = executeBusted('--pattern=cl_gc_error.lua$')
+    local err = result:match('Error %-> (.-)\n')
+    local errmsg = result:match('\n([^\n]-%(spec[/\\].-%))\n')
+    local expected = 'error in __gc metamethod (spec/cl_gc_error.lua:5: gc error)'
+    assert.is_false(success)
+    assert.is_equal(1, exitcode)
+    assert.is_truthy(err)
+    assert.is_equal(expected, errmsg)
+  end)
 end)
 
 local has_moon = pcall(require, 'moonscript')
