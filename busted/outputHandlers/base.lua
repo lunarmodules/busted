@@ -55,13 +55,17 @@ return function()
   handler.format = function(element, parent, message, debug, isError)
     local formatted = {
       trace = debug or element.trace,
-      element = element,
+      element = {
+        name = element.name,
+        descriptor = element.descriptor,
+        attributes = element.attributes,
+        trace = element.trace or debug,
+      },
       name = handler.getFullName(element),
       message = message,
       randomseed = parent and parent.randomseed,
       isError = isError
     }
-    formatted.element.trace = element.trace or debug
 
     return formatted
   end
