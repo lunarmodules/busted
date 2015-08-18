@@ -173,6 +173,11 @@ return function()
     end) }
 
     if not ret[1] then
+      if status == 'success' then
+        status = 'error'
+        trace = busted.getTrace(element, 3, ret[2])
+        message = busted.rewriteMessage(element, ret[2], trace)
+      end
       busted.publish({ status, descriptor }, element, busted.context.parent(element), message, trace)
     end
     ret[1] = busted.status(status)
