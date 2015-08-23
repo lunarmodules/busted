@@ -8,7 +8,7 @@ return function(options)
 
   cli:set_name('cl_output_handler')
   cli:add_flag('--time', 'show timestamps')
-  cli:add_option('--time-format=FORMAT', 'format string according to strftime', '!%c')
+  cli:add_option('--time-format=FORMAT', 'format string according to strftime', '!%a %b %d %H:%M:%S %Y')
 
   local cliArgs = cli:parse(args)
 
