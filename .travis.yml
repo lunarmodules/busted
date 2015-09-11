@@ -1,17 +1,23 @@
 language: c
 
+sudo: false
+
 env:
   - LUA="Lua 5.1"
   - LUA="Lua 5.2"
   - LUA="LuaJIT 2.0"
 
+addons:
+  apt:
+    packages:
+      - libev-dev
+			- luarocks
+
 before_install:
   - bash .travis_setup.sh
 
 install:
-  - sudo luarocks make
-  - sudo apt-get update -qq
-  - sudo apt-get install -qq libev-dev
+  - luarocks make
   - sudo luarocks install lua-ev scm --server=http://luarocks.org/repositories/rocks-scm/
   - sudo luarocks install copas
   - sudo luarocks install moonscript
