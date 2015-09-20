@@ -1,6 +1,6 @@
-return function()
-  local tablex = require 'pl.tablex'
+local tablex = require 'pl.tablex'
 
+return function()
   -- Function to load the .busted configuration file if available
   local loadBustedConfigurationFile = function(configFile, config, defaults)
     if type(configFile) ~= 'table' then

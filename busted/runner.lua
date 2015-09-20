@@ -107,65 +107,52 @@ return function(options)
     return nil, true
   end)
 
-  -- Set up output handler to listen to events
-  local outputHandlerOptions = {
-    verbose = cliArgs.verbose,
-    suppressPending = cliArgs['suppress-pending'],
-    language = cliArgs.lang,
-    deferPrint = cliArgs['defer-print'],
-    arguments = cliArgs.Xoutput
-  }
-
-  local outputHandler = outputHandlerLoader(busted, cliArgs.output, outputHandlerOptions, options.defaultOutput)
-  outputHandler:subscribe(outputHandlerOptions)
-
-  if cliArgs['enable-sound'] then
-    require 'busted.outputHandlers.sound'(outputHandlerOptions)
-  end
-
   -- Set up randomization options
   busted.sort = cliArgs['sort-tests']
   busted.randomize = cliArgs['shuffle-tests']
   busted.randomseed = tonumber(cliArgs.seed) or os.time()
 
-  -- Set up tag and test filter options
-  local filterLoaderOptions = {
+  -- Set up output handler to listen to events
+  outputHandlerLoader(busted, cliArgs.output, {
+    defaultOutput = options.defaultOutput,
+    enableSound = cliArgs['enable-sound'],
+    verbose = cliArgs.verbose,
+    suppressPending = cliArgs['suppress-pending'],
+    language = cliArgs.lang,
+    deferPrint = cliArgs['defer-print'],
+    arguments = cliArgs.Xoutput,
+  })
+
+  -- Load tag and test filters
+  filterLoader(busted, {
     tags = cliArgs.tags,
     excludeTags = cliArgs['exclude-tags'],
     filter = cliArgs.filter,
     filterOut = cliArgs['filter-out'],
     list = cliArgs.list,
     nokeepgoing = not cliArgs['keep-going'],
-  }
-
-  -- Load tag and test filters
-  filterLoader(busted, filterLoaderOptions)
+  })
 
   -- Set up helper script
   if cliArgs.helper and cliArgs.helper ~= '' then
-    local helperOptions = {
+    helperLoader(busted, cliArgs.helper, {
       verbose = cliArgs.verbose,
       language = cliArgs.lang,
       arguments = cliArgs.Xhelper
-    }
-
-    helperLoader(busted, cliArgs.helper, helperOptions)
+    })
   end
-
-  -- Set up test loader options
-  local testFileLoaderOptions = {
-    verbose = cliArgs.verbose,
-    sort = cliArgs['sort-files'],
-    shuffle = cliArgs['shuffle-files'],
-    recursive = cliArgs['recursive'],
-    seed = busted.randomseed
-  }
 
   -- Load test directory
   local rootFiles = cliArgs.ROOT or { fileName }
   local pattern = cliArgs.pattern
   local testFileLoader = require 'busted.modules.test_file_loader'(busted, cliArgs.loaders)
-  testFileLoader(rootFiles, pattern, testFileLoaderOptions)
+  testFileLoader(rootFiles, pattern, {
+    verbose = cliArgs.verbose,
+    sort = cliArgs['sort-files'],
+    shuffle = cliArgs['shuffle-files'],
+    recursive = cliArgs['recursive'],
+    seed = busted.randomseed
+  })
 
   -- If running standalone, setup test file to be compatible with live coding
   if options.standalone then
