@@ -2,7 +2,7 @@ local path = require 'pl.path'
 local hasMoon, moonscript = pcall(require, 'moonscript')
 
 return function()
-  local loadOutputHandler = function(busted, output, options, defaultOutput)
+  local loadOutputHandler = function(busted, output, options)
     local handler
 
     local success, err = pcall(function()
@@ -21,10 +21,14 @@ return function()
 
     if not success then
       busted.publish({ 'error', 'output' }, { descriptor = 'output', name = output }, nil, err, {})
-      handler = require('busted.outputHandlers.' .. defaultOutput)
+      handler = require('busted.outputHandlers.' .. options.defaultOutput)
     end
 
-    return handler(options)
+    if options.enableSound then
+      require 'busted.outputHandlers.sound'(options)
+    end
+
+    handler(options):subscribe(options)
   end
 
   return loadOutputHandler
