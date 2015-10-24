@@ -8,10 +8,10 @@ local assert = require 'busted'.assert
 local cli = require 'cliargs'
 
 cli:set_name('cl_helper_script')
-cli:add_flag('--fail-setup', 'force setup to fail')
-cli:add_flag('--fail-teardown', 'force teardown to fail')
-cli:add_flag('--fail-before-each', 'force before each to fail')
-cli:add_flag('--fail-after-each', 'force after each to fail')
+cli:flag('--fail-setup', 'force setup to fail')
+cli:flag('--fail-teardown', 'force teardown to fail')
+cli:flag('--fail-before-each', 'force before each to fail')
+cli:flag('--fail-after-each', 'force after each to fail')
 
 local cliArgs = cli:parse(arg)
 
