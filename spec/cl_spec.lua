@@ -212,6 +212,12 @@ describe('Tests the busted command-line options', function()
     assert.is_equal(1, exitcode)
   end)
 
+  it('can switch interpreters', function()
+    local success, exitcode, out = executeBusted('--lua=spec/lua.lua spec/cl_success.lua')
+    assert.is_true(success)
+    assert.is_equal(0, exitcode)
+    assert.equal('bin/busted --ignore-lua --lua=spec/lua.lua spec/cl_success.lua\n', out)
+  end)
 end)
 
 describe('Tests failing tests through the commandline', function()
