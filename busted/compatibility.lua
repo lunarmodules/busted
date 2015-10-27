@@ -63,4 +63,6 @@ return {
     end
     os.exit(code, true)
   end,
+
+  execute = require 'pl.utils'.execute,
 }

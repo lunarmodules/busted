@@ -1,6 +1,8 @@
 local utils = require 'busted.utils'
 local path = require 'pl.path'
 local tablex = require 'pl.tablex'
+local exit = require 'busted.compatibility'.exit
+local execute = require 'busted.compatibility'.execute
 
 return function(options)
   local appName = ''
@@ -129,6 +131,7 @@ return function(options)
   cli:add_option('--lang=LANG', 'language for error messages', 'en', processOption)
   cli:add_option('--loaders=NAME', 'test file loaders', defaultLoaders, processLoaders)
   cli:add_option('--helper=PATH', 'A helper script that is run before tests', nil, processOption)
+  cli:add_option('--lua=LUA', 'The path to the lua interpreter busted should run under', nil, processOption)
 
   cli:add_option('-Xoutput OPTION', 'pass `OPTION` as an option to the output handler. If `OPTION` contains commas, it is split into multiple options at the commas.', {}, processList)
   cli:add_option('-Xhelper OPTION', 'pass `OPTION` as an option to the helper script. If `OPTION` contains commas, it is split into multiple options at the commas.', {}, processList)
@@ -137,6 +140,7 @@ return function(options)
   cli:add_flag('-v, --[no-]verbose', 'verbose output of errors', false, processOption)
   cli:add_flag('-s, --[no-]enable-sound', 'executes `say` command if available', false, processOption)
   cli:add_flag('-l, --list', 'list the names of all tests instead of running them', false, processOption)
+  cli:add_flag('--ignore-lua', 'Whether or not to ignore the lua directive', false, processOption)
   cli:add_flag('--[no-]lazy', 'use lazy setup/teardown as the default', false, processOption)
   cli:add_flag('--[no-]auto-insulate', 'enable file insulation', true, processOption)
   cli:add_flag('-k, --[no-]keep-going', 'continue as much as possible after an error or failure', true, processOption)
@@ -170,6 +174,15 @@ return function(options)
       end
     else
       cliArgs = tablex.merge(cliArgs, cliArgsParsed, true)
+    end
+
+    -- Switch lua, we should rebuild this feature once luarocks changes how it
+    -- handles executeable lua files.
+    if cliArgs['lua'] and not cliArgs['ignore-lua'] then
+      local _, code = execute(
+        cliArgs['lua']..' '..args[0]..' --ignore-lua '..table.concat(args, ' ')
+      )
+      exit(code)
     end
 
     -- Fixup options in case options from config file are not of the right form
