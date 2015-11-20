@@ -1,6 +1,8 @@
 Busted
 ======
 
+[![Join the chat at https://gitter.im/Olivine-Labs/busted](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Olivine-Labs/busted?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 [![travis-ci status](https://secure.travis-ci.org/Olivine-Labs/busted.png)](http://travis-ci.org/#!/Olivine-Labs/busted/builds)
 
 busted is a unit testing framework with a focus on being **easy to
