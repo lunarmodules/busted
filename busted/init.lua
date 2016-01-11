@@ -89,11 +89,13 @@ local function init(busted)
   local spy    = require 'luassert.spy'
   local mock   = require 'luassert.mock'
   local stub   = require 'luassert.stub'
+  local match  = require 'luassert.match'
 
   busted.export('assert', assert)
   busted.export('spy', spy)
   busted.export('mock', mock)
   busted.export('stub', stub)
+  busted.export('match', match)
 
   busted.exportApi('publish', busted.publish)
   busted.exportApi('subscribe', busted.subscribe)

@@ -50,11 +50,12 @@ describe('tests require "busted"', function()
     assert.is_equal(after_each, require 'busted'.after_each)
   end)
 
-  it('exports assert and mocks', function()
+  it('exports assert, mocks, and matchers', function()
     assert.is_equal(assert, require 'busted'.assert)
     assert.is_equal(spy, require 'busted'.spy)
     assert.is_equal(mock, require 'busted'.mock)
     assert.is_equal(stub, require 'busted'.stub)
+    assert.is_equal(match, require 'busted'.match)
   end)
 
   it('exports publish/subscribe', function()
