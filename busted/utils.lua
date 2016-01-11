@@ -1,5 +1,3 @@
-local path = require 'pl.path'
-
 math.randomseed(os.time())
 
 return {
