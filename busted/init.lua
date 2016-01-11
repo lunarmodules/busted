@@ -30,7 +30,7 @@ local function init(busted)
 
     block.rejectAll(element)
     element.env.finally = function(fn) finally = fn end
-    element.env.pending = function(msg) busted.pending(msg) end
+    element.env.pending = busted.pending
 
     local pass, ancestor = block.execAll('before_each', parent, true)
 
@@ -84,6 +84,8 @@ local function init(busted)
   busted.register('context', 'describe')
   busted.register('spec', 'it')
   busted.register('test', 'it')
+
+  busted.hide('file')
 
   local assert = require 'luassert'
   local spy    = require 'luassert.spy'
