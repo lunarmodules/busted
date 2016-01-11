@@ -204,6 +204,11 @@ return function()
     environment.set(key, value)
   end
 
+  function busted.hide(key, value)
+    busted.api[key] = nil
+    environment.set(key, nil)
+  end
+
   function busted.register(descriptor, executor, attributes)
     local alias = nil
     if type(executor) == 'string' then
@@ -244,9 +249,7 @@ return function()
 
     local edescriptor = alias or descriptor
     busted.executors[edescriptor] = publisher
-    if descriptor ~= 'file' then
-      busted.export(edescriptor, publisher)
-    end
+    busted.export(edescriptor, publisher)
 
     busted.subscribe({ 'register', descriptor }, function(name, fn, trace, attributes)
       local ctx = busted.context.get()
