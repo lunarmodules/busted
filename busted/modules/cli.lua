@@ -7,7 +7,7 @@ local execute = require 'busted.compatibility'.execute
 return function(options)
   local appName = ''
   local options = options or {}
-  local cli = require 'cliargs'
+  local cli = require 'cliargs.core'()
 
   local configLoader = require 'busted.modules.configuration_loader'()
 
@@ -108,57 +108,57 @@ return function(options)
   end
 
   -- Load up the command-line interface options
-  cli:add_flag('--version', 'prints the program version and exits', false, processOption)
+  cli:flag('--version', 'prints the program version and exits', false, processOption)
 
   if not options.standalone then
-    cli:optarg('ROOT', 'test script file/folder. Folders will be traversed for any file that matches the --pattern option.', 'spec', 999, processArgList)
+    cli:splat('ROOT', 'test script file/folder. Folders will be traversed for any file that matches the --pattern option.', 'spec', 999, processArgList)
 
-    cli:add_option('-p, --pattern=PATTERN', 'only run test files matching the Lua pattern', defaultPattern, processOption)
+    cli:option('-p, --pattern=PATTERN', 'only run test files matching the Lua pattern', defaultPattern, processOption)
   end
 
-  cli:add_option('-o, --output=LIBRARY', 'output library to load', defaultOutput, processOption)
-  cli:add_option('-C, --directory=DIR', 'change to directory DIR before running tests. If multiple options are specified, each is interpreted relative to the previous one.', './', processDir)
-  cli:add_option('-f, --config-file=FILE', 'load configuration options from FILE', nil, processOptions)
-  cli:add_option('-t, --tags=TAGS', 'only run tests with these #tags', {}, processList)
-  cli:add_option('--exclude-tags=TAGS', 'do not run tests with these #tags, takes precedence over --tags', {}, processList)
-  cli:add_option('--filter=PATTERN', 'only run test names matching the Lua pattern', {}, processMultiOption)
-  cli:add_option('--filter-out=PATTERN', 'do not run test names matching the Lua pattern, takes precedence over --filter', {}, processMultiOption)
-  cli:add_option('-m, --lpath=PATH', 'optional path to be prefixed to the Lua module search path', lpathprefix, processPath)
-  cli:add_option('--cpath=PATH', 'optional path to be prefixed to the Lua C module search path', cpathprefix, processPath)
-  cli:add_option('-r, --run=RUN', 'config to run from .busted file', nil, processOption)
-  cli:add_option('--repeat=COUNT', 'run the tests repeatedly', '1', processNumber)
-  cli:add_option('--seed=SEED', 'random seed value to use for shuffling test order', defaultSeed, processNumber)
-  cli:add_option('--lang=LANG', 'language for error messages', 'en', processOption)
-  cli:add_option('--loaders=NAME', 'test file loaders', defaultLoaders, processLoaders)
-  cli:add_option('--helper=PATH', 'A helper script that is run before tests', nil, processOption)
-  cli:add_option('--lua=LUA', 'The path to the lua interpreter busted should run under', nil, processOption)
+  cli:option('-o, --output=LIBRARY', 'output library to load', defaultOutput, processOption)
+  cli:option('-C, --directory=DIR', 'change to directory DIR before running tests. If multiple options are specified, each is interpreted relative to the previous one.', './', processDir)
+  cli:option('-f, --config-file=FILE', 'load configuration options from FILE', nil, processOptions)
+  cli:option('-t, --tags=TAGS', 'only run tests with these #tags', {}, processList)
+  cli:option('--exclude-tags=TAGS', 'do not run tests with these #tags, takes precedence over --tags', {}, processList)
+  cli:option('--filter=PATTERN', 'only run test names matching the Lua pattern', {}, processMultiOption)
+  cli:option('--filter-out=PATTERN', 'do not run test names matching the Lua pattern, takes precedence over --filter', {}, processMultiOption)
+  cli:option('-m, --lpath=PATH', 'optional path to be prefixed to the Lua module search path', lpathprefix, processPath)
+  cli:option('--cpath=PATH', 'optional path to be prefixed to the Lua C module search path', cpathprefix, processPath)
+  cli:option('-r, --run=RUN', 'config to run from .busted file', nil, processOption)
+  cli:option('--repeat=COUNT', 'run the tests repeatedly', '1', processNumber)
+  cli:option('--seed=SEED', 'random seed value to use for shuffling test order', defaultSeed, processNumber)
+  cli:option('--lang=LANG', 'language for error messages', 'en', processOption)
+  cli:option('--loaders=NAME', 'test file loaders', defaultLoaders, processLoaders)
+  cli:option('--helper=PATH', 'A helper script that is run before tests', nil, processOption)
+  cli:option('--lua=LUA', 'The path to the lua interpreter busted should run under', nil, processOption)
 
-  cli:add_option('-Xoutput OPTION', 'pass `OPTION` as an option to the output handler. If `OPTION` contains commas, it is split into multiple options at the commas.', {}, processList)
-  cli:add_option('-Xhelper OPTION', 'pass `OPTION` as an option to the helper script. If `OPTION` contains commas, it is split into multiple options at the commas.', {}, processList)
+  cli:option('-Xoutput OPTION', 'pass `OPTION` as an option to the output handler. If `OPTION` contains commas, it is split into multiple options at the commas.', {}, processList)
+  cli:option('-Xhelper OPTION', 'pass `OPTION` as an option to the helper script. If `OPTION` contains commas, it is split into multiple options at the commas.', {}, processList)
 
-  cli:add_flag('-c, --[no-]coverage', 'do code coverage analysis (requires `LuaCov` to be installed)', false, processOption)
-  cli:add_flag('-v, --[no-]verbose', 'verbose output of errors', false, processOption)
-  cli:add_flag('-s, --[no-]enable-sound', 'executes `say` command if available', false, processOption)
-  cli:add_flag('-l, --list', 'list the names of all tests instead of running them', false, processOption)
-  cli:add_flag('--ignore-lua', 'Whether or not to ignore the lua directive', false, processOption)
-  cli:add_flag('--[no-]lazy', 'use lazy setup/teardown as the default', false, processOption)
-  cli:add_flag('--[no-]auto-insulate', 'enable file insulation', true, processOption)
-  cli:add_flag('-k, --[no-]keep-going', 'continue as much as possible after an error or failure', true, processOption)
-  cli:add_flag('-R, --[no-]recursive', 'recurse into subdirectories', true, processOption)
-  cli:add_flag('--[no-]shuffle', 'randomize file and test order, takes precedence over --sort (--shuffle-test and --shuffle-files)', processShuffle)
-  cli:add_flag('--[no-]shuffle-files', 'randomize file execution order, takes precedence over --sort-files', processOption)
-  cli:add_flag('--[no-]shuffle-tests', 'randomize test order within a file, takes precedence over --sort-tests', processOption)
-  cli:add_flag('--[no-]sort', 'sort file and test order (--sort-tests and --sort-files)', processSort)
-  cli:add_flag('--[no-]sort-files', 'sort file execution order', processOption)
-  cli:add_flag('--[no-]sort-tests', 'sort test order within a file', processOption)
-  cli:add_flag('--[no-]suppress-pending', 'suppress `pending` test output', false, processOption)
-  cli:add_flag('--[no-]defer-print', 'defer print to when test suite is complete', false, processOption)
+  cli:flag('-c, --[no-]coverage', 'do code coverage analysis (requires `LuaCov` to be installed)', false, processOption)
+  cli:flag('-v, --[no-]verbose', 'verbose output of errors', false, processOption)
+  cli:flag('-s, --[no-]enable-sound', 'executes `say` command if available', false, processOption)
+  cli:flag('-l, --list', 'list the names of all tests instead of running them', false, processOption)
+  cli:flag('--ignore-lua', 'Whether or not to ignore the lua directive', false, processOption)
+  cli:flag('--[no-]lazy', 'use lazy setup/teardown as the default', false, processOption)
+  cli:flag('--[no-]auto-insulate', 'enable file insulation', true, processOption)
+  cli:flag('-k, --[no-]keep-going', 'continue as much as possible after an error or failure', true, processOption)
+  cli:flag('-R, --[no-]recursive', 'recurse into subdirectories', true, processOption)
+  cli:flag('--[no-]shuffle', 'randomize file and test order, takes precedence over --sort (--shuffle-test and --shuffle-files)', processShuffle)
+  cli:flag('--[no-]shuffle-files', 'randomize file execution order, takes precedence over --sort-files', processOption)
+  cli:flag('--[no-]shuffle-tests', 'randomize test order within a file, takes precedence over --sort-tests', processOption)
+  cli:flag('--[no-]sort', 'sort file and test order (--sort-tests and --sort-files)', processSort)
+  cli:flag('--[no-]sort-files', 'sort file execution order', processOption)
+  cli:flag('--[no-]sort-tests', 'sort test order within a file', processOption)
+  cli:flag('--[no-]suppress-pending', 'suppress `pending` test output', false, processOption)
+  cli:flag('--[no-]defer-print', 'defer print to when test suite is complete', false, processOption)
 
   local function parse(args)
     -- Parse the cli arguments
-    local cliArgs, cliErr = cli:parse(args, true)
+    local cliArgs, cliErr = cli:parse(args)
     if not cliArgs then
-      return nil, cliErr
+      return nil, appName .. ': error: ' .. cliErr .. '; re-run with --help for usage.'
     end
 
     -- Load busted config file if available
@@ -214,6 +214,11 @@ return function(options)
     set_name = function(self, name)
       appName = name
       return cli:set_name(name)
+    end,
+
+    set_silent = function(self, name)
+      appName = name
+      return cli:set_silent(name)
     end,
 
     parse = function(self, args)
