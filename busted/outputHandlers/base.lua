@@ -53,19 +53,25 @@ return function()
   end
 
   handler.format = function(element, parent, message, debug, isError)
+    local function copyElement(e)
+      local copy = {}
+      for k,v in next, e do
+        if type(v) ~= 'function' and k ~= 'env' then
+          copy[k] = v
+        end
+      end
+      return copy
+    end
+
     local formatted = {
       trace = debug or element.trace,
-      element = {
-        name = element.name,
-        descriptor = element.descriptor,
-        attributes = element.attributes,
-        trace = element.trace or debug,
-      },
+      element = copyElement(element),
       name = handler.getFullName(element),
       message = message,
       randomseed = parent and parent.randomseed,
       isError = isError
     }
+    formatted.element.trace = element.trace or debug
 
     return formatted
   end
