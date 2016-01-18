@@ -1,2 +1,6 @@
 *.swp
 /luacov.report.out
+*.o
+*.obj
+*.dll
+*.so

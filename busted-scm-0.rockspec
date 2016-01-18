@@ -27,10 +27,33 @@ dependencies = {
   'lua-term >= 0.1-1',
   'penlight >= 1.3.2-2',
   'mediator_lua >= 1.1.1-0',
-  'luasocket >= 2.0.1'
 }
+
+local function make_platform(plat)
+  local defines = {
+    unix = { },
+    macosx = { },
+    win32 = { },
+    mingw32 = { "WINVER=0x0501" },
+  }
+  return {
+    modules = {
+      ['busted.ccore'] = {
+        sources = { 'csrc/ccore.c', 'csrc/compat.c', 'csrc/time.c', },
+        defines = defines[plat],
+      },
+    },
+  }
+end
+
 build = {
   type = 'builtin',
+  platforms = {
+    unix = make_platform('unix'),
+    macosx = make_platform('macosx'),
+    win32 = make_platform('win32'),
+    mingw32 = make_platform('mingw32'),
+  },
   modules = {
     ['busted.core']                           = 'busted/core.lua',
     ['busted.context']                        = 'busted/context.lua',
