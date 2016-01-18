@@ -105,7 +105,9 @@ local function init(busted)
 
   busted.exportApi('bindfenv', busted.bindfenv)
   busted.exportApi('fail', busted.fail)
+  busted.exportApi('gettime', busted.gettime)
   busted.exportApi('parent', busted.context.parent)
+  busted.exportApi('sleep', busted.sleep)
   busted.exportApi('version', busted.version)
 
   busted.bindfenv(assert, 'error', busted.fail)
