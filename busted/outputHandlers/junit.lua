@@ -15,16 +15,14 @@ return function(options)
   }
   local stack = {}
   local testcase_node
-  local testStartTime
-  local output_file_name
   if 'table' == type(options.arguments) then
     --the first argument should be the name of the xml file.
     output_file_name = options.arguments[1]
   end
 
   handler.suiteStart = function(suite, count, total)
-    local suite = {
-      start_time = busted.gettime(),
+    local suite_xml = {
+      start_time = suite.starttime,
       xml_doc = xml.new('testsuite', {
         name = 'Run ' .. count .. ' of ' .. total,
         tests = 0,
@@ -34,26 +32,30 @@ return function(options)
         timestamp = os.date('!%Y-%m-%dT%H:%M:%S'),
       })
     }
-    top.xml_doc:add_direct_child(suite.xml_doc)
+    top.xml_doc:add_direct_child(suite_xml.xml_doc)
     table.insert(stack, top)
-    top = suite
+    top = suite_xml
 
     return nil, true
   end
 
+  local function formatDuration(duration)
+    return string.format("%.2f", duration)
+  end
+
   local function elapsed(start_time)
-    return string.format("%.2f", (busted.gettime() - start_time))
+    return formatDuration(busted.gettime() - start_time)
   end
 
   handler.suiteEnd = function(suite, count, total)
-    local suite = top
-    suite.xml_doc.attr.time = elapsed(suite.start_time)
+    local suite_xml = top
+    suite_xml.xml_doc.attr.time = formatDuration(suite.duration)
 
     top = table.remove(stack)
-    top.xml_doc.attr.tests = top.xml_doc.attr.tests + suite.xml_doc.attr.tests
-    top.xml_doc.attr.errors = top.xml_doc.attr.errors + suite.xml_doc.attr.errors
-    top.xml_doc.attr.failures = top.xml_doc.attr.failures + suite.xml_doc.attr.failures
-    top.xml_doc.attr.skip = top.xml_doc.attr.skip + suite.xml_doc.attr.skip
+    top.xml_doc.attr.tests = top.xml_doc.attr.tests + suite_xml.xml_doc.attr.tests
+    top.xml_doc.attr.errors = top.xml_doc.attr.errors + suite_xml.xml_doc.attr.errors
+    top.xml_doc.attr.failures = top.xml_doc.attr.failures + suite_xml.xml_doc.attr.failures
+    top.xml_doc.attr.skip = top.xml_doc.attr.skip + suite_xml.xml_doc.attr.skip
 
     return nil, true
   end
@@ -88,7 +90,6 @@ return function(options)
   end
 
   handler.testStart = function(element, parent)
-    testStartTime = busted.gettime()
     testcase_node = xml.new('testcase', {
       classname = element.trace.short_src .. ':' .. element.trace.currentline,
       name = handler.getFullName(element),
@@ -100,8 +101,7 @@ return function(options)
 
   handler.testEnd = function(element, parent, status)
     top.xml_doc.attr.tests = top.xml_doc.attr.tests + 1
-    testcase_node.time = elapsed(testStartTime)
-    testStartTime = nil
+    testcase_node.time = formatDuration(element.duration)
 
     if status == 'success' then
       testStatus(element, parent, nil, 'success')

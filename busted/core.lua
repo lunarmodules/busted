@@ -192,6 +192,12 @@ return function()
   function busted.safe_publish(descriptor, channel, element, ...)
     local args = {...}
     local n = select('#', ...)
+    if channel[2] == 'start' then
+      element.starttime = busted.gettime()
+    elseif channel[2] == 'end' then
+      element.endtime = busted.gettime()
+      element.duration = element.starttime and (element.endtime - element.starttime)
+    end
     local status = busted.safe(descriptor, function()
       busted.publish(channel, element, unpack(args, 1, n))
     end, element)
@@ -261,7 +267,10 @@ return function()
         attributes = attributes or {},
         name = name,
         run = fn,
-        trace = trace
+        trace = trace,
+        starttime = nil,
+        endtime = nil,
+        duration = nil,
       }
 
       busted.context.attach(plugin)
