@@ -27,7 +27,7 @@ return function(options)
         errors = 0,
         failures = 0,
         skip = 0,
-        timestamp = os.date('!%Y-%m-%dT%T'),
+        timestamp = os.date('!%Y-%m-%dT%H:%M:%S'),
       })
     }
     top.xml_doc:add_direct_child(suite.xml_doc)
