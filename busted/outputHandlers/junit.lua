@@ -1,12 +1,11 @@
 local xml = require 'pl.xml'
-local socket = require("socket")
 local string = require("string")
 
 return function(options)
   local busted = require 'busted'
   local handler = require 'busted.outputHandlers.base'()
   local top = {
-    start_time = socket.gettime(),
+    start_time = busted.gettime(),
     xml_doc = xml.new('testsuites', {
       tests = 0,
       errors = 0,
@@ -20,7 +19,7 @@ return function(options)
 
   handler.suiteStart = function(suite, count, total)
     local suite = {
-      start_time = socket.gettime(),
+      start_time = busted.gettime(),
       xml_doc = xml.new('testsuite', {
         name = 'Run ' .. count .. ' of ' .. total,
         tests = 0,
@@ -38,7 +37,7 @@ return function(options)
   end
 
   local function elapsed(start_time)
-    return string.format("%.2f", (socket.gettime() - start_time))
+    return string.format("%.2f", (busted.gettime() - start_time))
   end
 
   handler.suiteEnd = function(suite, count, total)
@@ -74,7 +73,7 @@ return function(options)
   end
 
   handler.testStart = function(element, parent)
-    testStartTime = socket.gettime()
+    testStartTime = busted.gettime()
     testcase_node = xml.new('testcase', {
       classname = element.trace.short_src .. ':' .. element.trace.currentline,
       name = handler.getFullName(element),

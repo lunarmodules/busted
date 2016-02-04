@@ -43,7 +43,7 @@ end
 return function()
   local mediator = require 'mediator'()
 
-  local busted = {}
+  local busted = require 'busted.ccore'
   busted.version = '2.0.rc11-0'
 
   local root = require 'busted.context'()
