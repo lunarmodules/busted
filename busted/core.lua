@@ -3,6 +3,7 @@ local setfenv = require 'busted.compatibility'.setfenv
 local unpack = require 'busted.compatibility'.unpack
 local path = require 'pl.path'
 local pretty = require 'pl.pretty'
+local system = require 'system'
 local throw = error
 
 local failureMt = {
@@ -56,6 +57,8 @@ return function()
   local executors = {}
   local eattributes = {}
 
+  busted.gettime = system.gettime
+  busted.sleep = system.sleep
   busted.status = require 'busted.status'
 
   function busted.getTrace(element, level, msg)
