@@ -68,7 +68,7 @@ end
 
 local ret = {}
 
-local getTrace =  function(filename, info)
+local getTrace = function(filename, info)
   local index = info.traceback:find('\n%s*%[C]')
   info.traceback = info.traceback:sub(1, index)
 
@@ -95,7 +95,6 @@ end
 ret.match = function(busted, filename)
   return ok and path.extension(filename) == '.moon'
 end
-
 
 ret.load = function(busted, filename)
   local file, err = moonscript.loadfile(filename)

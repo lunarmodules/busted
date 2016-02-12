@@ -62,6 +62,11 @@ return function()
   busted.status = require 'busted.status'
 
   function busted.getTrace(element, level, msg)
+    local function trimTrace(info)
+      local index = info.traceback:find('\n%s*%[C]')
+      info.traceback = info.traceback:sub(1, index)
+      return info
+    end
     level = level or  3
 
     local thisdir = path.dirname(debug.getinfo(1, 'Sl').source)
@@ -76,14 +81,14 @@ return function()
     info.message = msg
 
     local file = busted.getFile(element)
-    return file.getTrace(file.name, info)
+    return file and file.getTrace(file.name, info) or trimTrace(info)
   end
 
   function busted.rewriteMessage(element, message, trace)
     local file = busted.getFile(element)
     local msg = hasToString(message) and tostring(message)
     msg = msg or (message ~= nil and pretty.write(message) or 'Nil error')
-    msg = (file.rewriteMessage and file.rewriteMessage(file.name, msg) or msg)
+    msg = (file and file.rewriteMessage and file.rewriteMessage(file.name, msg) or msg)
 
     local hasFileLine = msg:match('^[^\n]-:%d+: .*')
     if not hasFileLine then
@@ -180,8 +185,19 @@ return function()
         status = 'error'
         trace = busted.getTrace(element, 3, ret[2])
         message = busted.rewriteMessage(element, ret[2], trace)
+      elseif status == 'failure' and descriptor ~= 'it' then
+        -- Only 'it' blocks can generate test failures. Failures in all
+        -- other blocks are errors outside the test.
+        status = 'error'
       end
-      busted.publish({ status, descriptor }, element, busted.context.parent(element), message, trace)
+      -- Note: descriptor may be different from element.descriptor when
+      -- safe_publish is used (i.e. for test start/end). The safe_publish
+      -- descriptor needs to be different for 'it' blocks so that we can
+      -- detect that a 'failure' in a test start/end handler is not really
+      -- a test failure, but rather an error outside the test, much like a
+      -- failure in a support function (i.e. before_each/after_each or
+      -- setup/teardown).
+      busted.publish({ status, element.descriptor }, element, busted.context.parent(element), message, trace)
     end
     ret[1] = busted.status(status)
 
