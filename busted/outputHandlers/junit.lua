@@ -16,6 +16,11 @@ return function(options)
   local stack = {}
   local testcase_node
   local testStartTime
+  local output_file_name
+  if 'table' == type(options.arguments) then
+    --the first argument should be the name of the xml file.
+    output_file_name = options.arguments[1]
+  end
 
   handler.suiteStart = function(suite, count, total)
     local suite = {
@@ -55,8 +60,18 @@ return function(options)
 
   handler.exit = function()
     top.xml_doc.attr.time = elapsed(top.start_time)
-    print(xml.tostring(top.xml_doc, '', '\t', nil, false))
-
+    local output_string = xml.tostring(top.xml_doc, '', '\t', nil, false)
+    local file
+    if 'string' == type(output_file_name) then
+      file = io.open(output_file_name, 'w+b' )
+    end
+    if file then
+      file:write(output_string)
+      file:write('\n')
+      file:close()
+    else
+      print(output_string)
+    end
     return nil, true
   end
 
