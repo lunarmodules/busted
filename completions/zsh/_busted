@@ -55,6 +55,7 @@ _busted_args=(
 "--exclude-tags=[Do not run tests with these #tags, takes precedence over --tags]: :"
 "--filter=[Only run test names matching the Lua pattern]: :"
 "--filter-out=[Do not run test names matching the Lua pattern, takes precedence over --filter]: :"
+"-e[Execute Lua statement]: :"
 "(-v --verbose --no-verbose)"{-v,--verbose}"[Verbose output of errors]"
 "(-v --verbose --no-verbose)--no-verbose[Disable verbose output of errors]"
 "*:files:_files"
