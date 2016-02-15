@@ -10,8 +10,9 @@ local loaded = false
 return function(options)
   if loaded then return else loaded = true end
 
+  local isatty = io.type(io.stdout) == 'file' and term.isatty(io.stdout)
   options = tablex.update(require 'busted.options', options or {})
-  options.defaultOutput = term.isatty(io.stdout) and 'utfTerminal' or 'plainTerminal'
+  options.defaultOutput = isatty and 'utfTerminal' or 'plainTerminal'
 
   local busted = require 'busted.core'()
 

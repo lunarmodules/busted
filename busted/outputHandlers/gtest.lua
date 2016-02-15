@@ -4,7 +4,7 @@ local term = require 'term'
 
 local colors
 
-local isatty = term.isatty(io.stdout) 
+local isatty = io.type(io.stdout) == 'file' and term.isatty(io.stdout)
 local isWindows = package.config:sub(1,1) == '\\'
 
 if isWindows and not os.getenv("ANSICON") or not isatty then
