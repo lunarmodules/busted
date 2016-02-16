@@ -82,8 +82,8 @@ return function()
     return handler.endTime - handler.startTime
   end
 
-  handler.baseSuiteStart = function()
-    handler.startTime = busted.gettime()
+  handler.baseSuiteStart = function(suite)
+    handler.startTime = suite.starttime
     return nil, true
   end
 
@@ -101,8 +101,8 @@ return function()
     return nil, true
   end
 
-  handler.baseSuiteEnd = function()
-    handler.endTime = busted.gettime()
+  handler.baseSuiteEnd = function(suite)
+    handler.endTime = suite.endtime
     return nil, true
   end
 
