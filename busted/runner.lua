@@ -5,13 +5,15 @@ local tablex = require 'pl.tablex'
 local term = require 'term'
 local utils = require 'busted.utils'
 local exit = require 'busted.compatibility'.exit
+local loadstring = require 'busted.compatibility'.loadstring
 local loaded = false
 
 return function(options)
   if loaded then return else loaded = true end
 
+  local isatty = io.type(io.stdout) == 'file' and term.isatty(io.stdout)
   options = tablex.update(require 'busted.options', options or {})
-  options.defaultOutput = term.isatty(io.stdout) and 'utfTerminal' or 'plainTerminal'
+  options.defaultOutput = isatty and 'utfTerminal' or 'plainTerminal'
 
   local busted = require 'busted.core'()
 
@@ -74,6 +76,13 @@ return function(options)
 
   if #cliArgs.cpath > 0 then
     package.cpath = (cliArgs.cpath .. ';' .. package.cpath):gsub(';;',';')
+  end
+
+  -- Load and execute commands given on the command-line
+  if cliArgs.e then
+    for k,v in ipairs(cliArgs.e) do
+      loadstring(v)()
+    end
   end
 
   -- watch for test errors and failures

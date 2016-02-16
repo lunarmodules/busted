@@ -22,7 +22,7 @@ return function(busted, loaders)
       fileList = getfiles(rootFile)
 
       fileList = tablex.filter(fileList, function(filename)
-        return path.basename(filename):find(pattern)
+        return path.basename(filename):find(pattern or '')
       end)
 
       fileList = tablex.filter(fileList, function(filename)

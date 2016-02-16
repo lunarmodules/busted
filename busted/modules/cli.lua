@@ -116,6 +116,7 @@ return function(options)
     cli:option('-p, --pattern=PATTERN', 'only run test files matching the Lua pattern', defaultPattern, processOption)
   end
 
+  cli:option('-e STATEMENT', 'execute statement STATEMENT', nil, processMultiOption)
   cli:option('-o, --output=LIBRARY', 'output library to load', defaultOutput, processOption)
   cli:option('-C, --directory=DIR', 'change to directory DIR before running tests. If multiple options are specified, each is interpreted relative to the previous one.', './', processDir)
   cli:option('-f, --config-file=FILE', 'load configuration options from FILE', nil, processOptions)

@@ -111,8 +111,16 @@ _busted() {
       _filedir
       return 0
       ;;
+    --lua)
+      _filedir
+      return 0
+      ;;
     --helper)
       _filedir
+      return 0
+      ;;
+    -e)
+      # no completion available
       return 0
       ;;
     -p|--pattern)
@@ -158,6 +166,9 @@ _busted() {
       -t --tags= --exclude-tags=
       -m --lpath= --cpath=
       -r --run=
+      -e
+      --lua=
+      --ignore-lua
       --filter= --filter-out=
       --repeat=
       --seed=

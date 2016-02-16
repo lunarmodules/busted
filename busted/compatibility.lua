@@ -30,6 +30,7 @@ return {
     if f ~= 0 then return f end
   end,
 
+  loadstring = loadstring or load,
   unpack = table.unpack or unpack,
 
   exit = function(code)
