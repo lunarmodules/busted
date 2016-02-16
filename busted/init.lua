@@ -36,7 +36,7 @@ local function init(busted)
 
     if pass then
       local status = busted.status('success')
-      if busted.safe_publish('it', { 'test', 'start' }, element, parent) then
+      if busted.safe_publish('test', { 'test', 'start' }, element, parent) then
         status:update(busted.safe('it', element.run, element))
         if finally then
           block.reject('pending', element)
@@ -45,7 +45,7 @@ local function init(busted)
       else
         status = busted.status('error')
       end
-      busted.safe_publish('it', { 'test', 'end' }, element, parent, tostring(status))
+      busted.safe_publish('test', { 'test', 'end' }, element, parent, tostring(status))
     end
 
     block.dexecAll('after_each', ancestor, true)

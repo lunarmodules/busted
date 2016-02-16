@@ -3,7 +3,7 @@ local path = require 'pl.path'
 local ret = {}
 local ok, terralib = pcall(function() return require 'terralib' end)
 
-local getTrace =  function(filename, info)
+local getTrace = function(filename, info)
   local index = info.traceback:find('\n%s*%[C]')
   info.traceback = info.traceback:sub(1, index)
   return info

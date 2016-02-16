@@ -3,7 +3,7 @@ return function(busted)
   local block = require 'busted.block'(busted)
 
   local function execute(runs, options)
-    busted.subscribe({'suite', 'reset'}, function()
+    local function suite_reset()
       local oldctx = busted.context.get()
       local children = busted.context.children(oldctx)
 
@@ -21,17 +21,18 @@ return function(busted)
       end
 
       busted.randomseed = tonumber(options.seed) or os.time()
-
-      return nil, true
-    end)
+    end
 
     for i = 1, runs do
-      if i > 1 then
-        busted.publish({ 'suite', 'reset' })
-      end
-
       local root = busted.context.get()
       local seed = (busted.randomize and busted.randomseed or nil)
+
+      if i > 1 then
+        suite_reset()
+        root = busted.context.get()
+        busted.safe_publish('suite', { 'suite', 'reset' }, root, i, runs)
+      end
+
       if busted.safe_publish('suite', { 'suite', 'start' }, root, i, runs, seed) then
         if block.setup(root) then
           busted.execute()

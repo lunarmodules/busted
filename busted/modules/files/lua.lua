@@ -2,16 +2,15 @@ local path = require 'pl.path'
 
 local ret = {}
 
-local getTrace =  function(filename, info)
+local getTrace = function(filename, info)
   local index = info.traceback:find('\n%s*%[C]')
   info.traceback = info.traceback:sub(1, index)
-  return info, false
+  return info
 end
 
 ret.match = function(busted, filename)
   return path.extension(filename) == '.lua'
 end
-
 
 ret.load = function(busted, filename)
   local file, err = loadfile(filename)
