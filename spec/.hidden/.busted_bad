@@ -1,0 +1,14 @@
+return {
+  _all = {
+    ['ROOT'] = {'tests'},
+  },
+  default = {
+    ['ROOT'] = {'specs'},
+    ['pattern'] = '_spec%.lua$',
+    ['loaders'] = doesnotexist.loaders,
+    ['verbose'] = true,
+  },
+  test = {
+    ['pattern'] = '_test%.lua$',
+  }
+}

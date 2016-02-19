@@ -4,7 +4,7 @@ return function()
   -- Function to load the .busted configuration file if available
   local loadBustedConfigurationFile = function(configFile, config, defaults)
     if type(configFile) ~= 'table' then
-      return config, '.busted file does not return a table.'
+      return nil, '.busted file does not return a table.'
     end
 
     local defaults = defaults or {}
@@ -16,7 +16,7 @@ return function()
       if type(runConfig) == 'table' then
         config = tablex.merge(runConfig, config, true)
       else
-        return config, 'Task `' .. run .. '` not found, or not a table.'
+        return nil, 'Task `' .. run .. '` not found, or not a table.'
       end
     elseif type(configFile.default) == 'table' then
       config = tablex.merge(configFile.default, config, true)
@@ -33,4 +33,3 @@ return function()
 
   return loadBustedConfigurationFile
 end
-
