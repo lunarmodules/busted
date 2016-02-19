@@ -73,12 +73,14 @@ describe('Config Loader', function()
 
   it('returns an error with an invalid config', function()
     local config, err = configLoader('invalid', cliArgs)
-    assert.are_not.equal(nil, err)
+    assert.is_nil(config)
+    assert.are.equal('.busted file does not return a table.', err)
   end)
 
   it('returns an error with an invalid run', function()
     cliArgs.run = 'invalid'
     local config, err = configLoader(testConfig, cliArgs)
-    assert.are_not.equal(nil, err)
+    assert.is_nil(config)
+    assert.are.equal('Task `invalid` not found, or not a table.', err)
   end)
 end)
