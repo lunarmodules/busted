@@ -462,7 +462,7 @@ describe('Tests using .busted tasks', function()
     assert.is_nil(args)
     assert.has_match('^app: error: spec/.hidden/.busted_bad:8: ', err)
     assert.has_match("'doesnotexist'", err)
-    assert.has_match("\(a nil value\)", err)
+    assert.has_match("a nil value", err)
   end)
 
   it('detects invalid configuration file', function()
