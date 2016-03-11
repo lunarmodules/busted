@@ -1,19 +1,23 @@
 language: c
 
 env:
-  - LUA='Lua 5.1'
-  - LUA='Lua 5.2'
-  - LUA='Lua 5.3'
-  - LUA='LuaJIT 2.0'
+  global:
+    - LUAROCKS=2.3.0
+  matrix:
+    - LUA=lua5.1
+    - LUA=lua5.2
+    - LUA=lua5.3
+    - LUA=luajit
+    - LUA=luajit2.0
+    - LUA=luajit2.1
 
 before_install:
-  - bash .travis_setup.sh
+  - source .travis/setenv_lua.sh
+  - luarocks install luasec
+  - luarocks install moonscript
 
 install:
-  - sudo apt-get update -qq
-  - sudo luarocks install luasec
-  - sudo luarocks install moonscript
-  - sudo luarocks make busted-scm-0.rockspec
+  - luarocks make busted-scm-0.rockspec
 
 script: busted
 
