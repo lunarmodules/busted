@@ -37,7 +37,12 @@ _busted() {
       toks=( ${toks[@]-} $(compgen -f -X "!*.lua" -- ${cur} ) )
       toks=( ${toks[@]-} $(compgen -f -X "!*.moon" -- ${cur} ) )
       toks=( ${toks[@]-} $(compgen -d -- ${cur} ) )
-      _compopt_o_filenames
+
+      if declare -fF _compopt_o_filenames > /dev/null; then
+        _compopt_o_filenames
+      else
+        compopt -o filenames
+      fi
 
       COMPREPLY=( "${COMPREPLY[@]}" "${toks[@]}" )
       return 0
