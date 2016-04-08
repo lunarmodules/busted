@@ -119,7 +119,7 @@ return function(options)
   -- Set up randomization options
   busted.sort = cliArgs['sort-tests']
   busted.randomize = cliArgs['shuffle-tests']
-  busted.randomseed = tonumber(cliArgs.seed) or os.time()
+  busted.randomseed = tonumber(cliArgs.seed) or utils.urandom() or os.time()
 
   -- Set up output handler to listen to events
   outputHandlerLoader(busted, cliArgs.output, {
@@ -157,8 +157,6 @@ return function(options)
   local testFileLoader = require 'busted.modules.test_file_loader'(busted, cliArgs.loaders)
   testFileLoader(rootFiles, pattern, {
     verbose = cliArgs.verbose,
-    sort = cliArgs['sort-files'],
-    shuffle = cliArgs['shuffle-files'],
     recursive = cliArgs['recursive'],
     seed = busted.randomseed
   })
@@ -173,7 +171,11 @@ return function(options)
 
   local runs = cliArgs['repeat']
   local execute = require 'busted.execute'(busted)
-  execute(runs, { seed = cliArgs.seed })
+  execute(runs, {
+    seed = cliArgs.seed,
+    shuffle = cliArgs['shuffle-files'],
+    sort = cliArgs['sort-files'],
+  })
 
   busted.publish({ 'exit' })
 

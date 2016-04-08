@@ -15,7 +15,7 @@ return function(options)
   local defaultOutput = options.defaultOutput
   local defaultLoaders = 'lua,moonscript'
   local defaultPattern = '_spec'
-  local defaultSeed = 'os.time()'
+  local defaultSeed = '/dev/urandom or os.time()'
   local lpathprefix = './src/?.lua;./src/?/?.lua;./src/?/init.lua'
   local cpathprefix = path.is_windows and './csrc/?.dll;./csrc/?/?.dll;' or './csrc/?.so;./csrc/?/?.so;'
 
