@@ -213,10 +213,11 @@ describe('Tests the busted command-line options', function()
   end)
 
   it('can switch interpreters', function()
-    local success, errcnt, out = executeBusted('--lua=spec/lua.lua spec/cl_success.lua')
+    local lua_exe = normpath(path.is_windows and 'spec/lua.bat' or 'spec/lua.lua')
+    local success, errcnt, out = executeBusted('--lua=' .. lua_exe .. ' spec/cl_success.lua')
     assert.is_true(success)
     assert.is_equal(0, errcnt)
-    assert.equal('bin/busted --ignore-lua --lua=spec/lua.lua spec/cl_success.lua\n', out)
+    assert.equal('bin/busted --ignore-lua --lua=' .. lua_exe .. ' spec/cl_success.lua\n', out)
   end)
 end)
 
