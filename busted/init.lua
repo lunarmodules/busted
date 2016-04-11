@@ -107,6 +107,7 @@ local function init(busted)
   busted.exportApi('fail', busted.fail)
   busted.exportApi('gettime', busted.gettime)
   busted.exportApi('parent', busted.context.parent)
+  busted.exportApi('children', busted.context.children)
   busted.exportApi('sleep', busted.sleep)
   busted.exportApi('version', busted.version)
 
