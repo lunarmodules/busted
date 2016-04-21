@@ -21,6 +21,10 @@ return function(options)
 
   local cliArgsParsed = {}
 
+  local function makeList(values)
+    return type(values) == 'table' and values or { values }
+  end
+
   local function fixupList(values, sep)
     local sep = sep or ','
     local list = type(values) == 'table' and values or { values }
@@ -113,7 +117,7 @@ return function(options)
   if not options.standalone then
     cli:splat('ROOT', 'test script file/folder. Folders will be traversed for any file that matches the --pattern option.', 'spec', 999, processArgList)
 
-    cli:option('-p, --pattern=PATTERN', 'only run test files matching the Lua pattern', defaultPattern, processOption)
+    cli:option('-p, --pattern=PATTERN', 'only run test files matching the Lua pattern', defaultPattern, processMultiOption)
   end
 
   cli:option('-e STATEMENT', 'execute statement STATEMENT', nil, processMultiOption)
@@ -187,6 +191,13 @@ return function(options)
       )
       exit(code)
     end
+
+    -- Ensure multi-options are in a list
+    cliArgs.e = makeList(cliArgs.e)
+    cliArgs.pattern = makeList(cliArgs.pattern)
+    cliArgs.p = cliArgs.pattern
+    cliArgs.filter = makeList(cliArgs.filter)
+    cliArgs['filter-out'] = makeList(cliArgs['filter-out'])
 
     -- Fixup options in case options from config file are not of the right form
     cliArgs.tags = fixupList(cliArgs.tags)
