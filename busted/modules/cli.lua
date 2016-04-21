@@ -118,6 +118,7 @@ return function(options)
     cli:splat('ROOT', 'test script file/folder. Folders will be traversed for any file that matches the --pattern option.', 'spec', 999, processArgList)
 
     cli:option('-p, --pattern=PATTERN', 'only run test files matching the Lua pattern', defaultPattern, processMultiOption)
+    cli:option('--exclude-pattern=PATTERN', 'do not run test files matching the Lua pattern, takes precedence over --pattern', nil, processMultiOption)
   end
 
   cli:option('-e STATEMENT', 'execute statement STATEMENT', nil, processMultiOption)
@@ -196,6 +197,7 @@ return function(options)
     cliArgs.e = makeList(cliArgs.e)
     cliArgs.pattern = makeList(cliArgs.pattern)
     cliArgs.p = cliArgs.pattern
+    cliArgs['exclude-pattern'] = makeList(cliArgs['exclude-pattern'])
     cliArgs.filter = makeList(cliArgs.filter)
     cliArgs['filter-out'] = makeList(cliArgs['filter-out'])
 

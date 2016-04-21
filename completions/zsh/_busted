@@ -49,6 +49,7 @@ _busted_args=(
 "(-m --lpath)"{-m,--lpath=}"[Optional path to be prefixed to the Lua module search path (default: ./src/?.lua;./src/?/?.lua;./src/?/init.lua)]:directory:_dirs"
 "(-o --output)"{-o,--output=}"[Output library to load (default: utfTerminal)]:output handlers:->output"
 "(-p --pattern)"{-p,--pattern=}"[Only run test files matching the Lua pattern (default: _spec)]: :"
+"--exclude-pattern=[Do not run test files matching the Lua pattern, takes precedence over --pattern]: :"
 "(-r --run)"{-r,--run=}"[Config to run from .busted file]:run configurations:->run"
 "(-s --enable-sound)"{-s,--enable-sound}"[Executes 'say' command if available]"
 "(-t --tags)"{-t,--tags=}"[Only run tests with these #tags]: :"

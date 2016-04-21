@@ -156,6 +156,7 @@ return function(options)
   local patterns = cliArgs.pattern
   local testFileLoader = require 'busted.modules.test_file_loader'(busted, cliArgs.loaders)
   testFileLoader(rootFiles, patterns, {
+    excludes = cliArgs['exclude-pattern'],
     verbose = cliArgs.verbose,
     recursive = cliArgs['recursive'],
   })
