@@ -39,8 +39,6 @@ return function(busted)
     end
 
     for i = 1, runs do
-      local seed = (busted.randomize and busted.randomseed or nil)
-
       if i > 1 then
         suite_reset()
         root = busted.context.get()
@@ -53,6 +51,7 @@ return function(busted)
         sort(busted.context.children(root))
       end
 
+      local seed = (busted.randomize and busted.randomseed or nil)
       if busted.safe_publish('suite', { 'suite', 'start' }, root, i, runs, seed) then
         if block.setup(root) then
           busted.execute()
