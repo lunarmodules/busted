@@ -35,6 +35,7 @@ return function(busted, loaders)
       fileList = {}
     end
 
+    table.sort(fileList)
     return fileList
   end
 
