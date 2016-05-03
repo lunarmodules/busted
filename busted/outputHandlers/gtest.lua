@@ -18,7 +18,7 @@ return function(options)
   local handler = require 'busted.outputHandlers.base'()
 
   local repeatSuiteString = '\nRepeating all tests (run %d of %d) . . .\n\n'
-  local randomizeString  = 'Note: Randomizing test order with a seed of %d.\n'
+  local randomizeString  = colors.yellow('Note: Randomizing test order with a seed of %d.\n')
   local suiteStartString = colors.green  ('[==========]') .. ' Running tests from scanned files.\n'
   local globalSetup      = colors.green  ('[----------]') .. ' Global test environment setup.\n'
   local fileStartString  = colors.green  ('[----------]') .. ' Running tests from %s\n'
