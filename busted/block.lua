@@ -135,14 +135,18 @@ return function(busted)
     if not element.env then element.env = {} end
 
     local randomize = busted.randomize
+    local randomseed = busted.randomseed
     element.env.randomize = function(...)
       randomize = (select('#', ...) == 0 or ...)
+      if randomize then
+        randomseed = tonumber(({...})[1]) or tonumber(({...})[2]) or randomseed
+      end
     end
 
     if busted.safe(descriptor, element.run, element):success() then
       if randomize then
-        element.randomseed = busted.randomseed
-        shuffle(busted.context.children(element), busted.randomseed)
+        element.randomseed = randomseed
+        shuffle(busted.context.children(element), randomseed)
       elseif busted.sort then
         sort(busted.context.children(element))
       end
