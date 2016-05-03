@@ -18,7 +18,7 @@ return function(options)
   local handler = require 'busted.outputHandlers.base'()
 
   local repeatSuiteString = '\nRepeating all tests (run %d of %d) . . .\n\n'
-  local randomizeString  = 'Note: Randomizing test order with a seed of %d.\n'
+  local randomizeString  = colors.yellow('Note: Randomizing test order with a seed of %d.\n')
   local suiteStartString = colors.green  ('[==========]') .. ' Running tests from scanned files.\n'
   local globalSetup      = colors.green  ('[----------]') .. ' Global test environment setup.\n'
   local fileStartString  = colors.green  ('[----------]') .. ' Running tests from %s\n'
@@ -74,13 +74,13 @@ return function(options)
   end
 
   local failureDescription = function(failure)
-    local string
+    local string = failure.randomseed and ('Random seed: ' .. failure.randomseed .. '\n') or ''
     if type(failure.message) == 'string' then
-      string = failure.message
+      string = string .. failure.message
     elseif failure.message == nil then
-      string = 'Nil error'
+      string = string .. 'Nil error'
     else
-      string = pretty.write(failure.message)
+      string = string .. pretty.write(failure.message)
     end
 
     string = string .. '\n'

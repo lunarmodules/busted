@@ -158,7 +158,6 @@ return function(options)
   testFileLoader(rootFiles, pattern, {
     verbose = cliArgs.verbose,
     recursive = cliArgs['recursive'],
-    seed = busted.randomseed
   })
 
   -- If running standalone, setup test file to be compatible with live coding
