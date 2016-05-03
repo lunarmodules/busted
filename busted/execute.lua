@@ -46,6 +46,7 @@ return function(busted)
       end
 
       if options.shuffle then
+        root.randomseed = busted.randomseed
         shuffle(busted.context.children(root), busted.randomseed)
       elseif options.sort then
         sort(busted.context.children(root))
