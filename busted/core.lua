@@ -58,6 +58,7 @@ return function()
   local eattributes = {}
 
   busted.gettime = system.gettime
+  busted.monotime = system.monotime
   busted.sleep = system.sleep
   busted.status = require 'busted.status'
 
@@ -209,10 +210,12 @@ return function()
     local args = {...}
     local n = select('#', ...)
     if channel[2] == 'start' then
+      element.starttick = busted.monotime()
       element.starttime = busted.gettime()
     elseif channel[2] == 'end' then
       element.endtime = busted.gettime()
-      element.duration = element.starttime and (element.endtime - element.starttime)
+      element.endtick = busted.monotime()
+      element.duration = element.starttick and (element.endtick - element.starttick)
     end
     local status = busted.safe(descriptor, function()
       busted.publish(channel, element, unpack(args, 1, n))
@@ -284,6 +287,8 @@ return function()
         name = name,
         run = fn,
         trace = trace,
+        starttick = nil,
+        endtick = nil,
         starttime = nil,
         endtime = nil,
         duration = nil,

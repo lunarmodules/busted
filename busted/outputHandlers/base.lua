@@ -75,14 +75,15 @@ return function()
   end
 
   handler.getDuration = function()
-    if not handler.endTime or not handler.startTime then
+    if not handler.endTick or not handler.startTick then
       return 0
     end
 
-    return handler.endTime - handler.startTime
+    return handler.endTick - handler.startTick
   end
 
   handler.baseSuiteStart = function(suite)
+    handler.startTick = suite.starttick
     handler.startTime = suite.starttime
     return nil, true
   end
@@ -102,6 +103,7 @@ return function()
   end
 
   handler.baseSuiteEnd = function(suite)
+    handler.endTick = suite.endtick
     handler.endTime = suite.endtime
     return nil, true
   end
