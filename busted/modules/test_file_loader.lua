@@ -22,6 +22,11 @@ return function(busted, loaders)
 
       fileList = tablex.filter(fileList, function(filename)
         local basename = path.basename(filename)
+        for _, patt in ipairs(options.excludes) do
+          if patt ~= '' and basename:find(patt) then
+            return nil
+          end
+        end
         for _, patt in ipairs(patterns) do
           if basename:find(patt) then
             return true

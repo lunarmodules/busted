@@ -128,7 +128,7 @@ _busted() {
       # no completion available
       return 0
       ;;
-    -p|--pattern)
+    -p|--pattern|--exclude-pattern)
       # no completion available
       return 0
       ;;
@@ -165,7 +165,7 @@ _busted() {
       --version
       -l --list
       -o --output=
-      -p --pattern=
+      -p --pattern= --exclude-pattern=
       -C --directory=
       -f --config-file=
       -t --tags= --exclude-tags=
