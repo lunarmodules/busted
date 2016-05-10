@@ -5,7 +5,7 @@ return function(options)
   local busted = require 'busted'
   local handler = require 'busted.outputHandlers.base'()
   local top = {
-    start_time = busted.gettime(),
+    start_tick = busted.monotime(),
     xml_doc = xml.new('testsuites', {
       tests = 0,
       errors = 0,
@@ -22,7 +22,7 @@ return function(options)
 
   handler.suiteStart = function(suite, count, total)
     local suite_xml = {
-      start_time = suite.starttime,
+      start_tick = suite.starttick,
       xml_doc = xml.new('testsuite', {
         name = 'Run ' .. count .. ' of ' .. total,
         tests = 0,
@@ -44,7 +44,7 @@ return function(options)
   end
 
   local function elapsed(start_time)
-    return formatDuration(busted.gettime() - start_time)
+    return formatDuration(busted.monotime() - start_time)
   end
 
   handler.suiteEnd = function(suite, count, total)
@@ -61,7 +61,7 @@ return function(options)
   end
 
   handler.exit = function()
-    top.xml_doc.attr.time = elapsed(top.start_time)
+    top.xml_doc.attr.time = elapsed(top.start_tick)
     local output_string = xml.tostring(top.xml_doc, '', '\t', nil, false)
     local file
     if 'string' == type(output_file_name) then
