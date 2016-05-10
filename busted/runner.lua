@@ -153,9 +153,9 @@ return function(options)
 
   -- Load test directory
   local rootFiles = cliArgs.ROOT or { fileName }
-  local pattern = cliArgs.pattern
+  local patterns = cliArgs.pattern
   local testFileLoader = require 'busted.modules.test_file_loader'(busted, cliArgs.loaders)
-  testFileLoader(rootFiles, pattern, {
+  testFileLoader(rootFiles, patterns, {
     verbose = cliArgs.verbose,
     recursive = cliArgs['recursive'],
   })
