@@ -77,8 +77,8 @@ return function(options)
 
   busted.subscribe({ 'suite', 'reset' }, handler.suiteReset)
   busted.subscribe({ 'suite', 'end' }, handler.suiteEnd)
-  busted.subscribe({ 'test', 'start' }, handler.testStart)
-  busted.subscribe({ 'test', 'end' }, handler.testEnd)
+  busted.subscribe({ 'test', 'start' }, handler.testStart, { predicate = handler.cancelOnPending })
+  busted.subscribe({ 'test', 'end' }, handler.testEnd, { predicate = handler.cancelOnPending })
   busted.subscribe({ 'error' }, handler.error)
 
   return handler
