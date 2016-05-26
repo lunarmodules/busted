@@ -33,8 +33,8 @@ return {
   loadstring = loadstring or load,
   unpack = table.unpack or unpack,
 
-  exit = function(code)
-    if code ~= 0 and _VERSION:match('^Lua 5%.[12]$') then
+  exit = function(code, force)
+    if not force and code ~= 0 and _VERSION:match('^Lua 5%.[12]$') then
       error()
     elseif code ~= 0 then
       code = 1
