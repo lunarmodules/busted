@@ -1,4 +1,4 @@
 return {
   standalone = true,
-  defaultOutput = 'utfTerminal',
+  output = nil,
 }

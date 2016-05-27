@@ -9,11 +9,11 @@ local loadstring = require 'busted.compatibility'.loadstring
 local loaded = false
 
 return function(options)
-  if loaded then return else loaded = true end
+  if loaded then return function() end else loaded = true end
 
   local isatty = io.type(io.stdout) == 'file' and term.isatty(io.stdout)
   options = tablex.update(require 'busted.options', options or {})
-  options.defaultOutput = isatty and 'utfTerminal' or 'plainTerminal'
+  options.output = options.output or (isatty and 'utfTerminal' or 'plainTerminal')
 
   local busted = require 'busted.core'()
 
@@ -124,7 +124,7 @@ return function(options)
 
   -- Set up output handler to listen to events
   outputHandlerLoader(busted, cliArgs.output, {
-    defaultOutput = options.defaultOutput,
+    defaultOutput = options.output,
     enableSound = cliArgs['enable-sound'],
     verbose = cliArgs.verbose,
     suppressPending = cliArgs['suppress-pending'],
