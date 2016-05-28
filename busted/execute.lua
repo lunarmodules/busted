@@ -45,11 +45,11 @@ return function(busted)
         busted.safe_publish('suite', { 'suite', 'reset' }, root, i, runs)
       end
 
-      if options.shuffle then
+      if options.sort then
+        sort(busted.context.children(root))
+      elseif options.shuffle then
         root.randomseed = busted.randomseed
         shuffle(busted.context.children(root), busted.randomseed)
-      elseif options.sort then
-        sort(busted.context.children(root))
       end
 
       local seed = (busted.randomize and busted.randomseed or nil)

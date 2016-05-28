@@ -144,11 +144,11 @@ return function(busted)
     end
 
     if busted.safe(descriptor, element.run, element):success() then
-      if randomize then
+      if busted.sort then
+        sort(busted.context.children(element))
+      elseif randomize then
         element.randomseed = randomseed
         shuffle(busted.context.children(element), randomseed)
-      elseif busted.sort then
-        sort(busted.context.children(element))
       end
 
       if block.setup(element) then
