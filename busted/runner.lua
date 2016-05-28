@@ -132,16 +132,6 @@ return function(options)
     arguments = cliArgs.Xoutput,
   })
 
-  -- Load tag and test filters
-  filterLoader(busted, {
-    tags = cliArgs.tags,
-    excludeTags = cliArgs['exclude-tags'],
-    filter = cliArgs.filter,
-    filterOut = cliArgs['filter-out'],
-    list = cliArgs.list,
-    nokeepgoing = not cliArgs['keep-going'],
-  })
-
   -- Set up helper script
   if cliArgs.helper and cliArgs.helper ~= '' then
     helperLoader(busted, cliArgs.helper, {
@@ -150,6 +140,17 @@ return function(options)
       arguments = cliArgs.Xhelper
     })
   end
+
+  -- Load tag and test filters
+  filterLoader(busted, {
+    tags = cliArgs.tags,
+    excludeTags = cliArgs['exclude-tags'],
+    filter = cliArgs.filter,
+    filterOut = cliArgs['filter-out'],
+    list = cliArgs.list,
+    nokeepgoing = not cliArgs['keep-going'],
+    suppressPending = cliArgs['suppress-pending'],
+  })
 
   -- Load test directory
   local rootFiles = cliArgs.ROOT or { fileName }
