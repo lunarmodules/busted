@@ -55,17 +55,28 @@ return function()
       return nil, (#options.filter == 0)
     end
 
-    local printNameOnly = function(name, fn, trace)
-      local fullname = getFullName(name)
-      if trace and trace.what == 'Lua' then
-        print(trace.short_src .. ':' .. trace.currentline .. ': ' .. fullname)
-      else
+    local printTestName = function(element, parent, status)
+      if not (options.suppressPending and status == 'pending') then
+        local fullname = getFullName()
+        local trace = element.trace
+        if trace and trace.what == 'Lua' then
+          fullname = trace.short_src .. ':' .. trace.currentline .. ': ' .. fullname
+        end
         print(fullname)
       end
       return nil, false
     end
 
     local ignoreAll = function()
+      return nil, false
+    end
+
+    local noop = function() end
+    local stubOut = function(descriptor, name, fn, ...)
+      if fn == noop then
+        return nil, true
+      end
+      busted.publish({ 'register', descriptor }, name, noop, ...)
       return nil, false
     end
 
@@ -81,13 +92,28 @@ return function()
       end
     end
 
+    local applyDescFilter = function(descriptors, name, fn)
+      if options[name] and options[name] ~= '' then
+        for _, descriptor in ipairs(descriptors) do
+          local f = function(...) return fn(descriptor, ...) end
+          busted.subscribe({ 'register', descriptor }, f, { priority = 1 })
+        end
+      end
+    end
+
     if options.list then
       busted.subscribe({ 'suite', 'start' }, ignoreAll, { priority = 1 })
       busted.subscribe({ 'suite', 'end' }, ignoreAll, { priority = 1 })
-      applyFilter({ 'setup', 'teardown', 'before_each', 'after_each' }, 'list', ignoreAll)
-      applyFilter({ 'lazy_setup', 'lazy_teardown' }, 'list', ignoreAll)
-      applyFilter({ 'strict_setup', 'strict_teardown' }, 'list', ignoreAll)
-      applyFilter({ 'it', 'pending' }, 'list', printNameOnly)
+      busted.subscribe({ 'file', 'start' }, ignoreAll, { priority = 1 })
+      busted.subscribe({ 'file', 'end' }, ignoreAll, { priority = 1 })
+      busted.subscribe({ 'describe', 'start' }, ignoreAll, { priority = 1 })
+      busted.subscribe({ 'describe', 'end' }, ignoreAll, { priority = 1 })
+      busted.subscribe({ 'test', 'start' }, ignoreAll, { priority = 1 })
+      busted.subscribe({ 'test', 'end' }, printTestName, { priority = 1 })
+      applyDescFilter({ 'setup', 'teardown', 'before_each', 'after_each' }, 'list', stubOut)
+      applyDescFilter({ 'lazy_setup', 'lazy_teardown' }, 'list', stubOut)
+      applyDescFilter({ 'strict_setup', 'strict_teardown' }, 'list', stubOut)
+      applyDescFilter({ 'it', 'pending' }, 'list', stubOut)
     end
 
     applyFilter({ 'lazy_setup', 'lazy_teardown' }, 'nokeepgoing', skipOnError)
