@@ -48,6 +48,7 @@ build = {
 
     ['busted.modules.configuration_loader']   = 'busted/modules/configuration_loader.lua',
     ['busted.modules.luacov']                 = 'busted/modules/luacov.lua',
+    ['busted.modules.standalone_loader']      = 'busted/modules/standalone_loader.lua',
     ['busted.modules.test_file_loader']       = 'busted/modules/test_file_loader.lua',
     ['busted.modules.output_handler_loader']  = 'busted/modules/output_handler_loader.lua',
     ['busted.modules.helper_loader']          = 'busted/modules/helper_loader.lua',

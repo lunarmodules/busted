@@ -300,6 +300,12 @@ describe('Test busted running standalone', function()
     local success, errcnt = executeLua('spec/cl_standalone.lua --help')
     assert.is_false(success)
   end)
+
+  it('tests running with via stdin', function()
+    local success, errcnt = executeLua('< spec/cl_standalone.lua')
+    assert.is_false(success)
+    assert.is_equal(3, errcnt)
+  end)
 end)
 
 describe('Test busted command-line runner', function()

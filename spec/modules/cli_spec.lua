@@ -6,7 +6,7 @@ describe('Tests command-line interface', function()
     local defaultOutput = 'default_output_handler'
     local lpath = './src/?.lua;./src/?/?.lua;./src/?/init.lua'
     local cpath = path.is_windows and './csrc/?.dll;./csrc/?/?.dll;' or './csrc/?.so;./csrc/?/?.so;'
-    local cli = require 'busted.modules.cli'({ standalone = false, defaultOutput = defaultOutput })
+    local cli = require 'busted.modules.cli'({ standalone = false, output = defaultOutput })
     local args = cli:parse({})
     assert.is_equal(defaultOutput, args.o)
     assert.is_equal(defaultOutput, args.output)
@@ -330,7 +330,7 @@ describe('Tests using .busted tasks', function()
     local defaultOutput = 'default_output_handler'
     local lpath = './src/?.lua;./src/?/?.lua;./src/?/init.lua'
     local cpath = path.is_windows and './csrc/?.dll;./csrc/?/?.dll;' or './csrc/?.so;./csrc/?/?.so;'
-    local cli = require 'busted.modules.cli'({ standalone = false, defaultOutput = defaultOutput })
+    local cli = require 'busted.modules.cli'({ standalone = false, output = defaultOutput })
     local args = cli:parse({ '--directory=spec/.hidden' })
     assert.is_equal(defaultOutput, args.o)
     assert.is_equal(defaultOutput, args.output)
@@ -389,7 +389,7 @@ describe('Tests using .busted tasks', function()
     local defaultOutput = 'default_output_handler'
     local lpath = './src/?.lua;./src/?/?.lua;./src/?/init.lua'
     local cpath = path.is_windows and './csrc/?.dll;./csrc/?/?.dll;' or './csrc/?.so;./csrc/?/?.so;'
-    local cli = require 'busted.modules.cli'({ standalone = false, defaultOutput = defaultOutput })
+    local cli = require 'busted.modules.cli'({ standalone = false, output = defaultOutput })
     local args = cli:parse({ '--config-file', 'spec/.hidden/.busted' })
     assert.is_equal(defaultOutput, args.o)
     assert.is_equal(defaultOutput, args.output)
@@ -444,7 +444,7 @@ describe('Tests using .busted tasks', function()
   end)
 
   it('load configuration options', function()
-    local cli = require 'busted.modules.cli'({ standalone = false, defaultOutput = defaultOutput })
+    local cli = require 'busted.modules.cli'({ standalone = false, output = defaultOutput })
     local args = cli:parse({ '--directory=spec/.hidden', '--run=test' })
     assert.is_same({'_test1%.lua$', '_test2%.lua$'}, args.pattern)
     assert.is_same({'_exclude1', '_exclude2'}, args['exclude-pattern'])
@@ -459,7 +459,7 @@ describe('Tests using .busted tasks', function()
   end)
 
   it('load configuration options and override with command-line', function()
-    local cli = require 'busted.modules.cli'({ standalone = false, defaultOutput = defaultOutput })
+    local cli = require 'busted.modules.cli'({ standalone = false, output = defaultOutput })
     local args = cli:parse({ '--directory=spec/.hidden', '--run=test', '-t', 'tag1', '-p', 'patt', '--filter=fin', '--filter-out=fout', '--exclude-pattern', '', '--loaders=moonscript' })
     assert.is_same({'patt'}, args.pattern)
     assert.is_same({''}, args['exclude-pattern'])
@@ -473,7 +473,7 @@ describe('Tests using .busted tasks', function()
   end)
 
   it('detects error in configuration file', function()
-    local cli = require 'busted.modules.cli'({ standalone = false, defaultOutput = defaultOutput })
+    local cli = require 'busted.modules.cli'({ standalone = false, output = defaultOutput })
     cli:set_name('app')
     local args, err = cli:parse({ '--config-file=spec/.hidden/.busted_bad', '--run=test' })
     assert.is_nil(args)
@@ -483,7 +483,7 @@ describe('Tests using .busted tasks', function()
   end)
 
   it('detects invalid configuration file', function()
-    local cli = require 'busted.modules.cli'({ standalone = false, defaultOutput = defaultOutput })
+    local cli = require 'busted.modules.cli'({ standalone = false, output = defaultOutput })
     cli:set_name('myapp')
     local args, err = cli:parse({ '--config-file=spec/.hidden/.busted_empty' })
     assert.is_nil(args)
@@ -491,7 +491,7 @@ describe('Tests using .busted tasks', function()
   end)
 
   it('detects unknown/invalid task', function()
-    local cli = require 'busted.modules.cli'({ standalone = false, defaultOutput = defaultOutput })
+    local cli = require 'busted.modules.cli'({ standalone = false, output = defaultOutput })
     cli:set_name('appname')
     local args, err = cli:parse({ '--config-file=spec/.hidden/.busted', '--run=invalid' })
     assert.is_nil(args)

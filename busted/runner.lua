@@ -9,11 +9,11 @@ local loadstring = require 'busted.compatibility'.loadstring
 local loaded = false
 
 return function(options)
-  if loaded then return else loaded = true end
+  if loaded then return function() end else loaded = true end
 
   local isatty = io.type(io.stdout) == 'file' and term.isatty(io.stdout)
   options = tablex.update(require 'busted.options', options or {})
-  options.defaultOutput = isatty and 'utfTerminal' or 'plainTerminal'
+  options.output = options.output or (isatty and 'utfTerminal' or 'plainTerminal')
 
   local busted = require 'busted.core'()
 
@@ -29,28 +29,29 @@ return function(options)
   local level = 2
   local info = debug.getinfo(level, 'Sf')
   local source = info.source
-  local fileName = source:sub(1,1) == '@' and source:sub(2) or source
+  local fileName = source:sub(1,1) == '@' and source:sub(2) or nil
+  local forceExit = fileName == nil
 
   -- Parse the cli arguments
-  local appName = path.basename(fileName)
+  local appName = path.basename(fileName or 'busted')
   cli:set_name(appName)
   local cliArgs, err = cli:parse(arg)
   if not cliArgs then
     io.stderr:write(err .. '\n')
-    exit(1)
+    exit(1, forceExit)
   end
 
   if cliArgs.version then
     -- Return early if asked for the version
     print(busted.version)
-    exit(0)
+    exit(0, forceExit)
   end
 
   -- Load current working directory
   local _, err = path.chdir(path.normpath(cliArgs.directory))
   if err then
     io.stderr:write(appName .. ': error: ' .. err .. '\n')
-    exit(1)
+    exit(1, forceExit)
   end
 
   -- If coverage arg is passed in, load LuaCovsupport
@@ -123,7 +124,7 @@ return function(options)
 
   -- Set up output handler to listen to events
   outputHandlerLoader(busted, cliArgs.output, {
-    defaultOutput = options.defaultOutput,
+    defaultOutput = options.output,
     enableSound = cliArgs['enable-sound'],
     verbose = cliArgs.verbose,
     suppressPending = cliArgs['suppress-pending'],
@@ -152,22 +153,20 @@ return function(options)
     suppressPending = cliArgs['suppress-pending'],
   })
 
-  -- Load test directory
-  local rootFiles = cliArgs.ROOT or { fileName }
-  local patterns = cliArgs.pattern
-  local testFileLoader = require 'busted.modules.test_file_loader'(busted, cliArgs.loaders)
-  testFileLoader(rootFiles, patterns, {
-    excludes = cliArgs['exclude-pattern'],
-    verbose = cliArgs.verbose,
-    recursive = cliArgs['recursive'],
-  })
-
-  -- If running standalone, setup test file to be compatible with live coding
-  if options.standalone then
-    local ctx = busted.context.get()
-    local children = busted.context.children(ctx)
-    local file = children[#children]
-    debug.getmetatable(file.run).__call = info.func
+  if cliArgs.ROOT then
+    -- Load test directories/files
+    local rootFiles = cliArgs.ROOT
+    local patterns = cliArgs.pattern
+    local testFileLoader = require 'busted.modules.test_file_loader'(busted, cliArgs.loaders)
+    testFileLoader(rootFiles, patterns, {
+      excludes = cliArgs['exclude-pattern'],
+      verbose = cliArgs.verbose,
+      recursive = cliArgs['recursive'],
+    })
+  else
+    -- Running standalone, use standalone loader
+    local testFileLoader = require 'busted.modules.standalone_loader'(busted)
+    testFileLoader(info, { verbose = cliArgs.verbose })
   end
 
   local runs = cliArgs['repeat']
@@ -181,6 +180,6 @@ return function(options)
   busted.publish({ 'exit' })
 
   if options.standalone or failures > 0 or errors > 0 then
-    exit(failures + errors)
+    exit(failures + errors, forceExit)
   end
 end

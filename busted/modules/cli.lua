@@ -12,7 +12,7 @@ return function(options)
   local configLoader = require 'busted.modules.configuration_loader'()
 
   -- Default cli arg values
-  local defaultOutput = options.defaultOutput
+  local defaultOutput = options.output or 'utfTerminal'
   local defaultLoaders = 'lua,moonscript'
   local defaultPattern = '_spec'
   local defaultSeed = '/dev/urandom or os.time()'
