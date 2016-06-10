@@ -101,7 +101,7 @@ return function(options)
 
   handler.testEnd = function(element, parent, status)
     top.xml_doc.attr.tests = top.xml_doc.attr.tests + 1
-    testcase_node.time = formatDuration(element.duration)
+    testcase_node:set_attrib("time", formatDuration(element.duration))
 
     if status == 'success' then
       testStatus(element, parent, nil, 'success')
