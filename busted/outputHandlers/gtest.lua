@@ -17,8 +17,8 @@ return function(options)
   local busted = require 'busted'
   local handler = require 'busted.outputHandlers.base'()
 
-  local repeatSuiteString = '\nRepeating all tests (run %d of %d) . . .\n\n'
-  local randomizeString  = colors.yellow('Note: Randomizing test order with a seed of %d.\n')
+  local repeatSuiteString = '\nRepeating all tests (run %u of %u) . . .\n\n'
+  local randomizeString  = colors.yellow('Note: Randomizing test order with a seed of %u.\n')
   local suiteStartString = colors.green  ('[==========]') .. ' Running tests from scanned files.\n'
   local globalSetup      = colors.green  ('[----------]') .. ' Global test environment setup.\n'
   local fileStartString  = colors.green  ('[----------]') .. ' Running tests from %s\n'
@@ -27,28 +27,28 @@ return function(options)
   local skippedString    = colors.yellow ('[ SKIPPED  ]') .. ' %s (%.2f ms)\n'
   local failureString    = colors.red    ('[  FAILED  ]') .. ' %s (%.2f ms)\n'
   local errorString      = colors.magenta('[  ERROR   ]') .. ' %s (%.2f ms)\n'
-  local fileEndString    = colors.green  ('[----------]') .. ' %d %s from %s (%.2f ms total)\n\n'
+  local fileEndString    = colors.green  ('[----------]') .. ' %u %s from %s (%.2f ms total)\n\n'
   local globalTeardown   = colors.green  ('[----------]') .. ' Global test environment teardown.\n'
-  local suiteEndString   = colors.green  ('[==========]') .. ' %d %s from %d test %s ran. (%.2f ms total)\n'
-  local successStatus    = colors.green  ('[  PASSED  ]') .. ' %d %s.\n'
+  local suiteEndString   = colors.green  ('[==========]') .. ' %u %s from %u test %s ran. (%.2f ms total)\n'
+  local successStatus    = colors.green  ('[  PASSED  ]') .. ' %u %s.\n'
 
   local summaryStrings = {
     skipped = {
-      header = colors.yellow ('[ SKIPPED  ]') .. ' %d %s, listed below:\n',
+      header = colors.yellow ('[ SKIPPED  ]') .. ' %u %s, listed below:\n',
       test   = colors.yellow ('[ SKIPPED  ]') .. ' %s\n',
-      footer = ' %d SKIPPED %s\n',
+      footer = ' %u SKIPPED %s\n',
     },
 
     failure = {
-      header = colors.red    ('[  FAILED  ]') .. ' %d %s, listed below:\n',
+      header = colors.red    ('[  FAILED  ]') .. ' %u %s, listed below:\n',
       test   = colors.red    ('[  FAILED  ]') .. ' %s\n',
-      footer = ' %d FAILED %s\n',
+      footer = ' %u FAILED %s\n',
     },
 
     error = {
-      header = colors.magenta('[  ERROR   ]') .. ' %d %s, listed below:\n',
+      header = colors.magenta('[  ERROR   ]') .. ' %u %s, listed below:\n',
       test   = colors.magenta('[  ERROR   ]') .. ' %s\n',
-      footer = ' %d %s\n',
+      footer = ' %u %s\n',
     },
   }
 
