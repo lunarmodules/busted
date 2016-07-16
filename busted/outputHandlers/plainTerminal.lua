@@ -130,7 +130,7 @@ return function(options)
   end
 
   handler.suiteStart = function(suite, count, total)
-    local runString = (total > 1 and '\nRepeating all tests (run %d of %d) . . .\n\n' or '')
+    local runString = (total > 1 and '\nRepeating all tests (run %u of %u) . . .\n\n' or '')
     io.write(runString:format(count, total))
     io.flush()
 
