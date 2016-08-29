@@ -43,6 +43,7 @@ return function(busted, loaders)
         end
       end)
     else
+      busted.publish({ 'error' }, {}, nil, s('output.file_not_found'):format(rootFile), {})
       fileList = {}
     end
 

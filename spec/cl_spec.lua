@@ -454,6 +454,20 @@ describe('Tests error messages through the command line', function()
     assert.is_equal(expectedMsg, errmsg)
   end)
 
+  it('when test file not found', function()
+    local _, _, result = executeBusted('--output=plainTerminal does_not_exist.lua')
+    local errmsg = result:match('Error %-> (.-)\n')
+    local expected = 'Cannot find file or directory: does_not_exist.lua'
+    assert.is_equal(expected, errmsg)
+  end)
+
+  it('when test directory not found', function()
+    local _, _, result = executeBusted('--output=plainTerminal does_not_exist')
+    local errmsg = result:match('Error %-> (.-)\n')
+    local expected = 'Cannot find file or directory: does_not_exist'
+    assert.is_equal(expected, errmsg)
+  end)
+
   it('when no test files matching Lua pattern', function()
     local _, _, result = executeBusted('--output=plainTerminal --pattern=this_filename_does_simply_not_exist$')
     local errmsg = result:match('Error %-> (.-)\n')
