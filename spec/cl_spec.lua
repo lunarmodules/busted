@@ -301,7 +301,7 @@ describe('Test busted running standalone', function()
     assert.is_false(success)
   end)
 
-  it('tests running with via stdin', function()
+  it('tests running via stdin', function()
     local success, errcnt = executeLua('< spec/cl_standalone.lua')
     assert.is_false(success)
     assert.is_equal(3, errcnt)
