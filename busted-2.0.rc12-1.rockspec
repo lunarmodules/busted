@@ -79,6 +79,7 @@ build = {
     ['busted.languages.th']                   = 'busted/languages/th.lua',
     ['busted.languages.ua']                   = 'busted/languages/ua.lua',
     ['busted.languages.zh']                   = 'busted/languages/zh.lua',
+    ['busted.languages.it']                   = 'busted/languages/it.lua',
   },
   install = {
     bin = {
