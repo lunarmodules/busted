@@ -16,6 +16,7 @@ return function(options)
 
   handler.suiteEnd = function()
     print('1..' .. counter)
+    io.flush()
     return nil, true
   end
 
@@ -45,6 +46,7 @@ return function(options)
       local testName = fileline .. handler.getFullName(element)
       print('# ' .. testName)
     end
+    io.flush()
 
     return nil, true
   end
@@ -62,6 +64,7 @@ return function(options)
     elseif status == 'error' then
       showFailure(handler.errors[#handler.errors])
     end
+    io.flush()
 
     return nil, true
   end
@@ -71,6 +74,7 @@ return function(options)
       counter = counter + 1
       showFailure(handler.errors[#handler.errors])
     end
+    io.flush()
 
     return nil, true
   end
