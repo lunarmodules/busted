@@ -7,7 +7,7 @@ return function()
       return nil, '.busted file does not return a table.'
     end
 
-    local defaults = defaults or {}
+    defaults = defaults or {}
     local run = config.run or defaults.run
 
     if run and run ~= '' then
