@@ -1046,12 +1046,13 @@ return mymodule
           <p>
           In the test specs it can be tested:
           </p>
-<pre><code data-language="lua">local mymodule = require("mymodule")
+<pre><code data-language="lua">local mymodule
 
 describe("Going to test a private element", function()
 
   setup(function()
     _G._TEST = true
+    mymodule = require("mymodule")
   end)
 
   teardown(function()
