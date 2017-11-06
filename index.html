@@ -165,76 +165,87 @@ end)
 
             <h4>CLI: Running Busted</h4>
 <pre><code>Usage: busted [OPTIONS] [--] [ROOT-1 [ROOT-2 [...]]]
-  ROOT                    test script file/folder. Folders will be
-                          traversed for any file that matches the
-                          --pattern option. (optional, default: spec)
+
+ARGUMENTS:
+  ROOT                      test script file/folder. Folders will be
+                            traversed for any file that matches the
+                            --pattern option. (optional, default: nil)
 
 OPTIONS:
-  --version               prints the program version and exits
-  -p, --pattern=PATTERN   only run test files matching the Lua pattern
-                          (default: _spec)
-  -o, --output=LIBRARY    output library to load (default: utfTerminal)
-  -C, --directory=DIR     change to directory DIR before running tests.
-                          If multiple options are specified, each is
-                          interpreted relative to the previous one.
-                          (default: ./)
-  -f, --config-file=FILE  load configuration options from FILE
-  -t, --tags=TAGS         only run tests with these #tags (default: [])
-  --exclude-tags=TAGS     do not run tests with these #tags, takes
-                          precedence over --tags (default: [])
-  --filter=PATTERN        only run test names matching the Lua pattern
-                          (default: [])
-  --filter-out=PATTERN    do not run test names matching the Lua
-                          pattern, takes precedence over --filter
-                          (default: [])
-  -m, --lpath=PATH        optional path to be prefixed to the Lua module
-                          search path (default:
-                          ./src/?.lua;./src/?/?.lua;./src/?/init.lua)
-  --cpath=PATH            optional path to be prefixed to the Lua C
-                          module search path (default:
-                          ./csrc/?.so;./csrc/?/?.so;)
-  -r, --run=RUN           config to run from .busted file
-  --repeat=COUNT          run the tests repeatedly (default: 1)
-  --seed=SEED             random seed value to use for shuffling test
-                          order (default: os.time())
-  --lang=LANG             language for error messages (default: en)
-  --loaders=NAME          test file loaders (default: lua,moonscript)
-  --helper=PATH           A helper script that is run before tests
-  -Xoutput OPTION         pass `OPTION` as an option to the output
-                          handler. If `OPTION` contains commas, it is
-                          split into multiple options at the commas.
-                          (default: [])
-  -Xhelper OPTION         pass `OPTION` as an option to the helper
-                          script. If `OPTION` contains commas, it is
-                          split into multiple options at the commas.
-                          (default: [])
-  -c, --[no-]coverage     do code coverage analysis (requires `LuaCov`
-                          to be installed) (default: off)
-  -v, --[no-]verbose      verbose output of errors (default: off)
-  -s, --[no-]enable-sound executes `say` command if available (default:
-                          off)
-  -l, --list              list the names of all tests instead of running
-                          them
-  --[no-]lazy             use lazy setup/teardown as the default
-                          (default: off)
-  --[no-]auto-insulate    enable file insulation (default: on)
-  -k, --[no-]keep-going   continue as much as possible after an error or
-                          failure (default: on)
-  -R, --[no-]recursive    recurse into subdirectories (default: on)
-  --[no-]shuffle          randomize file and test order, takes
-                          precedence over --sort (--shuffle-test and
-                          --shuffle-files) (default: off)
-  --[no-]shuffle-files    randomize file execution order, takes
-                          precedence over --sort-files (default: off)
-  --[no-]shuffle-tests    randomize test order within a file, takes
-                          precedence over --sort-tests (default: off)
-  --[no-]sort             sort file and test order (--sort-tests and
-                          --sort-files) (default: off)
-  --[no-]sort-files       sort file execution order (default: off)
-  --[no-]sort-tests       sort test order within a file (default: off)
-  --[no-]suppress-pending suppress `pending` test output (default: off)
-  --[no-]defer-print      defer print to when test suite is complete
-                          (default: off)
+  --version                 prints the program version and exits
+  -p, --pattern=PATTERN     only run test files matching the Lua pattern
+                            (default: _spec)
+  --exclude-pattern=PATTERN do not run test files matching the Lua
+                            pattern, takes precedence over --pattern
+  -e STATEMENT              execute statement STATEMENT
+  -o, --output=LIBRARY      output library to load (default:
+                            utfTerminal)
+  -C, --directory=DIR       change to directory DIR before running
+                            tests. If multiple options are specified,
+                            each is interpreted relative to the previous
+                            one. (default: ./)
+  -f, --config-file=FILE    load configuration options from FILE
+  -t, --tags=TAGS           only run tests with these #tags (default:
+                            [])
+  --exclude-tags=TAGS       do not run tests with these #tags, takes
+                            precedence over --tags (default: [])
+  --filter=PATTERN          only run test names matching the Lua pattern
+                            (default: [])
+  --filter-out=PATTERN      do not run test names matching the Lua
+                            pattern, takes precedence over --filter
+                            (default: [])
+  -m, --lpath=PATH          optional path to be prefixed to the Lua
+                            module search path (default:
+                            ./src/?.lua;./src/?/?.lua;./src/?/init.lua)
+  --cpath=PATH              optional path to be prefixed to the Lua C
+                            module search path (default:
+                            ./csrc/?.so;./csrc/?/?.so;)
+  -r, --run=RUN             config to run from .busted file
+  --repeat=COUNT            run the tests repeatedly (default: 1)
+  --seed=SEED               random seed value to use for shuffling test
+                            order (default: /dev/urandom or os.time())
+  --lang=LANG               language for error messages (default: en)
+  --loaders=NAME            test file loaders (default: lua,moonscript)
+  --helper=PATH             A helper script that is run before tests
+  --lua=LUA                 The path to the lua interpreter busted
+                            should run under
+  -Xoutput OPTION           pass `OPTION` as an option to the output
+                            handler. If `OPTION` contains commas, it is
+                            split into multiple options at the commas.
+                            (default: [])
+  -Xhelper OPTION           pass `OPTION` as an option to the helper
+                            script. If `OPTION` contains commas, it is
+                            split into multiple options at the commas.
+                            (default: [])
+  -c, --[no-]coverage       do code coverage analysis (requires `LuaCov`
+                            to be installed) (default: off)
+  -v, --[no-]verbose        verbose output of errors (default: off)
+  -s, --[no-]enable-sound   executes `say` command if available
+                            (default: off)
+  -l, --list                list the names of all tests instead of
+                            running them
+  --ignore-lua              Whether or not to ignore the lua directive
+  --[no-]lazy               use lazy setup/teardown as the default
+                            (default: off)
+  --[no-]auto-insulate      enable file insulation (default: on)
+  -k, --[no-]keep-going     continue as much as possible after an error
+                            or failure (default: on)
+  -R, --[no-]recursive      recurse into subdirectories (default: on)
+  --[no-]shuffle            randomize file and test order, takes
+                            precedence over --sort (--shuffle-test and
+                            --shuffle-files) (default: off)
+  --[no-]shuffle-files      randomize file execution order, takes
+                            precedence over --sort-files (default: off)
+  --[no-]shuffle-tests      randomize test order within a file, takes
+                            precedence over --sort-tests (default: off)
+  --[no-]sort               sort file and test order (--sort-tests and
+                            --sort-files) (default: off)
+  --[no-]sort-files         sort file execution order (default: off)
+  --[no-]sort-tests         sort test order within a file (default: off)
+  --[no-]suppress-pending   suppress `pending` test output (default:
+                            off)
+  --[no-]defer-print        defer print to when test suite is complete
+                            (default: off)
 </code></pre>
 
             <h4>Predefined Busted Tasks</h4>
