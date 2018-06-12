@@ -3,7 +3,8 @@ local setfenv = require 'busted.compatibility'.setfenv
 local unpack = require 'busted.compatibility'.unpack
 local path = require 'pl.path'
 local pretty = require 'pl.pretty'
-local system = require 'system'
+local Pt = require 'posix.time'
+local Pst = require 'posix.sys.time'
 local throw = error
 
 local failureMt = {
@@ -41,6 +42,28 @@ local function isCallable(obj)
   return type(obj) == 'function' or (debug.getmetatable(obj) or {}).__call
 end
 
+local function pgettime()
+	local tspec = Pst.gettimeofday()
+	return tspec.tv_sec + tspec.tv_usec * 1e-6
+end
+
+local function pmonotime()
+	local tspec = Pt.clock_gettime(Pt.CLOCK_MONOTONIC)
+	return tspec.tv_sec + tspec.tv_nsec * 1e-9
+end
+
+local function psleep(secs)
+        local tspec = {
+                tv_sec = math.floor(secs),
+                tv_nsec = math.floor(secs % 1 * 1e9)
+        }
+        local ok, err, code
+        repeat
+                ok, err, code, tspec = Pt.nanosleep(tspec)
+        until ok
+end
+
+
 return function()
   local mediator = require 'mediator'()
 
@@ -57,9 +80,9 @@ return function()
   local executors = {}
   local eattributes = {}
 
-  busted.gettime = system.gettime
-  busted.monotime = system.monotime
-  busted.sleep = system.sleep
+  busted.gettime = pgettime
+  busted.monotime = pmonotime
+  busted.sleep = psleep
   busted.status = require 'busted.status'
 
   function busted.getTrace(element, level, msg)
