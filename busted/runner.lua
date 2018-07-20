@@ -56,7 +56,11 @@ return function(options)
 
   -- If coverage arg is passed in, load LuaCovsupport
   if cliArgs.coverage then
-    luacov()
+    local ok, err = luacov()
+    if not ok then
+      io.stderr:write(appName .. ': error: ' .. err .. '\n')
+      exit(1, forceExit)
+    end
   end
 
   -- If auto-insulate is disabled, re-register file without insulation
