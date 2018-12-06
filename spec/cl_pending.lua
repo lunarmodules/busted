@@ -12,5 +12,7 @@ describe('Tests the busted pending functions through the commandline', function(
       error('this should not run')
     end)
   end)
+
+  pending('is a pending inside a describe, but without func argument')
 end)
 
