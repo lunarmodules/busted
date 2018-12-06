@@ -68,7 +68,7 @@ local function init(busted)
 
   busted.register('it', it)
 
-  busted.register('pending', pending)
+  busted.register('pending', pending, { default_fn = function() end })
 
   busted.register('before_each', { envmode = 'unwrap' })
   busted.register('after_each', { envmode = 'unwrap' })

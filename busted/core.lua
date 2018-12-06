@@ -259,6 +259,8 @@ return function()
       if not fn and type(name) == 'function' then
         fn = name
         name = alias
+      elseif not fn then
+        fn = attributes and attributes.default_fn
       end
 
       local trace
