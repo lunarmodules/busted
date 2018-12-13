@@ -1,4 +1,4 @@
 call luarocks remove busted --force
-call luarocks make busted-scm-0.rockspec
+call luarocks make
 cls
-call busted
+call busted %*
