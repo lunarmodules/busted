@@ -168,17 +168,34 @@ return function(options)
     end
 
     -- Load busted config file if available
-    local bustedConfigFilePath = cliArgs.f or path.normpath(path.join(cliArgs.directory, '.busted'))
-    local bustedConfigFile = loadfile(bustedConfigFilePath)
-    if bustedConfigFile then
-      local ok, config = pcall(function()
-        local conf, err = configLoader(bustedConfigFile(), cliArgsParsed, cliArgs)
-        return conf or error(err, 0)
-      end)
-      if not ok then
-        return nil, appName .. ': error: ' .. config
+    local bustedConfigFilePath
+    if cliArgs.f then
+      -- if the file is given, then we require it to exist
+      if not path.isfile(cliArgs.f) then
+        return nil, ("specified config file '%s' not found"):format(cliArgs.f)
+      end
+      bustedConfigFilePath = cliArgs.f
+    else
+      -- try default file
+      bustedConfigFilePath = path.normpath(path.join(cliArgs.directory, '.busted'))
+      if not path.isfile(bustedConfigFilePath) then
+        bustedConfigFilePath = nil  -- clear default file, since it doesn't exist
+      end
+    end
+    if bustedConfigFilePath then
+      local bustedConfigFile, err = loadfile(bustedConfigFilePath)
+      if not bustedConfigFile then
+        return nil, ("failed loading config file `%s`: %s"):format(bustedConfigFilePath, err)
       else
-        cliArgs = config
+        local ok, config = pcall(function()
+          local conf, err = configLoader(bustedConfigFile(), cliArgsParsed, cliArgs)
+          return conf or error(err, 0)
+        end)
+        if not ok then
+          return nil, appName .. ': error: ' .. config
+        else
+          cliArgs = config
+        end
       end
     else
       cliArgs = tablex.merge(cliArgs, cliArgsParsed, true)
