@@ -1,5 +1,6 @@
 local s = require 'say'
 local pretty = require 'pl.pretty'
+local io = io
 
 local colors
 

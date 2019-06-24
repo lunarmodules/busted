@@ -1,5 +1,6 @@
 local s = require 'say'
 local pretty = require 'pl.pretty'
+local io = io
 
 return function(options)
   local busted = require 'busted'
