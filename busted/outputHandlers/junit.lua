@@ -1,5 +1,6 @@
 local xml = require 'pl.xml'
 local string = require("string")
+local io = io
 
 return function(options)
   local busted = require 'busted'

@@ -1,4 +1,6 @@
 local app = require 'pl.app'
+local io = io
+
 return function(options)
   local busted = require 'busted'
   local handler = require 'busted.outputHandlers.base'()
