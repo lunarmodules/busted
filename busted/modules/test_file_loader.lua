@@ -37,9 +37,9 @@ return function(busted, loaders)
 
       fileList = tablex.filter(fileList, function(filename)
         if path.is_windows then
-          return not filename:find('%\\%.%w+.%w+')
+          return not filename:find('%\\%.%w+.%w+', #rootFile)
         else
-          return not filename:find('/%.%w+.%w+')
+          return not filename:find('/%.%w+.%w+', #rootFile)
         end
       end)
     else
