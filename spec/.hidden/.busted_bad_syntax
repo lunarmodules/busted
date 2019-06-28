@@ -5,10 +5,10 @@ return {
   default = {
     ['ROOT'] = {'specs'},
     ['pattern'] = '_spec%.lua$',
-    ['loaders'] = doesnotexist.loaders, -- errors when run
+    ['loaders'] = doesnotexist.loaders,
     ['verbose'] = true,
   },
   test = {
     ['pattern'] = '_test%.lua$',
   }
-}
+-- }  -- missing bracket, errors when compiled
