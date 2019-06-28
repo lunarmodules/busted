@@ -938,12 +938,46 @@ describe("match arguments", function()
 end)
 </code></pre>
 
-          <h4 id="matcher-composite">Composite Matchers</h4>
-          <p>
-            Combine matchers using composite matchers.
-          </p>
+            <h4 id="matcher-composite">Reference Matchers</h4>
+            <p>
+                If you're creating a spy for functions that mutate any properties on an table (for example <code>self</code>)
+                and you want to use <code>was_called_with</code>, you should should use <code>match.is_ref(obj)</code>.
+            </p>
 
-<pre><code data-language="lua">
+            <pre><code data-language="lua">
+describe("combine matchers", function()
+  local match = require("luassert.match")
+
+  it("tests ref matchers for passed in table", function()
+    local t = { cnt = 0, }
+    function t.incrby(t, i) t.cnt = t.cnt + i end
+
+    local s = spy.on(t, "incrby")
+
+    s(t, 2)
+
+    assert.spy(s).was_called_with(match.is_ref(t), 2)
+  end)
+
+  it("tests ref matchers for self", function()
+    local t = { cnt = 0, }
+    function t:incrby(i) self.cnt = self.cnt + i end
+
+    local s = spy.on(t, "incrby")
+
+    t:incrby(2)
+
+    assert.spy(s).was_called_with(match.is_ref(t), 2)
+  end)
+end)
+</code></pre>
+
+            <h4 id="matcher-composite">Composite Matchers</h4>
+            <p>
+                Combine matchers using composite matchers.
+            </p>
+
+            <pre><code data-language="lua">
 describe("combine matchers", function()
   local match = require("luassert.match")
 
