@@ -17,7 +17,7 @@ before_install:
   - luarocks install moonscript
 
 install:
-  - luarocks make busted-scm-0.rockspec
+  - luarocks make
 
 script: busted
 
