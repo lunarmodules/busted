@@ -1,8 +1,8 @@
 package = 'busted'
-version = 'scm-0'
+version = '2.0.0-1'
 source = {
-  url = "git://github.com/Olivine-Labs/busted",
-  branch = "master"
+  url = 'https://github.com/Olivine-Labs/busted/archive/v2.0.0.tar.gz',
+  dir = 'busted-2.0.0'
 }
 description = {
   summary = 'Elegant Lua unit testing.',
@@ -19,15 +19,15 @@ description = {
 }
 dependencies = {
   'lua >= 5.1',
-  'lua_cliargs = 3.0-1',
+  'lua_cliargs = 3.0',
   'luafilesystem >= 1.5.0',
-  'luasystem >= 0.2.0-0',
+  'luasystem >= 0.2.0',
   'dkjson >= 2.1.0',
-  'say >= 1.3-0',
-  'luassert >= 1.7.8-0',
-  'lua-term >= 0.1-1',
-  'penlight >= 1.3.2-2',
-  'mediator_lua >= 1.1.1-0',
+  'say >= 1.3',
+  'luassert >= 1.8.0',
+  'lua-term >= 0.1',
+  'penlight >= 1.3.2',
+  'mediator_lua >= 1.1.1',
 }
 
 build = {
