@@ -1,7 +1,7 @@
 local path = require 'pl.path'
 
 local ret = {}
-local ok, terralib = not not terralib, terralib --pcall(function() return require 'terralib' end)
+local ok, terralib = not not terralib, terralib
 
 local getTrace = function(filename, info)
   local index = info.traceback:find('\n%s*%[C]')
