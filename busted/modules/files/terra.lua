@@ -1,7 +1,10 @@
 local path = require 'pl.path'
 
 local ret = {}
-local ok, terralib = not not terralib, terralib
+local ok, terralib = not not terralib, terralib --grab the injected global if it exists
+if not ok then
+  ok, terralib = pcall(require, 'terra') --otherwise, attempt to load terra as a shared library
+end
 
 local getTrace = function(filename, info)
   local index = info.traceback:find('\n%s*%[C]')
