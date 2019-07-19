@@ -2,7 +2,7 @@ local path = require 'pl.path'
 
 local ret = {}
 local terra_available, terralib = not not terralib, terralib --grab the injected global if it exists
-if not ok then
+if not terra_available then
   terra_available, terralib = pcall(require, 'terra') --otherwise, attempt to load terra as a shared library
 end
 
