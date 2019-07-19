@@ -1,9 +1,9 @@
 local path = require 'pl.path'
 
 local ret = {}
-local ok, terralib = not not terralib, terralib --grab the injected global if it exists
+local terra_available, terralib = not not terralib, terralib --grab the injected global if it exists
 if not ok then
-  ok, terralib = pcall(require, 'terra') --otherwise, attempt to load terra as a shared library
+  terra_available, terralib = pcall(require, 'terra') --otherwise, attempt to load terra as a shared library
 end
 
 local getTrace = function(filename, info)
@@ -13,15 +13,19 @@ local getTrace = function(filename, info)
 end
 
 ret.match = function(busted, filename)
-  return ok and path.extension(filename) == '.t'
+  return path.extension(filename) == '.t'
 end
 
 ret.load = function(busted, filename)
-  local file, err = terralib.loadfile(filename)
-  if not file then
-    busted.publish({ 'error', 'file' }, { descriptor = 'file', name = filename }, nil, err, {})
+  if not terra_available then
+    busted.publish({ 'error', 'file' }, { descriptor = 'file', name = filename }, nil, "unable to load terra", {})
+  else
+    local file, err = terralib.loadfile(filename)
+    if not file then
+      busted.publish({ 'error', 'file' }, { descriptor = 'file', name = filename }, nil, err, {})
+    end
+    return file, getTrace
   end
-  return file, getTrace
 end
 
 return ret
