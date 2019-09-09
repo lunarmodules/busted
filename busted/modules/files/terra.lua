@@ -18,7 +18,7 @@ end
 
 ret.load = function(busted, filename)
   if not terra_available then
-    busted.publish({ 'error', 'file' }, { descriptor = 'file', name = filename }, nil, "unable to load terra", {})
+    error "unable to load terra"
   else
     local file, err = terralib.loadfile(filename)
     if not file then
