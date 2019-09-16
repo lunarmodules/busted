@@ -18,7 +18,7 @@ end
 
 ret.load = function(busted, filename)
   if not terra_available then
-    error "unable to load terra"
+    error "unable to load terra, try running without terra language support enabled or installing terra."
   else
     local file, err = terralib.loadfile(filename)
     if not file then
