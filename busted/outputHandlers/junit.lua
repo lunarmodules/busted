@@ -16,6 +16,7 @@ return function(options)
   }
   local stack = {}
   local testcase_node
+  local output_file_name
   if 'table' == type(options.arguments) then
     --the first argument should be the name of the xml file.
     output_file_name = options.arguments[1]
