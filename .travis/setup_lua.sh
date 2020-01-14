@@ -8,7 +8,7 @@
 
 set -eufo pipefail
 
-LUAJIT_VERSION="2.0.4"
+LUAJIT_VERSION="2.0.5"
 LUAJIT_BASE="LuaJIT-$LUAJIT_VERSION"
 
 source .travis/platform.sh
@@ -41,14 +41,18 @@ if [ "$LUAJIT" == "yes" ]; then
 
   if [ "$LUA" == "luajit" ]; then
     curl --location https://github.com/LuaJIT/LuaJIT/archive/v$LUAJIT_VERSION.tar.gz | tar xz;
+    cd $LUAJIT_BASE
   else
-    git clone https://github.com/LuaJIT/LuaJIT.git $LUAJIT_BASE;
-  fi
+    git clone https://github.com/LuaJIT/LuaJIT.git
+    cd LuaJIT
 
-  cd $LUAJIT_BASE
+    if [ "$LUA" == "luajit2.0" ]; then
+      git checkout v2.0;
+    fi
+    if [ "$LUA" == "luajit2.1" ]; then
+      git checkout v2.1;
+    fi
 
-  if [ "$LUA" == "luajit2.1" ]; then
-    git checkout v2.1;
     # force the INSTALL_TNAME to be luajit
     perl -i -pe 's/INSTALL_TNAME=.+/INSTALL_TNAME= luajit/' Makefile
   fi
