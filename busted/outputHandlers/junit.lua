@@ -14,6 +14,7 @@ return function(options)
       skip = 0,
     })
   }
+  local output_file_name
   local stack = {}
   local testcase_node
   if 'table' == type(options.arguments) then

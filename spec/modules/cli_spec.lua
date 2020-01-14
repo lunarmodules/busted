@@ -1,9 +1,9 @@
 local path = require 'pl.path'
 local normpath = path.normpath
+local defaultOutput = 'default_output_handler'
 
 describe('Tests command-line interface', function()
   it('default options', function()
-    local defaultOutput = 'default_output_handler'
     local lpath = './src/?.lua;./src/?/?.lua;./src/?/init.lua'
     local cpath = path.is_windows and './csrc/?.dll;./csrc/?/?.dll;' or './csrc/?.so;./csrc/?/?.so;'
     local cli = require 'busted.modules.cli'({ standalone = false, output = defaultOutput })

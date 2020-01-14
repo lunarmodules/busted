@@ -18,7 +18,7 @@ local execute = function(cmd)
 end
 
 local executeBusted = function(args)
-  local success, exitcode, out, err = execute(busted_cmd .. ' ' .. args)
+  local success, _, out, err = execute(busted_cmd .. ' ' .. args)
   local count = 0
   for failures, errors in out:gmatch('(%d+) failures? / (%d+) errors?') do
     count = count + failures + errors
@@ -27,7 +27,7 @@ local executeBusted = function(args)
 end
 
 local executeLua = function(args)
-  local success, exitcode, out, err = execute('lua ' .. args)
+  local success, _, out, err = execute('lua ' .. args)
   local count = 0
   for failures, errors in out:gmatch('(%d+) failures? / (%d+) errors?') do
     count = count + failures + errors
@@ -65,9 +65,9 @@ describe('Tests the busted command-line options', function()
   end)
 
   it('tests running with --tags and --exclude-tags specified', function ()
-    local success, errcnt = executeBusted('--pattern=_tags.lua$ --tags=tag1 --exclude-tags=tag1')
+    local success, _ = executeBusted('--pattern=_tags.lua$ --tags=tag1 --exclude-tags=tag1')
     assert.is_false(success)
-    success, errcnt = executeBusted('--pattern=_tags.lua$ --tags=tag3 --exclude-tags=tag4')
+    success, _ = executeBusted('--pattern=_tags.lua$ --tags=tag3 --exclude-tags=tag4')
     assert.is_false(success)
   end)
 
@@ -90,7 +90,7 @@ describe('Tests the busted command-line options', function()
     local success, errcnt = executeBusted('--pattern="cl_two_failures.lua$" --exclude-pattern ""')
     assert.is_false(success)
     assert.is_equal(2, errcnt)
-    local success, errcnt = executeBusted('--pattern="cl_success.lua$" --exclude-pattern=')
+    success = executeBusted('--pattern="cl_success.lua$" --exclude-pattern=')
     assert.is_true(success)
   end)
 
@@ -125,12 +125,12 @@ describe('Tests the busted command-line options', function()
     success, errcnt = executeBusted('--pattern=_filter.lua$ --filter-out="patt1" --filter-out="patt2"')
     assert.is_false(success)
     assert.is_equal(3, errcnt)
-    success, errcnt = executeBusted('--pattern=_filter.lua$ --filter-out="patt.*(%d)"')
+    success = executeBusted('--pattern=_filter.lua$ --filter-out="patt.*(%d)"')
     assert.is_true(success)
   end)
 
   it('tests running with --filter and --filter-out specified', function ()
-    local success, errcnt = executeBusted('--pattern=_filter.lua$ --filter="pattern3" --filter-out="patt.*[12]"')
+    local success, _ = executeBusted('--pattern=_filter.lua$ --filter="pattern3" --filter-out="patt.*[12]"')
     assert.is_true(success)
   end)
 
@@ -184,7 +184,7 @@ describe('Tests the busted command-line options', function()
     local success, errcnt = executeBusted('--pattern=cl_success.lua$ --lang=en')
     assert.is_true(success)
     assert.is_equal(0, errcnt)
-    success, errcnt = executeBusted('--pattern=cl_success --lang=not_found_here')
+    success = executeBusted('--pattern=cl_success --lang=not_found_here')
     assert.is_false(success)
   end)
 
@@ -195,7 +195,7 @@ describe('Tests the busted command-line options', function()
   end)
 
   it('tests running with --help specified', function()
-    local success, errcnt = executeBusted('--help')
+    local success, _ = executeBusted('--help')
     assert.is_false(success)
   end)
 
@@ -224,7 +224,7 @@ describe('Tests the busted command-line options', function()
   end)
 
   it('tests running a configfile throwing errors when being run', function()
-    local success, errcnt, out, err = executeBusted('--config-file=spec/.hidden/.busted_bad --pattern=cl_execute_fail.lua$')
+    local success, errcnt, _, _ = executeBusted('--config-file=spec/.hidden/.busted_bad --pattern=cl_execute_fail.lua$')
     assert.is_false(success)
     assert.is_equal(0, errcnt)
   end)
@@ -296,9 +296,9 @@ describe('Test busted running standalone', function()
   end)
 
   it('tests running with --tags and --exclude-tags specified', function ()
-    local success, errcnt = executeLua('spec/cl_standalone.lua --tags=tag1 --exclude-tags=tag1')
+    local success, _ = executeLua('spec/cl_standalone.lua --tags=tag1 --exclude-tags=tag1')
     assert.is_false(success)
-    success, errcnt = executeLua('spec/cl_standalone.lua --tags=tag3 --exclude-tags=tag4')
+    success, _ = executeLua('spec/cl_standalone.lua --tags=tag3 --exclude-tags=tag4')
     assert.is_true(success)
   end)
 
@@ -315,7 +315,7 @@ describe('Test busted running standalone', function()
   end)
 
   it('tests running with --help specified', function()
-    local success, errcnt = executeLua('spec/cl_standalone.lua --help')
+    local success = executeLua('spec/cl_standalone.lua --help')
     assert.is_false(success)
   end)
 
@@ -446,7 +446,7 @@ describe('Tests error messages through the command line', function()
   end)
 
   it('when output library not found', function()
-    local _, _, result, rerr = executeBusted('--pattern=cl_two_failures.lua$ --output=not_found_here 2>&1')
+    local _, _, _, rerr = executeBusted('--pattern=cl_two_failures.lua$ --output=not_found_here 2>&1')
     local errmsg = rerr:match('(.-)\n')
     local expected = 'busted: error: Cannot load output library: not_found_here'
     assert.is_equal(expected, errmsg)
@@ -587,8 +587,7 @@ describe('Tests random seed through the commandline', function()
   end)
 
   it('test invalid seed value exits with error', function()
-    local success, errcnt
-    success, errcnt = executeBusted('--seed=abcd --pattern=cl_random_seed.lua$')
+    local success, _ = executeBusted('--seed=abcd --pattern=cl_random_seed.lua$')
     assert.is_false(success)
   end)
 
@@ -633,8 +632,7 @@ describe('Tests repeat commandline option', function()
   end)
 
   it('exits with error when repeat is invalid', function()
-    local success, errcnt
-    success, errcnt = executeBusted('--repeat=abc --pattern=cl_success.lua$')
+    local success, _ = executeBusted('--repeat=abc --pattern=cl_success.lua$')
     assert.is_false(success)
   end)
 end)
@@ -740,7 +738,7 @@ describe('Tests helper script', function()
   end)
 
   it('can subscribe to suite start/reset', function()
-    local success, errcnt, result = executeBusted('--helper=spec/cl_helper_script.lua -Xhelper "--fail-suite-start,--fail-suite-reset" --pattern=cl_success.lua$ --repeat=2')
+    local success, errcnt = executeBusted('--helper=spec/cl_helper_script.lua -Xhelper "--fail-suite-start,--fail-suite-reset" --pattern=cl_success.lua$ --repeat=2')
     assert.is_false(success)
     assert.is_equal(3, errcnt)
   end)

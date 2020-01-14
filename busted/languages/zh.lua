@@ -21,7 +21,7 @@ s:set('output.success_single', '成功')
 
 s:set('output.seconds', '秒')
 
--- definitions following are not used within the 'say' namespace 
+-- definitions following are not used within the 'say' namespace
 return {
   failure_messages = {
     '你一共提交了[%d]个测试用例',

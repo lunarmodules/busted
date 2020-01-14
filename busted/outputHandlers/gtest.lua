@@ -1,4 +1,3 @@
-local s = require 'say'
 local pretty = require 'pl.pretty'
 local term = require 'term'
 local io = io
@@ -62,7 +61,6 @@ return function(options)
   local errorCount = 0
 
   local pendingDescription = function(pending)
-    local name = pending.name
     local string = ''
 
     if type(pending.message) == 'string' then

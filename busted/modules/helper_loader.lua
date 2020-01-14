@@ -17,7 +17,7 @@ return function()
       end
     end)
 
-    arg = old_arg
+    arg = old_arg   --luacheck: ignore
 
     if not success then
       busted.publish({ 'error', 'helper' }, { descriptor = 'helper', name = helper }, nil, err, {})
