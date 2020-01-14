@@ -26,7 +26,7 @@ ignore = {
 
 
 exclude_files = {
-    --"here/**"
+    "install/**",
     "spec/insulate-expose_spec.lua",
     "spec/cl_compile_fail.lua",
 }

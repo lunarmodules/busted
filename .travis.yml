@@ -15,11 +15,12 @@ before_install:
   - source .travis/setenv_lua.sh
   - luarocks install luasec
   - luarocks install moonscript
+  - luarocks install luacheck
 
 install:
   - luarocks make
 
-script: busted
+script: luacheck . && busted
 
 branches:
   except:
