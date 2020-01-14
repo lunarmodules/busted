@@ -61,6 +61,7 @@ if [ "$LUAJIT" == "yes" ]; then
 
   ln -s $LUA_HOME_DIR/bin/luajit $HOME/.lua/luajit
   ln -s $LUA_HOME_DIR/bin/luajit $HOME/.lua/lua;
+  $HOME/.lua/luajit -v
 
 else
 
