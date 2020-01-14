@@ -1,9 +1,10 @@
 busted
 ======
 
+[![travis-ci status](https://secure.travis-ci.org/Olivine-Labs/busted.png)](http://travis-ci.org/Olivine-Labs/busted/builds)
 [![Join the chat at https://gitter.im/Olivine-Labs/busted](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Olivine-Labs/busted?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-[![travis-ci status](https://secure.travis-ci.org/Olivine-Labs/busted.png)](http://travis-ci.org/Olivine-Labs/busted/builds)
+
 
 busted is a unit testing framework with a focus on being **easy to
 use**. Supports Lua >= 5.1, luajit >= 2.0.0, and moonscript.
@@ -60,8 +61,8 @@ end)
 Contributing
 ------------
 
-See CONTRIBUTING.md. All issues, suggestions, and most importantly pull requests
-are welcome.
+See [CONTRIBUTING.md](https://github.com/Olivine-Labs/busted/blob/master/CONTRIBUTING.md).
+All issues, suggestions, and most importantly pull requests are welcome.
 
 Testing
 -------
@@ -90,5 +91,5 @@ busted spec
 License
 -------
 
-Copyright 2013 Olivine Labs, LLC.
-MIT licensed. See LICENSE for details.
+Copyright 2012-2020 Olivine Labs, LLC.
+MIT licensed. See [LICENSE for details](https://github.com/Olivine-Labs/busted/blob/master/LICENSE).
