@@ -128,7 +128,6 @@ return function()
       return nil, true
     elseif status == 'error' then
       -- error count already incremented and saved in error handler
-      insertTable = handler.errors
       return nil, true
     end
 

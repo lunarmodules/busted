@@ -1,2 +1,2 @@
-local luacov = require 'busted.modules.luacov'()
+require 'busted.modules.luacov'()
 

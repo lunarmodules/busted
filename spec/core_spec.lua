@@ -1,5 +1,5 @@
 --ensure environment is set up
-assert(type(file) == 'nil')
+assert(type(file) == 'nil')  --luacheck: ignore
 assert(type(describe) == 'function')
 assert(type(context) == 'function')
 assert(type(it) == 'function')
@@ -52,7 +52,7 @@ describe('Both before and after each', function()
   it('checks if both were called', function() end)
   it('runs again just to be sure', function() end)
 
-  it('checks the value', function() 
+  it('checks the value', function()
     assert(test_val == 5)
   end)
 end)
@@ -230,67 +230,67 @@ describe('finally callback is called in case of success', function()
 end)
 
 describe('tests environment', function()
-  global = 'global'
+  global = 'global'  --luacheck: ignore
 
   setup(function()
-    globalsetup = 'globalsetup'
+    globalsetup = 'globalsetup'  --luacheck: ignore
   end)
 
   teardown(function()
-    globalteardown = 'globalteardown'
+    globalteardown = 'globalteardown'  --luacheck: ignore
   end)
 
   before_each(function()
-    globalbefore = 'globalbefore'
+    globalbefore = 'globalbefore'  --luacheck: ignore
   end)
 
   after_each(function()
-    globalafter = 'globalafter'
+    globalafter = 'globalafter'  --luacheck: ignore
   end)
 
   it('cannot access globals which have not been created yet', function()
-    assert.equal(nil, globalafter)
-    assert.equal(nil, globalteardown)
-    notglobal = 'notglobal'
+    assert.equal(nil, globalafter)  --luacheck: ignore
+    assert.equal(nil, globalteardown)  --luacheck: ignore
+    notglobal = 'notglobal'  --luacheck: ignore
   end)
 
   it('can access globals', function()
-    assert.equal('global', global)
-    assert.equal('globalsetup', globalsetup)
-    assert.equal('globalbefore', globalbefore)
-    assert.equal('globalafter', globalafter)
-    notglobal = 'notglobal'
+    assert.equal('global', global)  --luacheck: ignore
+    assert.equal('globalsetup', globalsetup)  --luacheck: ignore
+    assert.equal('globalbefore', globalbefore)  --luacheck: ignore
+    assert.equal('globalafter', globalafter)  --luacheck: ignore
+    notglobal = 'notglobal'  --luacheck: ignore
   end)
 
   it('cannot access globals set in siblings', function()
-    assert.equal(nil, notglobal)
+    assert.equal(nil, notglobal)  --luacheck: ignore
   end)
 
   describe('can access parent globals', function()
     it('from child', function()
-      assert.equal('global', global)
-      assert.equal('globalsetup', globalsetup)
-      assert.equal('globalbefore', globalbefore)
-      assert.equal('globalafter', globalafter)
+      assert.equal('global', global)  --luacheck: ignore
+      assert.equal('globalsetup', globalsetup)  --luacheck: ignore
+      assert.equal('globalbefore', globalbefore)  --luacheck: ignore
+      assert.equal('globalafter', globalafter)  --luacheck: ignore
     end)
   end)
 
   describe('cannot access globals set in children', function()
     it('has a global', function()
-      notglobal = 'notglobal'
+      notglobal = 'notglobal'  --luacheck: ignore
     end)
 
-    assert.are.equal(notglobal, nil)
+    assert.are.equal(notglobal, nil)  --luacheck: ignore
   end)
 end)
 
 describe('tests clean environment', function()
   it('globals in previous describe are not available', function()
-    assert.is_nil(global)
-    assert.is_nil(globalsetup)
-    assert.is_nil(globalbefore)
-    assert.is_nil(globalafter)
-    assert.is_nil(globalteardown)
+    assert.is_nil(global)  --luacheck: ignore
+    assert.is_nil(globalsetup)  --luacheck: ignore
+    assert.is_nil(globalbefore)  --luacheck: ignore
+    assert.is_nil(globalafter)  --luacheck: ignore
+    assert.is_nil(globalteardown)  --luacheck: ignore
   end)
 end)
 
@@ -336,7 +336,7 @@ end)
 
 describe('tests unsupported functions', function()
   it('it block does not have file executor', function()
-    assert.is_nil(file)
+    assert.is_nil(file)  --luacheck: ignore
   end)
 
   it('it block throws error on describe/context', function()
@@ -382,7 +382,7 @@ end)
 
 describe('tests unsupported functions in setup/before_each/after_each/teardown', function()
   local function testUnsupported()
-    assert.is_nil(file)
+    assert.is_nil(file)  --luacheck: ignore
     assert.is_nil(finally)
     assert.has_error(randomize, "'randomize' not supported inside current context block")
 
