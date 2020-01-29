@@ -154,6 +154,20 @@ return function(options)
       exists[def] = true
       return old_cdef(def)
     end
+
+    -- Now patch ffi.typeof to only be called once with each definition, as it
+    -- will error on re-registering.
+    local old_typeof = ffi.typeof
+    local exists_typeof = {}
+    ffi.typeof = function(def)
+      if exists_typeof[def] then return exists_typeof[def] end
+      local ok, err = old_typeof(def)
+      if ok then
+        exists_typeof[def] = ok
+        return ok
+      end
+      return ok, err
+    end
   end
 
   -- Set up helper script
