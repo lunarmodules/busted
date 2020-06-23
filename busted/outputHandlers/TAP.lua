@@ -1,4 +1,5 @@
 local pretty = require 'pl.pretty'
+local print = print
 local io = io
 
 return function(options)
