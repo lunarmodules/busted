@@ -138,37 +138,7 @@ return function(options)
   })
 
   -- Pre-load the LuaJIT 'ffi' module if applicable
-  local isJit = (tostring(assert):match('builtin') ~= nil)
-  if isJit then
-    -- pre-load the ffi module, such that it becomes part of the environment
-    -- and Busted will not try to GC and reload it. The ffi is not suited
-    -- for that and will occasionally segfault if done so.
-    local ffi = require "ffi"
-
-    -- Now patch ffi.cdef to only be called once with each definition, as it
-    -- will error on re-registering.
-    local old_cdef = ffi.cdef
-    local exists = {}
-    ffi.cdef = function(def)
-      if exists[def] then return end
-      exists[def] = true
-      return old_cdef(def)
-    end
-
-    -- Now patch ffi.typeof to only be called once with each definition, as it
-    -- will error on re-registering.
-    local old_typeof = ffi.typeof
-    local exists_typeof = {}
-    ffi.typeof = function(def)
-      if exists_typeof[def] then return exists_typeof[def] end
-      local ok, err = old_typeof(def)
-      if ok then
-        exists_typeof[def] = ok
-        return ok
-      end
-      return ok, err
-    end
-  end
+  require 'busted.luajit'()
 
   -- Set up helper script
   if cliArgs.helper and cliArgs.helper ~= '' then
