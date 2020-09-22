@@ -1,5 +1,14 @@
 local pretty = require 'pl.pretty'
 local io = io
+local type = type
+local string_format = string.format
+local string_gsub = string.gsub
+local io_write = io.write
+local io_flush = io.flush
+
+local function print(msg)
+  io_write(msg .. '\n')
+end
 
 return function(options)
   local busted = require 'busted'
@@ -17,7 +26,7 @@ return function(options)
 
   handler.suiteEnd = function()
     print('1..' .. counter)
-    io.flush()
+    io_flush()
     return nil, true
   end
 
@@ -31,12 +40,14 @@ return function(options)
       message = pretty.write(message)
     end
 
-    print(failure:format(counter, t.name))
+    print(string_format(failure, counter, t.name))
     print('# ' .. t.element.trace.short_src .. ' @ ' .. t.element.trace.currentline)
-    if t.randomseed then print('# Random seed: ' .. t.randomseed) end
-    print('# Failure message: ' .. message:gsub('\n', '\n# '))
+    if t.randomseed then
+      print('# Random seed: ' .. t.randomseed)
+    end
+    print('# Failure message: ' .. string_gsub(message, '\n', '\n# '))
     if options.verbose and trace.traceback then
-      print('# ' .. trace.traceback:gsub('^\n', '', 1):gsub('\n', '\n# '))
+      print('# ' .. string_gsub(string_gsub(trace.traceback, '^\n', '', 1), '\n', '\n# '))
     end
   end
 
@@ -56,10 +67,10 @@ return function(options)
     counter = counter + 1
     if status == 'success' then
       local t = handler.successes[#handler.successes]
-      print(success:format(counter, t.name))
+      print(string_format(success, counter, t.name))
     elseif status == 'pending' then
       local t = handler.pendings[#handler.pendings]
-      print(skip:format(counter, (t.message or t.name)))
+      print(string_format(skip, counter, (t.message or t.name)))
     elseif status == 'failure' then
       showFailure(handler.failures[#handler.failures])
     elseif status == 'error' then

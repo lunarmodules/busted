@@ -1,6 +1,11 @@
 local pretty = require 'pl.pretty'
 local term = require 'term'
 local io = io
+local type = type
+local ipairs = ipairs
+local string_format = string.format
+local io_write = io.write
+local io_flush = io.flush
 
 local colors
 
@@ -106,13 +111,13 @@ return function(options)
     if count > 0 and header then
       local tests = (count == 1 and 'test' or 'tests')
       local errors = (count == 1 and 'error' or 'errors')
-      string = header:format(count, status == 'error' and errors or tests)
+      string = string_format(header, count, status == 'error' and errors or tests)
 
       local testString = summaryStrings[status].test
       if testString then
         for _, t in ipairs(list) do
           local fullname = getFileLine(t.element) .. colors.bright(t.name)
-          string = string .. testString:format(fullname)
+          string = string .. string_format(testString, fullname)
           if options.deferPrint then
             string = string .. getDescription(t)
           end
@@ -128,14 +133,14 @@ return function(options)
     if count > 0 and footer then
       local tests = (count == 1 and 'TEST' or 'TESTS')
       local errors = (count == 1 and 'ERROR' or 'ERRORS')
-      string = footer:format(count, status == 'error' and errors or tests)
+      string = string_format(footer, count, status == 'error' and errors or tests)
     end
     return string
   end
 
   local getSummaryString = function()
     local tests = (successCount == 1 and 'test' or 'tests')
-    local string = successStatus:format(successCount, tests)
+    local string = string_format(successStatus, successCount, tests)
 
     string = string .. getTestList('skipped', skippedCount, handler.pendings, pendingDescription)
     string = string .. getTestList('failure', failureCount, handler.failures, failureDescription)
@@ -167,14 +172,14 @@ return function(options)
 
   handler.suiteStart = function(suite, count, total, randomseed)
     if total > 1 then
-      io.write(repeatSuiteString:format(count, total))
+      io_write(string_format(repeatSuiteString, count, total))
     end
     if randomseed then
-      io.write(randomizeString:format(randomseed))
+      io_write(string_format(randomizeString, randomseed))
     end
-    io.write(suiteStartString)
-    io.write(globalSetup)
-    io.flush()
+    io_write(suiteStartString)
+    io_write(globalSetup)
+    io_flush()
 
     return nil, true
   end
@@ -183,18 +188,18 @@ return function(options)
     local elapsedTime_ms = suite.duration * 1000
     local tests = (testCount == 1 and 'test' or 'tests')
     local files = (fileCount == 1 and 'file' or 'files')
-    io.write(globalTeardown)
-    io.write(suiteEndString:format(testCount, tests, fileCount, files, elapsedTime_ms))
-    io.write(getSummaryString())
-    io.flush()
+    io_write(globalTeardown)
+    io_write(string_format(suiteEndString, testCount, tests, fileCount, files, elapsedTime_ms))
+    io_write(getSummaryString())
+    io_flush()
 
     return nil, true
   end
 
   handler.fileStart = function(file)
     fileTestCount = 0
-    io.write(fileStartString:format(file.name))
-    io.flush()
+    io_write(string_format(fileStartString, file.name))
+    io_flush()
     return nil, true
   end
 
@@ -202,14 +207,14 @@ return function(options)
     local elapsedTime_ms = file.duration * 1000
     local tests = (fileTestCount == 1 and 'test' or 'tests')
     fileCount = fileCount + 1
-    io.write(fileEndString:format(fileTestCount, tests, file.name, elapsedTime_ms))
-    io.flush()
+    io_write(string_format(fileEndString, fileTestCount, tests, file.name, elapsedTime_ms))
+    io_flush()
     return nil, true
   end
 
   handler.testStart = function(element, parent)
-    io.write(runString:format(getFullName(element)))
-    io.flush()
+    io_write(string_format(runString, getFullName(element)))
+    io_flush()
 
     return nil, true
   end
@@ -234,24 +239,24 @@ return function(options)
       string = errorString
     end
 
-    io.write(string:format(getFullName(element), elapsedTime_ms))
-    io.flush()
+    io_write(string_format(string, getFullName(element), elapsedTime_ms))
+    io_flush()
 
     return nil, true
   end
 
   handler.testFailure = function(element, parent, message, debug)
     if not options.deferPrint then
-      io.write(failureDescription(handler.failures[#handler.failures]))
-      io.flush()
+      io_write(failureDescription(handler.failures[#handler.failures]))
+      io_flush()
     end
     return nil, true
   end
 
   handler.testError = function(element, parent, message, debug)
     if not options.deferPrint then
-      io.write(failureDescription(handler.errors[#handler.errors]))
-      io.flush()
+      io_write(failureDescription(handler.errors[#handler.errors]))
+      io_flush()
     end
     return nil, true
   end
@@ -259,8 +264,8 @@ return function(options)
   handler.error = function(element, parent, message, debug)
     if element.descriptor ~= 'it' then
       if not options.deferPrint then
-        io.write(failureDescription(handler.errors[#handler.errors]))
-        io.flush()
+        io_write(failureDescription(handler.errors[#handler.errors]))
+        io_flush()
       end
       errorCount = errorCount + 1
     end
