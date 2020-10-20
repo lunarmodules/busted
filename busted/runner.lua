@@ -140,13 +140,18 @@ return function(options)
   -- Pre-load the LuaJIT 'ffi' module if applicable
   require 'busted.luajit'()
 
-  -- Set up helper script
+  -- Set up helper script, must succeed to even start tests
   if cliArgs.helper and cliArgs.helper ~= '' then
-    helperLoader(busted, cliArgs.helper, {
+    local ok, err = helperLoader(busted, cliArgs.helper, {
       verbose = cliArgs.verbose,
       language = cliArgs.lang,
       arguments = cliArgs.Xhelper
     })
+    if not ok then
+      io.stderr:write(appName .. ': failed running the specified helper (' ..
+                      cliArgs.helper .. '), error: ' .. err .. '\n')
+      exit(1, forceExit)
+    end
   end
 
   -- Load tag and test filters
