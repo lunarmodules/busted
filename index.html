@@ -1152,7 +1152,7 @@ end)
 
 local output = function(options)
   local busted = require("busted")
-  local handler = require("busted.outputHandler.base")()
+  local handler = require("busted.outputHandlers.base")()
 
   handler.testStart = function(element, parent)
     -- this function is called before a test is started
