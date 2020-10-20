@@ -1,5 +1,7 @@
 local app = require 'pl.app'
 local io = io
+local io_popen = io.popen
+local math_random = math.random
 
 return function(options)
   local busted = require 'busted'
@@ -28,7 +30,7 @@ return function(options)
       messages = language.success_messages
     end
 
-    io.popen(sayer_pre .. '"' .. messages[math.random(1, #messages)] .. '"' .. sayer_post)
+    io_popen(sayer_pre .. '"' .. messages[math_random(1, #messages)] .. '"' .. sayer_post)
 
     return nil, true
   end

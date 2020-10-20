@@ -1,3 +1,6 @@
+local table_concat = table.concat
+local table_insert = table.insert
+
 return function()
   local busted = require 'busted'
   local handler = {
@@ -43,11 +46,11 @@ return function()
     while parent and (parent.name or parent.descriptor) and
           parent.descriptor ~= 'file' do
 
-      table.insert(names, 1, parent.name or parent.descriptor)
+      table_insert(names, 1, parent.name or parent.descriptor)
       parent = busted.parent(parent)
     end
 
-    return table.concat(names, ' ')
+    return table_concat(names, ' ')
   end
 
   handler.format = function(element, parent, message, debug, isError)
@@ -142,7 +145,7 @@ return function()
       handler.inProgress[id] = nil
     end
 
-    table.insert(insertTable, formatted)
+    table_insert(insertTable, formatted)
 
     return nil, true
   end
@@ -155,20 +158,20 @@ return function()
   end
 
   handler.baseTestFailure = function(element, parent, message, debug)
-    table.insert(handler.failures, handler.format(element, parent, message, debug))
+    table_insert(handler.failures, handler.format(element, parent, message, debug))
     return nil, true
   end
 
   handler.baseTestError = function(element, parent, message, debug)
     handler.errorsCount = handler.errorsCount + 1
-    table.insert(handler.errors, handler.format(element, parent, message, debug, true))
+    table_insert(handler.errors, handler.format(element, parent, message, debug, true))
     return nil, true
   end
 
   handler.baseError = function(element, parent, message, debug)
     if element.descriptor ~= 'it' then
       handler.errorsCount = handler.errorsCount + 1
-      table.insert(handler.errors, handler.format(element, parent, message, debug, true))
+      table_insert(handler.errors, handler.format(element, parent, message, debug, true))
     end
 
     return nil, true

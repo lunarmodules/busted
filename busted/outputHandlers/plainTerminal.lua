@@ -1,6 +1,12 @@
 local s = require 'say'
 local pretty = require 'pl.pretty'
 local io = io
+local type = type
+local string_format = string.format
+local string_gsub = string.gsub
+local io_write = io.write
+local io_flush = io.flush
+local pairs = pairs
 
 return function(options)
   local busted = require 'busted'
@@ -102,7 +108,7 @@ return function(options)
       errorString = s('output.error_single')
     end
 
-    local formattedTime = ('%.6f'):format(sec):gsub('([0-9])0+$', '%1')
+    local formattedTime = string_gsub(string_format('%.6f', sec), '([0-9])0+$', '%1')
 
     return successes .. ' ' .. successString .. ' / ' ..
       failures .. ' ' .. failureString .. ' / ' ..
@@ -123,8 +129,8 @@ return function(options)
         string = errorDot
       end
 
-      io.write(string)
-      io.flush()
+      io_write(string)
+      io_flush()
     end
 
     return nil, true
@@ -132,37 +138,37 @@ return function(options)
 
   handler.suiteStart = function(suite, count, total)
     local runString = (total > 1 and '\nRepeating all tests (run %u of %u) . . .\n\n' or '')
-    io.write(runString:format(count, total))
-    io.flush()
+    io_write(string_format(runString, count, total))
+    io_flush()
 
     return nil, true
   end
 
   handler.suiteEnd = function()
-    print('')
-    print(statusString())
+    io_write('\n')
+    io_write(statusString()..'\n')
 
     for i, pending in pairs(handler.pendings) do
-      print('')
-      print(pendingDescription(pending))
+      io_write('\n')
+      io_write(pendingDescription(pending)..'\n')
     end
 
     for i, err in pairs(handler.failures) do
-      print('')
-      print(failureDescription(err))
+      io_write('\n')
+      io_write(failureDescription(err)..'\n')
     end
 
     for i, err in pairs(handler.errors) do
-      print('')
-      print(failureDescription(err, true))
+      io_write('\n')
+      io_write(failureDescription(err, true)..'\n')
     end
 
     return nil, true
   end
 
   handler.error = function(element, parent, message, debug)
-    io.write(errorDot)
-    io.flush()
+    io_write(errorDot)
+    io_flush()
 
     return nil, true
   end

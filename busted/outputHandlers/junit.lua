@@ -1,6 +1,14 @@
 local xml = require 'pl.xml'
 local string = require("string")
 local io = io
+local type = type
+local string_format = string.format
+local io_open = io.open
+local io_write = io.write
+local io_flush = io.flush
+local os_date = os.date
+local table_insert = table.insert
+local table_remove = table.remove
 
 return function(options)
   local busted = require 'busted'
@@ -31,18 +39,18 @@ return function(options)
         errors = 0,
         failures = 0,
         skip = 0,
-        timestamp = os.date('!%Y-%m-%dT%H:%M:%S'),
+        timestamp = os_date('!%Y-%m-%dT%H:%M:%S'),
       })
     }
     top.xml_doc:add_direct_child(suite_xml.xml_doc)
-    table.insert(stack, top)
+    table_insert(stack, top)
     top = suite_xml
 
     return nil, true
   end
 
   local function formatDuration(duration)
-    return string.format("%.2f", duration)
+    return string_format("%.2f", duration)
   end
 
   local function elapsed(start_time)
@@ -53,7 +61,7 @@ return function(options)
     local suite_xml = top
     suite_xml.xml_doc.attr.time = formatDuration(suite.duration)
 
-    top = table.remove(stack)
+    top = table_remove(stack)
     top.xml_doc.attr.tests = top.xml_doc.attr.tests + suite_xml.xml_doc.attr.tests
     top.xml_doc.attr.errors = top.xml_doc.attr.errors + suite_xml.xml_doc.attr.errors
     top.xml_doc.attr.failures = top.xml_doc.attr.failures + suite_xml.xml_doc.attr.failures
@@ -67,14 +75,16 @@ return function(options)
     local output_string = xml.tostring(top.xml_doc, '', '\t', nil, false)
     local file
     if 'string' == type(output_file_name) then
-      file = io.open(output_file_name, 'w+b' )
+      file = io_open(output_file_name, 'w+b' )
     end
     if file then
       file:write(output_string)
       file:write('\n')
       file:close()
     else
-      print(output_string)
+      io_write(output_string)
+      io_write("\n")
+      io_flush()
     end
     return nil, true
   end
