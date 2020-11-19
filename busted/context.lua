@@ -17,9 +17,9 @@ local function restore(state)
   for k,_ in next, _G, nil do
     rawset(_G, k, state.g[k])
   end
-  for k,_ in pairs(package.loaded) do
-    package.loaded[k] = state.loaded[k]
-  end
+  local set = function(k) package.loaded[k] = state.loaded[k] end
+  for k,_ in pairs(package.loaded) do set(k) end
+  for k,_ in pairs(state.loaded) do set(k) end
 end
 
 return function()
