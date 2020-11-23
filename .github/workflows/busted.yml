@@ -38,6 +38,8 @@ jobs:
           .luarocks
         key: lua-${{ matrix.luaVersion }}-${{ matrix.penlightVersion }}-${{ hashFiles('busted-scm-2.rockspec', '.github/workflows/busted.yml') }}
     - name: Build
-      run: luarocks make
+      run: |
+        luarocks remove busted --force ||:
+        luarocks make
     - name: Run tests
       run: busted -v
