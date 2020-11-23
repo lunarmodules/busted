@@ -22,10 +22,13 @@ jobs:
       uses: leafo/gh-actions-luarocks@v4
     - name: Setup dependencies
       run: |
+        sudo apt-get install libev-dev
         luarocks install penlight ${{ matrix.penlightVersion }}
         luarocks install --only-deps busted-scm-2.rockspec
         luarocks install luasec
         luarocks install moonscript
+        luarocks install copas
+        luarocks install lua-ev
     - name: Cache Lua machinery
       uses: actions/cache@v2
       with:
