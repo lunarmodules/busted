@@ -26,6 +26,14 @@ jobs:
         luarocks install --only-deps busted-scm-2.rockspec
         luarocks install luasec
         luarocks install moonscript
+    - name: Cache Lua machinery
+      uses: actions/cache@v2
+      with:
+        path: |
+          .install
+          .lua
+          .luarocks
+        key: lua-${{ matrix.luaVersion }}-${{ matrix.penlightVersion }}-${{ hashFiles('busted-scm-2.rockspec', '.github/workflows/busted.yml') }}
     - name: Build
       run: luarocks make
     - name: Run tests
