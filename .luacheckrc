@@ -26,6 +26,9 @@ ignore = {
 
 
 exclude_files = {
+    ".install",
+    ".lua",
+    ".luarocks",
     "spec/insulate-expose_spec.lua",
     "spec/cl_compile_fail.lua",
 }
