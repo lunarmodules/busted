@@ -5,7 +5,7 @@ return {
   -- @param sub_path [optional] a relative path to a file to be appended
   fixture_path = function(sub_path)
     local info = debug.getinfo(2)
-    path = info.source
+    local path = info.source
     if path:sub(1,1) == "@" then
       path = path:sub(2, -1)
     end
