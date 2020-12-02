@@ -87,11 +87,11 @@ local function init(busted)
 
   busted.hide('file')
 
-  local assert = require 'luassert'
-  local spy    = require 'luassert.spy'
-  local mock   = require 'luassert.mock'
-  local stub   = require 'luassert.stub'
-  local match  = require 'luassert.match'
+  local assert = busted.require 'luassert'
+  local spy    = busted.require 'luassert.spy'
+  local mock   = busted.require 'luassert.mock'
+  local stub   = busted.require 'luassert.stub'
+  local match  = busted.require 'luassert.match'
 
   local fixture_path = require('busted.fixtures').fixture_path
 
