@@ -1,3 +1,13 @@
+local busted_internal_loaded = {}
+
+local busted_require = function (path)
+  local default_loaded = package.loaded
+  package.loaded = busted_internal_loaded
+  local pack = require(path)
+  package.loaded = default_loaded
+  return pack
+end
+
 local getfenv = require 'busted.compatibility'.getfenv
 local setfenv = require 'busted.compatibility'.setfenv
 local unpack = require 'busted.compatibility'.unpack
@@ -46,6 +56,8 @@ return function()
 
   local busted = {}
   busted.version = '2.0.0-0'
+
+  busted.require = busted_require
 
   local root = require 'busted.context'()
   busted.context = root.ref()
