@@ -2,7 +2,7 @@ busted
 ======
 
 [![Luacheck Lint Status](https://img.shields.io/github/workflow/status/Olivine-Labs/busted/Luacheck?label=Luacheck&logo=Lua)](https://github.com/Olivine-Labs/busted/actions?workflow=Luacheck)
-[![Busted Test Status](https://img.shields.io/github/workflow/status/Olivine-Labs/bustede/Busted?label=Linux%20Build&logo=Github)](https://github.com/Olivine-Labs/busted/actions?workflow=Busted)
+[![Busted Test Status](https://img.shields.io/github/workflow/status/Olivine-Labs/busted/Busted?label=Linux%20Build&logo=Github)](https://github.com/Olivine-Labs/busted/actions?workflow=Busted)
 [![Join the chat at https://gitter.im/Olivine-Labs/busted](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Olivine-Labs/busted?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 
