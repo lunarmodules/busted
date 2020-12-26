@@ -14,7 +14,7 @@ Check out the [official docs](http://olivinelabs.com/busted) for
 extended info.
 
 busted test specs read naturally without being too verbose. You can even
-chain asserts and negations, such as `assert.not.equals`. Nest blocks of
+chain asserts and negations, such as `assert.is_not.equal`. Nest blocks of
 tests with contextual descriptions using `describe`, and add tags to
 blocks so you can run arbitrary groups of tests.
 
