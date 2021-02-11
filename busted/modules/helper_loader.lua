@@ -6,14 +6,21 @@ return function()
   local loadHelper = function(busted, helper, options)
     local old_arg = _G.arg
     local success, err = pcall(function()
+      local fn
+
       utils.copy_interpreter_args(options.arguments)
       _G.arg = options.arguments
+
       if helper:match('%.lua$') then
-        dofile(path.normpath(helper))
+        fn = dofile(path.normpath(helper))
       elseif hasMoon and helper:match('%.moon$') then
-        moonscript.dofile(path.normpath(helper))
+        fn = moonscript.dofile(path.normpath(helper))
       else
-        require(helper)
+        fn = require(helper)
+      end
+
+      if type(fn) == 'function' then
+        assert(fn(busted, helper, options))
       end
     end)
 
