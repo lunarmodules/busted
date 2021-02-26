@@ -8,11 +8,7 @@ return function()
     end
 
     -- call it to start
-    luacov()
-
-    if config then
-      luacov.load_config(config)
-    end
+    luacov(config)
 
     -- exclude busted files
     table.insert(luacov.configuration.exclude, 'busted_bootstrap$')
