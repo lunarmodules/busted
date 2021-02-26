@@ -1,6 +1,6 @@
 return function()
   -- Function to initialize luacov if available
-  local loadLuaCov = function()
+  local loadLuaCov = function(config)
     local result, luacov = pcall(require, 'luacov.runner')
 
     if not result then
@@ -9,6 +9,10 @@ return function()
 
     -- call it to start
     luacov()
+
+    if config then
+      luacov.load_config(config)
+    end
 
     -- exclude busted files
     table.insert(luacov.configuration.exclude, 'busted_bootstrap$')

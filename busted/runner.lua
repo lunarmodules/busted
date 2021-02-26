@@ -56,7 +56,7 @@ return function(options)
 
   -- If coverage arg is passed in, load LuaCovsupport
   if cliArgs.coverage then
-    local ok, err = luacov()
+    local ok, err = luacov(cliArgs['coverage-config-file'])
     if not ok then
       io.stderr:write(appName .. ': error: ' .. err .. '\n')
       exit(1, forceExit)
