@@ -29,6 +29,7 @@ jobs:
         luarocks install moonscript
         luarocks install copas
         luarocks install lua-ev
+        luarocks install luacov
     - name: Cache Lua machinery
       uses: actions/cache@v2
       with:
