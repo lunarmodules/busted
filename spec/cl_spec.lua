@@ -261,7 +261,7 @@ describe('Tests the busted command-line options', function()
 
   it('tests running a configfile for luacov', function()
     local custom_config = normpath('spec/.hidden/.luacov')
-    local custom_report = normpath('/tmp/custom.report.out')
+    local custom_report = normpath('.ignore.luacov.report.out')
     local success, errcnt = executeBusted('--coverage-config-file=' .. custom_config .. ' spec/cl_success.lua')
     assert.is_true(success)
     assert.is_equal(0, errcnt)
