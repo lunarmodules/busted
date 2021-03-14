@@ -9,10 +9,10 @@ return {
   ['configfile'] = '.luacov',
 
   -- filename to store stats collected
-  ['statsfile'] = 'luacov.stats.out',
+  ['statsfile'] = '/tmp/luacov.stats.out',
 
   -- filename to store report
-  ['reportfile'] = 'custom.report.out',
+  ['reportfile'] = '/tmp/custom.report.out',
 
   -- Run reporter on completion? (won't work for ticks)
   runreport = true,
