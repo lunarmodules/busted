@@ -1,4 +1,5 @@
 local utils = require 'pl.utils'
+local file = require 'pl.file'
 local path = require 'pl.path'
 local normpath = path.normpath
 local busted_cmd = path.is_windows and 'lua bin/busted' or 'bin/busted'
@@ -256,6 +257,22 @@ describe('Tests the busted command-line options', function()
     assert.is_true(success)
     assert.is_equal(0, errcnt)
     assert.equal('bin/busted --ignore-lua --lua=' .. lua_exe .. ' spec/cl_success.lua\n', out)
+  end)
+
+  it('tests running a configfile for luacov', function()
+    local default_report = normpath('luacov.report.out')
+    local custom_report = normpath('custom.report.out')
+    success, errcnt = executeBusted('--coverage-config-file=spec/.hidden/.luacov spec/cl_success.lua')
+    assert.is_true(success)
+    assert.is_equal(0, errcnt)
+    assert.is_false(path.isfile(default_report))
+    assert.is_false(path.isfile(custom_report))
+    success, errcnt = executeBusted('--coverage --coverage-config-file=spec/.hidden/.luacov spec/cl_success.lua')
+    assert.is_true(success)
+    assert.is_equal(0, errcnt)
+    assert.is_false(path.isfile(default_report))
+    assert.is_true(path.isfile(custom_report))
+    file.delete(custom_report)
   end)
 end)
 
