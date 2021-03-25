@@ -71,7 +71,7 @@ function fixtures.load(rel_path)
     error(("Error loading file '%s': %s"):format(tostring(rel_path), tostring(err)), 2)
   end
 
-  local func, err = loadstring(code, rel_path)
+  local func, err = (loadstring or load)(code, rel_path)
   if not func then
     error(("Error loading code from '%s': %s"):format(tostring(rel_path), tostring(err)), 2)
   end
