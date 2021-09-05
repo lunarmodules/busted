@@ -34,6 +34,32 @@ describe('Tests insulation', function()
   end)
 end)
 
+insulate('Tests insulation with values set to nil', function()
+  _G.some_global = true
+
+  describe('environment before insulate', function()
+    it('has global', function()
+      assert.is_not_nil(some_global)
+      assert.is_not_nil(_G.some_global)
+    end)
+  end)
+
+  insulate('environment inside insulate', function()
+    it('sets global to nil', function()
+      _G.some_global = nil
+      assert.is_nil(some_global)
+      assert.is_nil(_G.some_global)
+    end)
+  end)
+
+  describe('environment after insulate', function()
+    it('has restored the global', function()
+      assert.is_not_nil(some_global)
+      assert.is_not_nil(_G.some_global)
+    end)
+  end)
+end)
+
 insulate('', function()
   describe('Tests expose', function()
     insulate('inside insulate block', function()
