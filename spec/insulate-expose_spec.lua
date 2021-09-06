@@ -35,6 +35,8 @@ describe('Tests insulation', function()
 end)
 
 insulate('Tests insulation with values set to nil', function()
+  -- The tests in this block need to be run in order, as we're testing state recovery between tests.
+
   _G.some_global = true
 
   describe('environment before insulate', function()
