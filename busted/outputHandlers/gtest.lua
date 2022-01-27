@@ -1,5 +1,4 @@
 local pretty = require 'pl.pretty'
-local term = require 'term'
 local io = io
 local type = type
 local ipairs = ipairs
@@ -7,12 +6,11 @@ local string_format = string.format
 local io_write = io.write
 local io_flush = io.flush
 
+
 local colors
 
-local isatty = io.type(io.stdout) == 'file' and term.isatty(io.stdout)
-local isWindows = package.config:sub(1,1) == '\\'
-
-if isWindows and not os.getenv("ANSICON") or not isatty then
+if package.config:sub(1,1) == '\\' and not os.getenv("ANSICON") then
+  -- Disable colors on Windows.
   colors = setmetatable({}, {__index = function() return function(s) return s end end})
 else
   colors = require 'term.colors'
