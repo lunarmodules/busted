@@ -70,18 +70,21 @@ build = {
     ['busted.outputHandlers.gtest']           = 'busted/outputHandlers/gtest.lua',
     ['busted.outputHandlers.sound']           = 'busted/outputHandlers/sound.lua',
 
-    ['busted.languages.en']                   = 'busted/languages/en.lua',
     ['busted.languages.ar']                   = 'busted/languages/ar.lua',
     ['busted.languages.de']                   = 'busted/languages/de.lua',
+    ['busted.languages.en']                   = 'busted/languages/en.lua',
     ['busted.languages.es']                   = 'busted/languages/es.lua',
     ['busted.languages.fr']                   = 'busted/languages/fr.lua',
+    ['busted.languages.is']                   = 'busted/languages/is.lua',
+    ['busted.languages.it']                   = 'busted/languages/it.lua',
     ['busted.languages.ja']                   = 'busted/languages/ja.lua',
     ['busted.languages.nl']                   = 'busted/languages/nl.lua',
+    ['busted.languages.pt-BR']                = 'busted/languages/pt-BR.lua',
+    ['busted.languages.ro']                   = 'busted/languages/ro.lua',
     ['busted.languages.ru']                   = 'busted/languages/ru.lua',
     ['busted.languages.th']                   = 'busted/languages/th.lua',
     ['busted.languages.ua']                   = 'busted/languages/ua.lua',
     ['busted.languages.zh']                   = 'busted/languages/zh.lua',
-    ['busted.languages.it']                   = 'busted/languages/it.lua',
   },
   install = {
     bin = {
