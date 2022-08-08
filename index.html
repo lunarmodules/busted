@@ -996,6 +996,8 @@ end)
           <h4 id="matcher-extend">Extending Your Own Matchers</h4>
           <p>
             Add in your own matchers to reuse commonly written code.
+            Note that only when boolean true returned, it is considered a match.
+            For example, you should write "value:find(sub) ~= nil" instead of just "value:find(sub)".
           </p>
 
 <pre><code data-language="lua">
