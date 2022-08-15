@@ -1,6 +1,7 @@
 local s = require 'say'
 local pretty = require 'pl.pretty'
 local term = require 'term'
+local luassert = require 'luassert'
 local io = io
 local type = type
 local string_format = string.format
@@ -31,20 +32,20 @@ return function(options)
 
   if cliArgs.plain then
     colors = setmetatable({}, {__index = function() return function(s) return s end end})
-    assert:set_parameter("TableErrorHighlightColor", "none")
+    luassert:set_parameter("TableErrorHighlightColor", "none")
 
   elseif cliArgs.color then
     colors = require 'term.colors'
-    assert:set_parameter("TableErrorHighlightColor", "red")
+    luassert:set_parameter("TableErrorHighlightColor", "red")
 
   else
     if package.config:sub(1,1) == '\\' and not os.getenv("ANSICON") or not isatty then
       -- Disable colors on Windows.
       colors = setmetatable({}, {__index = function() return function(s) return s end end})
-      assert:set_parameter("TableErrorHighlightColor", "none")
+      luassert:set_parameter("TableErrorHighlightColor", "none")
     else
       colors = require 'term.colors'
-      assert:set_parameter("TableErrorHighlightColor", "red")
+      luassert:set_parameter("TableErrorHighlightColor", "red")
     end
   end
 
