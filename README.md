@@ -89,6 +89,79 @@ luarocks make
 busted spec
 ```
 
+Docker
+------
+
+Alternatively Busted can be run as a standalone docker container.
+This approach is somewhat limited because many projects will require extra dependencies which will need to be installed inside the Docker container.
+Luarocks is provided in the container so many dependencies can be added.
+The images are based on Alpine Linux so you can also use `apk add` to install system dependencies if needed.
+The Docker use case is probably most advantageous for pure-Lua projects with no dependencies: i.g. small libraries not large apps.
+
+The usage of docker is fairly simple.
+You can either build your own or download a prebuilt version.
+To build your own, execute the following command from the source directory of this project:
+
+```console
+$ docker build -t ghcr.io/lunarmodules/busted:HEAD .
+```
+
+To use a prebuilt one, download it from the GitHub Container Registry.
+Here we use the one tagged *latest*, but you can substitute *latest* for any tagged release.
+
+```console
+$ docker pull ghcr.io/lunarmodules/busted:latest
+```
+
+Once you have a container you can run it on one file or a source tree (substitute *latest* with *HEAD* if you built your own or with the tagged version you want if applicable):
+
+```console
+# Run on an entire project
+$ docker run -v "$(pwd):/data" ghcr.io/lunarmodules/busted:latest
+
+# Run on one directory:
+$ docker run -v "$(pwd):/data" ghcr.io/lunarmodules/busted:latest specs
+```
+
+A less verbose way to run it in most shells is with at alias:
+
+```console
+# In a shell or in your shell's RC file:
+$ alias busted='docker run -v "$(pwd):/data" ghcr.io/lunarmodules/busted:latest'
+
+# Thereafter just run:
+$ busted
+```
+### Use as a CI job
+
+There are actually many ways to run Busted remotely as part of a CI work flow.
+Because packages are available for many platforms, one way would be to just use your platforms native package installation system to pull them into whatever CI runner environment you already use.
+Another way is to pull in the prebuilt Docker container and run that.
+
+As a case study, here is how a workflow could be setup in GitHub Actions:
+
+```yaml
+name: Busted
+on: [push, pull_request]
+jobs:
+  sile:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Run Busted
+        uses: lunarmodules/busted@v0
+```
+
+By default the GH Action is configured to run `busted --verbose`, but you can also pass it your own `args` to replace the default input of `.`.
+
+```yaml
+      - name: Run Busted
+        uses: lunarmodules/busted@v0
+        with:
+            args: --tags=MYTAGS
+```
+
 License
 -------
 
