@@ -7,7 +7,7 @@
 # that we check both that everything works (and end-to-end test) and that the
 # current codebase checks against itself. This ensures we can fix a bug or make
 # a breaking change in busted without being blocked by our own CI using a
-# different busted verision.
+# different busted version.
 #
 # See the README.md file for examples suitable for use in other projects.
 
