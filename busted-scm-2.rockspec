@@ -1,11 +1,19 @@
-package = 'busted'
-version = 'scm-2'
+local package_name = "busted"
+local package_version = "scm"
+local rockspec_revision = "2"
+local github_account_name = "lunarmodules"
+local github_repo_name = package_name
+local git_checkout = package_version == "scm" and "master" or package_version
+
+rockspec_format = "3.0"
+package = package_name
+version = package_version .. "-" .. rockspec_revision
 source = {
-  url = "git://github.com/Olivine-Labs/busted",
-  branch = "master"
+  url = "git+https://github.com/"..github_account_name.."/"..github_repo_name..".git",
+  branch = git_checkout
 }
 description = {
-  summary = 'Elegant Lua unit testing.',
+  summary = 'Elegant Lua unit testing',
   detailed = [[
     An elegant, extensible, testing framework.
     Ships with a large amount of useful asserts,
@@ -14,7 +22,7 @@ description = {
     or TAP for CI integration. Great for TDD
     and unit, integration, and functional tests.
   ]],
-  homepage = 'http://olivinelabs.com/busted/',
+  homepage = "https://lunarmodules.github.io/busted/",
   license = 'MIT <http://opensource.org/licenses/MIT>'
 }
 dependencies = {
@@ -28,6 +36,14 @@ dependencies = {
   'lua-term >= 0.1',
   'penlight >= 1.3.2',
   'mediator_lua >= 1.1.1',
+}
+
+test_dependencies = {
+  "busted",
+}
+
+test = {
+  type = "busted",
 }
 
 build = {
