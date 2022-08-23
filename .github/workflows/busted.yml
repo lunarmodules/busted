@@ -45,18 +45,18 @@ jobs:
           luarocks install copas
           luarocks install lua-ev
           luarocks install luacov
-          luarocks install --deps-only busted-scm-2.rockspec
+          luarocks install --deps-only busted-scm-1.rockspec
 
       - name: Build ‘busted’ (bootstrap)
         run: |
           luarocks make
 
       - name: Run ‘busted’ (dogfood)
-        # disable the paths to force use of installed rockspec
-        run: busted -c -v --lpath="" --cpath="" --Xoutput "--color"
+        # disable project-local path prefixes to force use of system installation
+        run: busted --coverage --lpath="" --cpath="" -Xoutput --color
 
       - name: Report test coverage
-        if: success()
+        if: ${{ success() && github.repository == 'lunarmodules/busted' }}
         continue-on-error: true
         run: luacov-coveralls -i src -e .luarocks
         env:
