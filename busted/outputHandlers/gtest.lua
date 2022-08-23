@@ -1,5 +1,6 @@
 local pretty = require 'pl.pretty'
 local term = require 'term'
+local luassert = require 'luassert'
 local io = io
 local type = type
 local ipairs = ipairs
@@ -30,16 +31,20 @@ return function(options)
 
   if cliArgs.plain then
     colors = setmetatable({}, {__index = function() return function(s) return s end end})
+    luassert:set_parameter("TableErrorHighlightColor", "none")
 
   elseif cliArgs.color then
     colors = require 'term.colors'
+    luassert:set_parameter("TableErrorHighlightColor", "red")
 
   else
     if package.config:sub(1,1) == '\\' and not os.getenv("ANSICON") or not isatty then
       -- Disable colors on Windows.
       colors = setmetatable({}, {__index = function() return function(s) return s end end})
+      luassert:set_parameter("TableErrorHighlightColor", "none")
     else
       colors = require 'term.colors'
+      luassert:set_parameter("TableErrorHighlightColor", "red")
     end
   end
 

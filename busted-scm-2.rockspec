@@ -1,11 +1,19 @@
-package = 'busted'
-version = 'scm-2'
+local package_name = "busted"
+local package_version = "scm"
+local rockspec_revision = "2"
+local github_account_name = "lunarmodules"
+local github_repo_name = package_name
+local git_checkout = package_version == "scm" and "master" or package_version
+
+rockspec_format = "3.0"
+package = package_name
+version = package_version .. "-" .. rockspec_revision
 source = {
-  url = "git+https://github.com/Olivine-Labs/busted",
-  branch = "master"
+  url = "git+https://github.com/"..github_account_name.."/"..github_repo_name..".git",
+  branch = git_checkout
 }
 description = {
-  summary = 'Elegant Lua unit testing.',
+  summary = 'Elegant Lua unit testing',
   detailed = [[
     An elegant, extensible, testing framework.
     Ships with a large amount of useful asserts,
@@ -14,7 +22,7 @@ description = {
     or TAP for CI integration. Great for TDD
     and unit, integration, and functional tests.
   ]],
-  homepage = 'http://olivinelabs.com/busted/',
+  homepage = "https://lunarmodules.github.io/busted/",
   license = 'MIT <http://opensource.org/licenses/MIT>'
 }
 dependencies = {
@@ -28,6 +36,14 @@ dependencies = {
   'lua-term >= 0.1',
   'penlight >= 1.3.2',
   'mediator_lua >= 1.1.1',
+}
+
+test_dependencies = {
+  "busted",
+}
+
+test = {
+  type = "busted",
 }
 
 build = {
@@ -70,18 +86,21 @@ build = {
     ['busted.outputHandlers.gtest']           = 'busted/outputHandlers/gtest.lua',
     ['busted.outputHandlers.sound']           = 'busted/outputHandlers/sound.lua',
 
-    ['busted.languages.en']                   = 'busted/languages/en.lua',
     ['busted.languages.ar']                   = 'busted/languages/ar.lua',
     ['busted.languages.de']                   = 'busted/languages/de.lua',
+    ['busted.languages.en']                   = 'busted/languages/en.lua',
     ['busted.languages.es']                   = 'busted/languages/es.lua',
     ['busted.languages.fr']                   = 'busted/languages/fr.lua',
+    ['busted.languages.is']                   = 'busted/languages/is.lua',
+    ['busted.languages.it']                   = 'busted/languages/it.lua',
     ['busted.languages.ja']                   = 'busted/languages/ja.lua',
     ['busted.languages.nl']                   = 'busted/languages/nl.lua',
+    ['busted.languages.pt-BR']                = 'busted/languages/pt-BR.lua',
+    ['busted.languages.ro']                   = 'busted/languages/ro.lua',
     ['busted.languages.ru']                   = 'busted/languages/ru.lua',
     ['busted.languages.th']                   = 'busted/languages/th.lua',
     ['busted.languages.ua']                   = 'busted/languages/ua.lua',
     ['busted.languages.zh']                   = 'busted/languages/zh.lua',
-    ['busted.languages.it']                   = 'busted/languages/it.lua',
   },
   install = {
     bin = {

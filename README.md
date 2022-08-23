@@ -1,16 +1,16 @@
 busted
 ======
 
-[![Luacheck Lint Status](https://img.shields.io/github/workflow/status/Olivine-Labs/busted/Luacheck?label=Luacheck&logo=Lua)](https://github.com/Olivine-Labs/busted/actions?workflow=Luacheck)
-[![Busted Test Status](https://img.shields.io/github/workflow/status/Olivine-Labs/busted/Busted?label=Linux%20Build&logo=Github)](https://github.com/Olivine-Labs/busted/actions?workflow=Busted)
-[![Join the chat at https://gitter.im/Olivine-Labs/busted](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Olivine-Labs/busted?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Luacheck Lint Status](https://img.shields.io/github/workflow/status/lunarmodules/busted/Luacheck?label=Luacheck&logo=Lua)](https://github.com/lunarmodules/busted/actions?workflow=Luacheck)
+[![Busted Test Status](https://img.shields.io/github/workflow/status/lunarmodules/busted/Busted?label=Linux%20Build&logo=Github)](https://github.com/lunarmodules/busted/actions?workflow=Busted)
+[![Join the chat at https://gitter.im/lunarmodules/busted](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/lunarmodules/busted?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 
 
 busted is a unit testing framework with a focus on being **easy to
 use**. Supports Lua >= 5.1, luajit >= 2.0.0, and moonscript.
 
-Check out the [official docs](http://olivinelabs.com/busted) for
+Check out the [official docs](https://lunarmodules.github.io/busted/) for
 extended info.
 
 busted test specs read naturally without being too verbose. You can even
@@ -62,7 +62,7 @@ end)
 Contributing
 ------------
 
-See [CONTRIBUTING.md](https://github.com/Olivine-Labs/busted/blob/master/CONTRIBUTING.md).
+See [CONTRIBUTING.md](https://github.com/lunarmodules/busted/blob/master/CONTRIBUTING.md).
 All issues, suggestions, and most importantly pull requests are welcome.
 
 Testing
@@ -93,4 +93,4 @@ License
 -------
 
 Copyright 2012-2020 Olivine Labs, LLC.
-MIT licensed. See [LICENSE for details](https://github.com/Olivine-Labs/busted/blob/master/LICENSE).
+MIT licensed. See [LICENSE for details](https://github.com/lunarmodules/busted/blob/master/LICENSE).
