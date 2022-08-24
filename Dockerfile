@@ -28,4 +28,4 @@ RUN busted --version
 
 WORKDIR /data
 
-ENTRYPOINT ["busted", "--verbose"]
+ENTRYPOINT ["busted", "--verbose", "--output=gtest"]
