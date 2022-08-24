@@ -1,4 +1,4 @@
-name: Busted
+name: Lua Busted
 description: Busted
 inputs:
   args:
