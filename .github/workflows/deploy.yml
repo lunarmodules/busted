@@ -32,3 +32,16 @@ jobs:
       rockspecs: ${{ needs.affected.outputs.rockspecs }}
     secrets:
       apikey: ${{ secrets.LUAROCKS_APIKEY }}
+
+  docker:
+    if: >-
+      ${{
+        github.repository == 'lunarmodules/busted' &&
+        ( github.ref_name == 'master' || startsWith(github.ref, 'refs/tags/') )
+      }}
+    uses: lunarmodules/.github/.github/workflows/docker_ghcr_deploy.yml@main
+    with:
+      username: ${{ github.actor }}
+      tag: ${{ github.ref_name }}
+    secrets:
+      token: ${{ secrets.GHCR_PAT }}
