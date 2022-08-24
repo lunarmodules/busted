@@ -3,7 +3,7 @@ busted
 
 [![Join the chat at https://gitter.im/lunarmodules/busted](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/lunarmodules/busted?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-[![Busted](https://img.shields.io/github/workflow/status/lunarmodules/busted/Busted?label=Busted=Lua)](https://github.com/lunarmodules/busted/actions?workflow=Busted)
+[![Busted](https://img.shields.io/github/workflow/status/lunarmodules/busted/Busted?label=Busted&logo=Lua)](https://github.com/lunarmodules/busted/actions?workflow=Busted)
 [![Luacheck](https://img.shields.io/github/workflow/status/lunarmodules/busted/Luacheck?label=Luacheck&logo=Lua)](https://github.com/lunarmodules/busted/actions?workflow=Luacheck)
 [![GitHub tag (latest SemVer)](https://img.shields.io/github/v/tag/lunarmodules/busted?label=Tag&logo=GitHub)](https://github.com/lunarmodules/busted/releases)
 [![Luarocks](https://img.shields.io/luarocks/v/lunarmodules/busted?label=Luarocks&logo=Lua)](https://luarocks.org/modules/lunarmodules/busted)
