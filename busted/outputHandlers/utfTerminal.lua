@@ -1,5 +1,7 @@
 local s = require 'say'
 local pretty = require 'pl.pretty'
+local term = require 'term'
+local luassert = require 'luassert'
 local io = io
 local type = type
 local string_format = string.format
@@ -7,20 +9,45 @@ local string_gsub = string.gsub
 local io_write = io.write
 local io_flush = io.flush
 local pairs = pairs
-
-
 local colors
 
-if package.config:sub(1,1) == '\\' and not os.getenv("ANSICON") then
-  -- Disable colors on Windows.
-  colors = setmetatable({}, {__index = function() return function(s) return s end end})
-else
-  colors = require 'term.colors'
-end
+local isatty = io.type(io.stdout) == 'file' and term.isatty(io.stdout)
 
 return function(options)
   local busted = require 'busted'
   local handler = require 'busted.outputHandlers.base'()
+  local cli = require 'cliargs'
+  local args = options.arguments
+
+  cli:set_name('utfTerminal output handler')
+  cli:flag('--color', 'force use of color')
+  cli:flag('--plain', 'force use of no color')
+
+  local cliArgs, err = cli:parse(args)
+  if not cliArgs and err then
+    io.stderr:write(string.format('%s: %s\n\n', cli.name, err))
+    io.stderr:write(cli.printer.generate_help_and_usage().. '\n')
+    os.exit(1)
+  end
+
+  if cliArgs.plain then
+    colors = setmetatable({}, {__index = function() return function(s) return s end end})
+    luassert:set_parameter("TableErrorHighlightColor", "none")
+
+  elseif cliArgs.color then
+    colors = require 'term.colors'
+    luassert:set_parameter("TableErrorHighlightColor", "red")
+
+  else
+    if package.config:sub(1,1) == '\\' and not os.getenv("ANSICON") or not isatty then
+      -- Disable colors on Windows.
+      colors = setmetatable({}, {__index = function() return function(s) return s end end})
+      luassert:set_parameter("TableErrorHighlightColor", "none")
+    else
+      colors = require 'term.colors'
+      luassert:set_parameter("TableErrorHighlightColor", "red")
+    end
+  end
 
   local successDot = colors.green('●')
   local failureDot = colors.red('◼')
