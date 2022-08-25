@@ -17,6 +17,12 @@ local function restore(state)
   for k,_ in next, _G, nil do
     rawset(_G, k, state.g[k])
   end
+  for k, v in next, state.g, nil do
+    -- reset globals that were set to nil during the insulation block
+    if rawget(_G, k) == nil then
+      rawset(_G, k, v)
+    end
+  end
   local set = function(k) package.loaded[k] = state.loaded[k] end
   for k,_ in pairs(package.loaded) do set(k) end
   for k,_ in pairs(state.loaded) do set(k) end

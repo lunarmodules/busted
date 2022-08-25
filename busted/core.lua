@@ -53,7 +53,7 @@ end
 
 return function()
   local busted = {}
-  busted.version = '2.0.0-0'
+  busted.version = '2.1.1'
 
   busted.require = busted_require
 

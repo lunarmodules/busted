@@ -10,7 +10,12 @@ return function(options)
   cli:flag('--time', 'show timestamps')
   cli:option('--time-format=FORMAT', 'format string according to strftime', '!%a %b %d %H:%M:%S %Y')
 
-  local cliArgs = cli:parse(args)
+  local cliArgs, err = cli:parse(args)
+  if not cliArgs and err then
+    io.stderr:write(string.format('%s: %s\n\n', cli.name, err))
+    io.stderr:write(cli.printer.generate_help_and_usage().. '\n')
+    os.exit(1)
+  end
 
   handler.testEnd = function(element, parent, status, debug)
     local showTime = cliArgs.time

@@ -1,0 +1,17 @@
+name: Lua Busted
+description: Busted
+inputs:
+  args:
+    description: Arguments passed to busted
+    required: false
+    default: "."
+runs:
+  using: docker
+  image: docker://ghcr.io/lunarmodules/busted:v2.1.1
+  entrypoint: sh
+  args:
+    - -c
+    - busted ${{ inputs.args }}
+branding:
+  icon: check
+  color: yellow
