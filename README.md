@@ -70,18 +70,13 @@ All issues, suggestions, and most importantly pull requests are welcome.
 Testing
 -------
 
-You'll need `libev` to run async tests. Then do the following, assuming you
-have luarocks installed:
+Assuming you have luarocks installed:
 
 Install these dependencies for core testing:
 
 ```
-luarocks install copas
-luarocks install lua-ev scm --server=http://luarocks.org/repositories/rocks-scm/
 luarocks install moonscript
 ```
-
-(Note: you must have `libev` installed to run `lua-ev`; you can `brew install libev` or `apt-get install libev-dev`)
 
 Then to reinstall and run tests:
 
