@@ -53,7 +53,7 @@ jobs:
 
       - name: Run ‘busted’ (dogfood)
         # disable project-local path prefixes to force use of system installation
-        run: busted --coverage --lpath="" --cpath="" -Xoutput --color
+        run: busted --coverage --lpath="" --cpath="" --output=gtest -Xoutput --color
 
       - name: Report test coverage
         if: ${{ success() && github.repository == 'lunarmodules/busted' }}
