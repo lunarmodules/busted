@@ -1,0 +1,14 @@
+return {
+   dependencies = {
+      dkjson = "2.6-1",
+      lua = "5.4-1",
+      ["lua-term"] = "0.7-1",
+      lua_cliargs = "3.0-2",
+      luafilesystem = "1.8.0-1",
+      luassert = "1.9.0-1",
+      luasystem = "0.2.1-0",
+      mediator_lua = "1.1.2-0",
+      penlight = "1.13.1-1",
+      say = "1.4.1-3"
+   },
+}
