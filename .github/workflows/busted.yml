@@ -49,7 +49,7 @@ jobs:
 
       - name: Build ‘busted’ (bootstrap)
         run: |
-          luarocks make
+          luarocks make --pin
 
       - name: Run ‘busted’ (dogfood)
         # disable project-local path prefixes to force use of system installation

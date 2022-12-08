@@ -1,4 +1,4 @@
 #!/bin/sh
 luarocks remove busted --force
-luarocks make
+luarocks make --pin
 busted $@

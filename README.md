@@ -87,7 +87,7 @@ Then to reinstall and run tests:
 
 ```
 luarocks remove busted --force
-luarocks make
+luarocks make --pin
 busted spec
 ```
 
