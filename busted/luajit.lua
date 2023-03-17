@@ -60,4 +60,5 @@ return function()
     patch_without_return_value("cdef")
     patch_with_return_value("typeof")
     patch_with_return_value("metatype")
+    patch_with_return_value("load")
   end
