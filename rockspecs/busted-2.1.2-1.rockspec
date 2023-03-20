@@ -1,5 +1,5 @@
 local package_name = "busted"
-local package_version = "scm"
+local package_version = "2.1.2"
 local rockspec_revision = "1"
 local github_account_name = "lunarmodules"
 local github_repo_name = package_name

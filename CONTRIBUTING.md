@@ -49,3 +49,11 @@ Please make separate branches for unrelated changes!
 
 Busted is MIT licensed. See details in the LICENSE file. This is a very permissive
 scheme, GPL-compatible but without many of the restrictions of GPL.
+
+## New releases
+
+1. Create a new rockspec in the `./rockspecs` folder, copied from the `scm` in the repo root folder.
+2. Update the line `busted.version = 'x.y.z'` in file `./busted/core.lua`.
+3. in `./action.yml` update the version number in the `image` tag.
+4. commit the changes, and tag it in `vX.Y.Z` format
+5. push the commit and the tags
