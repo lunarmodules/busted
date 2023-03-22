@@ -42,7 +42,6 @@ return {
     'term.colors$',
     'term.cursor$',
     'term.init$',
-    'copas$',
     'coxpcall$',
     'mediator$',
     'moonscript.*$',

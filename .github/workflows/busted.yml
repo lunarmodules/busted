@@ -38,12 +38,8 @@ jobs:
 
       - name: Setup dependencies
         run: |
-          sudo apt-get install libev-dev
           luarocks install penlight ${{ matrix.penlightVersion }}
-          luarocks install luasec
           luarocks install moonscript
-          luarocks install copas
-          luarocks install lua-ev
           luarocks install luacov
           luarocks install --deps-only busted-scm-1.rockspec
 
