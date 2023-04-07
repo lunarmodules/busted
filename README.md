@@ -51,7 +51,7 @@ describe('Busted unit testing framework', function()
 
     it('should have mocks and spies for functional tests', function()
       local thing = require('thing_module')
-      spy.spy_on(thing, 'greet')
+      spy.on(thing, 'greet')
       thing.greet('Hi!')
 
       assert.spy(thing.greet).was.called()
