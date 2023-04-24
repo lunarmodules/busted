@@ -100,6 +100,7 @@ build = {
     ['busted.languages.is']                   = 'busted/languages/is.lua',
     ['busted.languages.it']                   = 'busted/languages/it.lua',
     ['busted.languages.ja']                   = 'busted/languages/ja.lua',
+    ['busted.languages.ko']                   = 'busted/languages/ko.lua',
     ['busted.languages.nl']                   = 'busted/languages/nl.lua',
     ['busted.languages.pt-BR']                = 'busted/languages/pt-BR.lua',
     ['busted.languages.ro']                   = 'busted/languages/ro.lua',
