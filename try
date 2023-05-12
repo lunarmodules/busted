@@ -1,4 +1,4 @@
 #!/bin/sh
 luarocks remove busted --force
 luarocks make
-busted $@
+LUA_PATH="./?.lua;./?/init.lua;./src/?/?.lua;./src/?/init.lua;$LUA_PATH" busted $@
