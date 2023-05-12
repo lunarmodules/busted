@@ -140,6 +140,10 @@ _busted() {
       # no completion available
       return 0
       ;;
+    --exclude-names-file|--log-success)
+      _filedir
+      return 0
+      ;;
     -m|--lpath|--cpath)
       _filedir -d
       return 0
@@ -175,10 +179,12 @@ _busted() {
       --lua=
       --ignore-lua
       --filter= --filter-out=
+      --exclude-names-file=
       --repeat=
       --seed=
       --lang=
       --loaders=
+      --log-success
       --helper=
       -c --coverage --no-coverage
       -s --enable-sound --no-enable-sound

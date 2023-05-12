@@ -154,12 +154,35 @@ return function(options)
     end
   end
 
+  local getFullName = function(name)
+    local parent = busted.context.get()
+    local names = { name }
+
+    while parent and (parent.name or parent.descriptor) and
+      parent.descriptor ~= 'file' do
+      table.insert(names, 1, parent.name or parent.descriptor)
+      parent = busted.context.parent(parent)
+    end
+
+    return table.concat(names, ' ')
+  end
+
+  if cliArgs['log-success'] then
+    local logFile = assert(io.open(cliArgs['log-success'], 'a'))
+    busted.subscribe({ 'test', 'end' }, function (test, parent, status)
+      if status == "success" then
+        logFile:write(getFullName() .. "\n")
+      end
+    end)
+  end
+
   -- Load tag and test filters
   filterLoader(busted, {
     tags = cliArgs.tags,
     excludeTags = cliArgs['exclude-tags'],
     filter = cliArgs.filter,
     filterOut = cliArgs['filter-out'],
+    excludeNamesFile = cliArgs['exclude-names-file'],
     list = cliArgs.list,
     nokeepgoing = not cliArgs['keep-going'],
     suppressPending = cliArgs['suppress-pending'],

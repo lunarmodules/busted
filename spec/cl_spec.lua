@@ -135,6 +135,28 @@ describe('Tests the busted command-line options', function()
     assert.is_true(success)
   end)
 
+  local function count_successes(out)
+    local count = 0
+    for successes in out:gmatch('(%d+) success') do
+      count = count + successes
+    end
+    return count
+  end
+
+  it('tests running with --log-success and --exclude-names-file specified', function ()
+    local logfile = os.tmpname()
+    local success, errcnt, out, err = executeBusted('--pattern=_filter.lua$ --log-success=' .. logfile .. ' --exclude-names-file=' .. logfile)
+    assert.is_false(success)
+    assert.equals(8, errcnt)
+    assert.equals(2, count_successes(out))
+    -- re-run tests with previously successful tests skipped
+    success, errcnt, out, err = executeBusted('--pattern=_filter.lua$ --log-success=' .. logfile .. ' --exclude-names-file=' .. logfile)
+    assert.is_false(success)
+    assert.equals(8, errcnt)
+    assert.equals(0, count_successes(out))
+    os.remove(logfile)
+  end)
+
   it('tests running with --filter specified in describe', function ()
     local success, errcnt = executeBusted('--pattern=_filter.lua$ --filter="patt1"')
     assert.is_false(success)
