@@ -181,6 +181,7 @@ return function(options)
     tags = cliArgs.tags,
     excludeTags = cliArgs['exclude-tags'],
     filter = cliArgs.filter,
+    name = cliArgs.name,
     filterOut = cliArgs['filter-out'],
     excludeNamesFile = cliArgs['exclude-names-file'],
     list = cliArgs.list,

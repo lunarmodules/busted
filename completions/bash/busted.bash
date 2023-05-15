@@ -136,7 +136,7 @@ _busted() {
       # no completion available
       return 0
       ;;
-    --filter|--filter-out)
+    --filter|--filter-out|--name)
       # no completion available
       return 0
       ;;
@@ -179,6 +179,7 @@ _busted() {
       --lua=
       --ignore-lua
       --filter= --filter-out=
+      --name=
       --exclude-names-file=
       --repeat=
       --seed=

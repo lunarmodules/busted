@@ -62,6 +62,15 @@ return function()
       return nil, true
     end
 
+    local name = function(name)
+      for _, candidate in pairs(options.name) do
+        if string.find(candidate, getFullName(name), 1, true) then
+          return nil, true
+        end
+      end
+      return nil, (#options.name == 0)
+    end
+
     local filterNames = function(name)
       for _, filter in pairs(options.filter) do
         if getFullName(name):find(filter) ~= nil then
@@ -139,8 +148,9 @@ return function()
 
     -- The following filters are applied in reverse order
     applyFilter({ 'it', 'pending' }            , 'filter'          , filterNames           )
+    applyFilter({ 'describe', 'it', 'pending' }, 'name'            , name                  )
     applyFilter({ 'describe', 'it', 'pending' }, 'filterOut'       , filterOutNames        )
-    applyFilter({ 'describe', 'it', 'pending' }, 'excludeNamesFile', excludeNamesFile)
+    applyFilter({ 'describe', 'it', 'pending' }, 'excludeNamesFile', excludeNamesFile      )
     applyFilter({ 'it', 'pending' }            , 'tags'            , filterTags            )
     applyFilter({ 'describe', 'it', 'pending' }, 'excludeTags'     , filterExcludeTags     )
   end

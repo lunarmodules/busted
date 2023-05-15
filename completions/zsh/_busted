@@ -57,6 +57,7 @@ _busted_args=(
 "--filter=[Only run test names matching the Lua pattern]: :"
 "--filter-out=[Do not run test names matching the Lua pattern, takes precedence over --filter]: :"
 "--exclude-names-file=[Do not run the tests with names listed in the given file, takes precedence over --filter]:files:_files"
+"--name=[Run test with the given full name]:files:_files"
 "--log-success=[Append the name of each successful test to the given file]:file:_files"
 "-e[Execute Lua statement]: :"
 "(-v --verbose --no-verbose)"{-v,--verbose}"[Verbose output of errors]"
