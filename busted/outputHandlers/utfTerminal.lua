@@ -49,15 +49,16 @@ return function(options)
     end
   end
 
-  local successDot = colors.green('●')
-  local failureDot = colors.red('◼')
-  local errorDot   = colors.magenta('✱')
-  local pendingDot = colors.yellow('◌')
+  local successDot = colors.green('\226\151\143') -- '\226\151\143' = '●' = utf8.char(9679)
+  local failureDot = colors.red('\226\151\188') -- '\226\151\188' = '◼' = utf8.char(9724)
+  local errorDot   = colors.magenta('\226\156\177') -- '\226\156\177' = '✱' = utf8.char(10033)
+  local pendingDot = colors.yellow('\226\151\140') -- '\226\151\140' = '◌' = utf8.char(9676)
 
   local pendingDescription = function(pending)
     local name = pending.name
 
-    local string = colors.yellow(s('output.pending')) .. ' → ' ..
+    -- '\226\134\146' = '→' = utf8.char('8594')
+    local string = colors.yellow(s('output.pending')) .. ' \226\134\146 ' ..
       colors.cyan(pending.trace.short_src) .. ' @ ' ..
       colors.cyan(pending.trace.currentline)  ..
       '\n' .. colors.bright(name)
@@ -85,9 +86,10 @@ return function(options)
   end
 
   local failureDescription = function(failure, isError)
-    local string = colors.red(s('output.failure')) .. ' → '
+    -- '\226\134\146' = '→' = utf8.char(8594)
+    local string = colors.red(s('output.failure')) .. ' \226\134\146 '
     if isError then
-      string = colors.magenta(s('output.error')) .. ' → '
+      string = colors.magenta(s('output.error')) .. ' \226\134\146 '
     end
 
     if not failure.element.trace or not failure.element.trace.short_src then
