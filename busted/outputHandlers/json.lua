@@ -7,13 +7,23 @@ return function(options)
   local handler = require 'busted.outputHandlers.base'()
 
   handler.suiteEnd = function()
-    io_write(json.encode({
+    local error_info = {
       pendings = handler.pendings,
       successes = handler.successes,
       failures = handler.failures,
       errors = handler.errors,
       duration = handler.getDuration()
-    }))
+    }
+    local ok, result = pcall(function()
+      return json.encode(error_info)
+    end)
+
+    if ok then
+      io_write(result)
+    else
+      io_write("Failed to encode test results to json: " .. result)
+    end
+
     io_write("\n")
     io_flush()
 
