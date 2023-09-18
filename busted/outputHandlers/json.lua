@@ -14,9 +14,7 @@ return function(options)
       errors = handler.errors,
       duration = handler.getDuration()
     }
-    local ok, result = pcall(function()
-      return json.encode(error_info)
-    end)
+    local ok, result = pcall(json.encode, error_info)
 
     if ok then
       io_write(result)
