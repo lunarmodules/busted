@@ -79,7 +79,7 @@ return function()
     end
 
     info.traceback = debug.traceback('', level)
-    info.message = msg
+    info.message = tostring(msg)
 
     local file = busted.getFile(element)
     return file and file.getTrace(file.name, info) or trimTrace(info)
