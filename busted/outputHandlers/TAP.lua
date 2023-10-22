@@ -41,7 +41,9 @@ return function(options)
     end
 
     print(string_format(failure, counter, t.name))
-    print('# ' .. t.element.trace.short_src .. ' @ ' .. t.element.trace.currentline)
+    if t.element.trace.short_src then
+      print('# ' .. t.element.trace.short_src .. ' @ ' .. t.element.trace.currentline)
+    end
     if t.randomseed then
       print('# Random seed: ' .. t.randomseed)
     end
