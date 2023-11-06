@@ -7,7 +7,7 @@ inputs:
     default: "."
 runs:
   using: docker
-  image: docker://ghcr.io/lunarmodules/busted:v2.1.2
+  image: docker://ghcr.io/lunarmodules/busted:v2.2.0
   entrypoint: sh
   args:
     - -c
