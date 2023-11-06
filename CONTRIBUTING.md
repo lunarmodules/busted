@@ -57,3 +57,5 @@ scheme, GPL-compatible but without many of the restrictions of GPL.
 3. in `./action.yml` update the version number in the `image` tag.
 4. commit the changes, and tag it in `vX.Y.Z` format
 5. push the commit and the tags
+6. Edit GitHub tag to make a release and edit it changelog notes
+7. Attach rockspec and src.rock (preferably downloaded from luarocks.org so checksums match)
