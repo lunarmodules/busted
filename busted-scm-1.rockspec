@@ -34,7 +34,7 @@ description = {
 
 dependencies = {
   'lua >= 5.1',
-  'lua_cliargs = 3.0',
+  'lua_cliargs >= 3.0',
   'luasystem >= 0.2.0',
   'dkjson >= 2.1.0',
   'say >= 1.4-1',
