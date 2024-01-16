@@ -219,7 +219,7 @@ describe('Tests the busted command-line options', function()
 
   it('tests running with --help specified', function()
     local success, _ = executeBusted('--help')
-    assert.is_false(success)
+    assert.is_true(success)
   end)
 
   it('tests running a non-compiling testfile', function()
@@ -353,7 +353,7 @@ describe('Test busted running standalone', function()
 
   it('tests running with --help specified', function()
     local success = executeLua('spec/cl_standalone.lua --help')
-    assert.is_false(success)
+    assert.is_true(success)
   end)
 
   it('tests running via stdin', function()

@@ -41,6 +41,11 @@ return function(options)
     exit(1, forceExit)
   end
 
+  if cliArgs.help then
+    io.stdout:write(cliArgs.helpText)
+    exit(0, forceExit)
+  end
+
   if cliArgs.version then
     -- Return early if asked for the version
     print(busted.version)
