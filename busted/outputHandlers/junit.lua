@@ -23,11 +23,16 @@ return function(options)
     })
   }
   local output_file_name
+  local enable_split_output_xml
   local stack = {}
   local testcase_node
   if 'table' == type(options.arguments) then
-    --the first argument should be the name of the xml file.
-    output_file_name = options.arguments[1]
+    if options.arguments[1] == "true" then
+      enable_split_output_xml = true
+    else
+      -- will output to the sepcific xml file
+      output_file_name = options.arguments[1]
+    end
   end
 
   handler.suiteStart = function(suite, count, total)
@@ -67,6 +72,27 @@ return function(options)
     top.xml_doc.attr.failures = top.xml_doc.attr.failures + suite_xml.xml_doc.attr.failures
     top.xml_doc.attr.skip = top.xml_doc.attr.skip + suite_xml.xml_doc.attr.skip
 
+    top.xml_doc.attr.time = elapsed(top.start_tick)
+
+    if enable_split_output_xml ~= nil then
+      local output_string = xml.tostring(top.xml_doc, '', '\t', nil, false)
+      local test_suit_file = suite['file']
+
+      local write_file
+      if test_suit_file ~= nil then
+        write_file = string.gsub(test_suit_file[1].name, "%.[^.]+$", ".xml")
+      else
+        write_file = "no_match_cases.xml"
+      end
+
+      local file = io_open(write_file, 'w+b' )
+      if file then
+        file:write(output_string)
+        file:write('\n')
+        file:close()
+      end
+    end
+
     return nil, true
   end
 
@@ -101,10 +127,37 @@ return function(options)
     end
   end
 
+  local function get_junit_info(path)
+    local junit_report_package_name, test_file_name
+
+    if string.match(path, "/") or string.match(path, "\\") then
+      -- Compatible with Windows platform
+      junit_report_package_name, test_file_name = path:match("(.-)[\\/]+([^\\/]+)$")
+    else
+      test_file_name = path
+      junit_report_package_name = ""
+    end
+
+    return junit_report_package_name, test_file_name
+  end
+
   handler.testStart = function(element, parent)
+    local junit_classname
+    local test_case_full_name = handler.getFullName(element)
+    local junit_report_package_name, test_file_name = get_junit_info(element.trace.short_src)
+    -- Jenkins CI Junit Plugin use the last one . to distinguish between package name and class name.
+    local junit_class_name = string.gsub(test_file_name, "%.", "_")
+
+    if junit_report_package_name ~= "" then
+      junit_classname = junit_report_package_name .. "." .. junit_class_name ..":" .. element.trace.currentline
+    else
+      junit_classname = junit_class_name ..":" .. element.trace.currentline
+    end
+
     testcase_node = xml.new('testcase', {
-      classname = element.trace.short_src .. ':' .. element.trace.currentline,
-      name = handler.getFullName(element),
+      -- junit report uses package names and class names to structurally display result.
+      classname = junit_classname,
+      name = test_case_full_name
     })
     top.xml_doc:add_direct_child(testcase_node)
 
@@ -153,7 +206,9 @@ return function(options)
     return nil, true
   end
 
-  busted.subscribe({ 'exit' }, handler.exit)
+  if enable_split_output_xml == nil then
+    busted.subscribe({ 'exit' }, handler.exit)
+  end
   busted.subscribe({ 'suite', 'start' }, handler.suiteStart)
   busted.subscribe({ 'suite', 'end' }, handler.suiteEnd)
   busted.subscribe({ 'test', 'start' }, handler.testStart, { predicate = handler.cancelOnPending })
