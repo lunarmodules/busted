@@ -82,6 +82,7 @@ build = {
     ['busted.modules.files.lua']              = 'busted/modules/files/lua.lua',
     ['busted.modules.files.moonscript']       = 'busted/modules/files/moonscript.lua',
     ['busted.modules.files.terra']            = 'busted/modules/files/terra.lua',
+    ['busted.modules.files.fennel']           = 'busted/modules/files/fennel.lua',
 
     ['busted.outputHandlers.base']            = 'busted/outputHandlers/base.lua',
     ['busted.outputHandlers.utfTerminal']     = 'busted/outputHandlers/utfTerminal.lua',
