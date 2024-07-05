@@ -127,36 +127,39 @@ return function(options)
     end
   end
 
-  local function get_junit_info(path)
-    local junit_report_package_name, test_file_name
+  local function get_package_and_file(path)
+    local package, file
 
     if string.match(path, "/") or string.match(path, "\\") then
       -- Compatible with Windows platform
-      junit_report_package_name, test_file_name = path:match("(.-)[\\/]+([^\\/]+)$")
+      package, file = path:match("(.-)[\\/]+([^\\/]+)$")
     else
-      test_file_name = path
-      junit_report_package_name = ""
+      package, file = "", path
     end
 
-    return junit_report_package_name, test_file_name
+    return package, file
   end
 
   handler.testStart = function(element, parent)
-    local junit_classname
     local test_case_full_name = handler.getFullName(element)
-    local junit_report_package_name, test_file_name = get_junit_info(element.trace.short_src)
-    -- Jenkins CI Junit Plugin use the last one . to distinguish between package name and class name.
-    local junit_class_name = string.gsub(test_file_name, "%.", "_")
+    local package, file_name = get_package_and_file(element.trace.source)
 
-    if junit_report_package_name ~= "" then
-      junit_classname = junit_report_package_name .. "." .. junit_class_name ..":" .. element.trace.currentline
+    -- Jenkins CI Junit Plugin use the last one . to distinguish between package name and class name.
+    local class_name = string.gsub(file_name, "%.", "_")
+
+    if package and package ~= "" then
+      if package:find("^@") then
+        package = string.sub(package, 2)
+      end
+      package = string.gsub(package, "/", ".")
+      classname = package .. "." .. class_name .. ":" .. element.trace.currentline
     else
-      junit_classname = junit_class_name ..":" .. element.trace.currentline
+      classname = class_name .. ":" .. element.trace.currentline
     end
 
     testcase_node = xml.new('testcase', {
       -- junit report uses package names and class names to structurally display result.
-      classname = junit_classname,
+      classname = classname,
       name = test_case_full_name
     })
     top.xml_doc:add_direct_child(testcase_node)
