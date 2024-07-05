@@ -151,7 +151,6 @@ return function(options)
       if package:find("^@") then
         package = string.sub(package, 2)
       end
-      package = string.gsub(package, "/", ".")
       classname = package .. "." .. class_name .. ":" .. element.trace.currentline
     else
       classname = class_name .. ":" .. element.trace.currentline
