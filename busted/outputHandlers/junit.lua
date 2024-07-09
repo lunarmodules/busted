@@ -151,14 +151,14 @@ return function(options)
       if package:find("^@") then
         package = string.sub(package, 2)
       end
-      classname = package .. "." .. class_name .. ":" .. element.trace.currentline
+      class_name = package .. "." .. class_name .. ":" .. element.trace.currentline
     else
-      classname = class_name .. ":" .. element.trace.currentline
+      class_name = class_name .. ":" .. element.trace.currentline
     end
 
     testcase_node = xml.new('testcase', {
       -- junit report uses package names and class names to structurally display result.
-      classname = classname,
+      classname = class_name,
       name = test_case_full_name
     })
     top.xml_doc:add_direct_child(testcase_node)
