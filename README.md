@@ -162,5 +162,5 @@ By default the GH Action is configured to run `busted --verbose`, but you can al
 License
 -------
 
-Copyright 2012-2020 Olivine Labs, LLC.
+Copyright 2012-2024 Olivine Labs, LLC.
 MIT licensed. See [LICENSE for details](https://github.com/lunarmodules/busted/blob/master/LICENSE).
