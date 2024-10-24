@@ -42,13 +42,13 @@ return function(options)
   end
 
   if cliArgs.help then
-    io.stdout:write(cliArgs.helpText)
+    io.stdout:write(cliArgs.helpText .. '\n')
     exit(0, forceExit)
   end
 
   if cliArgs.version then
     -- Return early if asked for the version
-    print(busted.version)
+    io.stdout:write(busted.version .. '\n')
     exit(0, forceExit)
   end
 
