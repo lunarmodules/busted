@@ -168,6 +168,10 @@ return function(options)
     -- Parse the cli arguments
     local cliArgs, cliErr = cli:parse(args)
     if not cliArgs then
+      if cliErr:match("^Usage") then
+        return { help = true, helpText = cliErr }, nil
+      end
+
       return nil, appName .. ': error: ' .. cliErr .. '; re-run with --help for usage.'
     end
 
