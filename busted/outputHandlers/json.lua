@@ -14,12 +14,27 @@ return function(options)
       errors = handler.errors,
       duration = handler.getDuration()
     }
-    local ok, result = pcall(json.encode, error_info)
+
+    for _, test in ipairs(handler.pendings) do
+      test.element.attributes.default_fn = nil -- functions cannot be encoded into json
+    end
+
+    local err_msg
+    local ok, result = pcall(json.encode, error_info, {
+      exception = function(reason, value, state, default_reason)
+        local state_short = table.concat(state.buffer, '')
+        state_short = ('... %s %s'):format(state_short:sub(#state_short - 200), tostring(state.exception))
+
+        err_msg = ('Error: %s in (%s)\n'):format(default_reason, state_short)
+        io.stderr:write(err_msg)
+      end,
+    })
 
     if ok then
       io_write(result)
     else
-      io_write("Failed to encode test results to json: " .. result)
+      io_write(err_msg)
+      error(err_msg)
     end
 
     io_write("\n")
