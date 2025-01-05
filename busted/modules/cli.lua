@@ -212,8 +212,17 @@ return function(options)
     -- Switch lua, we should rebuild this feature once luarocks changes how it
     -- handles executeable lua files.
     if cliArgs['lua'] and not cliArgs['ignore-lua'] then
+      local quoted = {}
+      for _, arg in ipairs(args) do
+        local a = arg:gsub('"', '\\"')
+        table.insert(quoted, a)
+      end
+      local end_args = ''
+      if #quoted > 0 then
+        end_args = '"' .. table.concat(quoted, '" "') .. '"'
+      end
       local _, code = execute(
-        cliArgs['lua']..' '..args[0]..' --ignore-lua '..table.concat(args, ' ')
+        cliArgs["lua"] .. " " .. args[0] .. ' --ignore-lua ' .. end_args
       )
       exit(code)
     end
