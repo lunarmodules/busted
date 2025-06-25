@@ -229,6 +229,33 @@ describe('finally callback is called in case of success', function()
   end)
 end)
 
+describe('multiple finally callbacks', function()
+  local order = {}
+  local f1 = spy.new(function()
+    table.insert(order, "f1")
+  end)
+  local f2 = spy.new(function()
+    table.insert(order, "f2")
+  end)
+  local f3 = spy.new(function()
+    table.insert(order, "f3")
+  end)
+
+  it('writes both variables in finally', function()
+    finally(f1)
+    finally(f2)
+    finally(f3)
+    assert.is_true(true)
+  end)
+
+  it('ensures finally was called for both', function()
+    assert.spy(f1).was_called(1)
+    assert.spy(f2).was_called(1)
+    assert.spy(f3).was_called(1)
+    assert.are_same({ "f3", "f2", "f1" }, order)
+  end)
+end)
+
 describe('tests environment', function()
   global = 'global'  --luacheck: ignore
 

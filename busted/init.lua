@@ -19,7 +19,7 @@ local function init(busted)
 
   local it = function(element)
     local parent = busted.context.parent(element)
-    local finally
+    local finalizers = {}
 
     if not block.lazySetup(parent) then
       -- skip test if any setup failed
@@ -29,7 +29,7 @@ local function init(busted)
     if not element.env then element.env = {} end
 
     block.rejectAll(element)
-    element.env.finally = function(fn) finally = fn end
+    element.env.finally = function(fn) table.insert(finalizers, fn) end
     element.env.pending = busted.pending
 
     local pass, ancestor = block.execAll('before_each', parent, true)
@@ -38,9 +38,11 @@ local function init(busted)
       local status = busted.status('success')
       if busted.safe_publish('test', { 'test', 'start' }, element, parent) then
         status:update(busted.safe('it', element.run, element))
-        if finally then
+        if #finalizers > 0 then
           block.reject('pending', element)
-          status:update(busted.safe('finally', finally, element))
+          for i = #finalizers, 1, -1 do
+            status:update(busted.safe('finally', finalizers[i], element))
+          end
         end
       else
         status = busted.status('error')
