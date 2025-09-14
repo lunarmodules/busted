@@ -13,6 +13,26 @@ assert(type(mock) == 'table')
 assert(type(match) == 'table')
 assert(type(assert) == 'table')
 
+describe('Test retries', function()
+  local before_count, after_count = 0, 0
+
+  before_each(function()
+    before_count = before_count + 1
+  end)
+
+  after_each(function()
+    after_count = after_count + 1
+  end)
+
+  it('reruns the each-hooks around every attempt', function()
+    set_retries(2)  -- 3 total attempts
+    assert.is_equal(before_count - 1, after_count)
+    if before_count < 3 then
+      assert.is_true(false, ('failing attempt %d'):format(before_count))
+    end
+  end)
+end)
+
 describe('Before each', function()
   local test_val = false
 

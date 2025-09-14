@@ -20,6 +20,8 @@ local function init(busted)
   local it = function(element)
     local parent = busted.context.parent(element)
     local finally
+    local retries = 0
+    local retry = 0
 
     if not block.lazySetup(parent) then
       -- skip test if any setup failed
@@ -31,16 +33,47 @@ local function init(busted)
     block.rejectAll(element)
     element.env.finally = function(fn) finally = fn end
     element.env.pending = busted.pending
+    element.env.set_retries = function(n)
+      if type(n) ~= 'number' or n < 0 or n % 1 ~= 0 then
+        error(('set_retries: expected non-negative integer, got: %s'):format(tostring(n)), 2)
+      end
+      retries = n
+    end
 
     local pass, ancestor = block.execAll('before_each', parent, true)
 
     if pass then
       local status = busted.status('success')
       if busted.safe_publish('test', { 'test', 'start' }, element, parent) then
-        status:update(busted.safe('it', element.run, element))
-        if finally then
-          block.reject('pending', element)
-          status:update(busted.safe('finally', finally, element))
+        local deferred = {}
+        while true do
+          if retry > 0 then
+            -- Retrying: finish the failed attempt, then redo setup.
+            finally = nil
+            block.dexecAll('after_each', ancestor, true)
+            pass, ancestor = block.execAll('before_each', parent, true)
+            if not pass then
+              break
+            end
+          end
+
+          deferred = {}
+          status = busted.status('success')
+          status:update(busted.safe('it', element.run, element, deferred))
+          if finally then
+            block.reject('pending', element)
+            status:update(busted.safe('finally', finally, element, deferred))
+          end
+
+          if not (status:failure() or status:error()) or retry >= retries then
+            break
+          end
+          retry = retry + 1
+        end
+
+        -- Publish only the final attempt's events (see `deferred` in `busted.safe`).
+        for _, event in ipairs(deferred) do
+          busted.publish(event[1], event[2], event[3], event[4], event[5])
         end
       else
         status = busted.status('error')

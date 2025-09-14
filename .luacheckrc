@@ -10,6 +10,7 @@ globals = {
     "async",
     "done",
     "busted",
+    "set_retries",
     --"ngx.IS_CLI",
 }
 

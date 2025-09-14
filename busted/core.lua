@@ -170,7 +170,9 @@ return function()
     end
   end
 
-  function busted.safe(descriptor, run, element)
+  -- `deferred`: optional list collecting the failure/error/pending event of a failed `run` as
+  --             publish arguments, instead of publishing it. For `set_retries`.
+  function busted.safe(descriptor, run, element, deferred)
     busted.context.push(element)
     local trace, message
     local status = 'success'
@@ -198,7 +200,12 @@ return function()
       -- a test failure, but rather an error outside the test, much like a
       -- failure in a support function (i.e. before_each/after_each or
       -- setup/teardown).
-      busted.publish({ status, element.descriptor }, element, busted.context.parent(element), message, trace)
+      local parent = busted.context.parent(element)
+      if deferred then
+        deferred[#deferred + 1] = { { status, element.descriptor }, element, parent, message, trace }
+      else
+        busted.publish({ status, element.descriptor }, element, parent, message, trace)
+      end
     end
     ret[1] = busted.status(status)
 
