@@ -1,5 +1,5 @@
 local function init(busted)
-  local block = require 'busted.block'(busted)
+  local block = require 'busted.block' (busted)
 
   local file = function(file)
     busted.wrap(file.run)
@@ -20,6 +20,8 @@ local function init(busted)
   local it = function(element)
     local parent = busted.context.parent(element)
     local finally
+    local attempt = 1
+    local max_attempts = 1
 
     if not block.lazySetup(parent) then
       -- skip test if any setup failed
@@ -31,24 +33,40 @@ local function init(busted)
     block.rejectAll(element)
     element.env.finally = function(fn) finally = fn end
     element.env.pending = busted.pending
+    element.env.set_retries = function(n) max_attempts = n + 1 end
 
+    local status = busted.status('success')
     local pass, ancestor = block.execAll('before_each', parent, true)
+    if pass and busted.safe_publish('test', { 'test', 'start' }, element, parent) then
+      while attempt <= max_attempts do
+        -- Run after_each from previous attempt before before_each (for retries)
+        if attempt > 1 then
+          block.dexecAll('after_each', ancestor, true)
+          pass, ancestor = block.execAll('before_each', parent, true)
+        end
+        local attempt_status = busted.safe('it', element.run, element)
 
-    if pass then
-      local status = busted.status('success')
-      if busted.safe_publish('test', { 'test', 'start' }, element, parent) then
-        status:update(busted.safe('it', element.run, element))
         if finally then
           block.reject('pending', element)
           status:update(busted.safe('finally', finally, element))
         end
-      else
-        status = busted.status('error')
-      end
-      busted.safe_publish('test', { 'test', 'end' }, element, parent, tostring(status))
-    end
 
-    block.dexecAll('after_each', ancestor, true)
+        if attempt_status:success() then
+          status = busted.status('success')
+          break
+        else
+          status = attempt_status
+        end
+
+        attempt = attempt + 1
+      end
+
+      -- Run after_each after the last try.
+      block.dexecAll('after_each', ancestor, true)
+    else
+      status = busted.status('error')
+    end
+    busted.safe_publish('test', { 'test', 'end' }, element, parent, tostring(status))
   end
 
   local pending = function(element)
@@ -93,7 +111,7 @@ local function init(busted)
   local stub   = busted.require 'luassert.stub'
   local match  = busted.require 'luassert.match'
 
-  require 'busted.fixtures'  -- just load into the environment, not exposing it
+  require 'busted.fixtures' -- just load into the environment, not exposing it
 
   busted.export('assert', assert)
   busted.export('spy', spy)
