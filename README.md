@@ -75,15 +75,15 @@ Assuming you have luarocks installed:
 Install these dependencies for core testing:
 
 ```
-luarocks install moonscript
+luarocks --local install moonscript
 ```
 
 Then to reinstall and run tests:
 
 ```
-luarocks remove busted --force
-luarocks make
-busted spec
+luarocks --local remove busted --force
+luarocks --local make
+~/.luarocks/bin/busted spec
 ```
 
 Docker
