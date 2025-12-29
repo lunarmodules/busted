@@ -58,9 +58,9 @@ local rewrite_traceback = function(fname, trace)
 
   for line in trace:gmatch('[^\r\n]+') do
     j = j + 1
-    line = rewrite_one(line, '%s*(.-):(%d+): ', ':%d:')
-    line = rewrite_one(line, '<(.*):(%d+)>', ':%d>')
-    lines[j] = line
+    local newline = rewrite_one(line, '%s*(.-):(%d+): ', ':%d:')
+    newline = rewrite_one(newline, '<(.*):(%d+)>', ':%d>')
+    lines[j] = newline
   end
 
   return '\n' .. table.concat(lines, trace:match('[\r\n]+')) .. '\n'
