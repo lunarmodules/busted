@@ -40,7 +40,7 @@ dependencies = {
   'say >= 1.4-1',
   'luassert >= 1.9.0-1',
   'lua-term >= 0.1',
-  'penlight >= 1.3.2',
+  'penlight >= 1.15.0',
   'mediator_lua >= 1.1.1',
 }
 
