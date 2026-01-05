@@ -1,6 +1,45 @@
+local function detect_ffi()
+  local ok, ffi = pcall(require, "ffi")
+  if not ok then
+    return { ok = false, err = tostring(ffi) }
+  end
+
+  local is_luajit = type(jit) == "table" and type(jit.version) == "string"
+
+  -- If ffi comes from the filesystem, these will usually resolve.
+  local lua_file  = package.searchpath("ffi", package.path)
+  local c_file    = package.searchpath("ffi", package.cpath)
+
+  -- Another hint: which searcher provides the loader?
+  local loader_from
+  for i, s in ipairs(package.searchers or package.loaders) do
+    local f, extra = s("ffi")
+    if type(f) == "function" then
+      loader_from = { index = i, extra = extra }
+      break
+    end
+  end
+
+  return {
+    ok = true,
+    is_luajit = is_luajit,
+    jit_version = is_luajit and jit.version or "Not Jit",
+    lua_file = lua_file or "nil",
+    c_file = c_file or 'nil',
+    loader_from = loader_from,
+  }
+end
+
+--[[
 local isJit = (tostring(assert):match('builtin') ~= nil)
 
 if not isJit then
+  return function() end
+end
+]]
+
+local _ffi_info = detect_ffi();
+if (not _ffi_info.ok) then
   return function() end
 end
 
