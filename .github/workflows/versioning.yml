@@ -6,10 +6,10 @@ on:
 
 jobs:
   actions-tagger:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Update release tags
         uses: Actions-R-Us/actions-tagger@v2
         with:
