@@ -70,7 +70,8 @@ return function()
       name = handler.getFullName(element),
       message = message,
       randomseed = parent and parent.randomseed,
-      isError = isError
+      isError = isError,
+      id = tostring(element)
     }
     formatted.element.trace = element.trace or debug
 
@@ -120,6 +121,12 @@ return function()
     local insertTable
 
     if status == 'success' then
+      -- Remove any failures for this test since it succeeded
+      for i = #handler.failures, 1, -1 do
+        if handler.failures[i].id == tostring(element) then
+          table.remove(handler.failures, i)
+        end
+      end
       insertTable = handler.successes
       handler.successesCount = handler.successesCount + 1
     elseif status == 'pending' then
