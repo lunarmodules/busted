@@ -1,3 +1,4 @@
 *.swp
 /luacov.report.out
 /.ignore*
+lua_modules
