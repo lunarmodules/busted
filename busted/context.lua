@@ -23,9 +23,9 @@ local function restore(state)
       rawset(_G, k, v)
     end
   end
-  local set = function(k) package.loaded[k] = state.loaded[k] end
-  for k,_ in pairs(package.loaded) do set(k) end
-  for k,_ in pairs(state.loaded) do set(k) end
+  local sync = function(k) package.loaded[k] = state.loaded[k] end
+  for k,_ in pairs(package.loaded) do sync(k) end
+  for k,_ in pairs(state.loaded) do sync(k) end
 end
 
 return function()
