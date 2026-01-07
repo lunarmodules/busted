@@ -29,3 +29,16 @@ check: _setup
 
 restyle:
     {{ git }} ls-files '*.lua' '*.rockspec' .luacheckrc .luacov | xargs {{ stylua }} --respect-ignores
+
+# release
+#    - pass tests
+#    - edit action and core with version
+#    - generate new rockspec, like old but with any diffs from scm
+#    - export SEMVER=v2.x.y
+#    - git commit -m "chore: Release v$SEMVER"
+#    - git cliff --unreleased >> notes
+#    - git tag v$SEMVER -a (edit in notes)
+#    - g push upstream master --follow-tags
+#    - luarocks make --pack-binary-rock rockspecs/busted-$SEMVER-1.rockspec
+#    - luarocks pack !$
+#    - gh release (from tag commit plus pings)
