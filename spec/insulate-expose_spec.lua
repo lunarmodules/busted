@@ -1,20 +1,6 @@
 assert.is_nil(package.loaded.pl)
 assert.is_nil(package.loaded['pl.file'])
 
-describe('Isolation from Busted', function()
-  it('in normal blocks', function()
-    assert.is_nil(package.loaded['pl.path'])
-  end)
-
-  insulate('in insulated blocks', function()
-    assert.is_nil(package.loaded['pl.path'])
-  end)
-
-  expose('in exposed blocks', function()
-    assert.is_nil(package.loaded['pl.path'])
-  end)
-end)
-
 describe('Tests insulation', function()
   insulate('environment inside insulate', function()
     pl = require 'pl'

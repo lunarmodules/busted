@@ -8,15 +8,15 @@ local loaded = false
 return function(options)
   if loaded then return function() end else loaded = true end
 
-  local busted = require 'busted.core'()
-
-  local path = busted.require 'pl.path'
-  local tablex = busted.require 'pl.tablex'
-  local term = busted.require 'term'
+  local path = require 'pl.path'
+  local tablex = require 'pl.tablex'
+  local term = require 'term'
 
   local isatty = io.type(io.stdout) == 'file' and term.isatty(io.stdout)
   options = tablex.update(require 'busted.options', options or {})
   options.output = options.output or (isatty and 'utfTerminal' or 'plainTerminal')
+
+  local busted = require 'busted.core'()
 
   local cli = require 'busted.modules.cli'(options)
   local filterLoader = require 'busted.modules.filter_loader'()
