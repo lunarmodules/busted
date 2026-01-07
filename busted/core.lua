@@ -45,7 +45,7 @@ return function()
   local system = require 'system'
 
   local busted = {}
-  busted.version = '2.2.0'
+  busted.version = '2.3.0'
 
   local root = require 'busted.context'()
   busted.context = root.ref()
