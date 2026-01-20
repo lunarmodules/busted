@@ -29,6 +29,13 @@ return function()
   end
 
   return function(rootFiles, patterns, options)
+    if type(rootFiles) ~= 'table' then
+      return nil, 'rootFiles must be a table'
+    end
+    if type(patterns) ~= 'table' then
+      return nil, 'patterns must be a table'
+    end
+
     options = options or {}
     local cwd = normalize(path.normpath(options.directory or './'))
     local verbose = options.verbose
@@ -167,7 +174,7 @@ return function()
     path_resolver:set_known_files(all_files)
 
     local graph = DependencyGraph.new()
-    graph:build(all_files, path_resolver)
+    graph:build(all_files, path_resolver, { verbose = verbose })
 
     if verbose then
       local stats = graph:stats()

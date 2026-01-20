@@ -17,7 +17,7 @@ local function default_run_command(cmd, cwd)
 
   local handle = io.popen(full_cmd)
   if not handle then
-    return nil, 'Failed to execute command'
+    return nil, 'Failed to execute command: ' .. cmd
   end
 
   local lines = {}
@@ -33,7 +33,7 @@ local function default_run_command(cmd, cwd)
 
   if has_error or (exit_code and exit_code ~= 0) then
     local err_msg = table.concat(lines, '\n')
-    return nil, err_msg ~= '' and err_msg or 'Git command failed'
+    return nil, err_msg ~= '' and err_msg or ('Git command failed: ' .. cmd)
   end
 
   return lines

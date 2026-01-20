@@ -33,7 +33,7 @@ describe('GitChanges integration', function()
     run('git add . && git commit -m "init"')
 
     local files = GitChanges.get_changed_files(test_dir)
-    assert.equals(0, #files)
+    assert.are.equal(0, #files)
   end)
 
   it('detects unstaged changes', function()
@@ -42,7 +42,7 @@ describe('GitChanges integration', function()
     write_file('foo.lua', 'return 2')
 
     local files = GitChanges.get_changed_files(test_dir)
-    assert.equals(1, #files)
+    assert.are.equal(1, #files)
     assert.matches('foo%.lua$', files[1])
   end)
 
@@ -53,7 +53,7 @@ describe('GitChanges integration', function()
     run('git add foo.lua')
 
     local files = GitChanges.get_changed_files(test_dir)
-    assert.equals(1, #files)
+    assert.are.equal(1, #files)
   end)
 
   it('detects untracked files', function()
@@ -62,7 +62,7 @@ describe('GitChanges integration', function()
     write_file('untracked.lua', '')
 
     local files = GitChanges.get_changed_files(test_dir)
-    assert.equals(1, #files)
+    assert.are.equal(1, #files)
     assert.matches('untracked%.lua$', files[1])
   end)
 
@@ -73,7 +73,7 @@ describe('GitChanges integration', function()
     run('git add . && git commit -m "new"')
 
     local files = GitChanges.get_changes_since(test_dir, 'HEAD~1')
-    assert.equals(1, #files)
+    assert.are.equal(1, #files)
     assert.matches('new%.lua$', files[1])
   end)
 
@@ -88,7 +88,7 @@ describe('GitChanges integration', function()
     write_file('untracked.lua', '')  -- Untracked
 
     local files = GitChanges.get_changed_files(test_dir)
-    assert.equals(3, #files)
+    assert.are.equal(3, #files)
   end)
 
   it('returns paths normalized to forward slashes', function()
@@ -98,7 +98,7 @@ describe('GitChanges integration', function()
     write_file('src/nested/file.lua', 'return 2')
 
     local files = GitChanges.get_changed_files(test_dir)
-    assert.equals(1, #files)
+    assert.are.equal(1, #files)
     -- Should contain forward slashes, not backslashes
     assert.truthy(files[1]:match('src/nested/file%.lua$'))
     assert.falsy(files[1]:match('\\'))

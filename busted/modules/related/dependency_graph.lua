@@ -11,9 +11,15 @@ function DependencyGraph.new()
   return self
 end
 
-function DependencyGraph:build(files, path_resolver)
+function DependencyGraph:build(files, path_resolver, options)
+  options = options or {}
+  local verbose = options.verbose
+
   for _, filepath in ipairs(files) do
-    local parsed = RequireParser.parse_file(filepath)
+    local parsed, err = RequireParser.parse_file(filepath)
+    if not parsed and verbose then
+      io.stderr:write('Warning: Failed to parse ' .. filepath .. ': ' .. (err or 'unknown error') .. '\n')
+    end
     if parsed then
       self.forward[filepath] = {}
 
