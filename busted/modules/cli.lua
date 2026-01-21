@@ -213,7 +213,7 @@ return function(options)
     -- handles executeable lua files.
     if cliArgs['lua'] and not cliArgs['ignore-lua'] then
       local _, code = execute(
-        cliArgs['lua']..' '..args[0]..' --ignore-lua '..table.concat(args, ' ')
+        cliArgs['lua']..' '..args[0] or ''..' --ignore-lua '..table.concat(args, ' ')
       )
       exit(code)
     end
