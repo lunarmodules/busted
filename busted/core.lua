@@ -309,6 +309,11 @@ return function()
   function busted.execute(current)
     if not current then current = busted.context.get() end
     for _, v in pairs(busted.context.children(current)) do
+      -- Check for abort request (used by watch mode)
+      if busted.abortRequested then
+        busted.abortRequested = false
+        break
+      end
       local executor = executors[v.descriptor]
       if executor and not busted.skipAll then
         busted.safe(v.descriptor, function() executor(v) end, v)

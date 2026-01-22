@@ -79,6 +79,17 @@ build = {
     ['busted.modules.filter_loader']          = 'busted/modules/filter_loader.lua',
     ['busted.modules.cli']                    = 'busted/modules/cli.lua',
 
+    ['busted.modules.watch']                     = 'busted/modules/watch/init.lua',
+    ['busted.modules.watch.debouncer']           = 'busted/modules/watch/debouncer.lua',
+    ['busted.modules.watch.events']              = 'busted/modules/watch/events.lua',
+    ['busted.modules.watch.state']               = 'busted/modules/watch/state.lua',
+    ['busted.modules.watch.watcher']             = 'busted/modules/watch/watcher.lua',
+    ['busted.modules.watch.watchers.lfs']        = 'busted/modules/watch/watchers/lfs.lua',
+    ['busted.modules.watch.watchers.git']        = 'busted/modules/watch/watchers/git.lua',
+    ['busted.modules.watch.watchers.inotify']    = 'busted/modules/watch/watchers/inotify.lua',
+    ['busted.modules.watch.watchers.fsevents']   = 'busted/modules/watch/watchers/fsevents.lua',
+    ['busted.modules.watch.watchers.win32']      = 'busted/modules/watch/watchers/win32.lua',
+
     ['busted.modules.files.lua']              = 'busted/modules/files/lua.lua',
     ['busted.modules.files.moonscript']       = 'busted/modules/files/moonscript.lua',
     ['busted.modules.files.terra']            = 'busted/modules/files/terra.lua',

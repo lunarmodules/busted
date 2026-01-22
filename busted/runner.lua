@@ -195,33 +195,113 @@ return function(options)
     suppressPending = cliArgs['suppress-pending'],
   })
 
-  if cliArgs.ROOT then
-    -- Load test directories/files
-    local rootFiles = cliArgs.ROOT
+  -- Function to load test files
+  local function loadTestFiles(rootFilesOverride)
+    local rootFiles = rootFilesOverride or cliArgs.ROOT
     local patterns = cliArgs.pattern
-    local testFileLoader = require 'busted.modules.test_file_loader'(busted, cliArgs.loaders)
-    testFileLoader(rootFiles, patterns, {
-      excludes = cliArgs['exclude-pattern'],
-      verbose = cliArgs.verbose,
-      recursive = cliArgs['recursive'],
-    })
-  else
-    -- Running standalone, use standalone loader
-    local testFileLoader = require 'busted.modules.standalone_loader'(busted)
-    testFileLoader(info, { verbose = cliArgs.verbose })
+
+    if rootFiles then
+      local testFileLoader = require 'busted.modules.test_file_loader'(busted, cliArgs.loaders)
+      testFileLoader(rootFiles, patterns, {
+        excludes = cliArgs['exclude-pattern'],
+        verbose = cliArgs.verbose,
+        recursive = cliArgs['recursive'],
+      })
+    else
+      -- Running standalone, use standalone loader
+      local testFileLoader = require 'busted.modules.standalone_loader'(busted)
+      testFileLoader(info, { verbose = cliArgs.verbose })
+    end
+
+    return true
   end
 
-  local runs = cliArgs['repeat']
-  local execute = require 'busted.execute'(busted)
-  execute(runs, {
-    seed = cliArgs.seed,
-    shuffle = cliArgs['shuffle-files'],
-    sort = cliArgs['sort-files'],
-  })
+  -- Function to run tests once
+  -- Note: resetCounters=true resets failures/errors counters (used by watch mode)
+  local function runTests(resetCounters)
+    if resetCounters then
+      failures = 0
+      errors = 0
+      busted.skipAll = false
+    end
 
-  busted.publish({ 'exit' })
+    local runs = cliArgs['repeat']
+    local executeModule = require 'busted.execute'(busted)
+    executeModule(runs, {
+      seed = cliArgs.seed,
+      shuffle = cliArgs['shuffle-files'],
+      sort = cliArgs['sort-files'],
+    })
 
-  if options.standalone or failures > 0 or errors > 0 then
-    exit(failures + errors, forceExit)
+    return failures + errors
+  end
+
+  -- Reset counters before initial loading
+  -- (errors may be recorded during file loading if no files match)
+  failures = 0
+  errors = 0
+  busted.skipAll = false
+
+  -- Initial test file loading
+  local loadOk, loadExitCode = loadTestFiles()
+  if not loadOk then
+    if not cliArgs.watch then
+      exit(loadExitCode or 0, forceExit)
+    end
+  end
+
+  -- Check if watch mode is enabled
+  if cliArgs.watch then
+    local WatchMode = require 'busted.modules.watch'
+    local watchMode = WatchMode.new(busted, cliArgs)
+
+    -- Function to reload and run tests in watch mode
+    local function watchRunTests(filesOverride)
+      -- Reset counters for each watch run
+      failures = 0
+      errors = 0
+      busted.skipAll = false
+
+      -- Preserve the old context env (contains busted API: describe, it, etc.)
+      local oldctx = busted.context.get()
+
+      -- Clear context for fresh run
+      busted.context.clear()
+      local ctx = busted.context.get()
+
+      -- Restore env and other properties from old context
+      for k, v in pairs(oldctx) do
+        ctx[k] = v
+      end
+
+      -- Reload test files
+      local ok, loadErr = pcall(function()
+        loadTestFiles(filesOverride)
+      end)
+
+      if not ok then
+        io.stderr:write('Error loading tests: ' .. tostring(loadErr) .. '\n')
+        return 1
+      end
+
+      -- Run tests (don't reset counters as we already did above)
+      local exitCode = runTests(false)
+      watchMode:set_exit_code(exitCode)
+      return exitCode
+    end
+
+    -- Start watch mode
+    local exitCode = watchMode:start(watchRunTests)
+    busted.publish({ 'exit' })
+    exit(exitCode, forceExit)
+  else
+    -- Normal execution (non-watch mode)
+    -- Don't reset counters as we already did before loadTestFiles()
+    runTests(false)
+    busted.publish({ 'exit' })
+
+    if options.standalone or failures > 0 or errors > 0 then
+      exit(failures + errors, forceExit)
+    end
   end
 end

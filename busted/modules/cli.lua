@@ -164,6 +164,14 @@ return function(options)
   cli:flag('--[no-]suppress-pending', 'suppress `pending` test output', false, processOption)
   cli:flag('--[no-]defer-print', 'defer print to when test suite is complete', false, processOption)
 
+  -- Watch mode options
+  cli:flag('--watch', 'watch for file changes and rerun tests', false, processOption)
+  cli:option('--watch-delay=MS', 'debounce delay in milliseconds', '300', processNumber)
+  cli:option('--watch-ext=EXT', 'additional file extensions to watch (comma-separated)', nil, processList)
+  cli:option('--watch-include=GLOB', 'glob patterns to include (comma-separated)', nil, processList)
+  cli:option('--watch-exclude=GLOB', 'glob patterns to exclude (comma-separated)', nil, processList)
+  cli:flag('--watch-follow-symlinks', 'follow symlinks when watching', false, processOption)
+
   local function parse(args)
     -- Parse the cli arguments
     local cliArgs, cliErr = cli:parse(args)
@@ -247,6 +255,21 @@ return function(options)
     end
 
     cliArgs['repeat'] = tonumber(cliArgs['repeat'])
+
+    -- Validate watch mode options
+    if cliArgs.watch then
+      if cliArgs['repeat'] and cliArgs['repeat'] > 1 then
+        return nil, appName .. ': error: --watch and --repeat are mutually exclusive'
+      end
+      if cliArgs.coverage then
+        return nil, appName .. ': error: --watch and --coverage are mutually exclusive'
+      end
+    end
+
+    -- Fixup watch mode options
+    cliArgs['watch-ext'] = fixupList(cliArgs['watch-ext'] or {})
+    cliArgs['watch-include'] = fixupList(cliArgs['watch-include'] or {})
+    cliArgs['watch-exclude'] = fixupList(cliArgs['watch-exclude'] or {})
 
     return cliArgs
   end
