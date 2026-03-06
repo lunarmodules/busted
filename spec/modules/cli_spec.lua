@@ -324,6 +324,18 @@ describe('Tests command-line interface', function()
     local args = cli:parse({ '-e', 'statement1', '-e', 'statement2' })
     assert.is_same({'statement1', 'statement2'}, args.e)
   end)
+  describe('Tests with --lua argument', function()
+    local execute = spy.on(require 'busted.compatibility', "execute")
+    stub(require 'busted.compatibility', "exit")
+
+    it('quotes args if lua and not ignore lua', function()
+      local cli = require 'busted.modules.cli' ()
+      cli:parse({ "--lua=lua", "-e=\"print('hello')\"", '--filter="Some test"' })
+      assert.spy(execute).was_called_with(
+        'lua --ignore-lua "--lua=lua" "-e=\\"print(\'hello\')\\"" "--filter=\\\"Some test\\""'
+      )
+    end)
+  end)
 end)
 
 describe('Tests using .busted tasks', function()
