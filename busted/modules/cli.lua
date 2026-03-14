@@ -1,8 +1,7 @@
 local utils = require 'busted.utils'
 local path = require 'pl.path'
 local tablex = require 'pl.tablex'
-local exit = require 'busted.compatibility'.exit
-local execute = require 'busted.compatibility'.execute
+local compatibility = require 'busted.compatibility'
 
 return function(options)
   local appName = ''
@@ -212,10 +211,14 @@ return function(options)
     -- Switch lua, we should rebuild this feature once luarocks changes how it
     -- handles executeable lua files.
     if cliArgs['lua'] and not cliArgs['ignore-lua'] then
-      local _, code = execute(
-        cliArgs['lua']..' '..args[0] or ''..' --ignore-lua '..table.concat(args, ' ')
+      local end_args = ''
+      for _, arg in ipairs(args) do
+        end_args = end_args .. ' "' .. arg:gsub('"','\\"') .. '"'
+      end
+      local _, code = compatibility.execute(
+        cliArgs["lua"] .. " " .. (args[0] or '') .. ' --ignore-lua' .. end_args
       )
-      exit(code)
+      compatibility.exit(code)
     end
 
     -- Ensure multi-options are in a list
