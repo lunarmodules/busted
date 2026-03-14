@@ -216,7 +216,7 @@ return function(options)
         end_args = end_args .. ' "' .. arg:gsub('"','\\"') .. '"'
       end
       local _, code = compatibility.execute(
-        cliArgs["lua"] .. " " .. (args[0] and args[0] .. ' ' or '') .. '--ignore-lua' .. end_args
+        cliArgs["lua"] .. " " .. (args[0] or '') .. ' --ignore-lua' .. end_args
       )
       compatibility.exit(code)
     end
