@@ -268,7 +268,8 @@ OPTIONS:
     coverage = true
   },
   default = {
-    verbose = true
+    verbose = true,
+    ["suppress-pending"] = true
   },
   apiUnit = {
     tags = "api",
@@ -282,7 +283,14 @@ OPTIONS:
               will run the equivalent of
               <code>busted --coverage --tags=api --verbose spec/unit</code>. If you only
               run <code>busted</code>, it will run the equivalent of
-              <code>busted --coverage --verbose</code>.
+              <code>busted --coverage --verbose --suppress-pending</code>.
+            </p>
+
+            <p>
+              Note that <code>.busted</code> files are parsed as Lua files,
+              meaning that any options containing characters that are invalid
+              for Lua names (such as hyphens) must be surrounded by quotes and
+              square brackets as shown above.
             </p>
 
             <h4>Standalone</h4>
