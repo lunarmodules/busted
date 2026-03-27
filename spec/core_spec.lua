@@ -13,6 +13,29 @@ assert(type(mock) == 'table')
 assert(type(match) == 'table')
 assert(type(assert) == 'table')
 
+describe('retry test', function()
+  local attempt_count = 0
+
+  before_each(function()
+    attempt_count = attempt_count + 1
+    print("Before each for attempt " .. attempt_count)
+  end)
+
+  after_each(function()
+    print("After each for attempt " .. attempt_count)
+  end)
+
+  it('should succeed on second attempt', function()
+    set_retries(2)  -- 3 total attempts
+    print("Running attempt " .. attempt_count)
+    if attempt_count < 3 then
+      assert.is_true(false, 'Failing attempt ' .. attempt_count)
+    else
+      assert.is_true(true, 'Succeeding on attempt ' .. attempt_count)
+    end
+  end)
+end)
+
 describe('Before each', function()
   local test_val = false
 
