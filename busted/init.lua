@@ -33,7 +33,7 @@ local function init(busted)
       local old_finally = finally
       finally = function()
         fn()
-        ;(old_finally or function() end)()
+        (old_finally or function() end)()
       end
     end
     element.env.pending = busted.pending
