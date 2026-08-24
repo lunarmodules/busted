@@ -30,10 +30,10 @@ local function init(busted)
 
     block.rejectAll(element)
     element.env.finally = function(fn)
-      local old_finally = finally
+      local old_finally = finally or function() end
       finally = function()
         fn()
-        (old_finally or function() end)()
+        old_finally()
       end
     end
     element.env.pending = busted.pending
