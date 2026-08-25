@@ -79,6 +79,12 @@ build = {
     ['busted.modules.filter_loader']          = 'busted/modules/filter_loader.lua',
     ['busted.modules.cli']                    = 'busted/modules/cli.lua',
 
+    ['busted.modules.related']                  = 'busted/modules/related/init.lua',
+    ['busted.modules.related.dependency_graph'] = 'busted/modules/related/dependency_graph.lua',
+    ['busted.modules.related.git_changes']      = 'busted/modules/related/git_changes.lua',
+    ['busted.modules.related.path_resolver']    = 'busted/modules/related/path_resolver.lua',
+    ['busted.modules.related.require_parser']   = 'busted/modules/related/require_parser.lua',
+
     ['busted.modules.files.lua']              = 'busted/modules/files/lua.lua',
     ['busted.modules.files.moonscript']       = 'busted/modules/files/moonscript.lua',
     ['busted.modules.files.terra']            = 'busted/modules/files/terra.lua',

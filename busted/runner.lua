@@ -199,6 +199,33 @@ return function(options)
     -- Load test directories/files
     local rootFiles = cliArgs.ROOT
     local patterns = cliArgs.pattern
+
+    -- If --related flag or --related-files is set, filter to only related test files
+    if cliArgs.related or cliArgs['related-files'] then
+      local relatedLoader = require 'busted.modules.related'()
+      local filteredFiles, err = relatedLoader(rootFiles, patterns, {
+        excludes = cliArgs['exclude-pattern'],
+        recursive = cliArgs['recursive'],
+        lpath = cliArgs.lpath,
+        directory = cliArgs.directory,
+        base = cliArgs['related-base'],
+        verbose = cliArgs.verbose,
+        files = cliArgs['related-files'],
+      })
+
+      if err then
+        io.stderr:write(appName .. ': error: ' .. err .. '\n')
+        exit(1, forceExit)
+      end
+
+      if #filteredFiles == 0 then
+        io.stdout:write('No tests related to git changes.\n')
+        exit(0, forceExit)
+      end
+
+      rootFiles = filteredFiles
+    end
+
     local testFileLoader = require 'busted.modules.test_file_loader'(busted, cliArgs.loaders)
     testFileLoader(rootFiles, patterns, {
       excludes = cliArgs['exclude-pattern'],

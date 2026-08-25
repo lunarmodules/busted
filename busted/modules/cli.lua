@@ -162,6 +162,9 @@ return function(options)
   cli:flag('--[no-]sort-tests', 'sort test order within a file', processOption)
   cli:flag('--[no-]suppress-pending', 'suppress `pending` test output', false, processOption)
   cli:flag('--[no-]defer-print', 'defer print to when test suite is complete', false, processOption)
+  cli:flag('--related', 'only run tests related to uncommitted git changes. Note: dynamic requires like require(var) are not detected.', false, processOption)
+  cli:option('--related-files=FILES', 'run tests related to specified files (comma-separated). Skips git detection.', nil, processOption)
+  cli:option('--related-base=REF', 'git ref to compare against for --related (default: HEAD)', 'HEAD', processOption)
 
   local function parse(args)
     -- Parse the cli arguments

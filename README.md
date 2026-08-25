@@ -86,6 +86,50 @@ luarocks make
 busted spec
 ```
 
+Running Related Tests
+--------------------
+
+The `--related` option allows you to run only the tests that are affected by recent code changes. This is useful for faster feedback during development.
+
+### Basic Usage
+
+Run tests related to uncommitted git changes:
+
+```bash
+busted --related
+```
+
+Run tests related to specific files (skips git, works anywhere):
+
+```bash
+busted --related-files=src/mymodule.lua,src/utils.lua
+```
+
+Compare against a specific git ref instead of HEAD:
+
+```bash
+busted --related --related-base=main
+```
+
+### How It Works
+
+1. **Detects changed files** - Either from git (staged, unstaged, and untracked) or from an explicit file list
+2. **Builds a dependency graph** - Parses all Lua files to find `require()`, `loadfile()`, and `dofile()` statements
+3. **Finds affected tests** - Uses transitive closure to find all test files that depend on the changed files
+
+### Known Limitations
+
+- **Dynamic requires are not detected** - Calls like `require(variable)` or `require("prefix" .. name)` cannot be statically analyzed
+- **External modules are ignored** - Only project-local files are tracked in the dependency graph
+- **Large files skipped** - Files over 1MB are skipped to avoid performance issues (likely generated/minified code)
+
+### Performance Considerations
+
+For large codebases:
+- First run may take a few seconds to build the dependency graph
+- Use `--verbose` to see dependency graph statistics
+- Consider using `--related=files` with explicit file lists for faster execution in CI
+
 Docker
 ------
 
