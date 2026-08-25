@@ -1,5 +1,5 @@
 local pretty = require 'pl.pretty'
-local term = require 'term'
+local system = require 'system'
 local luassert = require 'luassert'
 local io = io
 local type = type
@@ -9,7 +9,7 @@ local io_write = io.write
 local io_flush = io.flush
 local colors
 
-local isatty = io.type(io.stdout) == 'file' and term.isatty(io.stdout)
+local isatty = io.type(io.stdout) == 'file' and system.isatty(io.stdout)
 
 return function(options)
   local busted = require 'busted'
@@ -34,7 +34,7 @@ return function(options)
     luassert:set_parameter("TableErrorHighlightColor", "none")
 
   elseif cliArgs.color then
-    colors = require 'term.colors'
+    colors = require 'busted.outputHandlers.colors'
     luassert:set_parameter("TableErrorHighlightColor", "red")
 
   else
@@ -43,7 +43,7 @@ return function(options)
       colors = setmetatable({}, {__index = function() return function(s) return s end end})
       luassert:set_parameter("TableErrorHighlightColor", "none")
     else
-      colors = require 'term.colors'
+      colors = require 'busted.outputHandlers.colors'
       luassert:set_parameter("TableErrorHighlightColor", "red")
     end
   end

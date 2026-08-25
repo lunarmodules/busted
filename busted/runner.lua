@@ -10,9 +10,9 @@ return function(options)
 
   local path = require 'pl.path'
   local tablex = require 'pl.tablex'
-  local term = require 'term'
+  local system = require 'system'
 
-  local isatty = io.type(io.stdout) == 'file' and term.isatty(io.stdout)
+  local isatty = io.type(io.stdout) == 'file' and system.isatty(io.stdout)
   options = tablex.update(require 'busted.options', options or {})
   options.output = options.output or (isatty and 'utfTerminal' or 'plainTerminal')
 

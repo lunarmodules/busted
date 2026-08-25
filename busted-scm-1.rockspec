@@ -35,11 +35,10 @@ description = {
 dependencies = {
   'lua >= 5.1',
   'lua_cliargs >= 3.0',
-  'luasystem >= 0.2.0',
+  'luasystem >= 0.3.0',
   'dkjson >= 2.1.0',
   'say >= 1.4-1',
   'luassert >= 1.9.0-1',
-  'lua-term >= 0.1',
   'penlight >= 1.15.0',
   'mediator_lua >= 1.1.1',
 }
@@ -90,6 +89,7 @@ build = {
     ['busted.outputHandlers.TAP']             = 'busted/outputHandlers/TAP.lua',
     ['busted.outputHandlers.json']            = 'busted/outputHandlers/json.lua',
     ['busted.outputHandlers.junit']           = 'busted/outputHandlers/junit.lua',
+    ['busted.outputHandlers.colors']          = 'busted/outputHandlers/colors.lua',
     ['busted.outputHandlers.gtest']           = 'busted/outputHandlers/gtest.lua',
     ['busted.outputHandlers.sound']           = 'busted/outputHandlers/sound.lua',
 
