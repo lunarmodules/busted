@@ -181,6 +181,13 @@ describe('Tests the busted command-line options', function()
     assert.is_equal(3, errcnt)
   end)
 
+  it('tests running with retries', function()
+    local success, errcnt, out = executeBusted('--pattern=cl_retries.lua$')
+    assert.is_false(success)
+    assert.is_equal(2, errcnt)
+    assert.is_truthy(out:match('1 success'))
+  end)
+
   it('tests running with -l specified', function()
     local _, _, result = executeBusted('-l --pattern=cl_list.lua$')
     local expected = 'spec/cl_list.lua:4: Tests list test 1\n' ..
