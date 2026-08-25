@@ -84,7 +84,7 @@ return function()
       if not (options.suppressPending and status == 'pending') then
         local fullname = getFullName()
         local trace = element.trace
-        if trace and trace.what == 'Lua' then
+        if trace and (trace.what == 'Lua' or trace.what == 'main') then
           fullname = trace.short_src .. ':' .. trace.currentline .. ': ' .. fullname
         end
         print(fullname)
