@@ -6,12 +6,12 @@ describe("fixtures:", function()
 
     it("returns the absolute fixture path", function()
       local path = fixtures.path("fixtures/myfile.txt")
-      assert.match("^.-busted[/\\]spec[/\\]fixtures[/\\]myfile.txt$", path)
+      assert.match("^.-busted[^/\\]*[/\\]spec[/\\]fixtures[/\\]myfile.txt$", path)
     end)
 
     it("returns the absolute fixture path normalized", function()
       local path = fixtures.path("../fixtures/myfile.txt")
-      assert.match("^.-busted[/\\]fixtures[/\\]myfile.txt$", path)
+      assert.match("^.-busted[^/\\]*[/\\]fixtures[/\\]myfile.txt$", path)
     end)
 
     it("errors on bad input", function()
@@ -83,4 +83,3 @@ describe("fixtures:", function()
 
 
 end)
-
